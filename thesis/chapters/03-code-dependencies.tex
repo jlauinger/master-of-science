@@ -1,0 +1,32 @@
+%% -----------------------------------------------------------------------------
+
+\chapter{Code dependencies}\label{ch:code-dependencies}
+
+Developers should not reinvent the wheel, instead they should make use of dependencies.
+
+Code is imported into a project. The code is reused, but the project of course also inherits
+all security vulnerabilities of the dependencies.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{The Go modules system}\label{sec:go-modules}
+
+How are Go modules organized? How is the Go.mod file written? How is code imported?
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Software dependency graphs}\label{sec:dependency-graphs}
+
+Since lots of projects use the same dependencies, we can link projects in a dependency
+graph that shows usage of libraries in the software landscape.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Open source dependencies}\label{sec:open-source-dependencies}
+
+Especially open source software makes it easy to analyze the dependency graph, and with
+open source it is very important to reuse dependencies because time is valuable and a lot
+of open source projects are non-profit.

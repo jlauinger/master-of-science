@@ -1,12 +1,32 @@
-# How To Use
+# Identify Unsafe Usages in Go Code
 
-In this version of the template, all class files are included.
-However, fonts still have to be installed, see the first link in the next section to acquire the fonts.
+Modern programming languages like Rust and Go have mechanisms to protect potential
+unsafe usages, e.g., derefences of raw pointers or modifying static variables. Thus, it is
+recommended to avoid unsafe usages. However, if a developer wants to avoid unsafe
+usages and potential security vulnerabilities caused by these usages, they do not only need
+to check their code but also their dependencies.
 
-The main file is `thesis.txt` which should be modified by the student to update the structure, metadata, and includes.
-All content files should be in some sub folder, the other files in the main folder must not be modified.
+To provide a developer the power to understand the unsafe usages within their code base,
+tools like cargo-geiger [0] exists. Unfortunately, such a tool does not exist by today for Go.
+Thus, an in-depth analysis of how many Go projects include direct and indirect unsafe
+usages and if these projects are vulnerable does not exist, e.g., to buffer overflows [2,3,4].
+Within this work, the aim is to develop a tool, probably based on go vet [1], that can identify
+unsafe usages in Go projects - similar to cargo-geiger. Based on this tool, the thesis should
+evaluate how common unsafe usages in Go are and try to analyze if vulnerabilities caused
+by unsafe usages exist.
 
-# Important Links
+[0] ​ https://github.com/anderejd/cargo-geiger
+[1] ​ https://golang.org/cmd/vet/
+[2] Larochelle, D., & Evans, D. (2001). Statically detecting likely buffer overflow
+    vulnerabilities. In ​ 10th USENIX Security Symposium ​ .
+[3] Alnaeli, S. M., Sarnowski, M., Aman, M. S., Abdelgawad, A., & Yelamarthi, K. (2017).
+    Source Code Vulnerabilities in IoT Software Systems. ​ Advances in Science, Technology and
+    Engineering Systems Journal ​ , ​ 2 ​ (3), 1502-1507.
+[4] Wang, C., Zhang, M., Jiang, Y., Zhang, H., Xing, Z., & Gu, M. Escape from Escape
+    Analysis of Golang. ICSE 2020.
+
+
+## Important Links
 
 The TUDa Corporate Design and fonts: https://www.intern.tu-darmstadt.de/arbeitsmittel/corporate_design_vorlagen/index.de.jsp
 
@@ -22,24 +42,8 @@ Information on how to submit your final thesis in an electronic form can be foun
 
 Information about plagiarism and scientific ethic are available on the [webpage of the FB 20](https://www.informatik.tu-darmstadt.de/studium_fb20/im_studium/studienbuero/plagiarismus/index.de.jsp). 
 
-# Other Material to Write a Good Thesis
+## Other Material to Write a Good Thesis
 
 *  “How to write a successful Bachelor’s/Master’s thesis” by Elmar Jürgens from TUM <https://thesisguide.org/>
 *  ["Writing academic papers"](https://sarahnadi.org/writing-papers/) by Sarah Nadi from [University of Alberta](https://sarahnadi.org/smr/), former post-doc in our group. 
 
-# For Supervisors: Thesis Template
-
-**Web interface**:
-There is a button on github, on the top of the page called "use this template", that creates a copy of this repository.
-
-**Command line**:
-To create a new thesis repoistory from the template, create a new repository "thesis-YYYY-StudentLastName" and run:
-
-    git clone --bare git@github.com:stg-tud/thesis-template.git
-    cd thesis-template.git
-    git push --mirror git@github.com:stg-tud/thesis-YYYY-StudentLastName.git
-    cd ..
-    rm -rf thesis-template.git
-
-**Then**:
-From the GitHub webpage, add “[supervisor @yourgithubname]” to the repository description, to make it easier to identify the one responsible for the repository.
