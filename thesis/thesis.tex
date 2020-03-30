@@ -1,0 +1,72 @@
+% !TEX jobname = thesis
+% !TEX output_directory = output
+
+\documentclass[accentcolor=tud8b,11pt,paper=a4,bigchapter,twoside]{tudreport}
+
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman, english]{babel}
+\usepackage{hyperref}
+
+\usepackage{enumitem}
+\usepackage{setspace}
+\setstretch{1.1}
+
+\usepackage[none]{tocbibind}
+
+% Two commands which could be helpful for you ...
+% ... First, a command to handle todos in a simple way
+\newcommand{\todo}[1]{{\color{red}{\textbf{TODO: }#1}}}
+% ... Second, a command which highlights numbers you need to check.
+\newcommand{\checkNum}[1]{{\textcolor{orange}{\textit{#1}}}}
+% If you have checked all information in red, change the color to black.
+\newcommand{\checkTitle}[1]{{\textcolor{red}{\textit{#1}}}}
+\input{content/title}
+
+
+\begin{document}
+% front page
+\pagenumbering{roman}%
+\maketitle%
+% declaration
+\input{content/declaration}%
+\cleardoublepage%
+% abstract
+\input{content/abstract}%
+\cleardoublepage%
+% table of contents
+\renewcommand\contentsname{Table of Contents}%
+\tableofcontents%
+\cleardoublepage%
+\pagenumbering{arabic}%
+
+
+% It is recommended to put chapters into different files
+\input{content/introduction}
+
+% ... but it is up to you how you organize your files.
+\chapter{Overview}
+\chapter{Details}
+\input{content/implementation}
+\chapter{Evaluation}
+\chapter{Related work}
+\chapter{Summary}
+
+\appendix
+
+% % list of figures
+% \newpage
+% \renewcommand{\listfigurename}[0]{List of Figures}
+% \addcontentsline{toc}{chapter}{\listfigurename}
+% \listoffigures
+% \todo{The list of figures is optional, you can remove it if you don't feel the need.}
+
+% bibliography
+\newpage
+\singlespacing
+\renewcommand{\bibname}{References}
+\addcontentsline{toc}{chapter}{\bibname}
+%\nocite{*}
+\bibliographystyle{unsrt}
+\bibliography{content/references}
+
+\end{document}
