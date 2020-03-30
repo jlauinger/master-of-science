@@ -18,7 +18,7 @@ to check their code but also their dependencies.
 To provide a developer the power to understand the unsafe usages within their code base,
 tools like cargo-geiger \cite{CargoGeiger} exists. Unfortunately, such a tool does not exist by today for Go.
 Thus, an in-depth analysis of how many Go projects include direct and indirect unsafe
-usages and if these projects are vulnerable does not exist, e.g., to buffer overflows 
+usages and if these projects are vulnerable does not exist, e.g., to buffer overflows
 \cite{larochelle2001, alnaeli2017, wang2020}.
 Within this work, the aim is to develop a tool, probably based on go vet \cite{GoVet}, that can identify
 unsafe usages in Go projects - similar to cargo-geiger. Based on this tool, the thesis should
@@ -71,4 +71,9 @@ analysis of identified security vulnerabilities.
 
 Finally, chapter 8 concludes the work with a discussion of the results and possible future work.
 
-
+\begin{figure}
+\centering
+\includegraphics[width=4cm]{assets/images/uml}
+\caption{Sample UML Diagram}
+\label{uml_example}
+\end{figure}

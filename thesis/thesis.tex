@@ -3,7 +3,7 @@
 
 \documentclass[
     accentcolor=tud9c,
-    colorbacktitle,
+    %colorbacktitle,
     ruledheaders=chapter,
     class=book,
     11pt,
@@ -15,6 +15,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[ngerman, english]{babel}
 \usepackage{hyperref}
+\usepackage{titlesec}
 
 \usepackage{enumitem}
 \usepackage{setspace}
@@ -29,8 +30,15 @@
 \newcommand{\checkNum}[1]{{\textcolor{orange}{\textit{#1}}}}
 % If you have checked all information in red, change the color to black.
 %\newcommand{\checkTitle}[1]{{\textcolor{red}{\textit{#1}}}}
-\newcommand{\checkTitle}[1]{{\textcolor{white}{\textit{#1}}}}
+\newcommand{\checkTitle}[1]{{\textcolor{black}{\textit{#1}}}}
 \input{frontback/title}
+
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+
+\titlespacing\section{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsubsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
 
 
 \begin{document}
