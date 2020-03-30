@@ -33,8 +33,8 @@ The projects contain huge repositories including:
 Enter this on https://developer.github.com/v4/explorer
 
 ```
-query { 
-  search(query:"language:Go", type:REPOSITORY, first:100) { 
+query {
+  search(query:"language:Go", type:REPOSITORY, first:100) {
     repositoryCount
     edges {
       cursor
@@ -51,3 +51,12 @@ query {
   }
 }
 ```
+
+
+## License
+
+Copyright (c) 2020 Johannes Lauinger
+
+Licensed under the terms of the <a rel="license" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU GENERAL PUBLIC LICENSE, Version 3</a>.
+
+
