@@ -23,7 +23,7 @@ func main() {
 	for page := 1; page <= 5; page++ {
 		repos, _, err := client.Search.Repositories(context.Background(), "language:Go", &github.SearchOptions{
 			ListOptions: github.ListOptions{
-				PerPage: 1, // 100,
+				PerPage: 100, // 100,
 				Page: page,
 			},
 		})
