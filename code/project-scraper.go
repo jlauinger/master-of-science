@@ -10,11 +10,11 @@ import (
 
 	"github.com/google/go-github/github"
 
-	"gopkg.in/src-d/go-git.v4"
+	"github.com/go-git/go-git/v5"
 )
 
 func main() {
-	downloadPath := "./download"
+	downloadPath := "../download"
 
 	fmt.Println("Getting top 500 Go projects...")
 
@@ -71,6 +71,7 @@ func main() {
 				cmd.Dir = goModPath
 
 				err = cmd.Run()
+
 				if err != nil {
 					fmt.Printf("ERROR: %v!", err)
 				} else {

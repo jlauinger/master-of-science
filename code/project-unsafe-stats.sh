@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOWNLOAD_DIR=/home/johannes/studium/s14/masterarbeit/code/download
+DOWNLOAD_DIR=/home/johannes/studium/s14/masterarbeit/download
 PROJECT_RESULTS_FILE=unsafe_usages.csv
 TOTAL_RESULTS_FILE=$DOWNLOAD_DIR/total_unsafe_usages.csv
 
@@ -15,7 +15,6 @@ for PROJECT in $DOWNLOAD_DIR/*; do
   fi
 
   cd $PROJECT
-
 
   go mod vendor 2>/dev/null 1>/dev/null
   if [ "$?" -ne "0" ]; then
