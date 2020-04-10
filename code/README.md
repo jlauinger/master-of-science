@@ -57,7 +57,7 @@ query {
 
 ```
 for dir in $(go mod vendor -v 2>&1 | grep -v "#" | sort | uniq); do 
-lines=$(ag unsafe.Pointer vendor/$dir | wc -l); 
+lines=$(rg unsafe.Pointer vendor/$dir | wc -l); 
 echo "$lines $dir"; 
 done | sort -n | grep -ve "^0 "
 ```

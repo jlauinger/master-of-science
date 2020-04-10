@@ -25,7 +25,7 @@ for PROJECT in $DOWNLOAD_DIR/*; do
   echo "Module;Unsafe Pointer Usages" > $PROJECT/$PROJECT_RESULTS_FILE
 
   for MODULE in $(go mod vendor -v 2>&1 | grep -v "#" | sort | uniq); do
-    LINES=$(ag unsafe.Pointer vendor/$MODULE | wc -l)
+    LINES=$(rg unsafe.Pointer vendor/$MODULE | wc -l)
     echo "$LINES $MODULE"
     echo "$MODULE;$LINES" >> $PROJECT/$PROJECT_RESULTS_FILE
     echo "$MODULE;$LINES" >> $TOTAL_RESULTS_FILE
