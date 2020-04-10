@@ -1,4 +1,5 @@
 download/
+*-logoutput.txt
 
 # Binaries for programs and plugins
 *.exe
