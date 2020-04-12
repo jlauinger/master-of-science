@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	downloadPath := "../download"
+	downloadPath := "/home/johannes/studium/s14/masterarbeit/download"
 
 	fmt.Println("Getting top 500 Go projects...")
 
