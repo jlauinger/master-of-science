@@ -175,7 +175,7 @@ pattern = "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQR
 print(pattern)
 ```
 
-The pattern consists of letters in descending order. This is a pattern that is easily recognizable in the hex outputs
+The pattern consists of letters in ascending order. This is a pattern that is easily recognizable in the hex outputs
 of GDB and really useful to determine the return address offset on the stack.
 
 In GDB, start the program like this:

@@ -51,7 +51,7 @@ then executing it.
 Another mitigation is address space layout randomization (ASLR) which randomizes the addresses of dynamically linked
 libraries, or maybe even functions inside the binary itself, when loading it into the RAM. This way, we can not use GDB
 to analyze the binary locally and determine addresses where we might jump to, because on the exploit target (possibly
-remote the addresses would be completely different).
+remote) the addresses would be completely different.
 
 Fortunately for this proof of concept, Go does not really use ASLR. The binaries produces by the Go compiler have
 deterministic addresses, and at least this small program gets statically linked so there are no dynamic libraries that
@@ -232,7 +232,7 @@ There is probably no `mov rax, 10`, so instead what could be useful is a `mov ra
 to set $rax to zero, and then `add rax, 1` to slowly increase it up to 10.
 
 I could find a `mov eax, 0; ret;` gadget at address `0x000000000045b900` and debugging in GDB showed that this is indeed
-enough to set the whole $rax to zero ($eax is the lower 32 bit of the 64 bit register $rax). Then, combining it with the
+enough to set the whole rax to zero ($eax is the lower 32 bit of the 64 bit register $rax). Then, combining it with the
 `add rax, 2; mov dword ptr [rip + 0x14d61f], eax; ret;` gadget applied 5 times we can increment $rax to 10. The gadget
 will also move the value to some address in memory but we can just ignore that.
 
@@ -255,6 +255,9 @@ I found a solution using the `pop rax; or dh, dh; ret;` gadget. It allows to set
 the above $rax increment workaround unnecessary. I leave it in anyways. The important part is, we can now set $rax to
 some dummy address before executing the pop rdi gadget, and then the program does not crash. I use the address of the
 fourth memory page from above, the heap, for this: `0x00567000`.
+
+Finally, we need the syscall instruction itself. Fortunately, this is straightforward as there is a `syscall; ret;` 
+gadget.
 
 Now we can put together the gadget addresses and values. Before them, we put the same padding to offset to the stored
 return address on the stack.
@@ -359,7 +362,7 @@ payload += p64(buf)
 If we run the final exploit, we get the following output:
 
 ```shell script
-~/studium/s14/masterarbeit/code/exploits/code-injection $ ./exploit_rop.py        
+johannes@host-pc ~ $ ./exploit_rop.py        
 [+] Starting local process './main': pid 75369
 [*] Switching to interactive mode
 $ id
