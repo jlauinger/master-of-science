@@ -94,3 +94,6 @@ exit status 2
 Quite obvious from the big stack trace, we see that the program crashed. But more importantly, we see the `win!` output
 right at the top, which means that the `win` function was indeed executed. We don't actually care about the program
 crash, the objective was to decide which code should be executed and this was successful!
+
+
+Continue reading with [Part 3: ROP and spawning a shell](unsafe-vulnerabilities-3-rop-and-spawning-a-shell.md)
