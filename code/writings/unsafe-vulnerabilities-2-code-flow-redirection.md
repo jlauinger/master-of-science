@@ -13,7 +13,7 @@ that come with `unsafe.Pointer` and show a first problem: a possible information
 
  1. [Information leakage](unsafe-vulnerabilities-1-information-leakage.md)
  2. Code flow redirection (enjoy!)
- 3. [ROP and spawning a shell](unsafe-vulnerabilities-3-rop-and-spwaning-a-shell.md)
+ 3. [ROP and spawning a shell](unsafe-vulnerabilities-3-rop-and-spawning-a-shell.md)
 
 
 ## Buffer overflow, part 2: controlling the return address
@@ -30,7 +30,7 @@ know we did good:
 
 ```go
 func win() {
-	fmt.Println("win!")
+    fmt.Println("win!")
 }
 ```
 
@@ -41,7 +41,7 @@ automatically get the address of the `win` function:
 func address(i interface{}) int {
     addr, _ := strconv.ParseUint(fmt.Sprintf("%p", i), 0, 0)
     return int(addr)
- }
+}
 ```
 
 We assume there is a utility function to copy arrays 

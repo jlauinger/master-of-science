@@ -45,9 +45,9 @@ e.g. a TLS certificate.
 ```go
 func main() {
     // this could be some public information, e.g. version information
-	harmlessData := [8]byte{'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'}
-	// however, this could be critical private information such as a TLS private key
-	secret := [17]byte{'l', '3', '3', 't', '-', 'h', '4', 'x', 'x', '0', 'r', '-', 'w', '1', 'n', 's', '!'}
+    harmlessData := [8]byte{'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'}
+    // however, this could be critical private information such as a TLS private key
+    secret := [17]byte{'l', '3', '3', 't', '-', 'h', '4', 'x', 'x', '0', 'r', '-', 'w', '1', 'n', 's', '!'}
     
     // ...
 }
@@ -59,11 +59,11 @@ safety measures. Here, we cast the buffer into a new byte buffer, but with a big
 
 ```go
     // ...
-	// (accidentally) cast harmless buffer into a new buffer type of wrong size
-	var dangerousData = (*[8+17]byte)(unsafe.Pointer(&harmlessData[0]))
-
+    // (accidentally) cast harmless buffer into a new buffer type of wrong size
+    var dangerousData = (*[8+17]byte)(unsafe.Pointer(&harmlessData[0]))
+    
     // print (misused) buffer
-	fmt.Println(string((*dangerousData)[:]))
+    fmt.Println(string((*dangerousData)[:]))
 }
 ```
 
