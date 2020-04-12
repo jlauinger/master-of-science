@@ -1,4 +1,4 @@
-# Exploitation Exercise with Goland unsafe.Pointer: Code Flow Redirection (Part 2)
+# Exploitation Exercise with Go unsafe.Pointer: Code Flow Redirection (Part 2)
 
 In this second part, we will evolve from reading memory to redirecting the code flow. This means we will be controlling
 what is being executed. 

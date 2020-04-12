@@ -1,4 +1,4 @@
-# Exploitation Exercise with Goland unsafe.Pointer: ROP and Spawning a Shell (Part 3)
+# Exploitation Exercise with Go unsafe.Pointer: ROP and Spawning a Shell (Part 3)
 
 In this third part, we will see how to take the idea of code flow redirection one step further. We will do an arbitrary
 remote code execution using the Return Oriented Programming (ROP) technique. In the end, we will reach the classic goal
