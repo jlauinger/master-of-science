@@ -1,4 +1,4 @@
-# Exploitation Exercise with Goland unsafe.Pointer
+# Exploitation Exercise with Go unsafe.Pointer
 
 April 12, 2020. Johannes Lauinger
 
