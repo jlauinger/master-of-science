@@ -3,6 +3,8 @@ download/
 main
 .gdb_history
 venv/
+.ipynb_checkpoints/
+backup-data/
 
 # Binaries for programs and plugins
 *.exe
