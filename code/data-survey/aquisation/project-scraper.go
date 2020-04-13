@@ -5,7 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/google/go-github/github"
-	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,10 +30,11 @@ func main() {
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	writer.Write([]string{"rank", "name", "github_clone_url", "number_of_stars", "number_of_forks",
-		"github_id", "created_at", "last_pushed_at", "updated_at", "size", "checkout_path"})
+	writer.Write([]string{"project_rank", "project_name", "project_github_clone_url", "project_number_of_stars",
+		"project_number_of_forks", "project_github_id", "project_created_at", "project_last_pushed_at",
+		"project_updated_at", "project_size", "project_checkout_path"})
 
-	for page := 1; page <= 1; page++ {
+	for page := 1; page <= 5; page++ {
 		repos, _, err := client.Search.Repositories(context.Background(), "language:Go", &github.SearchOptions{
 			ListOptions: github.ListOptions{
 				PerPage: 100, // 100,

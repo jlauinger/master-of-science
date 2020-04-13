@@ -2,6 +2,7 @@ download/
 *-logoutput.txt
 main
 .gdb_history
+venv/
 
 # Binaries for programs and plugins
 *.exe
