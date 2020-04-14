@@ -8,9 +8,12 @@ import subprocess
 import pandas as pd
 
 PROJECT_DATA_FILE = "../data/projects.csv"
-MODULES_DATA_FILE = "../data/modules.csv"
-MATCHES_DATA_FILE = "../data/unsafe_matches.csv"
-VET_RESULTS_DATA_FILE = "../data/vet_results.csv"
+MODULES_DATA_FILE = "../data/modules_2.csv"
+#MODULES_DATA_FILE = "../data/modules.csv"
+MATCHES_DATA_FILE = "../data/unsafe_matches_2.csv"
+#MATCHES_DATA_FILE = "../data/unsafe_matches.csv"
+VET_RESULTS_DATA_FILE = "../data/vet_results_2.csv"
+#VET_RESULTS_DATA_FILE = "../data/vet_results.csv"
 
 MATCH_TYPES = (
     'unsafe.Pointer', 'unsafe.Sizeof', 'unsafe.Alignof', 'unsafe.Offsetof',
@@ -81,36 +84,36 @@ for i, project in projects_df.iterrows():
 
                 for file in files:
                     try:
-                        go_vet_output = get_go_vet_output(file)
+                        #go_vet_output = get_go_vet_output(file)
 
                         file_data = {
                             'file_name': file[len(module_path)+1:],
                             'file_size_bytes': int(os.popen("wc -c '" + file + "'").read().split(" ")[0]),
                             'file_size_lines': int(os.popen("wc -l '" + file + "'").read().split(" ")[0]),
                             'file_imports_unsage_pkg': subprocess.call(["grep", "unsafe", file], stdout=subprocess.DEVNULL) == 0,
-                            'file_go_vet_output': go_vet_output,
+                            'file_go_vet_output': 'NOT-RUN' #go_vet_output,
                         }
                     except:
                         print("IGNORING ERROR!")
                         continue
 
-                    try:
-                        vet_findings = [finding for finding in go_vet_output.split("\n") if len(finding) > 0]
+                    #try:
+                    #    vet_findings = [finding for finding in go_vet_output.split("\n") if len(finding) > 0]
 
-                        for vet_finding in vet_findings:
-                            try:
-                                vet_finding_data = {
-                                    'line_number': vet_finding.split(":")[2],
-                                    'message': ":".join(vet_finding.split(":")[4:]).strip(),
-                                }
+                    #    for vet_finding in vet_findings:
+                    #        try:
+                    #            vet_finding_data = {
+                    #                'line_number': vet_finding.split(":")[2],
+                    #                'message': ":".join(vet_finding.split(":")[4:]).strip(),
+                    #            }
 
-                                vet_df = vet_df.append({'project_name': project['project_name'],
-                                                        **module_data, **file_data, **vet_finding_data}, ignore_index=True)
-                            except:
-                                print("IGNORING ERROR!")
-                                continue
-                    except:
-                        print("IGNORING ERROR!")
+                    #            vet_df = vet_df.append({'project_name': project['project_name'],
+                    #                                    **module_data, **file_data, **vet_finding_data}, ignore_index=True)
+                    #        except:
+                    #            print("IGNORING ERROR!")
+                    #            continue
+                    #except:
+                    #    print("IGNORING ERROR!")
 
                     for match_type in MATCH_TYPES:
                         try:
