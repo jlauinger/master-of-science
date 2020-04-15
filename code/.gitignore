@@ -5,6 +5,7 @@ main
 venv/
 .ipynb_checkpoints/
 backup-data/
+__pycache__/
 
 # Binaries for programs and plugins
 *.exe
