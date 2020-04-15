@@ -41,6 +41,21 @@ def get_go_vet_output(file):
                     "\"" + path.basename(file) + "\" 2>&1 | grep -v \"#\"'").read()
 
 
+def parse_vet_finding(vet_finding):
+    components = vet_finding.split(":")
+
+    # sometimes they look like this "vet: file.go:42:10: error"
+    if components[0] == 'vet':
+        line_number = components[2]
+        message = ":".join(components[4:]).strip()
+    # but sometimes the leading vet is missing: "file.go:42:10: error"
+    else:
+        line_number = components[1]
+        message = ":".join(components[3:]).strip()
+
+    return line_number, message
+
+
 def get_gosec_output(file):
     # TODO: check and adopt gosec output
     return os.popen("bash -c 'cd \"" + path.dirname(file) + "\" && gosec -quiet -fmt=json'").read()

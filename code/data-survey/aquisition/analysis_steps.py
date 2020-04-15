@@ -88,10 +88,12 @@ def analyze_vet_findings(go_vet_output, file_data, module):
 
 
 def analyze_vet_finding(vet_finding, file_data, module):
+    line_number, message = parse_vet_finding(vet_finding)
+
     result = VetResult(**module.__dict__,
                        **file_data,
-                       line_number=vet_finding.split(":")[2],
-                       message=":".join(vet_finding.split(":")[4:]).strip(),
+                       line_number=line_number,
+                       message=message,
                        raw_output=vet_finding)
 
     result.write()
