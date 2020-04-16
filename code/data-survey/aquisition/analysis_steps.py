@@ -71,6 +71,8 @@ def analyze_file(file, module):
 
 
 def analyze_vet_findings(go_vet_output, file_data, module):
+    # TODO: remove trailing newline!
+
     vet_findings = [finding for finding in go_vet_output.split("\n") if len(finding) > 0]
 
     for vet_finding in vet_findings:
