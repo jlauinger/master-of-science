@@ -41,18 +41,18 @@ func analyzeProject(project *ProjectData) error {
 		}
 	}
 
-	fileToLineCountMap, err := countLines(project, files)
+	fileToLineCountMap, err := countLines(files)
 	if err != nil {
 		return err
 	}
 
 
-	fileToByteCountMap, err := countBytes(project, files)
+	fileToByteCountMap, err := countBytes(files)
 	if err != nil {
 		return err
 	}
 
-	parsedGrepLines, err := grepForUnsafe(project, files)
+	parsedGrepLines, err := grepForUnsafe(files)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func getProjectModules(project *ProjectData) ([]ModuleData, error) {
 	return modules, nil
 }
 
-func countLines(project *ProjectData, files []string) (map[string]int, error) {
+func countLines(files []string) (map[string]int, error) {
 	args := []string{"-l"}
 	args = append(args, files...)
 
@@ -141,7 +141,7 @@ func countLines(project *ProjectData, files []string) (map[string]int, error) {
 	return filesToLineCount, nil
 }
 
-func countBytes(project *ProjectData, files []string) (map[string]int, error) {
+func countBytes(files []string) (map[string]int, error) {
 	args := []string{"-c"}
 	args = append(args, files...)
 
@@ -173,7 +173,7 @@ func countBytes(project *ProjectData, files []string) (map[string]int, error) {
 	return filesToByteCount, nil
 }
 
-func grepForUnsafe(project *ProjectData, files []string) ([]RipgrepOutputLine, error) {
+func grepForUnsafe(files []string) ([]RipgrepOutputLine, error) {
 	args := []string{"unsafe.Pointer", "--context", "5", "--json"}
 	args = append(args, files...)
 
