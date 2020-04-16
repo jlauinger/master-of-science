@@ -40,7 +40,7 @@ func main() {
 			continue
 		}
 
-		fmt.Printf("%d/%d (#%d): Analyzing %s\n", projectIdx+1-offset, length, projectIdx+1, project.ProjectName)
+		fmt.Printf("%d/%d (#%d): Analyzing %s\n", projectIdx+1, length, projectIdx+1+offset, project.ProjectName)
 
 		err := analyzeProject(project)
 

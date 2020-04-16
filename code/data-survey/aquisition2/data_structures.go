@@ -8,9 +8,9 @@ type DateTime struct {
 	time.Time
 }
 
-type FilenameWithCount struct {
-	Filename string
-	Count    int
+type VetFindingLine struct {
+	Message     string
+	ContextLine string
 }
 
 type ProjectData struct {
@@ -69,6 +69,7 @@ type VetFindingData struct {
 	FileImportsUnsafePkg bool   `csv:"file_imports_unsafe_pkg"`
 	FileGoVetOutput      string `csv:"file_go_vet_output"`
 	LineNumber           int    `csv:"line_number"`
+	Column               int    `csv:"column"`
 	Message              string `csv:"message"`
 	RawOutput            string `csv:"raw_output"`
 }
