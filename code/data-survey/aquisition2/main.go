@@ -27,7 +27,7 @@ func main() {
 		fmt.Printf("ERROR: %v\n", err)
 	}
 
-	for _, project := range projects[offset:offset+length] {
+	for projectIdx, project := range projects[offset:offset+length] {
 		if !goModExists(project) {
 			_ = WriteErrorCondition(ErrorConditionData{
 				Stage:            "go.mod",
@@ -36,7 +36,11 @@ func main() {
 				FileName:         "",
 				Message:          "go.mod does not exist",
 			})
+			fmt.Printf("%d/%d (#%d): Skipping %s\n", projectIdx+1-offset, length, projectIdx+1, project.ProjectName)
+			continue
 		}
+
+		fmt.Printf("%d/%d (#%d): Analyzing %s\n", projectIdx+1-offset, length, projectIdx+1, project.ProjectName)
 
 		err := analyzeProject(project)
 

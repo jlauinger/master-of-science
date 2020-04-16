@@ -29,6 +29,8 @@ func analyzeProject(project *ProjectData) error {
 				FileName:         "",
 				Message:          err.Error(),
 			})
+			fmt.Println("SAVING ERROR!")
+			continue
 		}
 
 		for _, file := range module.PackageGoFiles {
@@ -38,38 +40,23 @@ func analyzeProject(project *ProjectData) error {
 		}
 	}
 
-	filesWithLineCount, err := countLines(project, files)
+	fileToLineCountMap, err := countLines(project, files)
 	if err != nil {
 		return err
 	}
-	for _, fileWithCount := range filesWithLineCount[:10] {
-		fmt.Printf("%d %s (%s)\n", fileWithCount.Count, fileWithCount.Filename,
-			fileToModuleMap[fileWithCount.Filename].ModuleImportPath)
-	}
-	fmt.Println("---------------------------")
 
 
-	filesWithByteCount, err := countBytes(project, files)
+	fileToByteCountMap, err := countBytes(project, files)
 	if err != nil {
 		return err
 	}
-	for _, fileWithCount := range filesWithByteCount[:10] {
-		fmt.Printf("%d %s (%s)\n", fileWithCount.Count, fileWithCount.Filename,
-			fileToModuleMap[fileWithCount.Filename].ModuleImportPath)
-	}
-	fmt.Println("---------------------------")
 
 	parsedGrepLines, err := grepForUnsafe(project, files)
 	if err != nil {
 		return err
 	}
-	for _, parsedLine := range parsedGrepLines[:20] {
-		fmt.Printf("%s %d %s (%s)\n", parsedLine.MessageType, parsedLine.Data.LineNumber,
-			parsedLine.Data.Path.Text, fileToModuleMap[parsedLine.Data.Path.Text].ModuleImportPath)
-		if parsedLine.MessageType == "match" {
-			fmt.Println(parsedLine.Data.Lines.Text)
-		}
-	}
+
+	analyzeGrepLines(parsedGrepLines, fileToModuleMap, fileToLineCountMap, fileToByteCountMap)
 
 	return nil
 }
@@ -118,7 +105,7 @@ func getProjectModules(project *ProjectData) ([]ModuleData, error) {
 	return modules, nil
 }
 
-func countLines(project *ProjectData, files []string) ([]FilenameWithCount, error) {
+func countLines(project *ProjectData, files []string) (map[string]int, error) {
 	args := []string{"-l"}
 	args = append(args, files...)
 
@@ -134,7 +121,7 @@ func countLines(project *ProjectData, files []string) ([]FilenameWithCount, erro
 	// remove count summary and trailing newline
 	outputLines = outputLines[:len(outputLines)-2]
 
-	filesWithLineCount := make([]FilenameWithCount, 0, len(outputLines))
+	filesToLineCount := map[string]int{}
 
 	for _, outputLine := range outputLines {
 		components := strings.Split(strings.Trim(outputLine, " "), " ")
@@ -144,16 +131,13 @@ func countLines(project *ProjectData, files []string) ([]FilenameWithCount, erro
 			return nil, err
 		}
 
-		filesWithLineCount = append(filesWithLineCount, FilenameWithCount{
-			Filename: components[1],
-			Count:    count,
-		})
+		filesToLineCount[components[1]] = count
 	}
 
-	return filesWithLineCount, nil
+	return filesToLineCount, nil
 }
 
-func countBytes(project *ProjectData, files []string) ([]FilenameWithCount, error) {
+func countBytes(project *ProjectData, files []string) (map[string]int, error) {
 	args := []string{"-c"}
 	args = append(args, files...)
 
@@ -169,7 +153,7 @@ func countBytes(project *ProjectData, files []string) ([]FilenameWithCount, erro
 	// remove count summary and trailing newline
 	outputLines = outputLines[:len(outputLines)-2]
 
-	filesWithByteCount := make([]FilenameWithCount, 0, len(outputLines))
+	filesToByteCount := map[string]int{}
 
 	for _, outputLine := range outputLines {
 		components := strings.Split(strings.Trim(outputLine, " "), " ")
@@ -179,13 +163,10 @@ func countBytes(project *ProjectData, files []string) ([]FilenameWithCount, erro
 			return nil, err
 		}
 
-		filesWithByteCount = append(filesWithByteCount, FilenameWithCount{
-			Filename: components[1],
-			Count:    count,
-		})
+		filesToByteCount[components[1]] = count
 	}
 
-	return filesWithByteCount, nil
+	return filesToByteCount, nil
 }
 
 func grepForUnsafe(project *ProjectData, files []string) ([]RipgrepOutputLine, error) {
@@ -200,7 +181,7 @@ func grepForUnsafe(project *ProjectData, files []string) ([]RipgrepOutputLine, e
 	}
 
 	dec := json.NewDecoder(bytes.NewReader(rgOutput))
-	parsedLines := []RipgrepOutputLine{}
+	parsedLines := make([]RipgrepOutputLine, 0, 1000)
 
 	for {
 		var message RipgrepOutputLine
@@ -217,4 +198,70 @@ func grepForUnsafe(project *ProjectData, files []string) ([]RipgrepOutputLine, e
 	}
 
 	return parsedLines, nil
+}
+
+func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToModuleMap map[string]ModuleData,
+	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+	for lineIdx, line := range parsedLines {
+		if line.MessageType == "match" {
+			contextLines := []string{line.Data.Lines.Text}
+
+			// context before line
+			for contextIdx := lineIdx - 1; contextIdx > Max(0, lineIdx - 5); contextIdx-- {
+				contextLine := parsedLines[contextIdx]
+				if contextLine.MessageType == "context" || contextLine.MessageType == "match" {
+					contextLines = append([]string{contextLine.Data.Lines.Text}, contextLines...)
+				} else {
+					break
+				}
+			}
+
+			// context after line
+			for contextIdx := lineIdx + 1; contextIdx < Min(len(parsedLines), lineIdx + 6); contextIdx++ {
+				contextLine := parsedLines[contextIdx]
+				if contextLine.MessageType == "context" || contextLine.MessageType == "match" {
+					contextLines = append(contextLines, contextLine.Data.Lines.Text)
+				} else {
+					break
+				}
+			}
+
+			context := strings.Join(contextLines, "")
+
+			fullFilename := line.Data.Path.Text
+			module := fileToModuleMap[fullFilename]
+			filename := fullFilename[len(module.PackageDir)+1:]
+
+			err := WriteMatchResult(MatchResultData{
+				ProjectName:          module.ProjectName,
+				ModuleImportPath:     module.ModuleImportPath,
+				ModuleRegistry:       module.ModuleRegistry,
+				ModuleVersion:        module.ModuleVersion,
+				ModuleNumberGoFiles:  module.ModuleNumberGoFiles,
+				ModuleCheckoutFolder: module.PackageDir,
+				FileName:             filename,
+				FileSizeBytes:        fileToByteCountMap[fullFilename],
+				FileSizeLines:        fileToLineCountMap[fullFilename],
+				FileImportsUnsafePkg: false, // TODO
+				FileGoVetOutput:      "", // TODO
+				Text:                 line.Data.Lines.Text,
+				Context:              context,
+				LineNumber:           line.Data.LineNumber,
+				ByteOffset:           line.Data.LineNumber,
+				MatchType:            line.Data.SubMatches[0].Match.Text,
+			})
+
+			if err != nil {
+				_ = WriteErrorCondition(ErrorConditionData{
+					Stage:            "ripgrep-parse",
+					ProjectName:      module.ProjectName,
+					ModuleImportPath: module.ModuleImportPath,
+					FileName:         filename,
+					Message:          err.Error(),
+				})
+				fmt.Println("SAVING ERROR!")
+				continue
+			}
+		}
+	}
 }
