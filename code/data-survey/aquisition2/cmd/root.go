@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var dataDir string
+
 var RootCmd = &cobra.Command{
 	Use:   "data-aquisition",
 	Short: "Data aquisition tool",
@@ -23,4 +25,6 @@ func Execute() {
 	}
 }
 
-func init() {}
+func init() {
+	RootCmd.PersistentFlags().StringVar(&dataDir, "data-dir", "", "directory for CSV data files")
+}

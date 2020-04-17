@@ -1,22 +1,26 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
+
+	"data-aquisition/projects"
 )
+
+var download bool
+var downloadDir string
 
 var getProjectsCmd = &cobra.Command{
 	Use:   "projects",
 	Short: "Gets projects from Github and populates projects.csv",
 	Long:  `Can also download the repositories itself`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("get projects called")
+		projects.GetProjects(dataDir, downloadDir, download)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(getProjectsCmd)
 
-	getProjectsCmd.Flags().BoolP("download", "", false, "Download repositories")
+	getProjectsCmd.Flags().BoolVar(&download, "download", false, "Download repositories")
+	getProjectsCmd.Flags().StringVar(&downloadDir, "destination", "", "Download destination")
 }

@@ -7,6 +7,7 @@ venv/
 backup-data/
 __pycache__/
 aquisition2/aquisition2
+data-aquisition
 
 # Binaries for programs and plugins
 *.exe
