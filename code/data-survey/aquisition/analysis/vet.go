@@ -1,6 +1,7 @@
 package analysis
 
 import (
+	"data-aquisition/base"
 	"fmt"
 	"os"
 	"os/exec"
@@ -8,7 +9,7 @@ import (
 	"strings"
 )
 
-func runVet(project *ProjectData, modules []ModuleData) []VetFindingLine {
+func runVet(project *base.ProjectData, modules []base.ModuleData) []base.VetFindingLine {
 	packagePaths := make([]string, len(modules))
 
 	for i, module := range modules {
@@ -24,7 +25,7 @@ func runVet(project *ProjectData, modules []ModuleData) []VetFindingLine {
 	vetOutput, _ := cmd.CombinedOutput()
 
 	vetLines := strings.Split(string(vetOutput), "\n")
-	vetFindings := make([]VetFindingLine, 0)
+	vetFindings := make([]base.VetFindingLine, 0)
 
 	for i := 0; i < len(vetLines); i++ {
 		messageLine := vetLines[i]
@@ -53,7 +54,7 @@ func runVet(project *ProjectData, modules []ModuleData) []VetFindingLine {
 			i++
 		}
 
-		vetFindings = append(vetFindings, VetFindingLine{
+		vetFindings = append(vetFindings, base.VetFindingLine{
 			Message:     messageLine,
 			ContextLine: strings.Join(contextLines, "\n"),
 		})
@@ -62,7 +63,7 @@ func runVet(project *ProjectData, modules []ModuleData) []VetFindingLine {
 	return vetFindings
 }
 
-func analyzeVetFindings(vetFindings []VetFindingLine, fileToModuleMap map[string]ModuleData,
+func analyzeVetFindings(vetFindings []base.VetFindingLine, fileToModuleMap map[string]base.ModuleData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
 	for _, line := range vetFindings {
 		components := strings.Split(line.Message, ":")
@@ -91,7 +92,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToModuleMap map[string
 
 		lineNumber, err := strconv.Atoi(components[1])
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = WriteErrorCondition(base.ErrorConditionData{
 				Stage:            "vet-parse-linenumber",
 				ProjectName:      module.ProjectName,
 				ModuleImportPath: module.ModuleImportPath,
@@ -103,7 +104,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToModuleMap map[string
 		}
 		column, err = strconv.Atoi(components[2])
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = WriteErrorCondition(base.ErrorConditionData{
 				Stage:            "vet-parse-column",
 				ProjectName:      module.ProjectName,
 				ModuleImportPath: module.ModuleImportPath,
@@ -115,7 +116,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToModuleMap map[string
 		}
 		message = strings.Trim(components[3], " ")
 
-		err = WriteVetFinding(VetFindingData{
+		err = WriteVetFinding(base.VetFindingData{
 			ProjectName:          module.ProjectName,
 			ModuleImportPath:     module.ModuleImportPath,
 			ModuleRegistry:       module.ModuleRegistry,
@@ -134,7 +135,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToModuleMap map[string
 		})
 
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = WriteErrorCondition(base.ErrorConditionData{
 				Stage:            "vet-write",
 				ProjectName:      module.ProjectName,
 				ModuleImportPath: module.ModuleImportPath,

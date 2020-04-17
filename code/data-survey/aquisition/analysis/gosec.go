@@ -2,6 +2,7 @@ package analysis
 
 import (
 	"bytes"
+	"data-aquisition/base"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -9,7 +10,7 @@ import (
 	"strings"
 )
 
-func runGosec(project *ProjectData, modules []ModuleData) ([]GosecIssueOutput, error) {
+func runGosec(project *base.ProjectData, modules []base.ModuleData) ([]base.GosecIssueOutput, error) {
 	packagePaths := make([]string, 0, 1000)
 
 	for _, module := range modules {
@@ -25,11 +26,11 @@ func runGosec(project *ProjectData, modules []ModuleData) ([]GosecIssueOutput, e
 	gosecOutput, _ := cmd.CombinedOutput()
 
 	dec := json.NewDecoder(bytes.NewReader(gosecOutput))
-	var gosecResult GosecOutput
+	var gosecResult base.GosecOutput
 
 	err := dec.Decode(&gosecResult)
 	if err != nil {
-		_ = WriteErrorCondition(ErrorConditionData{
+		_ = WriteErrorCondition(base.ErrorConditionData{
 			Stage:            "gosec-parse",
 			ProjectName:      project.ProjectName,
 			ModuleImportPath: "",
@@ -43,7 +44,7 @@ func runGosec(project *ProjectData, modules []ModuleData) ([]GosecIssueOutput, e
 	return gosecResult.Issues, nil
 }
 
-func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToModuleMap map[string]ModuleData,
+func analyzeGosecFindings(gosecFindings []base.GosecIssueOutput, fileToModuleMap map[string]base.ModuleData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
 	for _, line := range gosecFindings {
 		module := fileToModuleMap[line.File]
@@ -57,7 +58,7 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToModuleMap map[
 		}
 		lineNumber, err := strconv.Atoi(lineNumberText)
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = WriteErrorCondition(base.ErrorConditionData{
 				Stage:            "gosec-parse-linenumber",
 				ProjectName:      module.ProjectName,
 				ModuleImportPath: module.ModuleImportPath,
@@ -75,7 +76,7 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToModuleMap map[
 		}
 		column, err := strconv.Atoi(columnText)
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = WriteErrorCondition(base.ErrorConditionData{
 				Stage:            "gosec-parse-column",
 				ProjectName:      module.ProjectName,
 				ModuleImportPath: module.ModuleImportPath,
@@ -86,7 +87,7 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToModuleMap map[
 			continue
 		}
 
-		err = WriteGosecFinding(GosecFindingData{
+		err = WriteGosecFinding(base.GosecFindingData{
 			ProjectName:          module.ProjectName,
 			ModuleImportPath:     module.ModuleImportPath,
 			ModuleRegistry:       module.ModuleRegistry,
@@ -107,7 +108,7 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToModuleMap map[
 		})
 
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = WriteErrorCondition(base.ErrorConditionData{
 				Stage:            "gosec-write",
 				ProjectName:      module.ProjectName,
 				ModuleImportPath: module.ModuleImportPath,

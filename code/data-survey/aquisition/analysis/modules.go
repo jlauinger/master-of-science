@@ -2,14 +2,15 @@ package analysis
 
 import (
 	"bytes"
+	"data-aquisition/base"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os/exec"
 )
 
-func analyzeProject(project *ProjectData,
-	operator func(*ProjectData, []ModuleData, map[string]ModuleData, map[string]int, map[string]int)) error {
+func analyzeProject(project *base.ProjectData,
+	operator func(*base.ProjectData, []base.ModuleData, map[string]base.ModuleData, map[string]int, map[string]int)) error {
 
 	modules, err := getProjectModules(project)
 	if err != nil {
@@ -17,12 +18,12 @@ func analyzeProject(project *ProjectData,
 	}
 
 	files := make([]string, 0, 500)
-	fileToModuleMap := map[string]ModuleData{}
+	fileToModuleMap := map[string]base.ModuleData{}
 
 	for _, module := range modules {
 		err := WriteModule(module)
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = WriteErrorCondition(base.ErrorConditionData{
 				Stage:            "module",
 				ProjectName:      project.ProjectName,
 				ModuleImportPath: module.ModuleImportPath,
@@ -56,7 +57,7 @@ func analyzeProject(project *ProjectData,
 	return nil
 }
 
-func getProjectModules(project *ProjectData) ([]ModuleData, error) {
+func getProjectModules(project *base.ProjectData) ([]base.ModuleData, error) {
 	cmd := exec.Command("go", "list", "-deps", "-json")
 	cmd.Dir = project.ProjectCheckoutPath
 
@@ -66,10 +67,10 @@ func getProjectModules(project *ProjectData) ([]ModuleData, error) {
 	}
 
 	dec := json.NewDecoder(bytes.NewReader(jsonOutput))
-	modules := make([]ModuleData, 0, 500)
+	modules := make([]base.ModuleData, 0, 500)
 
 	for {
-		var pkg GoListOutputPackage
+		var pkg base.GoListOutputPackage
 
 		err := dec.Decode(&pkg)
 		if err == io.EOF {
@@ -86,7 +87,7 @@ func getProjectModules(project *ProjectData) ([]ModuleData, error) {
 			moduleRegistry = getRegistryFromImportPath(pkg.ImportPath)
 		}
 
-		modules = append(modules, ModuleData{
+		modules = append(modules, base.ModuleData{
 			ProjectName:          project.ProjectName,
 			ModuleImportPath:     pkg.ImportPath,
 			ModuleRegistry:       moduleRegistry,

@@ -1,6 +1,7 @@
 package analysis
 
 import (
+	"data-aquisition/base"
 	"github.com/gocarina/gocsv"
 	"os"
 	"time"
@@ -56,69 +57,69 @@ func closeFiles() {
 	errorConditionsFile.Close()
 }
 
-func (date *DateTime) UnmarshalCSV(csv string) (err error) {
+func (date *base.DateTime) UnmarshalCSV(csv string) (err error) {
 	// https://yourbasic.org/golang/format-parse-string-time-date-example/
 	date.Time, err = time.Parse("2006-01-02 15:04:05 -0700 MST", csv)
 	return err
 }
 
-func ReadProjects(filename string)([]*ProjectData, error) {
+func ReadProjects(filename string)([]*base.ProjectData, error) {
 	f, err := os.Open(filename)
 	if err != nil {
-		return []*ProjectData{}, err
+		return []*base.ProjectData{}, err
 	}
 	defer f.Close()
 
-	var projects []*ProjectData
+	var projects []*base.ProjectData
 
 	if err := gocsv.UnmarshalFile(f, &projects); err != nil {
-		return []*ProjectData{}, err
+		return []*base.ProjectData{}, err
 	}
 
 	return projects, nil
 }
 
-func WriteModule(module ModuleData) error {
+func WriteModule(module base.ModuleData) error {
 	if modulesFileHeaderWritten {
-		return gocsv.MarshalWithoutHeaders([]ModuleData{module}, modulesFile)
+		return gocsv.MarshalWithoutHeaders([]base.ModuleData{module}, modulesFile)
 	} else {
 		modulesFileHeaderWritten = true
-		return gocsv.Marshal([]ModuleData{module}, modulesFile)
+		return gocsv.Marshal([]base.ModuleData{module}, modulesFile)
 	}
 }
 
-func WriteMatchResult(matchResult MatchResultData) error {
+func WriteMatchResult(matchResult base.MatchResultData) error {
 	if matchesFileHeaderWritten {
-		return gocsv.MarshalWithoutHeaders([]MatchResultData{matchResult}, matchesFile)
+		return gocsv.MarshalWithoutHeaders([]base.MatchResultData{matchResult}, matchesFile)
 	} else {
 		matchesFileHeaderWritten = true
-		return gocsv.Marshal([]MatchResultData{matchResult}, matchesFile)
+		return gocsv.Marshal([]base.MatchResultData{matchResult}, matchesFile)
 	}
 }
 
-func WriteVetFinding(vetFinding VetFindingData) error {
+func WriteVetFinding(vetFinding base.VetFindingData) error {
 	if vetResultsFileHeaderWritten {
-		return gocsv.MarshalWithoutHeaders([]VetFindingData{vetFinding}, vetResultsFile)
+		return gocsv.MarshalWithoutHeaders([]base.VetFindingData{vetFinding}, vetResultsFile)
 	} else {
 		vetResultsFileHeaderWritten = true
-		return gocsv.Marshal([]VetFindingData{vetFinding}, vetResultsFile)
+		return gocsv.Marshal([]base.VetFindingData{vetFinding}, vetResultsFile)
 	}
 }
 
-func WriteGosecFinding(gosecFinding GosecFindingData) error {
+func WriteGosecFinding(gosecFinding base.GosecFindingData) error {
 	if gosecResultsFileHeaderWritten {
-		return gocsv.MarshalWithoutHeaders([]GosecFindingData{gosecFinding}, gosecResultsFile)
+		return gocsv.MarshalWithoutHeaders([]base.GosecFindingData{gosecFinding}, gosecResultsFile)
 	} else {
 		gosecResultsFileHeaderWritten = true
-		return gocsv.Marshal([]GosecFindingData{gosecFinding}, gosecResultsFile)
+		return gocsv.Marshal([]base.GosecFindingData{gosecFinding}, gosecResultsFile)
 	}
 }
 
-func WriteErrorCondition(errorCondition ErrorConditionData) error {
+func WriteErrorCondition(errorCondition base.ErrorConditionData) error {
 	if errorConditionsFileHeaderWritten {
-		return gocsv.MarshalWithoutHeaders([]ErrorConditionData{errorCondition}, errorConditionsFile)
+		return gocsv.MarshalWithoutHeaders([]base.ErrorConditionData{errorCondition}, errorConditionsFile)
 	} else {
 		errorConditionsFileHeaderWritten = true
-		return gocsv.Marshal([]ErrorConditionData{errorCondition}, errorConditionsFile)
+		return gocsv.Marshal([]base.ErrorConditionData{errorCondition}, errorConditionsFile)
 	}
 }

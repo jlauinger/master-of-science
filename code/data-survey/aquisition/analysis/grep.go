@@ -2,6 +2,7 @@ package analysis
 
 import (
 	"bytes"
+	"data-aquisition/base"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,7 +10,7 @@ import (
 	"strings"
 )
 
-func grepForUnsafe(modules []ModuleData) ([]RipgrepOutputLine, error) {
+func grepForUnsafe(modules []base.ModuleData) ([]base.RipgrepOutputLine, error) {
 	files := make([]string, 0, 1000)
 
 	for _, module := range modules {
@@ -30,10 +31,10 @@ func grepForUnsafe(modules []ModuleData) ([]RipgrepOutputLine, error) {
 	}
 
 	dec := json.NewDecoder(bytes.NewReader(rgOutput))
-	parsedLines := make([]RipgrepOutputLine, 0, 1000)
+	parsedLines := make([]base.RipgrepOutputLine, 0, 1000)
 
 	for {
-		var message RipgrepOutputLine
+		var message base.RipgrepOutputLine
 
 		err := dec.Decode(&message)
 		if err == io.EOF {
@@ -49,7 +50,7 @@ func grepForUnsafe(modules []ModuleData) ([]RipgrepOutputLine, error) {
 	return parsedLines, nil
 }
 
-func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToModuleMap map[string]ModuleData,
+func analyzeGrepLines(parsedLines []base.RipgrepOutputLine, fileToModuleMap map[string]base.ModuleData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
 	for lineIdx, line := range parsedLines {
 		if line.MessageType == "match" {
@@ -81,7 +82,7 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToModuleMap map[strin
 			module := fileToModuleMap[fullFilename]
 			filename := fullFilename[len(module.PackageDir)+1:]
 
-			err := WriteMatchResult(MatchResultData{
+			err := WriteMatchResult(base.MatchResultData{
 				ProjectName:          module.ProjectName,
 				ModuleImportPath:     module.ModuleImportPath,
 				ModuleRegistry:       module.ModuleRegistry,
@@ -101,7 +102,7 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToModuleMap map[strin
 			})
 
 			if err != nil {
-				_ = WriteErrorCondition(ErrorConditionData{
+				_ = WriteErrorCondition(base.ErrorConditionData{
 					Stage:            "ripgrep-parse",
 					ProjectName:      module.ProjectName,
 					ModuleImportPath: module.ModuleImportPath,
