@@ -2,24 +2,23 @@ package analysis
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 )
 
-func runVet(project *ProjectData, modules []ModuleData) []VetFindingLine {
-	packagePaths := make([]string, len(modules))
+func runVet(project *ProjectData, packages []PackageData) []VetFindingLine {
+	packagePaths := make([]string, len(packages))
 
-	for i, module := range modules {
-		packagePaths[i] = module.ModuleImportPath
+	for i, pkg := range packages {
+		packagePaths[i] = pkg.ImportPath
 	}
 
 	args := []string{"vet", "-c=0"}
 	args = append(args, packagePaths...)
 
 	cmd := exec.Command("go", args...)
-	cmd.Dir = project.ProjectCheckoutPath
+	cmd.Dir = project.CheckoutPath
 
 	vetOutput, _ := cmd.CombinedOutput()
 
@@ -62,8 +61,9 @@ func runVet(project *ProjectData, modules []ModuleData) []VetFindingLine {
 	return vetFindings
 }
 
-func analyzeVetFindings(vetFindings []VetFindingLine, fileToModuleMap map[string]ModuleData,
+func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[string]PackageData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+
 	for _, line := range vetFindings {
 		components := strings.Split(line.Message, ":")
 
@@ -77,26 +77,21 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToModuleMap map[string
 		}
 
 		fullFilename = strings.Trim(components[0], " ")
-		module := fileToModuleMap[fullFilename]
-		filename := fullFilename[len(module.PackageDir)+1:]
+		pkg := fileToPackageMap[fullFilename]
+		filename := fullFilename[len(pkg.Dir)+1:]
 
 		if strings.Contains(filename, "test") {
 			continue
 		}
 
-		if len(components) < 2 {
-			fmt.Println(line.Message)
-			os.Exit(1)
-		}
-
 		lineNumber, err := strconv.Atoi(components[1])
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
-				Stage:            "vet-parse-linenumber",
-				ProjectName:      module.ProjectName,
-				ModuleImportPath: module.ModuleImportPath,
-				FileName:         filename,
-				Message:          err.Error(),
+				Stage:             "vet-parse-linenumber",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          filename,
+				Message:           err.Error(),
 			})
 			fmt.Println("SAVING ERROR!")
 			continue
@@ -104,11 +99,11 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToModuleMap map[string
 		column, err = strconv.Atoi(components[2])
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
-				Stage:            "vet-parse-column",
-				ProjectName:      module.ProjectName,
-				ModuleImportPath: module.ModuleImportPath,
-				FileName:         filename,
-				Message:          err.Error(),
+				Stage:             "vet-parse-column",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          filename,
+				Message:           err.Error(),
 			})
 			fmt.Println("SAVING ERROR!")
 			continue
@@ -116,30 +111,28 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToModuleMap map[string
 		message = strings.Trim(components[3], " ")
 
 		err = WriteVetFinding(VetFindingData{
-			ProjectName:          module.ProjectName,
-			ModuleImportPath:     module.ModuleImportPath,
-			ModuleRegistry:       module.ModuleRegistry,
-			ModuleVersion:        module.ModuleVersion,
-			ModuleNumberGoFiles:  module.ModuleNumberGoFiles,
-			ModuleCheckoutFolder: module.PackageDir,
-			FileName:             filename,
-			FileSizeBytes:        fileToByteCountMap[fullFilename],
-			FileSizeLines:        fileToLineCountMap[fullFilename],
-			FileImportsUnsafePkg: false,
-			FileGoVetOutput:      "",
-			LineNumber:           lineNumber,
-			Column:               column,
-			Message:              message,
-			RawOutput:            line.Message,
+			Message:           message,
+			Context:           line.ContextLine,
+			LineNumber:        lineNumber,
+			Column:            column,
+			RawOutput:         line.Message,
+			FileName:          filename,
+			FileLoc:           fileToLineCountMap[fullFilename],
+			FileByteSize:      fileToByteCountMap[fullFilename],
+			PackageImportPath: pkg.ImportPath,
+			ModulePath:        pkg.ModulePath,
+			ModuleVersion:     pkg.ModuleVersion,
+			ProjectName:       pkg.ProjectName,
+			FileCopyPath:      "",
 		})
 
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
-				Stage:            "vet-write",
-				ProjectName:      module.ProjectName,
-				ModuleImportPath: module.ModuleImportPath,
-				FileName:         filename,
-				Message:          err.Error(),
+				Stage:             "vet-write",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          filename,
+				Message:           err.Error(),
 			})
 			fmt.Println("SAVING ERROR!")
 			continue

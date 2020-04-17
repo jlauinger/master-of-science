@@ -1,8 +1,6 @@
 package analysis
 
 import (
-	"fmt"
-	"os"
 	"strings"
 )
 
@@ -18,11 +16,6 @@ func Min(x, y int) int {
 		return y
 	}
 	return x
-}
-
-func goModExists(project *ProjectData) bool {
-	_, err := os.Stat(fmt.Sprintf("%s/go.mod", project.ProjectCheckoutPath))
-	return err == nil
 }
 
 func getRegistryFromImportPath(importPath string) string {

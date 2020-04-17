@@ -9,17 +9,21 @@ import (
 	"strings"
 )
 
-func grepForUnsafe(modules []ModuleData) ([]RipgrepOutputLine, error) {
+var matchTypes = []string{"unsafe.Pointer", "unsafe.Sizeof", "unsafe.Alignof", "unsafe.Offsetof",
+	"uintptr", "reflect.SliceHeader", "reflect.StringHeader"}
+
+
+func grepForUnsafe(packages []PackageData) ([]RipgrepOutputLine, error) {
 	files := make([]string, 0, 1000)
 
-	for _, module := range modules {
-		for _, file := range module.PackageGoFiles {
-			fullFilename := fmt.Sprintf("%s/%s", module.PackageDir, file)
+	for _, pkg := range packages {
+		for _, file := range pkg.GoFiles {
+			fullFilename := fmt.Sprintf("%s/%s", pkg.Dir, file)
 			files = append(files, fullFilename)
 		}
 	}
 
-	args := []string{"unsafe.Pointer", "--context", "5", "--json"}
+	args := []string{strings.Join(matchTypes, "|"), "--context", "5", "--json"}
 	args = append(args, files...)
 
 	cmd := exec.Command("rg", args...)
@@ -49,8 +53,9 @@ func grepForUnsafe(modules []ModuleData) ([]RipgrepOutputLine, error) {
 	return parsedLines, nil
 }
 
-func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToModuleMap map[string]ModuleData,
+func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[string]PackageData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+
 	for lineIdx, line := range parsedLines {
 		if line.MessageType == "match" {
 			contextLines := []string{line.Data.Lines.Text}
@@ -78,38 +83,38 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToModuleMap map[strin
 			context := strings.Join(contextLines, "")
 
 			fullFilename := line.Data.Path.Text
-			module := fileToModuleMap[fullFilename]
-			filename := fullFilename[len(module.PackageDir)+1:]
+			pkg := fileToPackageMap[fullFilename]
+			filename := fullFilename[len(pkg.Dir)+1:]
 
-			err := WriteMatchResult(MatchResultData{
-				ProjectName:          module.ProjectName,
-				ModuleImportPath:     module.ModuleImportPath,
-				ModuleRegistry:       module.ModuleRegistry,
-				ModuleVersion:        module.ModuleVersion,
-				ModuleNumberGoFiles:  module.ModuleNumberGoFiles,
-				ModuleCheckoutFolder: module.PackageDir,
-				FileName:             filename,
-				FileSizeBytes:        fileToByteCountMap[fullFilename],
-				FileSizeLines:        fileToLineCountMap[fullFilename],
-				FileImportsUnsafePkg: false, // TODO
-				FileGoVetOutput:      "", // TODO
-				Text:                 line.Data.Lines.Text,
-				Context:              context,
-				LineNumber:           line.Data.LineNumber,
-				ByteOffset:           line.Data.LineNumber,
-				MatchType:            line.Data.SubMatches[0].Match.Text,
-			})
-
-			if err != nil {
-				_ = WriteErrorCondition(ErrorConditionData{
-					Stage:            "ripgrep-parse",
-					ProjectName:      module.ProjectName,
-					ModuleImportPath: module.ModuleImportPath,
-					FileName:         filename,
-					Message:          err.Error(),
+			for _, subMatch := range line.Data.SubMatches {
+				err := WriteGrepFinding(GrepFindingData{
+					Text:              line.Data.Lines.Text,
+					Context:           context,
+					LineNumber:        line.Data.LineNumber,
+					Column:            subMatch.Start,
+					AbsoluteOffset:    line.Data.AbsoluteOffset,
+					MatchType:         subMatch.Match.Text,
+					FileName:          filename,
+					FileLoc:           fileToByteCountMap[fullFilename],
+					FileByteSize:      fileToLineCountMap[fullFilename],
+					PackageImportPath: pkg.ImportPath,
+					ModulePath:        pkg.ModulePath,
+					ModuleVersion:     pkg.ModuleVersion,
+					ProjectName:       pkg.ProjectName,
+					FileCopyPath:      "",
 				})
-				fmt.Println("SAVING ERROR!")
-				continue
+
+				if err != nil {
+					_ = WriteErrorCondition(ErrorConditionData{
+						Stage:             "ripgrep-parse",
+						ProjectName:       pkg.ProjectName,
+						PackageImportPath: pkg.ImportPath,
+						FileName:          filename,
+						Message:           err.Error(),
+					})
+					fmt.Println("SAVING ERROR!")
+					continue
+				}
 			}
 		}
 	}

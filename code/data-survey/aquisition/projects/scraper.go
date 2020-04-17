@@ -47,17 +47,17 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 			fmt.Printf("%v. %v\n", (page-1)*100+(i+1), *repo.CloneURL)
 			
 			project := analysis.ProjectData{
-				ProjectRank:           i + 1,
-				ProjectName:           repo.GetFullName(),
-				ProjectGithubCloneUrl: repo.GetCloneURL(),
-				ProjectNumberOfStars:  repo.GetStargazersCount(),
-				ProjectNumberOfForks:  repo.GetForksCount(),
-				ProjectGithubId:       *repo.ID,
-				ProjectCreatedAt:      analysis.DateTime{Time: repo.CreatedAt.Time},
-				ProjectLastPushedAt:   analysis.DateTime{Time: repo.PushedAt.Time},
-				ProjectUpdatedAt:      analysis.DateTime{Time: repo.UpdatedAt.Time},
-				ProjectSize:           *repo.Size,
-				ProjectCheckoutPath:   path,
+				Rank:           i + 1,
+				Name:           repo.GetFullName(),
+				GithubCloneUrl: repo.GetCloneURL(),
+				NumberOfStars:  repo.GetStargazersCount(),
+				NumberOfForks:  repo.GetForksCount(),
+				GithubId:       *repo.ID,
+				CreatedAt:      analysis.DateTime{Time: repo.CreatedAt.Time},
+				LastPushedAt:   analysis.DateTime{Time: repo.PushedAt.Time},
+				UpdatedAt:      analysis.DateTime{Time: repo.UpdatedAt.Time},
+				Size:           *repo.Size,
+				CheckoutPath:   path,
 			}
 
 			if headerWritten {

@@ -9,18 +9,18 @@ import (
 	"strings"
 )
 
-func runGosec(project *ProjectData, modules []ModuleData) ([]GosecIssueOutput, error) {
+func runGosec(project *ProjectData, packages []PackageData) ([]GosecIssueOutput, error) {
 	packagePaths := make([]string, 0, 1000)
 
-	for _, module := range modules {
-		packagePaths = append(packagePaths, module.PackageDir)
+	for _, pkg := range packages {
+		packagePaths = append(packagePaths, pkg.Dir)
 	}
 
 	args := []string{"-quiet", "-no-fail", "-fmt=json"}
 	args = append(args, packagePaths...)
 
 	cmd := exec.Command("gosec", args...)
-	cmd.Dir = project.ProjectCheckoutPath
+	cmd.Dir = project.CheckoutPath
 
 	gosecOutput, _ := cmd.CombinedOutput()
 
@@ -30,11 +30,11 @@ func runGosec(project *ProjectData, modules []ModuleData) ([]GosecIssueOutput, e
 	err := dec.Decode(&gosecResult)
 	if err != nil {
 		_ = WriteErrorCondition(ErrorConditionData{
-			Stage:            "gosec-parse",
-			ProjectName:      project.ProjectName,
-			ModuleImportPath: "",
-			FileName:         "",
-			Message:          err.Error(),
+			Stage:             "gosec-parse",
+			ProjectName:       project.Name,
+			PackageImportPath: "",
+			FileName:          "",
+			Message:           err.Error(),
 		})
 		fmt.Println("SAVING ERROR!")
 		return nil, err
@@ -43,11 +43,12 @@ func runGosec(project *ProjectData, modules []ModuleData) ([]GosecIssueOutput, e
 	return gosecResult.Issues, nil
 }
 
-func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToModuleMap map[string]ModuleData,
+func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map[string]PackageData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+
 	for _, line := range gosecFindings {
-		module := fileToModuleMap[line.File]
-		shortFilename := line.File[len(module.PackageDir)+1:]
+		pkg := fileToPackageMap[line.File]
+		shortFilename := line.File[len(pkg.Dir)+1:]
 
 		var lineNumberText string
 		if strings.Contains(line.Line, "-") {
@@ -58,11 +59,11 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToModuleMap map[
 		lineNumber, err := strconv.Atoi(lineNumberText)
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
-				Stage:            "gosec-parse-linenumber",
-				ProjectName:      module.ProjectName,
-				ModuleImportPath: module.ModuleImportPath,
-				FileName:         shortFilename,
-				Message:          err.Error(),
+				Stage:             "gosec-parse-linenumber",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          shortFilename,
+				Message:           err.Error(),
 			})
 			fmt.Println("SAVING ERROR!")
 			continue
@@ -76,43 +77,42 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToModuleMap map[
 		column, err := strconv.Atoi(columnText)
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
-				Stage:            "gosec-parse-column",
-				ProjectName:      module.ProjectName,
-				ModuleImportPath: module.ModuleImportPath,
-				FileName:         shortFilename,
-				Message:          err.Error(),
+				Stage:             "gosec-parse-column",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          shortFilename,
+				Message:           err.Error(),
 			})
 			fmt.Println("SAVING ERROR!")
 			continue
 		}
 
 		err = WriteGosecFinding(GosecFindingData{
-			ProjectName:          module.ProjectName,
-			ModuleImportPath:     module.ModuleImportPath,
-			ModuleRegistry:       module.ModuleRegistry,
-			ModuleVersion:        module.ModuleVersion,
-			ModuleNumberGoFiles:  module.ModuleNumberGoFiles,
-			ModuleCheckoutFolder: module.PackageDir,
-			FileName:             shortFilename,
-			FileSizeBytes:        fileToByteCountMap[line.File],
-			FileSizeLines:        fileToLineCountMap[line.File],
-			FileImportsUnsafePkg: false,
-			LineNumber:           lineNumber,
-			Column:               column,
-			Message:              line.Details,
-			Text:                 line.Code,
-			Confidence:           line.Confidence,
-			Severity:             line.Severity,
-			CweId:                line.Cwe.Id,
+			Message:           line.Details,
+			Context:           line.Code,
+			Confidence:        line.Confidence,
+			Severity:          line.Severity,
+			CweId:             line.Cwe.Id,
+			RuleId:            line.RuleId,
+			LineNumber:        lineNumber,
+			Column:            column,
+			FileName:          shortFilename,
+			FileLoc:           fileToLineCountMap[line.File],
+			FileByteSize:      fileToByteCountMap[line.File],
+			PackageImportPath: pkg.ImportPath,
+			ModulePath:        pkg.ModulePath,
+			ModuleVersion:     pkg.ModuleVersion,
+			ProjectName:       pkg.ProjectName,
+			FileCopyPath:      "",
 		})
 
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
-				Stage:            "gosec-write",
-				ProjectName:      module.ProjectName,
-				ModuleImportPath: module.ModuleImportPath,
-				FileName:         shortFilename,
-				Message:          err.Error(),
+				Stage:             "gosec-write",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          shortFilename,
+				Message:           err.Error(),
 			})
 			fmt.Println("SAVING ERROR!")
 			continue

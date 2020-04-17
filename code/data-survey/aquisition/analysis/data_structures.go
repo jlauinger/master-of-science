@@ -12,92 +12,103 @@ type DateTime struct {
 }
 
 type ProjectData struct {
-	ProjectRank           int 		`csv:"project_rank"`
-	ProjectName           string 	`csv:"project_name"`
-	ProjectGithubCloneUrl string 	`csv:"project_github_clone_url"`
-	ProjectNumberOfStars  int 		`csv:"project_number_of_stars"`
-	ProjectNumberOfForks  int 		`csv:"project_number_of_forks"`
-	ProjectGithubId       int64   	`csv:"project_github_id"`
-	ProjectCreatedAt      DateTime  `csv:"project_created_at"`
-	ProjectLastPushedAt   DateTime  `csv:"project_last_pushed_at"`
-	ProjectUpdatedAt      DateTime  `csv:"project_updated_at"`
-	ProjectSize           int 		`csv:"project_size"`
-	ProjectCheckoutPath   string 	`csv:"project_checkout_path"`
+	Name           string   `csv:"project_name"`
+	Rank           int      `csv:"project_rank"`
+	GithubCloneUrl string   `csv:"project_github_clone_url"`
+	NumberOfStars  int      `csv:"project_number_of_stars"`
+	NumberOfForks  int      `csv:"project_number_of_forks"`
+	GithubId       int64    `csv:"project_github_id"`
+	CreatedAt      DateTime `csv:"project_created_at"`
+	LastPushedAt   DateTime `csv:"project_last_pushed_at"`
+	UpdatedAt      DateTime `csv:"project_updated_at"`
+	Size           int      `csv:"project_size"`
+	CheckoutPath   string   `csv:"project_checkout_path"`
 }
 
-type ModuleData struct {
-	ProjectName          string `csv:"project_name"`
-	ModuleImportPath     string `csv:"module_import_path"`
-	ModuleRegistry       string `csv:"module_registry"`
-	ModuleVersion        string `csv:"module_version"`
-	ModuleNumberGoFiles  int    `csv:"module_number_go_files"`
-	PackageDir			 string `csv:"-"`
-	PackageGoFiles       []string `csv:"-"`
+type PackageData struct {
+	Name               string   `csv:"name"`
+	ImportPath         string   `csv:"import_path"`
+	Dir                string   `csv:"dir"`
+	IsStandard         bool     `csv:"is_standard"`
+	IsDepOnly          bool     `csv:"is_dep_only"`
+	NumberOfGoFiles    int      `csv:"number_of_go_files"`
+	Loc                int      `csv:"loc"`
+	ByteSize           int      `csv:"byte_size"`
+
+	ModulePath         string   `csv:"module_path"`
+	ModuleVersion      string   `csv:"module_version"`
+	ModuleRegistry     string   `csv:"module_registry"`
+	ModuleIsIndirect   bool     `csv:"module_is_indirect"`
+
+	ProjectName        string   `csv:"project_name"`
+
+	GoFiles            []string `csv:"-"`
 }
 
-type MatchResultData struct {
-	ProjectName          string `csv:"project_name"`
-	ModuleImportPath     string `csv:"module_import_path"`
-	ModuleRegistry       string `csv:"module_registry"`
-	ModuleVersion        string `csv:"module_version"`
-	ModuleNumberGoFiles  int    `csv:"module_number_go_files"`
-	ModuleCheckoutFolder string `csv:"module_checkout_folder"`
-	FileName             string `csv:"file_name"`
-	FileSizeBytes        int    `csv:"file_size_bytes"`
-	FileSizeLines        int    `csv:"file_size_lines"`
-	FileImportsUnsafePkg bool   `csv:"file_imports_unsafe_pkg"`
-	FileGoVetOutput      string `csv:"file_go_vet_output"`
+type GrepFindingData struct {
 	Text                 string `csv:"text"`
 	Context              string `csv:"context"`
 	LineNumber           int    `csv:"line_number"`
-	ByteOffset           int    `csv:"byte_offset"`
+	Column               int    `csv:"column"`
+	AbsoluteOffset       int    `csv:"absolute_offset"`
 	MatchType            string `csv:"match_type"`
+
+	FileName             string `csv:"file_name"`
+	FileLoc              int    `csv:"file_loc"`
+	FileByteSize         int    `csv:"file_byte_size"`
+	PackageImportPath    string `csv:"package_import_path"`
+ 	ModulePath           string `csv:"module_path"`
+ 	ModuleVersion        string `csv:"module_version"`
+	ProjectName          string `csv:"project_name"`
+
+	FileCopyPath         string `csv:"file_copy_path"`
 }
 
 type VetFindingData struct {
-	ProjectName          string `csv:"project_name"`
-	ModuleImportPath     string `csv:"module_import_path"`
-	ModuleRegistry       string `csv:"module_registry"`
-	ModuleVersion        string `csv:"module_version"`
-	ModuleNumberGoFiles  int    `csv:"module_number_go_files"`
-	ModuleCheckoutFolder string `csv:"module_checkout_folder"`
-	FileName             string `csv:"file_name"`
-	FileSizeBytes        int    `csv:"file_size_bytes"`
-	FileSizeLines        int    `csv:"file_size_lines"`
-	FileImportsUnsafePkg bool   `csv:"file_imports_unsafe_pkg"`
-	FileGoVetOutput      string `csv:"file_go_vet_output"`
+	Message              string `csv:"message"`
+	Context              string `csv:"context"`
 	LineNumber           int    `csv:"line_number"`
 	Column               int    `csv:"column"`
-	Message              string `csv:"message"`
 	RawOutput            string `csv:"raw_output"`
+
+	FileName             string `csv:"file_name"`
+	FileLoc              int    `csv:"file_loc"`
+	FileByteSize         int    `csv:"file_byte_size"`
+	PackageImportPath    string `csv:"package_import_path"`
+	ModulePath           string `csv:"module_path"`
+	ModuleVersion        string `csv:"module_version"`
+	ProjectName          string `csv:"project_name"`
+
+	FileCopyPath         string `csv:"file_copy_path"`
 }
 
 type GosecFindingData struct {
-	ProjectName          string `csv:"project_name"`
-	ModuleImportPath     string `csv:"module_import_path"`
-	ModuleRegistry       string `csv:"module_registry"`
-	ModuleVersion        string `csv:"module_version"`
-	ModuleNumberGoFiles  int    `csv:"module_number_go_files"`
-	ModuleCheckoutFolder string `csv:"module_checkout_folder"`
-	FileName             string `csv:"file_name"`
-	FileSizeBytes        int    `csv:"file_size_bytes"`
-	FileSizeLines        int    `csv:"file_size_lines"`
-	FileImportsUnsafePkg bool   `csv:"file_imports_unsafe_pkg"`
-	LineNumber           int    `csv:"line_number"`
-	Column               int    `csv:"column"`
 	Message              string `csv:"message"`
-	Text                 string `csv:"text"`
+	Context              string `csv:"context"`
 	Confidence           string `csv:"confidence"`
 	Severity             string `csv:"severity"`
 	CweId                string `csv:"cwe_id"`
+	RuleId               string `csv:"rule_id"`
+	LineNumber           int    `csv:"line_number"`
+	Column               int    `csv:"column"`
+
+	FileName             string `csv:"file_name"`
+	FileLoc              int    `csv:"file_loc"`
+	FileByteSize         int    `csv:"file_byte_size"`
+	PackageImportPath    string `csv:"package_import_path"`
+	ModulePath           string `csv:"module_path"`
+	ModuleVersion        string `csv:"module_version"`
+	ProjectName          string `csv:"project_name"`
+
+	FileCopyPath         string `csv:"file_copy_path"`
 }
 
 type ErrorConditionData struct {
-	Stage            string `csv:"stage"`
-	ProjectName      string `csv:"project_name"`
-	ModuleImportPath string `csv:"module_import_path"`
-	FileName         string `csv:"file_name"`
-	Message          string `csv:"message"`
+	Stage             string `csv:"stage"`
+	ProjectName       string `csv:"project_name"`
+	PackageImportPath string `csv:"module_import_path"`
+	FileName          string `csv:"file_name"`
+	Message           string `csv:"message"`
 }
 
 
