@@ -9,7 +9,16 @@ import (
 	"strings"
 )
 
-func grepForUnsafe(files []string) ([]RipgrepOutputLine, error) {
+func grepForUnsafe(modules []ModuleData) ([]RipgrepOutputLine, error) {
+	files := make([]string, 0, 1000)
+
+	for _, module := range modules {
+		for _, file := range module.PackageGoFiles {
+			fullFilename := fmt.Sprintf("%s/%s", module.PackageDir, file)
+			files = append(files, fullFilename)
+		}
+	}
+
 	args := []string{"unsafe.Pointer", "--context", "5", "--json"}
 	args = append(args, files...)
 

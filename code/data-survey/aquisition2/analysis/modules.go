@@ -8,7 +8,9 @@ import (
 	"os/exec"
 )
 
-func analyzeProject(project *ProjectData) error {
+func analyzeProject(project *ProjectData,
+	operator func(*ProjectData, []ModuleData, map[string]ModuleData, map[string]int, map[string]int)) error {
+
 	modules, err := getProjectModules(project)
 	if err != nil {
 		return err
@@ -49,17 +51,7 @@ func analyzeProject(project *ProjectData) error {
 		return err
 	}
 
-	parsedGrepLines, err := grepForUnsafe(files)
-	if err != nil {
-		return err
-	}
-	analyzeGrepLines(parsedGrepLines, fileToModuleMap, fileToLineCountMap, fileToByteCountMap)
-
-	vetFindings := runVet(project, modules)
-	analyzeVetFindings(vetFindings, fileToModuleMap, fileToLineCountMap, fileToByteCountMap)
-
-	gosecFindings, _ := runGosec(project, modules)
-	analyzeGosecFindings(gosecFindings, fileToModuleMap, fileToLineCountMap, fileToByteCountMap)
+	operator(project, modules, fileToModuleMap, fileToLineCountMap, fileToByteCountMap)
 
 	return nil
 }

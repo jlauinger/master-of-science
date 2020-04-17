@@ -40,7 +40,7 @@ func openFiles(modulesFilename, matchesFilename, vetResultsFilename, gosecResult
 		return err
 	}
 
-	errorConditionsFile, err = os.OpenFile(errorsFilename, os.O_WRONLY|os.O_CREATE, 0644)
+	errorConditionsFile, err = os.OpenFile(errorsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
