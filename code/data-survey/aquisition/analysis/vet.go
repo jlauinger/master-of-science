@@ -48,7 +48,7 @@ func runVet(project *ProjectData, packages []PackageData) []VetFindingLine {
 				break
 			}
 
-			contextLines = append(contextLines, contextLine)
+			contextLines = append(contextLines, strings.Join(components[1:], "\t"))
 			i++
 		}
 

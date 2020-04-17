@@ -94,6 +94,8 @@ func getProjectPackages(project *ProjectData) ([]PackageData, error) {
 			moduleIsIndirect = pkg.Module.Indirect
 		}
 
+		// TODO: add package-level LOC / byteSize
+
 		packages = append(packages, PackageData{
 			Name:             pkg.Name,
 			ImportPath:       pkg.ImportPath,
