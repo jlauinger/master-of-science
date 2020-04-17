@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"data-aquisition/analysis"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +10,7 @@ var analyzeVetCmd = &cobra.Command{
 	Short: "Runs go vet on the projects",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("vetting now! From %d to %d", offset, length)
+		analysis.AnalyzeVet(offset, length, dataDir)
 	},
 }
 

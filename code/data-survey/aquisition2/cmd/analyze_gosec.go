@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"data-aquisition/analysis"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +10,7 @@ var analyzeGosecCmd = &cobra.Command{
 	Short: "Runs gosec on the projects",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("goseccing like never before now! From %d to %d", offset, length)
+		analysis.AnalyzeGosec(offset, length, dataDir)
 	},
 }
 

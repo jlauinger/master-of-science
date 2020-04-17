@@ -1,22 +1,16 @@
-package main
+package analysis
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 )
 
-func main() {
-	offset, _ := strconv.Atoi(os.Args[1])
-	length, _ := strconv.Atoi(os.Args[2])
-	pathPrefix := os.Args[3]
-
-	projectsFilename := fmt.Sprintf("%s/projects.csv", pathPrefix)
-	modulesFilename := fmt.Sprintf("%s/modules_%d_%d.csv", pathPrefix, offset, offset + length - 1)
-	matchesFilename := fmt.Sprintf("%s/unsafe_matches_%d_%d.csv", pathPrefix, offset, offset + length - 1)
-	vetResultsFilename := fmt.Sprintf("%s/vet_results_%d_%d.csv", pathPrefix, offset, offset + length - 1)
-	gosecResultsFilename := fmt.Sprintf("%s/gosec_results_%d_%d.csv", pathPrefix, offset, offset + length - 1)
-	errorsFilename := fmt.Sprintf("%s/errors_%d_%d.csv", pathPrefix, offset, offset + length - 1)
+func AnalyzeGrep(offset, length int, dataDir string) {
+	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
+	modulesFilename := fmt.Sprintf("%s/modules_%d_%d.csv", dataDir, offset, offset + length - 1)
+	matchesFilename := fmt.Sprintf("%s/unsafe_matches_%d_%d.csv", dataDir, offset, offset + length - 1)
+	vetResultsFilename := fmt.Sprintf("%s/vet_results_%d_%d.csv", dataDir, offset, offset + length - 1)
+	gosecResultsFilename := fmt.Sprintf("%s/gosec_results_%d_%d.csv", dataDir, offset, offset + length - 1)
+	errorsFilename := fmt.Sprintf("%s/errors_%d_%d.csv", dataDir, offset, offset + length - 1)
 
 	defer closeFiles()
 	if err := openFiles(modulesFilename, matchesFilename, vetResultsFilename,
@@ -58,4 +52,12 @@ func main() {
 			continue
 		}
 	}
+}
+
+func AnalyzeVet(offset, length int, dataDir string) {
+
+}
+
+func AnalyzeGosec(offset, length int, dataDir string) {
+
 }

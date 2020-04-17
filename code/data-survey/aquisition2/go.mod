@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-git/go-git/v5 v5.0.0
-	github.com/gocarina/gocsv v0.0.0-20200330101823-46266ca37bd3 // indirect
+	github.com/gocarina/gocsv v0.0.0-20200330101823-46266ca37bd3
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.2.2 // indirect
