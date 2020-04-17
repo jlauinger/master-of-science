@@ -1,19 +1,18 @@
 package analysis
 
 import (
-	"data-aquisition/base"
 	"fmt"
 )
 
 func AnalyzeGrep(offset, length int, dataDir string) {
 	commonAnalysis(offset, length, dataDir, operatorGrepAnalysis)
 }
-func operatorGrepAnalysis(project *base.ProjectData, modules []base.ModuleData, fileToModuleMap map[string]base.ModuleData,
+func operatorGrepAnalysis(project *ProjectData, modules []ModuleData, fileToModuleMap map[string]ModuleData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
 
 	parsedGrepLines, err := grepForUnsafe(modules)
 	if err != nil {
-		_ = WriteErrorCondition(base.ErrorConditionData{
+		_ = WriteErrorCondition(ErrorConditionData{
 			Stage:            "grep-parse",
 			ProjectName:      project.ProjectName,
 			ModuleImportPath: "",
@@ -29,7 +28,7 @@ func operatorGrepAnalysis(project *base.ProjectData, modules []base.ModuleData, 
 func AnalyzeVet(offset, length int, dataDir string) {
 	commonAnalysis(offset, length, dataDir, operatorVetAnalysis)
 }
-func operatorVetAnalysis(project *base.ProjectData, modules []base.ModuleData, fileToModuleMap map[string]base.ModuleData,
+func operatorVetAnalysis(project *ProjectData, modules []ModuleData, fileToModuleMap map[string]ModuleData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
 
 	vetFindings := runVet(project, modules)
@@ -40,7 +39,7 @@ func operatorVetAnalysis(project *base.ProjectData, modules []base.ModuleData, f
 func AnalyzeGosec(offset, length int, dataDir string) {
 	commonAnalysis(offset, length, dataDir, operatorGosecAnalysis)
 }
-func operatorGosecAnalysis(project *base.ProjectData, modules []base.ModuleData, fileToModuleMap map[string]base.ModuleData,
+func operatorGosecAnalysis(project *ProjectData, modules []ModuleData, fileToModuleMap map[string]ModuleData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
 
 	gosecFindings, _ := runGosec(project, modules)
@@ -49,7 +48,7 @@ func operatorGosecAnalysis(project *base.ProjectData, modules []base.ModuleData,
 
 
 func commonAnalysis(offset, length int, dataDir string,
-	operator func(*base.ProjectData, []base.ModuleData, map[string]base.ModuleData, map[string]int, map[string]int)) {
+	operator func(*ProjectData, []ModuleData, map[string]ModuleData, map[string]int, map[string]int)) {
 
 	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
 	modulesFilename := fmt.Sprintf("%s/modules_%d_%d.csv", dataDir, offset, offset + length - 1)
@@ -71,7 +70,7 @@ func commonAnalysis(offset, length int, dataDir string,
 
 	for projectIdx, project := range projects[offset:offset+length] {
 		if !goModExists(project) {
-			_ = WriteErrorCondition(base.ErrorConditionData{
+			_ = WriteErrorCondition(ErrorConditionData{
 				Stage:            "go.mod",
 				ProjectName:      project.ProjectName,
 				ModuleImportPath: "",
@@ -87,7 +86,7 @@ func commonAnalysis(offset, length int, dataDir string,
 		err := analyzeProject(project, operator)
 
 		if err != nil {
-			_ = WriteErrorCondition(base.ErrorConditionData{
+			_ = WriteErrorCondition(ErrorConditionData{
 				Stage:            "project",
 				ProjectName:      project.ProjectName,
 				ModuleImportPath: "",

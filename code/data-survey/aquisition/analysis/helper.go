@@ -1,7 +1,6 @@
 package analysis
 
 import (
-	"data-aquisition/base"
 	"fmt"
 	"os"
 	"strings"
@@ -21,7 +20,7 @@ func Min(x, y int) int {
 	return x
 }
 
-func goModExists(project *base.ProjectData) bool {
+func goModExists(project *ProjectData) bool {
 	_, err := os.Stat(fmt.Sprintf("%s/go.mod", project.ProjectCheckoutPath))
 	return err == nil
 }

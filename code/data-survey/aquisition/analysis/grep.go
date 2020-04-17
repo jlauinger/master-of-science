@@ -2,7 +2,6 @@ package analysis
 
 import (
 	"bytes"
-	"data-aquisition/base"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,7 +9,7 @@ import (
 	"strings"
 )
 
-func grepForUnsafe(modules []base.ModuleData) ([]base.RipgrepOutputLine, error) {
+func grepForUnsafe(modules []ModuleData) ([]RipgrepOutputLine, error) {
 	files := make([]string, 0, 1000)
 
 	for _, module := range modules {
@@ -31,10 +30,10 @@ func grepForUnsafe(modules []base.ModuleData) ([]base.RipgrepOutputLine, error) 
 	}
 
 	dec := json.NewDecoder(bytes.NewReader(rgOutput))
-	parsedLines := make([]base.RipgrepOutputLine, 0, 1000)
+	parsedLines := make([]RipgrepOutputLine, 0, 1000)
 
 	for {
-		var message base.RipgrepOutputLine
+		var message RipgrepOutputLine
 
 		err := dec.Decode(&message)
 		if err == io.EOF {
@@ -50,7 +49,7 @@ func grepForUnsafe(modules []base.ModuleData) ([]base.RipgrepOutputLine, error) 
 	return parsedLines, nil
 }
 
-func analyzeGrepLines(parsedLines []base.RipgrepOutputLine, fileToModuleMap map[string]base.ModuleData,
+func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToModuleMap map[string]ModuleData,
 	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
 	for lineIdx, line := range parsedLines {
 		if line.MessageType == "match" {
@@ -82,7 +81,7 @@ func analyzeGrepLines(parsedLines []base.RipgrepOutputLine, fileToModuleMap map[
 			module := fileToModuleMap[fullFilename]
 			filename := fullFilename[len(module.PackageDir)+1:]
 
-			err := WriteMatchResult(base.MatchResultData{
+			err := WriteMatchResult(MatchResultData{
 				ProjectName:          module.ProjectName,
 				ModuleImportPath:     module.ModuleImportPath,
 				ModuleRegistry:       module.ModuleRegistry,
@@ -102,7 +101,7 @@ func analyzeGrepLines(parsedLines []base.RipgrepOutputLine, fileToModuleMap map[
 			})
 
 			if err != nil {
-				_ = WriteErrorCondition(base.ErrorConditionData{
+				_ = WriteErrorCondition(ErrorConditionData{
 					Stage:            "ripgrep-parse",
 					ProjectName:      module.ProjectName,
 					ModuleImportPath: module.ModuleImportPath,

@@ -2,15 +2,14 @@ package analysis
 
 import (
 	"bytes"
-	"data-aquisition/base"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os/exec"
 )
 
-func analyzeProject(project *base.ProjectData,
-	operator func(*base.ProjectData, []base.ModuleData, map[string]base.ModuleData, map[string]int, map[string]int)) error {
+func analyzeProject(project *ProjectData,
+	operator func(*ProjectData, []ModuleData, map[string]ModuleData, map[string]int, map[string]int)) error {
 
 	modules, err := getProjectModules(project)
 	if err != nil {
@@ -18,12 +17,12 @@ func analyzeProject(project *base.ProjectData,
 	}
 
 	files := make([]string, 0, 500)
-	fileToModuleMap := map[string]base.ModuleData{}
+	fileToModuleMap := map[string]ModuleData{}
 
 	for _, module := range modules {
 		err := WriteModule(module)
 		if err != nil {
-			_ = WriteErrorCondition(base.ErrorConditionData{
+			_ = WriteErrorCondition(ErrorConditionData{
 				Stage:            "module",
 				ProjectName:      project.ProjectName,
 				ModuleImportPath: module.ModuleImportPath,
@@ -57,7 +56,7 @@ func analyzeProject(project *base.ProjectData,
 	return nil
 }
 
-func getProjectModules(project *base.ProjectData) ([]base.ModuleData, error) {
+func getProjectModules(project *ProjectData) ([]ModuleData, error) {
 	cmd := exec.Command("go", "list", "-deps", "-json")
 	cmd.Dir = project.ProjectCheckoutPath
 
@@ -67,10 +66,10 @@ func getProjectModules(project *base.ProjectData) ([]base.ModuleData, error) {
 	}
 
 	dec := json.NewDecoder(bytes.NewReader(jsonOutput))
-	modules := make([]base.ModuleData, 0, 500)
+	modules := make([]ModuleData, 0, 500)
 
 	for {
-		var pkg base.GoListOutputPackage
+		var pkg GoListOutputPackage
 
 		err := dec.Decode(&pkg)
 		if err == io.EOF {
@@ -87,7 +86,7 @@ func getProjectModules(project *base.ProjectData) ([]base.ModuleData, error) {
 			moduleRegistry = getRegistryFromImportPath(pkg.ImportPath)
 		}
 
-		modules = append(modules, base.ModuleData{
+		modules = append(modules, ModuleData{
 			ProjectName:          project.ProjectName,
 			ModuleImportPath:     pkg.ImportPath,
 			ModuleRegistry:       moduleRegistry,
