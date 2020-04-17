@@ -2,35 +2,29 @@ package projects
 
 import (
 	"context"
-	"encoding/csv"
+	"data-aquisition/analysis"
 	"fmt"
-	"github.com/google/go-github/github"
 	"github.com/go-git/go-git/v5"
+	"github.com/gocarina/gocsv"
+	"github.com/google/go-github/github"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
 func GetProjects(dataDir, downloadDir string, download bool) {
-	filename := fmt.Sprintf("%s/projects.csv", dataDir)
+	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
 
-	fmt.Printf("Saving project data to %s\n", filename)
+	fmt.Printf("Saving project data to %s\n", projectsFilename)
 
-	file, err := os.Create(filename)
+	headerWritten := false
+	projectsFile, err := os.OpenFile(projectsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	writer.Write([]string{"project_rank", "project_name", "project_github_clone_url", "project_number_of_stars",
-		"project_number_of_forks", "project_github_id", "project_created_at", "project_last_pushed_at",
-		"project_updated_at", "project_size", "project_checkout_path"})
+	defer projectsFile.Close()
 
 	fmt.Println("Getting information about top 500 Go projects...")
 	client := github.NewClient(nil)
@@ -50,21 +44,27 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 		for i, repo := range repos.Repositories {
 			path := downloadDir + "/" + *repo.Name
 
-			writer.Write([]string{
-				strconv.Itoa(i + 1),
-				repo.GetFullName(),
-				repo.GetCloneURL(),
-				strconv.Itoa(repo.GetStargazersCount()),
-				strconv.Itoa(repo.GetForksCount()),
-				strconv.FormatInt(*repo.ID, 10),
-				repo.CreatedAt.String(),
-				repo.PushedAt.String(),
-				repo.UpdatedAt.String(),
-				strconv.Itoa(*repo.Size),
-				path,
-			})
-
 			fmt.Printf("%v. %v\n", (page-1)*100+(i+1), *repo.CloneURL)
+			
+			project := analysis.ProjectData{
+				ProjectRank:           i + 1,
+				ProjectName:           repo.GetFullName(),
+				ProjectGithubCloneUrl: repo.GetCloneURL(),
+				ProjectNumberOfStars:  repo.GetStargazersCount(),
+				ProjectNumberOfForks:  repo.GetForksCount(),
+				ProjectGithubId:       *repo.ID,
+				ProjectCreatedAt:      analysis.DateTime{Time: repo.CreatedAt.Time},
+				ProjectLastPushedAt:   analysis.DateTime{Time: repo.PushedAt.Time},
+				ProjectUpdatedAt:      analysis.DateTime{Time: repo.UpdatedAt.Time},
+				ProjectSize:           *repo.Size,
+				ProjectCheckoutPath:   path,
+			}
+
+			if headerWritten {
+				gocsv.MarshalWithoutHeaders([]analysis.ProjectData{project}, projectsFile)
+			} else {
+				gocsv.Marshal([]analysis.ProjectData{project}, projectsFile)
+			}
 
 			if download {
 				downloadRepo(repo, path)

@@ -17,7 +17,7 @@ type ProjectData struct {
 	ProjectGithubCloneUrl string 	`csv:"project_github_clone_url"`
 	ProjectNumberOfStars  int 		`csv:"project_number_of_stars"`
 	ProjectNumberOfForks  int 		`csv:"project_number_of_forks"`
-	ProjectGithubId       string 	`csv:"project_github_id"`
+	ProjectGithubId       int64   	`csv:"project_github_id"`
 	ProjectCreatedAt      DateTime  `csv:"project_created_at"`
 	ProjectLastPushedAt   DateTime  `csv:"project_last_pushed_at"`
 	ProjectUpdatedAt      DateTime  `csv:"project_updated_at"`
