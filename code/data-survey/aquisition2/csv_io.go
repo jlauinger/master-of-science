@@ -12,10 +12,12 @@ var matchesFile *os.File
 var matchesFileHeaderWritten = false
 var vetResultsFile *os.File
 var vetResultsFileHeaderWritten = false
+var gosecResultsFile *os.File
+var gosecResultsFileHeaderWritten = false
 var errorConditionsFile *os.File
 var errorConditionsFileHeaderWritten = false
 
-func openFiles(modulesFilename, matchesFilename, vetResultsFilename, errorsFilename string) error {
+func openFiles(modulesFilename, matchesFilename, vetResultsFilename, gosecResultsFilename, errorsFilename string) error {
 	var err error
 
 	modulesFile, err = os.OpenFile(modulesFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
@@ -33,6 +35,11 @@ func openFiles(modulesFilename, matchesFilename, vetResultsFilename, errorsFilen
 		return err
 	}
 
+	gosecResultsFile, err = os.OpenFile(gosecResultsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+
 	errorConditionsFile, err = os.OpenFile(errorsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -45,6 +52,7 @@ func closeFiles() {
 	modulesFile.Close()
 	matchesFile.Close()
 	vetResultsFile.Close()
+	gosecResultsFile.Close()
 	errorConditionsFile.Close()
 }
 
@@ -94,6 +102,15 @@ func WriteVetFinding(vetFinding VetFindingData) error {
 	} else {
 		vetResultsFileHeaderWritten = true
 		return gocsv.Marshal([]VetFindingData{vetFinding}, vetResultsFile)
+	}
+}
+
+func WriteGosecFinding(gosecFinding GosecFindingData) error {
+	if gosecResultsFileHeaderWritten {
+		return gocsv.MarshalWithoutHeaders([]GosecFindingData{gosecFinding}, gosecResultsFile)
+	} else {
+		gosecResultsFileHeaderWritten = true
+		return gocsv.Marshal([]GosecFindingData{gosecFinding}, gosecResultsFile)
 	}
 }
 

@@ -15,10 +15,12 @@ func main() {
 	modulesFilename := fmt.Sprintf("%s/modules_%d_%d.csv", pathPrefix, offset, offset + length - 1)
 	matchesFilename := fmt.Sprintf("%s/unsafe_matches_%d_%d.csv", pathPrefix, offset, offset + length - 1)
 	vetResultsFilename := fmt.Sprintf("%s/vet_results_%d_%d.csv", pathPrefix, offset, offset + length - 1)
+	gosecResultsFilename := fmt.Sprintf("%s/gosec_results_%d_%d.csv", pathPrefix, offset, offset + length - 1)
 	errorsFilename := fmt.Sprintf("%s/errors_%d_%d.csv", pathPrefix, offset, offset + length - 1)
 
 	defer closeFiles()
-	if err := openFiles(modulesFilename, matchesFilename, vetResultsFilename, errorsFilename); err != nil {
+	if err := openFiles(modulesFilename, matchesFilename, vetResultsFilename,
+		gosecResultsFilename, errorsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
 

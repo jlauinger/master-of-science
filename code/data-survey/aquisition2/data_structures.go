@@ -4,13 +4,11 @@ import (
 	"time"
 )
 
+
+// CSV output formats -----------------------------------------------------------------------------------
+
 type DateTime struct {
 	time.Time
-}
-
-type VetFindingLine struct {
-	Message     string
-	ContextLine string
 }
 
 type ProjectData struct {
@@ -74,6 +72,26 @@ type VetFindingData struct {
 	RawOutput            string `csv:"raw_output"`
 }
 
+type GosecFindingData struct {
+	ProjectName          string `csv:"project_name"`
+	ModuleImportPath     string `csv:"module_import_path"`
+	ModuleRegistry       string `csv:"module_registry"`
+	ModuleVersion        string `csv:"module_version"`
+	ModuleNumberGoFiles  int    `csv:"module_number_go_files"`
+	ModuleCheckoutFolder string `csv:"module_checkout_folder"`
+	FileName             string `csv:"file_name"`
+	FileSizeBytes        int    `csv:"file_size_bytes"`
+	FileSizeLines        int    `csv:"file_size_lines"`
+	FileImportsUnsafePkg bool   `csv:"file_imports_unsafe_pkg"`
+	LineNumber           int    `csv:"line_number"`
+	Column               int    `csv:"column"`
+	Message              string `csv:"message"`
+	Text                 string `csv:"text"`
+	Confidence           string `csv:"confidence"`
+	Severity             string `csv:"severity"`
+	CweId                string `csv:"cwe_id"`
+}
+
 type ErrorConditionData struct {
 	Stage            string `csv:"stage"`
 	ProjectName      string `csv:"project_name"`
@@ -81,6 +99,9 @@ type ErrorConditionData struct {
 	FileName         string `csv:"file_name"`
 	Message          string `csv:"message"`
 }
+
+
+// Go list parsing -----------------------------------------------------------------------------------------------------
 
 type GoListOutputPackage struct {
 	Dir           string   // directory containing package sources
@@ -166,6 +187,9 @@ type GoListOutputPackageError struct {
 	Err           string   // the error itself
 }
 
+
+// Ripgrep parsing -----------------------------------------------------------------------------------------------------
+
 type RipgrepOutputLine struct {
 	MessageType string 				`json:"type"` // begin,end,match,context,summary
 	Data        *RipgrepMessageData	`json:"data"`
@@ -207,4 +231,47 @@ type RipgrepTime struct {
 	Human string `json:"human"`
 	Nanos int    `json:"nanos"`
 	Secs  int    `json:"secs"`
+}
+
+
+// Vet parsing ---------------------------------------------------------------------------------------------------------
+
+type VetFindingLine struct {
+	Message     string
+	ContextLine string
+}
+
+
+// Gosec parsing -------------------------------------------------------------------------------------------------------
+
+type GosecOutput struct {
+	GolangErrors *GosecGolangErrorsOutput `json:"Golang errors"`
+	Issues       []GosecIssueOutput       `json:"Issues"`
+	Stats        *GosecStatsOutput        `json:"Stats"`
+}
+
+type GosecIssueOutput struct {
+	Severity   string          `json:"severity"`
+	Confidence string          `json:"confidence"`
+	Cwe        *GosecCweOutput `json:"cwe"`
+	RuleId     string          `json:"rule_id"`
+	Details    string          `json:"details"`
+	File       string          `json:"file"`
+	Code       string          `json:"code"`
+	Line       string          `json:"line"`
+	Column     string          `json:"column"`
+}
+
+type GosecCweOutput struct {
+	Id  string `json:"ID"`
+	Url string `json:"URL"`
+}
+
+type GosecGolangErrorsOutput struct {}
+
+type GosecStatsOutput struct {
+	Files int `json:"files"`
+	Lines int `json:"lines"`
+	Nosec int `json:"nosec"`
+	Found int `json:"found"`
 }
