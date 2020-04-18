@@ -83,7 +83,14 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 		}
 
 		fullFilename = strings.Trim(components[0], " ")
-		pkg := fileToPackageMap[fullFilename]
+		pkg, ok := fileToPackageMap[fullFilename]
+
+		if !ok {
+			pkg = &PackageData{
+				ImportPath: "unknown-vet-error",
+			}
+		}
+
 		filename := fullFilename[len(pkg.Dir)+1:]
 
 		if strings.Contains(filename, "test") {
