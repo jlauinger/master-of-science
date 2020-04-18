@@ -63,6 +63,7 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 			if headerWritten {
 				gocsv.MarshalWithoutHeaders([]analysis.ProjectData{project}, projectsFile)
 			} else {
+				headerWritten = true
 				gocsv.Marshal([]analysis.ProjectData{project}, projectsFile)
 			}
 
