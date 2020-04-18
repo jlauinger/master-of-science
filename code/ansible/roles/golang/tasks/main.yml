@@ -1,0 +1,30 @@
+---
+- name: "download Go tarball"
+  get_url:
+    url: https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz
+    dest: /root/
+    checksum: sha256:6272d6e940ecb71ea5636ddb5fab3933e087c1356173c61f4a803895e947ebb3
+    mode: 0440
+  register: go_download
+
+- name: "extract Go"
+  unarchive:
+    src: /root/go1.14.2.linux-amd64.tar.gz
+    dest: /usr/local/
+    copy: no
+  when: go_download|changed
+
+
+- name: "add go to PATH"
+  lineinfile:
+    path: /etc/profile
+    line: "export PATH=$PATH:/usr/local/go/bin"
+
+- name: "reload profile"
+  shell: "source /etc/profile"
+
+- name: "create GOPATH directory"
+  file:
+    dest: /root/go
+    state: directory
+

@@ -1,0 +1,16 @@
+---
+- name: "Install unattended upgrades"
+  apt: package={{ item }} state=present
+  with_items:
+    - unattended-upgrades
+  tags: upgrades
+
+- name: "Configure unattended upgrades"
+  template:
+    src: "{{ item.key }}"
+    dest: "{{ item.value }}"
+  with_dict:
+    50unattended-upgrades.j2: /etc/apt/apt.conf.d/50unattended-upgrades
+    20auto-upgrades.j2: /etc/apt/apt.conf.d/20auto-upgrades
+  tags: upgrades
+

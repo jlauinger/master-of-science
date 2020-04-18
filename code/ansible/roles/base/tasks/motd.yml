@@ -1,0 +1,19 @@
+---
+- name: "Install figlet"
+  apt: name={{ item }} state=present
+  with_items:
+    - figlet
+  tags: base
+
+- name: "Generate message of the day"
+  shell: "/usr/bin/figlet {{ inventory_hostname }}"
+  register: motd
+  check_mode: no
+  changed_when: no
+  tags: base, motd
+
+- name: "Set up message of the day"
+  copy:
+    content: "{{ motd.stdout }}\n\nManaged by Ansible (last run by {{ lookup('env','USER') }} at {{ ansible_date_time.date }})\n"
+    dest: /etc/motd
+  tags: base, motd

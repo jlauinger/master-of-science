@@ -1,0 +1,2 @@
+[productionservers]
+vm6              ansible_host=vm6.rbg.informatik.tu-darmstadt.de ansible_port=22

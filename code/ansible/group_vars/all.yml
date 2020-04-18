@@ -1,0 +1,7 @@
+---
+ssh:
+  authorized_keys:
+    - "{{ vm6_vault.ssh.public_key_matthias }}"
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAUGR9Fp1kSxIkPOmKQdjhf2tvsch02e9et0vrcK7ZJz johannes@maschine
+  ssh_port: 22
+

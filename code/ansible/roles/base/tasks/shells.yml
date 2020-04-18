@@ -1,0 +1,41 @@
+---
+- name: "Install common shells"
+  apt: name={{ item }} state=present
+  with_items:
+    - bash
+    - zsh
+    - fish
+  tags: base
+
+- name: "Install jlauinger's oh-my-zsh theme"
+  git:
+    repo: https://github.com/jlauinger/oh-my-zsh
+    dest: "{{ item }}/.oh-my-zsh"
+    update: no
+  with_items:
+    - /root
+  tags: base
+
+- name: "Install .zshrc"
+  copy:
+    src: templates/zshrc
+    dest: "{{ item }}/.zshrc"
+  with_items:
+    - /root
+  tags: base
+
+- name: "Disable terminal clear on logout"
+  copy:
+    dest: "{{ item }}/.zlogout"
+    content: setopt norcs
+  with_items:
+    - /root
+  tags: base
+
+- name: "Set zsh as default shell"
+  user:
+    name: "{{ item }}"
+    shell: /usr/bin/zsh
+  with_items:
+    - root
+  tags: base

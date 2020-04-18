@@ -1,0 +1,23 @@
+---
+- name: "Install very commonly used packages"
+  package:
+    name:
+      - curl
+      - wget
+      - dnsutils
+      - net-tools
+      - nmap
+      - netcat
+      - traceroute
+      - git
+      - htop
+      - screen
+      - tmux
+      - tree
+      - vim
+      - nano
+      - ncurses-term
+      - mailutils
+      - bridge-utils
+    state: present
+  tags: base
