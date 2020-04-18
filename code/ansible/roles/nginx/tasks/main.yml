@@ -1,0 +1,18 @@
+---
+- name: "install nginx"
+  package:
+    name: nginx
+  tags: nginx
+
+- name: "set up nginx configuation"
+  template:
+    src: jupyter.conf
+    dest: /etc/nginx/sites-enabled/jupyter.conf
+  tags: nginx
+
+- name: "start and enable nginx"
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+  tags: nginx

@@ -1,0 +1,9 @@
+---
+- name: "install ripgrep"
+  package:
+    name: ripgrep
+  tags: aquisition
+
+- name: "install gosec"
+  command: /usr/local/go/bin/go get github.com/securego/gosec/cmd/gosec
+  tags: aquisition

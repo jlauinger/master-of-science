@@ -1,0 +1,82 @@
+---
+- name: "install prerequisite packages"
+  package:
+    name:
+      - python3-pip
+      - python3-dev
+      - python3-venv
+  tags: jupyter
+
+- name: "setup jupyter directory"
+  file:
+    dest: /root/jupyter
+    state: directory
+  tags: jupyter
+
+- name: Install virtualenv via pip
+  pip:
+    name: virtualenv
+    executable: pip3
+  tags: jupyter
+
+- name: "create venv"
+  command: python3 -m venv /root/jupyter/venv
+  args:
+    creates: /root/jupyter/venv
+  tags: jupyter
+
+- name: "install jupyter"
+  pip:
+    name: jupyter
+    virtualenv: /root/jupyter/venv
+  tags: jupyter
+
+- name: "set up Jupyter configuration file"
+  template:
+    src: jupyter_notebook_config.py.j2
+    dest: /home/jupyter/.jupyter/jupyter_notebook_config.py
+    mode: 0644
+  tags: jupyter
+
+- name: "create jupyter user"
+  user:
+    name: jupyter
+    system: yes
+    create_home: yes
+  tags: jupyter
+
+- name: "create jupyter group"
+  group:
+    name: jupyter
+  tags: jupyter
+
+- name: "create notebook directory"
+  file:
+    dest: /root/jupyter/notebooks
+    state: directory
+    mode: 0775
+    owner: jupyter
+    group: jupyter
+  tags: jupyter
+
+- name: "deploy jupyter service file"
+  template:
+    src: jupyter.service.j2
+    dest: /etc/systemd/system/jupyter.service
+  tags: jupyter
+
+- name: "start and enable jupyter"
+  service:
+    name: jupyter
+    state: started
+    enabled: yes
+  tags: jupyter
+
+- name: "install analysis dependencies"
+  pip:
+    name:
+      - numpy
+      - matplotlib
+      - pandas
+    virtualenv: /root/jupyter/venv
+  tags: jupyter

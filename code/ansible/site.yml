@@ -9,4 +9,6 @@
     - ssh
     - unattended-upgrades
     - golang
-
+    - jupyter
+    - aquisition
+    - nginx

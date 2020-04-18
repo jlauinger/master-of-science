@@ -1,0 +1,15 @@
+[Unit]
+Description=Jupyter Notebook
+
+[Service]
+Type=simple
+PIDFile=/run/jupyter.pid
+ExecStart=/bin/bash -c "source /root/jupyter/venv/bin/activate; jupyter-notebook --notebook-dir=/root/jupyter/notebooks --config=/home/jupyter/.jupyter/jupyter_notebook_config.py"
+User=jupyter
+Group=jupyter
+WorkingDirectory=/root/jupyter/notebooks
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
