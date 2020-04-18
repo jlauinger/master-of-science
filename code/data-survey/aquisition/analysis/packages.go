@@ -55,10 +55,7 @@ func getProjectPackages(project *ProjectData) ([]*PackageData, error) {
 	cmd := exec.Command("go", "list", "-deps", "-json", "./...")
 	cmd.Dir = project.CheckoutPath
 
-	jsonOutput, err := cmd.Output()
-	if err != nil {
-		return nil, err
-	}
+	jsonOutput, _ := cmd.Output()
 
 	dec := json.NewDecoder(bytes.NewReader(jsonOutput))
 	packages := make([]*PackageData, 0, 500)
