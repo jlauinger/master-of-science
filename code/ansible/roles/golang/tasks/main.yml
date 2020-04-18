@@ -12,16 +12,12 @@
     src: /root/go1.14.2.linux-amd64.tar.gz
     dest: /usr/local/
     copy: no
-  when: go_download|changed
-
+  when: go_download.changed
 
 - name: "add go to PATH"
   lineinfile:
-    path: /etc/profile
+    path: /root/.zshrc
     line: "export PATH=$PATH:/usr/local/go/bin"
-
-- name: "reload profile"
-  shell: "source /etc/profile"
 
 - name: "create GOPATH directory"
   file:

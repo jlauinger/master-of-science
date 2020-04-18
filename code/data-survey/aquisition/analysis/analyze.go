@@ -5,7 +5,22 @@ import (
 )
 
 func AnalyzeGrep(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string) {
-	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, operatorGrepAnalysis)
+	packagesFilename := fmt.Sprintf("%s/packages_%d_%d.csv", dataDir, offset, offset + length - 1)
+	grepFindingsFilename := fmt.Sprintf("%s/grep_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
+	errorsFilename := fmt.Sprintf("%s/errors_grep_%d_%d.csv", dataDir, offset, offset + length - 1)
+
+	if err := openPackagesFile(packagesFilename); err != nil {
+		fmt.Printf("ERROR: %v\n", err)
+	}
+	if err := openGrepFindingsFile(grepFindingsFilename); err != nil {
+		fmt.Printf("ERROR: %v\n", err)
+	}
+	if err := openErrorConditionsFile(errorsFilename); err != nil {
+		fmt.Printf("ERROR: %v\n", err)
+	}
+	defer closeFiles()
+
+	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, true, operatorGrepAnalysis)
 }
 func operatorGrepAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
 	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
@@ -26,7 +41,18 @@ func operatorGrepAnalysis(project *ProjectData, packages []*PackageData, fileToP
 
 
 func AnalyzeVet(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string) {
-	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, operatorVetAnalysis)
+	vetFindingsFilename := fmt.Sprintf("%s/vet_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
+	errorsFilename := fmt.Sprintf("%s/errors_vet_%d_%d.csv", dataDir, offset, offset + length - 1)
+
+	if err := openVetFindingsFile(vetFindingsFilename); err != nil {
+		fmt.Printf("ERROR: %v\n", err)
+	}
+	if err := openErrorConditionsFile(errorsFilename); err != nil {
+		fmt.Printf("ERROR: %v\n", err)
+	}
+	defer closeFiles()
+
+	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, false, operatorVetAnalysis)
 }
 func operatorVetAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
 	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
@@ -37,7 +63,18 @@ func operatorVetAnalysis(project *ProjectData, packages []*PackageData, fileToPa
 
 
 func AnalyzeGosec(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string) {
-	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, operatorGosecAnalysis)
+	gosecFindingsFilename := fmt.Sprintf("%s/gosec_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
+	errorsFilename := fmt.Sprintf("%s/errors_gosec_%d_%d.csv", dataDir, offset, offset + length - 1)
+
+	if err := openGosecFindingsFile(gosecFindingsFilename); err != nil {
+		fmt.Printf("ERROR: %v\n", err)
+	}
+	if err := openErrorConditionsFile(errorsFilename); err != nil {
+		fmt.Printf("ERROR: %v\n", err)
+	}
+	defer closeFiles()
+
+	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, false, operatorGosecAnalysis)
 }
 func operatorGosecAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
 	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
@@ -47,23 +84,10 @@ func operatorGosecAnalysis(project *ProjectData, packages []*PackageData, fileTo
 }
 
 
-func commonAnalysis(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string,
+func commonAnalysis(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string, writePackagesToFile bool,
 	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int) map[string]string) {
 
-	// TODO: open only the ones needed for current analysis
-
 	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
-	packagesFilename := fmt.Sprintf("%s/packages_%d_%d.csv", dataDir, offset, offset + length - 1)
-	grepFindingsFilename := fmt.Sprintf("%s/grep_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
-	vetFindingsFilename := fmt.Sprintf("%s/vet_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
-	gosecFindingsFilename := fmt.Sprintf("%s/gosec_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
-	errorsFilename := fmt.Sprintf("%s/errors_%d_%d.csv", dataDir, offset, offset + length - 1)
-
-	defer closeFiles()
-	if err := openFiles(packagesFilename, grepFindingsFilename, vetFindingsFilename,
-		gosecFindingsFilename, errorsFilename); err != nil {
-		fmt.Printf("ERROR: %v\n", err)
-	}
 
 	fmt.Println("reading projects data...")
 	projects, err := readProjects(projectsFilename)
@@ -84,7 +108,7 @@ func commonAnalysis(offset, length int, dataDir string, skipProjects []string, d
 
 		fmt.Printf("%d/%d (#%d): Analyzing %s\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
 
-		filesToCopy, err := analyzeProject(project, operator)
+		filesToCopy, err := analyzeProject(project, writePackagesToFile, operator)
 
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{

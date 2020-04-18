@@ -17,43 +17,67 @@ var gosecFindingsFileHeaderWritten = false
 var errorConditionsFile *os.File
 var errorConditionsFileHeaderWritten = false
 
-func openFiles(packagesFilename, grepFilename, vetFilename, gosecFilename, errorsFilename string) error {
+func openPackagesFile(packagesFilename string) error {
 	var err error
-
 	packagesFile, err = os.OpenFile(packagesFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
+func openGrepFindingsFile(grepFilename string) error {
+	var err error
 	grepFindingsFile, err = os.OpenFile(grepFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
-	vetFindingsFile, err = os.OpenFile(vetFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+func openVetFindingsFile(vetFile string) error {
+	var err error
+	vetFindingsFile, err = os.OpenFile(vetFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
+func openGosecFindingsFile(gosecFilename string) error {
+	var err error
 	gosecFindingsFile, err = os.OpenFile(gosecFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
+func openErrorConditionsFile(errorsFilename string) error {
+	var err error
 	errorConditionsFile, err = os.OpenFile(errorsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func closeFiles() {
-	packagesFile.Close()
-	grepFindingsFile.Close()
-	vetFindingsFile.Close()
-	gosecFindingsFile.Close()
-	errorConditionsFile.Close()
+	if packagesFile != nil {
+		packagesFile.Close()
+	}
+	if grepFindingsFile != nil {
+		grepFindingsFile.Close()
+	}
+	if vetFindingsFile != nil {
+		vetFindingsFile.Close()
+	}
+	if gosecFindingsFile != nil {
+		gosecFindingsFile.Close()
+	}
+	if errorConditionsFile != nil {
+		errorConditionsFile.Close()
+	}
 }
 
 func (date *DateTime) UnmarshalCSV(csv string) (err error) {

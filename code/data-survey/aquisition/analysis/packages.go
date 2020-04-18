@@ -8,7 +8,7 @@ import (
 	"os/exec"
 )
 
-func analyzeProject(project *ProjectData,
+func analyzeProject(project *ProjectData, writePackagesToFile bool,
 	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int) map[string]string) (map[string]string, error) {
 
 	packages, err := getProjectPackages(project)
@@ -40,7 +40,9 @@ func analyzeProject(project *ProjectData,
 
 	fillPackageLOC(packages, fileToLineCountMap, fileToByteCountMap)
 
-	writePackages(packages)
+	if writePackagesToFile {
+		writePackages(packages)
+	}
 
 	filesToCopy := operator(project, packages, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
 

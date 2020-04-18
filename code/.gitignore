@@ -8,6 +8,8 @@ backup-data/
 __pycache__/
 aquisition2/aquisition2
 data-aquisition
+dev-data/
+dev-copy/
 
 # Binaries for programs and plugins
 *.exe
