@@ -80,12 +80,6 @@ func closeFiles() {
 	}
 }
 
-func (date *DateTime) UnmarshalCSV(csv string) (err error) {
-	// https://yourbasic.org/golang/format-parse-string-time-date-example/
-	date.Time, err = time.Parse("2006-01-02 15:04:05 -0700 MST", csv)
-	return err
-}
-
 func readProjects(filename string)([]*ProjectData, error) {
 	f, err := os.Open(filename)
 	if err != nil {
