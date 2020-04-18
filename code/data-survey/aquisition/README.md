@@ -20,19 +20,26 @@ Download repositories:
 Run analysis steps. You can run one at a time:
 
 ```shell script
-./data-aquisition analyze grep --offset 0 --length 500 --data-dir=/path/to/data
-./data-aquisition analyze vet --offset 0 --length 500 --data-dir=/path/to/data
-./data-aquisition analyze gosec --offset 0 --length 500 --data-dir=/path/to/data
+./data-aquisition analyze grep --data-dir=/path/to/data
+./data-aquisition analyze vet --data-dir=/path/to/data
+./data-aquisition analyze gosec --data-dir=/path/to/data
 ```
 
 To do better parallelization, you can split the analysis into buckets. `go vet` already automatically parallelizes as
 best as possible, `gosec` also parallelizes pretty well. Therefore, the grep analysis is the one that profits the most.
 Even here, `ripgrep` does an excellent parallelization step, but its execution takes less time compared to the overall
-program runtime, so chunking can give a little extra optimization.
+program runtime, so chunking can give a little extra optimization. Not specifying offset and length assumes their
+defaults 0 and 500.
 
 ```shell script
 ./data-aquisition analyze grep --offset 350 --length 50--data-dir=/path/to/data
 ...
+```
+
+You can skip projects with the skip argument. It can be applied multiple times.
+
+```shell script
+./data-aquisition analyze grep --data-dir=/path/to/data --skip golang/go --skip avelino/awesome-go
 ```
 
 Then, concatenate the resulting CSV files, dropping the headers in all but the first.

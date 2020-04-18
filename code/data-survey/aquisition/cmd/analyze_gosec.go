@@ -10,7 +10,7 @@ var analyzeGosecCmd = &cobra.Command{
 	Short: "Runs gosec on the projects",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		analysis.AnalyzeGosec(offset, length, dataDir)
+		analysis.AnalyzeGosec(offset, length, dataDir, skipProjects)
 	},
 }
 

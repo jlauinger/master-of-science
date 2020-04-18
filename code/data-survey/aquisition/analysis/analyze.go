@@ -4,8 +4,8 @@ import (
 	"fmt"
 )
 
-func AnalyzeGrep(offset, length int, dataDir string) {
-	commonAnalysis(offset, length, dataDir, operatorGrepAnalysis)
+func AnalyzeGrep(offset, length int, dataDir string, skipProjects []string) {
+	commonAnalysis(offset, length, dataDir, skipProjects, operatorGrepAnalysis)
 }
 func operatorGrepAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
 	fileToLineCountMap, fileToByteCountMap map[string]int) {
@@ -25,8 +25,8 @@ func operatorGrepAnalysis(project *ProjectData, packages []*PackageData, fileToP
 }
 
 
-func AnalyzeVet(offset, length int, dataDir string) {
-	commonAnalysis(offset, length, dataDir, operatorVetAnalysis)
+func AnalyzeVet(offset, length int, dataDir string, skipProjects []string) {
+	commonAnalysis(offset, length, dataDir, skipProjects, operatorVetAnalysis)
 }
 func operatorVetAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
 	fileToLineCountMap, fileToByteCountMap map[string]int) {
@@ -36,8 +36,8 @@ func operatorVetAnalysis(project *ProjectData, packages []*PackageData, fileToPa
 }
 
 
-func AnalyzeGosec(offset, length int, dataDir string) {
-	commonAnalysis(offset, length, dataDir, operatorGosecAnalysis)
+func AnalyzeGosec(offset, length int, dataDir string, skipProjects []string) {
+	commonAnalysis(offset, length, dataDir, skipProjects, operatorGosecAnalysis)
 }
 func operatorGosecAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
 	fileToLineCountMap, fileToByteCountMap map[string]int) {
@@ -47,7 +47,7 @@ func operatorGosecAnalysis(project *ProjectData, packages []*PackageData, fileTo
 }
 
 
-func commonAnalysis(offset, length int, dataDir string,
+func commonAnalysis(offset, length int, dataDir string, skipProjects []string,
 	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int)) {
 
 	// TODO: open only the ones needed for current analysis
@@ -70,8 +70,16 @@ func commonAnalysis(offset, length int, dataDir string,
 		fmt.Printf("ERROR: %v\n", err)
 	}
 
+	skipProjectMap := make(map[string]struct{}, len(skipProjects))
+	for _, skipProject := range skipProjects {
+		skipProjectMap[skipProject] = struct{}{}
+	}
+
 	for projectIdx, project := range projects[offset:offset+length] {
-		// TODO: add a possiblity to defines skips
+		if _, ok := skipProjectMap[project.Name]; ok {
+			fmt.Printf("%d/%d (#%d): Skipping %s as requested\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
+			continue
+		}
 
 		fmt.Printf("%d/%d (#%d): Analyzing %s\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
 

@@ -10,7 +10,7 @@ var analyzeVetCmd = &cobra.Command{
 	Short: "Runs go vet on the projects",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		analysis.AnalyzeVet(offset, length, dataDir)
+		analysis.AnalyzeVet(offset, length, dataDir, skipProjects)
 	},
 }
 
