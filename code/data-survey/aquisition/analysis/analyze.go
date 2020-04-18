@@ -7,8 +7,8 @@ import (
 func AnalyzeGrep(offset, length int, dataDir string) {
 	commonAnalysis(offset, length, dataDir, operatorGrepAnalysis)
 }
-func operatorGrepAnalysis(project *ProjectData, packages []PackageData, fileToPackageMap map[string]PackageData,
-	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+func operatorGrepAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
+	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
 	parsedGrepLines, err := grepForUnsafe(packages)
 	if err != nil {
@@ -28,8 +28,8 @@ func operatorGrepAnalysis(project *ProjectData, packages []PackageData, fileToPa
 func AnalyzeVet(offset, length int, dataDir string) {
 	commonAnalysis(offset, length, dataDir, operatorVetAnalysis)
 }
-func operatorVetAnalysis(project *ProjectData, packages []PackageData, fileToPackageMap map[string]PackageData,
-	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+func operatorVetAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
+	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
 	vetFindings := runVet(project, packages)
 	analyzeVetFindings(vetFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
@@ -39,8 +39,8 @@ func operatorVetAnalysis(project *ProjectData, packages []PackageData, fileToPac
 func AnalyzeGosec(offset, length int, dataDir string) {
 	commonAnalysis(offset, length, dataDir, operatorGosecAnalysis)
 }
-func operatorGosecAnalysis(project *ProjectData, packages []PackageData, fileToPackageMap map[string]PackageData,
-	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+func operatorGosecAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
+	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
 	gosecFindings, _ := runGosec(project, packages)
 	analyzeGosecFindings(gosecFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
@@ -48,7 +48,7 @@ func operatorGosecAnalysis(project *ProjectData, packages []PackageData, fileToP
 
 
 func commonAnalysis(offset, length int, dataDir string,
-	operator func(*ProjectData, []PackageData, map[string]PackageData, map[string]int, map[string]int)) {
+	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int)) {
 
 	// TODO: open only the ones needed for current analysis
 

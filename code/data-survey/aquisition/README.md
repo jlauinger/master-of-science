@@ -40,9 +40,9 @@ Then, concatenate the resulting CSV files, dropping the headers in all but the f
 
 ## Package or Module?
 
-   A Go module must be a VCS repository or a VCS repository should contain a single Go module.
-   A Go module should contain one or more packages
-   A package should contain one or more .go files in a single directory.
+ - A Go module must be a VCS repository or a VCS repository should contain a single Go module.
+ - A Go module should contain one or more packages
+ - A package should contain one or more .go files in a single directory.
 
 
 Read this:

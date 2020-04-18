@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func runVet(project *ProjectData, packages []PackageData) []VetFindingLine {
+func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 	packagePaths := make([]string, len(packages))
 
 	for i, pkg := range packages {
@@ -61,8 +61,8 @@ func runVet(project *ProjectData, packages []PackageData) []VetFindingLine {
 	return vetFindings
 }
 
-func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[string]PackageData,
-	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[string]*PackageData,
+	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
 	for _, line := range vetFindings {
 		components := strings.Split(line.Message, ":")
@@ -125,6 +125,8 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 			ProjectName:       pkg.ProjectName,
 			FileCopyPath:      "",
 		})
+
+		// TODO: handle possible file copying
 
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{

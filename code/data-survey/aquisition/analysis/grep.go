@@ -13,7 +13,7 @@ var matchTypes = []string{"unsafe.Pointer", "unsafe.Sizeof", "unsafe.Alignof", "
 	"uintptr", "reflect.SliceHeader", "reflect.StringHeader"}
 
 
-func grepForUnsafe(packages []PackageData) ([]RipgrepOutputLine, error) {
+func grepForUnsafe(packages []*PackageData) ([]RipgrepOutputLine, error) {
 	files := make([]string, 0, 1000)
 
 	for _, pkg := range packages {
@@ -53,8 +53,8 @@ func grepForUnsafe(packages []PackageData) ([]RipgrepOutputLine, error) {
 	return parsedLines, nil
 }
 
-func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[string]PackageData,
-	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[string]*PackageData,
+	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
 	for lineIdx, line := range parsedLines {
 		if line.MessageType == "match" {
@@ -103,6 +103,8 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 					ProjectName:       pkg.ProjectName,
 					FileCopyPath:      "",
 				})
+
+				// TODO: handle possible file copying
 
 				if err != nil {
 					_ = WriteErrorCondition(ErrorConditionData{

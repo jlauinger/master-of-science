@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func runGosec(project *ProjectData, packages []PackageData) ([]GosecIssueOutput, error) {
+func runGosec(project *ProjectData, packages []*PackageData) ([]GosecIssueOutput, error) {
 	packagePaths := make([]string, 0, 1000)
 
 	for _, pkg := range packages {
@@ -43,8 +43,8 @@ func runGosec(project *ProjectData, packages []PackageData) ([]GosecIssueOutput,
 	return gosecResult.Issues, nil
 }
 
-func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map[string]PackageData,
-	fileToLineCountMap map[string]int, fileToByteCountMap map[string]int) {
+func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map[string]*PackageData,
+	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
 	for _, line := range gosecFindings {
 		pkg := fileToPackageMap[line.File]
@@ -105,6 +105,8 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 			ProjectName:       pkg.ProjectName,
 			FileCopyPath:      "",
 		})
+
+		// TODO: handle possible file copying
 
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
