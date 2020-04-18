@@ -8,6 +8,8 @@ import (
 
 var offset, length int
 var skipProjects []string
+var doCopy bool
+var copyDestination string
 
 var analyzeCmd = &cobra.Command{
 	Use:   "analyze",
@@ -24,4 +26,6 @@ func init() {
 	analyzeCmd.PersistentFlags().IntVar(&offset, "offset", 0, "parallelization: projects slicing offset")
 	analyzeCmd.PersistentFlags().IntVar(&length, "length", 500, "parallelization: projects slicing length")
 	analyzeCmd.PersistentFlags().StringArrayVar(&skipProjects, "skip", []string{}, "skip these project names, e.g golang/go")
+	analyzeCmd.PersistentFlags().BoolVar(&doCopy, "copy", false, "copy files with vulnerabilities into copy destination")
+	analyzeCmd.PersistentFlags().StringVar(&copyDestination, "copy-destination", "", "directory to store copies of vulnerable files in")
 }

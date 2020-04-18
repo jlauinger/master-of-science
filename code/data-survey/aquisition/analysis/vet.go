@@ -10,6 +10,8 @@ import (
 func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 	packagePaths := make([]string, len(packages))
 
+	fmt.Println("  running go vet")
+
 	for i, pkg := range packages {
 		packagePaths[i] = pkg.ImportPath
 	}
@@ -62,7 +64,11 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 }
 
 func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[string]*PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int) {
+	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
+
+	fmt.Println("  analyzing go vet output")
+
+	var filesToCopy = make(map[string]string, 500)
 
 	for _, line := range vetFindings {
 		components := strings.Split(line.Message, ":")
@@ -110,6 +116,8 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 		}
 		message = strings.Trim(components[3], " ")
 
+		copyDestination := fmt.Sprintf("%s/%s", pkg.ImportPath, filename)
+
 		err = WriteVetFinding(VetFindingData{
 			Message:           message,
 			Context:           line.ContextLine,
@@ -123,10 +131,10 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 			ModulePath:        pkg.ModulePath,
 			ModuleVersion:     pkg.ModuleVersion,
 			ProjectName:       pkg.ProjectName,
-			FileCopyPath:      "",
+			FileCopyPath:      copyDestination,
 		})
 
-		// TODO: handle possible file copying
+		filesToCopy[fullFilename] = copyDestination
 
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
@@ -140,4 +148,6 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 			continue
 		}
 	}
+
+	return filesToCopy
 }

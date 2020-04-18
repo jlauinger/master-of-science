@@ -10,7 +10,7 @@ var analyzeGrepCmd = &cobra.Command{
 	Short: "Extracts unsafe code fragments using grep",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		analysis.AnalyzeGrep(offset, length, dataDir, skipProjects)
+		analysis.AnalyzeGrep(offset, length, dataDir, skipProjects, doCopy, copyDestination)
 	},
 }
 

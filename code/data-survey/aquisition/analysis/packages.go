@@ -9,11 +9,11 @@ import (
 )
 
 func analyzeProject(project *ProjectData,
-	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int)) error {
+	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int) map[string]string) (map[string]string, error) {
 
 	packages, err := getProjectPackages(project)
 	if err != nil {
-		return err
+		return map[string]string{}, err
 	}
 
 	fullFilenames := make([]string, 0, 500)
@@ -29,25 +29,27 @@ func analyzeProject(project *ProjectData,
 
 	fileToLineCountMap, err := countLines(fullFilenames)
 	if err != nil {
-		return err
+		return map[string]string{}, err
 	}
 
 
 	fileToByteCountMap, err := countBytes(fullFilenames)
 	if err != nil {
-		return err
+		return map[string]string{}, err
 	}
 
 	fillPackageLOC(packages, fileToLineCountMap, fileToByteCountMap)
 
 	writePackages(packages)
 
-	operator(project, packages, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
+	filesToCopy := operator(project, packages, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
 
-	return nil
+	return filesToCopy, nil
 }
 
 func getProjectPackages(project *ProjectData) ([]*PackageData, error) {
+	fmt.Println("  identifying relevant packages...")
+
 	cmd := exec.Command("go", "list", "-deps", "-json", "./...")
 	cmd.Dir = project.CheckoutPath
 
@@ -107,6 +109,8 @@ func getProjectPackages(project *ProjectData) ([]*PackageData, error) {
 }
 
 func writePackages(packages []*PackageData) {
+	fmt.Println("  writing package results to disk...")
+
 	for _, pkg := range packages {
 		err := WritePackage(*pkg)
 		if err != nil {

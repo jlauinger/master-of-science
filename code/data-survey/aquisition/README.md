@@ -9,6 +9,7 @@ Iteration 3
 go build
 mkdir -p /path/to/data
 mkdir -p /path/to/repositories
+mkdir -p /path/to/copied/files
 ```
 
 Download repositories:
@@ -40,6 +41,13 @@ You can skip projects with the skip argument. It can be applied multiple times.
 
 ```shell script
 ./data-aquisition analyze grep --data-dir=/path/to/data --skip golang/go --skip avelino/awesome-go
+```
+
+It is recommended to copy the vulnerable files into a specific directory. The resulting path will be written into the
+CSV findings files, and later analysis can use those files to do context expansion on the finding context.
+
+```shell script
+./data-aquisition analyze grep --data-dir=/path/to/data --copy --copy-destination=/path/to/copied/files
 ```
 
 Then, concatenate the resulting CSV files, dropping the headers in all but the first.

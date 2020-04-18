@@ -4,11 +4,11 @@ import (
 	"fmt"
 )
 
-func AnalyzeGrep(offset, length int, dataDir string, skipProjects []string) {
-	commonAnalysis(offset, length, dataDir, skipProjects, operatorGrepAnalysis)
+func AnalyzeGrep(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string) {
+	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, operatorGrepAnalysis)
 }
 func operatorGrepAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int) {
+	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
 
 	parsedGrepLines, err := grepForUnsafe(packages)
 	if err != nil {
@@ -21,34 +21,34 @@ func operatorGrepAnalysis(project *ProjectData, packages []*PackageData, fileToP
 		})
 		fmt.Println("SAVING ERROR!")
 	}
-	analyzeGrepLines(parsedGrepLines, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
+	return analyzeGrepLines(parsedGrepLines, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
 }
 
 
-func AnalyzeVet(offset, length int, dataDir string, skipProjects []string) {
-	commonAnalysis(offset, length, dataDir, skipProjects, operatorVetAnalysis)
+func AnalyzeVet(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string) {
+	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, operatorVetAnalysis)
 }
 func operatorVetAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int) {
+	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
 
 	vetFindings := runVet(project, packages)
-	analyzeVetFindings(vetFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
+	return analyzeVetFindings(vetFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
 }
 
 
-func AnalyzeGosec(offset, length int, dataDir string, skipProjects []string) {
-	commonAnalysis(offset, length, dataDir, skipProjects, operatorGosecAnalysis)
+func AnalyzeGosec(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string) {
+	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, operatorGosecAnalysis)
 }
 func operatorGosecAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int) {
+	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
 
 	gosecFindings, _ := runGosec(project, packages)
-	analyzeGosecFindings(gosecFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
+	return analyzeGosecFindings(gosecFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
 }
 
 
-func commonAnalysis(offset, length int, dataDir string, skipProjects []string,
-	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int)) {
+func commonAnalysis(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string,
+	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int) map[string]string) {
 
 	// TODO: open only the ones needed for current analysis
 
@@ -65,6 +65,7 @@ func commonAnalysis(offset, length int, dataDir string, skipProjects []string,
 		fmt.Printf("ERROR: %v\n", err)
 	}
 
+	fmt.Println("reading projects data...")
 	projects, err := readProjects(projectsFilename)
 	if err != nil {
 		fmt.Printf("ERROR: %v\n", err)
@@ -83,7 +84,7 @@ func commonAnalysis(offset, length int, dataDir string, skipProjects []string,
 
 		fmt.Printf("%d/%d (#%d): Analyzing %s\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
 
-		err := analyzeProject(project, operator)
+		filesToCopy, err := analyzeProject(project, operator)
 
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
@@ -95,6 +96,10 @@ func commonAnalysis(offset, length int, dataDir string, skipProjects []string,
 			})
 			fmt.Println("SAVING ERROR!")
 			continue
+		}
+
+		if doCopy {
+			copyFiles(filesToCopy, copyDestination)
 		}
 	}
 }

@@ -10,6 +10,8 @@ import (
 )
 
 func runGosec(project *ProjectData, packages []*PackageData) ([]GosecIssueOutput, error) {
+	fmt.Println("  running gosec...")
+
 	packagePaths := make([]string, 0, 1000)
 
 	for _, pkg := range packages {
@@ -44,7 +46,11 @@ func runGosec(project *ProjectData, packages []*PackageData) ([]GosecIssueOutput
 }
 
 func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map[string]*PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int) {
+	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
+
+	fmt.Println("  analyzing gosec output")
+
+	var filesToCopy = make(map[string]string, 500)
 
 	for _, line := range gosecFindings {
 		pkg := fileToPackageMap[line.File]
@@ -87,6 +93,8 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 			continue
 		}
 
+		copyDestination := fmt.Sprintf("%s/%s", pkg.ImportPath, shortFilename)
+
 		err = WriteGosecFinding(GosecFindingData{
 			Message:           line.Details,
 			Context:           line.Code,
@@ -103,10 +111,10 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 			ModulePath:        pkg.ModulePath,
 			ModuleVersion:     pkg.ModuleVersion,
 			ProjectName:       pkg.ProjectName,
-			FileCopyPath:      "",
+			FileCopyPath:      copyDestination,
 		})
 
-		// TODO: handle possible file copying
+		filesToCopy[line.File] = copyDestination
 
 		if err != nil {
 			_ = WriteErrorCondition(ErrorConditionData{
@@ -120,4 +128,6 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 			continue
 		}
 	}
+
+	return filesToCopy
 }

@@ -16,6 +16,8 @@ var matchTypes = []string{"unsafe.Pointer", "unsafe.Sizeof", "unsafe.Alignof", "
 func grepForUnsafe(packages []*PackageData) ([]RipgrepOutputLine, error) {
 	files := make([]string, 0, 1000)
 
+	fmt.Println("  running ripgrep...")
+
 	for _, pkg := range packages {
 		for _, file := range pkg.GoFiles {
 			fullFilename := fmt.Sprintf("%s/%s", pkg.Dir, file)
@@ -54,7 +56,11 @@ func grepForUnsafe(packages []*PackageData) ([]RipgrepOutputLine, error) {
 }
 
 func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[string]*PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int) {
+	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
+
+	fmt.Println("  analyzing ripgrep output")
+
+	var filesToCopy = make(map[string]string, 500)
 
 	for lineIdx, line := range parsedLines {
 		if line.MessageType == "match" {
@@ -87,6 +93,8 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 			filename := fullFilename[len(pkg.Dir)+1:]
 
 			for _, subMatch := range line.Data.SubMatches {
+				copyDestination := fmt.Sprintf("%s/%s", pkg.ImportPath, filename)
+
 				err := WriteGrepFinding(GrepFindingData{
 					Text:              line.Data.Lines.Text,
 					Context:           context,
@@ -101,10 +109,10 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 					ModulePath:        pkg.ModulePath,
 					ModuleVersion:     pkg.ModuleVersion,
 					ProjectName:       pkg.ProjectName,
-					FileCopyPath:      "",
+					FileCopyPath:      copyDestination,
 				})
 
-				// TODO: handle possible file copying
+				filesToCopy[fullFilename] = copyDestination
 
 				if err != nil {
 					_ = WriteErrorCondition(ErrorConditionData{
@@ -120,4 +128,6 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 			}
 		}
 	}
+
+	return filesToCopy
 }
