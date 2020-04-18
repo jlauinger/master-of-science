@@ -73,6 +73,18 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 	for _, line := range vetFindings {
 		components := strings.Split(line.Message, ":")
 
+		if len(components) < 4 {
+			_ = WriteErrorCondition(ErrorConditionData{
+				Stage:             "vet-ensure-components-length",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          filename,
+				Message:           line.Message,
+			})
+			fmt.Println("SAVING ERROR!")
+			continue
+		}
+
 		var fullFilename string
 		var lineNumber int
 		var column int
