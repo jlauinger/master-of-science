@@ -4,6 +4,12 @@
     name: nginx
   tags: nginx
 
+- name: "deploy htpasswd file"
+  template:
+    src: notebook-users.htpasswd
+    dest: /root/notebook-users.htpasswd
+  tags: nginx
+
 - name: "set up nginx configuation"
   template:
     src: jupyter.conf
