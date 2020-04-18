@@ -3,7 +3,6 @@ package analysis
 import (
 	"github.com/gocarina/gocsv"
 	"os"
-	"time"
 )
 
 var packagesFile *os.File
