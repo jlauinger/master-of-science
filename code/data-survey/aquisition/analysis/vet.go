@@ -22,7 +22,7 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 	cmd := exec.Command("go", args...)
 	cmd.Dir = project.CheckoutPath
 
-	vetOutput, _ := cmd.Output()
+	vetOutput, _ := cmd.CombinedOutput()
 
 	vetLines := strings.Split(string(vetOutput), "\n")
 	vetFindings := make([]VetFindingLine, 0)
