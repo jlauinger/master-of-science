@@ -2,6 +2,7 @@ package analysis
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -16,13 +17,17 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 		packagePaths[i] = pkg.ImportPath
 	}
 
-	args := []string{"vet", "-c=0"}
+	args := []string{"vet", "-c=0", "-json"}
 	args = append(args, packagePaths...)
 
 	cmd := exec.Command("go", args...)
 	cmd.Dir = project.CheckoutPath
 
 	vetOutput, _ := cmd.CombinedOutput()
+
+	fmt.Println("sanity")
+	fmt.Println(string(vetOutput))
+	os.Exit(1)
 
 	vetLines := strings.Split(string(vetOutput), "\n")
 	vetFindings := make([]VetFindingLine, 0)

@@ -15,10 +15,7 @@ func countLines(files []string) (map[string]int, error) {
 
 	cmd := exec.Command("wc", args...)
 
-	wcOutput, err := cmd.Output()
-	if err != nil {
-		return nil, err
-	}
+	wcOutput, _ := cmd.Output()
 
 	outputLines := strings.Split(string(wcOutput), "\n")
 
@@ -47,10 +44,7 @@ func countBytes(files []string) (map[string]int, error) {
 
 	cmd := exec.Command("wc", args...)
 
-	wcOutput, err := cmd.Output()
-	if err != nil {
-		return nil, err
-	}
+	wcOutput, _ := cmd.Output()
 
 	outputLines := strings.Split(string(wcOutput), "\n")
 
