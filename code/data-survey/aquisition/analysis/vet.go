@@ -30,7 +30,9 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 	for i := 0; i < len(vetLines); i++ {
 		messageLine := vetLines[i]
 
-		if len(messageLine) <= 0 || messageLine[0] == '#' || (len(messageLine) > 11 && messageLine[0:11] == "downloading") {
+		if len(messageLine) <= 0 || messageLine[0] == '#' ||
+			(len(messageLine) > 12 && messageLine[0:12] == " downloading") ||
+			(len(messageLine) > 5 && messageLine[0:5] == "open ") {
 			continue
 		}
 		if len(messageLine) > 18 && messageLine[0:18] == "can't load package" {
