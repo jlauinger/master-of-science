@@ -30,7 +30,7 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 	for i := 0; i < len(vetLines); i++ {
 		messageLine := vetLines[i]
 
-		if len(messageLine) <= 0 || messageLine[0] == '#' {
+		if len(messageLine) <= 0 || messageLine[0] == '#' || (len(messageLine) > 11 && messageLine[0:11] == "downloading") {
 			continue
 		}
 
