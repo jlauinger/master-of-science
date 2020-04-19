@@ -64,7 +64,7 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 }
 
 func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[string]*PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
+	fileToLineCountMap, fileToByteCountMap map[string]int, project *ProjectData) map[string]string {
 
 	fmt.Println("  analyzing go vet output")
 
@@ -76,9 +76,9 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 		if len(components) < 4 {
 			_ = WriteErrorCondition(ErrorConditionData{
 				Stage:             "vet-ensure-components-length",
-				ProjectName:       pkg.ProjectName,
-				PackageImportPath: pkg.ImportPath,
-				FileName:          filename,
+				ProjectName:       project.Name,
+				PackageImportPath: "",
+				FileName:          "",
 				Message:           line.Message,
 			})
 			fmt.Println("SAVING ERROR!")

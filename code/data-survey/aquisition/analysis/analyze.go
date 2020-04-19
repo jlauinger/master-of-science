@@ -58,7 +58,7 @@ func operatorVetAnalysis(project *ProjectData, packages []*PackageData, fileToPa
 	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
 
 	vetFindings := runVet(project, packages)
-	return analyzeVetFindings(vetFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
+	return analyzeVetFindings(vetFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap, project)
 }
 
 
