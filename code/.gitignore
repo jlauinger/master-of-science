@@ -10,6 +10,7 @@ aquisition2/aquisition2
 data-aquisition
 dev-data/
 dev-copy/
+vaultpass
 
 # Binaries for programs and plugins
 *.exe
