@@ -2,7 +2,6 @@ package analysis
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -17,17 +16,13 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 		packagePaths[i] = pkg.ImportPath
 	}
 
-	args := []string{"vet", "-c=0", "-json"}
+	args := []string{"vet", "-c=0"}
 	args = append(args, packagePaths...)
 
 	cmd := exec.Command("go", args...)
 	cmd.Dir = project.CheckoutPath
 
 	vetOutput, _ := cmd.CombinedOutput()
-
-	fmt.Println("sanity")
-	fmt.Println(string(vetOutput))
-	os.Exit(1)
 
 	vetLines := strings.Split(string(vetOutput), "\n")
 	vetFindings := make([]VetFindingLine, 0)
@@ -36,6 +31,10 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 		messageLine := vetLines[i]
 
 		if len(messageLine) <= 0 || messageLine[0] == '#' || (len(messageLine) > 11 && messageLine[0:11] == "downloading") {
+			continue
+		}
+		if len(messageLine) > 18 && messageLine[0:18] == "can't load package" {
+			i += 2  // skip GOPATH and GOROOT paths of missing package
 			continue
 		}
 
