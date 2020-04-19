@@ -53,7 +53,13 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 	var filesToCopy = make(map[string]string, 500)
 
 	for _, line := range gosecFindings {
-		pkg := fileToPackageMap[line.File]
+		pkg, ok := fileToPackageMap[line.File]
+		if !ok {
+			pkg = &PackageData{
+				ImportPath: "unknown-vet-error",
+			}
+		}
+
 		shortFilename := line.File[len(pkg.Dir)+1:]
 
 		var lineNumberText string

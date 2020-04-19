@@ -89,7 +89,14 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 			context := strings.Join(contextLines, "")
 
 			fullFilename := line.Data.Path.Text
-			pkg := fileToPackageMap[fullFilename]
+
+			pkg, ok := fileToPackageMap[fullFilename]
+			if !ok {
+				pkg = &PackageData{
+					ImportPath: "unknown-vet-error",
+				}
+			}
+
 			filename := fullFilename[len(pkg.Dir)+1:]
 
 			for _, subMatch := range line.Data.SubMatches {
