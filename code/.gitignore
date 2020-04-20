@@ -1,16 +1,20 @@
 download/
 *-logoutput.txt
 main
+data-aquisition
 .gdb_history
 venv/
 .ipynb_checkpoints/
-backup-data/
 __pycache__/
-aquisition2/aquisition2
-data-aquisition
+backup-data/
 dev-data/
 dev-copy/
 vaultpass
+data-survey/data/packages*
+data-survey/data/errors*
+data-survey/data/grep_findings*
+data-survey/data/vet_findings*
+data-survey/data/gosec_findings*
 
 # Binaries for programs and plugins
 *.exe
