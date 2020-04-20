@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-6">
+        <p><b>Project:</b> {{ snippet.project_name }}</p>
+        <p><b>Module:</b> {{ snippet.module_path }} @ {{ snippet.module_version }}</p>
+        <p><b>Package:</b> {{ snippet.package_import_path }}</p>
+    </div>
+    <div class="col-sm-6">
+        <p><b>Match Type:</b> <span class="label label-success">{{ snippet.match_type }}</span></p>
+        <p><b>File:</b> {{ snippet.file_name }} : {{ snippet.line_number }}</p>
+        <p><b>Label:</b> <span class="label label-danger">{{ snippet.label }}</span></p>
+    </div>
+</div>
+
+<p><b>Snippet:</b></p>
+<pre>{{ snippet.text }}</pre>
+
+<p><b>Context:</b></p>
+<pre>{{ snippet.context }}</pre>
+
+<p><b>Quick Actions:</b></p>
+<p>
+    {% for label in quick_labels %}
+        <button class="btn btn-primary quick-classify" data-label="{{ label }}">{{ label }}</button>
+    {% endfor %}
+    <a href="/classify/{{ next_index }}" class="btn btn-success pull-right quick-next">Next snippet</a>
+</p>
+
+<form action="" method="post" novalidate id="classification-form">
+    {{ form.hidden_tag() }}
+    {{ wtf.quick_form(form) }}
+</form>
+
+<script>
+    $(function() {
+        $('.quick-classify').click(function() {
+            $('#label').val($(this).data('label'));
+            $('#submit').click();
+        });
+    });
+</script>
+{% endblock %}

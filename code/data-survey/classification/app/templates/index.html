@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>Bereits klassifiziert:</h3>
+<ul>
+    {% for i, snippet in snippets if snippet.label != 'unclassified' %}
+    <li>
+        <a href="classify/{{ i }}">{{ snippet.text }}</a>&nbsp;
+        <span class="label label-danger">{{ snippet.label }}</span>
+    </li>
+    {% endfor %}
+</ul>
+
+<h3>Noch nicht klassifiziert:</h3>
+<ul>
+    {% for i, snippet in snippets2 if snippet.label == 'unclassified' %}
+    <li>
+        <a href="classify/{{ i }}">{{ snippet.text }}</a>&nbsp;
+        <span class="label label-danger">{{ snippet.label }}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
