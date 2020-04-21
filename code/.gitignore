@@ -15,6 +15,7 @@ data-survey/data/errors*
 data-survey/data/grep_findings*
 data-survey/data/vet_findings*
 data-survey/data/gosec_findings*
+data-survey/data/interesting_snippets*
 
 # Binaries for programs and plugins
 *.exe
