@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve classification tool
+After=network.target
+
+[Service]
+User=jupyter
+Group=jupyter
+WorkingDirectory=/root/code/data-survey/classification
+Environment="PATH=/root/code/data-survey/classification/venv/bin"
+ExecStart=/root/code/data-survey/classification/venv/bin/uwsgi --ini classification.ini
+
+[Install]
+WantedBy=multi-user.target

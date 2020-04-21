@@ -1,0 +1,12 @@
+---
+- name: "create venv"
+  command: python3 -m venv /root/code/data-survey/classification/venv
+  args:
+    creates: /root/code/data-survey/classification/venv
+  tags: classification
+
+- name: "install dependencies"
+  pip:
+    requirements: /root/code/data-survey/classification/requirements.txt
+    virtualenv: /root/code/data-survey/classification/venv
+  tags: classification

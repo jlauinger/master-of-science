@@ -12,8 +12,8 @@
 
 - name: "set up nginx configuation"
   template:
-    src: jupyter.conf
-    dest: /etc/nginx/sites-enabled/jupyter.conf
+    src: vm6.conf
+    dest: /etc/nginx/sites-enabled/vm6.conf
   tags: nginx
 
 - name: "start and enable nginx"
