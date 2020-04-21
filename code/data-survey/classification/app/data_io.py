@@ -7,7 +7,7 @@ def save_data():
 
 
 interesting_snippets = \
-    pd.read_csv(app.config['DATA_DIR'] + '/data/interesting_snippets.csv')
+    pd.read_csv(app.config['DATA_DIR'] + '/interesting_snippets.csv')
 
 if 'label' not in interesting_snippets:
     interesting_snippets['label'] = 'unclassified'
