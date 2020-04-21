@@ -24,7 +24,7 @@
 <p><b>Quick Actions:</b></p>
 <p>
     {% for label in quick_labels %}
-        <button class="btn btn-primary quick-classify" data-label="{{ label }}">{{ label }}</button>
+        <button class="btn btn-primary btn-margin-bottom quick-classify" data-label="{{ label }}">{{ label }}</button>
     {% endfor %}
     <a href="/classify/{{ next_index }}" class="btn btn-success pull-right quick-next">Next snippet</a>
 </p>
