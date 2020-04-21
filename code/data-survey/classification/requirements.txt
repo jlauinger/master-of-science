@@ -2,3 +2,4 @@ flask
 pandas
 flask-wtf
 flask-bootstrap
+uwsgi

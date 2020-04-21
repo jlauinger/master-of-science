@@ -16,11 +16,15 @@ def classify(index):
 
     if form.validate_on_submit():
         flash('Classifying as {}'.format(form.label.data))
-        interesting_snippets.at[index, 'label'] = form.label.data#
-        save_data()
+        interesting_snippets.at[index, 'label'] = form.label.data
         return redirect('/classify/{}'.format(next_index))
 
     snippet = interesting_snippets.loc[index]
     quick_labels = set(interesting_snippets['label']) | set(['uintptr_type', 'function_call', 'cast', 'protocol'])
 
     return render_template('classify.html', form=form, snippet=snippet, quick_labels=quick_labels, next_index=next_index)
+
+@app.route('/save')
+def save():
+    save_data()
+    return redirect('/index')
