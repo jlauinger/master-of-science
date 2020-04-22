@@ -1,14 +1,22 @@
 import pandas as pd
+import glob
+
 from app import app
 
 
-def save_data():
-    interesting_snippets.to_csv(app.config['DATA_DIR'] + '/interesting_snippets.csv')
+def save_data(filename, interesting_snippets):
+    interesting_snippets.to_csv(filename)
 
 
-interesting_snippets = \
-    pd.read_csv(app.config['DATA_DIR'] + '/interesting_snippets.csv')
+def load_data(filename):
+    interesting_snippets = pd.read_csv(filename)
 
-if 'label' not in interesting_snippets:
-    interesting_snippets['label'] = 'unclassified'
-    save_data()
+    if 'label' not in interesting_snippets:
+        interesting_snippets['label'] = 'unclassified'
+        save_data(filename)
+
+    return interesting_snippets
+
+
+def get_interesting_files():
+    return sorted(list(glob.glob(app.config['DATA_DIR'] + '/interesting_snippets*.csv')))

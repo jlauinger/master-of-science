@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>Datei wechseln:</h3>
+
+<ul>
+    {% for idx, file in files %}
+    <li>
+        <a href="switch-files/{{ idx }}">{{ file }}</a>&nbsp;
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

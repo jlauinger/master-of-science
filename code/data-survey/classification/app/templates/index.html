@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<a href="/save" class="btn btn-success">Speichern</a>
+<h3>Aktuelle Datei:</h3>
+<p><b>{{ filename }}</b></p>
+<p>
+    <a href="/save" class="btn btn-success">Speichern</a>
+    <a href="/switch-files" class="btn btn-primary">Wechseln</a>
+</p>
 
 <h3>Bereits klassifiziert:</h3>
 <ul>
