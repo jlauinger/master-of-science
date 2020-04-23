@@ -1,12 +1,12 @@
 package ast
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/printer"
 	"go/token"
 	"io/ioutil"
-	"fmt"
 	"os"
 )
 
@@ -17,7 +17,7 @@ func AnalyzeAst() {
 	fset := token.NewFileSet()
 	node, _ := parser.ParseFile(fset, "slice.go", string(code), parser.ParseComments)
 
-	for k, v := range node.Scope.Objects {
+	/*for k, v := range node.Scope.Objects {
 		fmt.Println(k)
 		fmt.Println(v.Kind.String())
 		fmt.Println(v.Decl)
@@ -38,17 +38,34 @@ func AnalyzeAst() {
 			continue
 		}
 		fmt.Println(fn.Name.Name)
-	}
+	}*/
 
-	fmt.Println("-----------------")
+	/*fmt.Println("-----------------")
 	ast.Inspect(node, func (n ast.Node) bool {
 		// Find unsafe identifier
 		ret, ok := n.(*ast.Ident)
 		if ok && ret.Name == "unsafe" {
-			fmt.Printf("unsafe identifier found on line %d:\n", fset.Position(ret.Pos()).Line)
+			//fmt.Printf("unsafe identifier found on line %d:\n", fset.Position(ret.Pos()).Line)
 			printer.Fprint(os.Stdout, fset, ret)
 			fmt.Println()
-			fmt.Println()
+			//fmt.Println()
+			return true
+		}
+		return true
+	})*/
+
+	fmt.Println("-----------------")
+	ast.Inspect(node, func (n ast.Node) bool {
+		// Find unsafe identifier
+		ret, ok := n.(*ast.SelectorExpr)
+		if ok {
+			ret2, ok := ret.X.(*ast.Ident)
+			if ok && ret2.Name == "unsafe" {
+				//fmt.Printf("unsafe identifier found on line %d:\n", fset.Position(ret.Pos()).Line)
+				printer.Fprint(os.Stdout, fset, ret)
+				fmt.Println()
+				//fmt.Println()
+			}
 			return true
 		}
 		return true
