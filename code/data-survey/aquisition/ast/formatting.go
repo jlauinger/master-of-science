@@ -21,9 +21,9 @@ func printNode(n ast.Node, fset *token.FileSet) {
 	case *ast.CommentGroup:
 		fmt.Printf("CommentGroup")
 	case *ast.Field:
-		fmt.Printf("Field: %s", n.Names[0].Name)
+		fmt.Printf("Field")
 	case *ast.FieldList:
-		fmt.Printf("FieldList: %s", n.List[0].Names[0].Name)
+		fmt.Printf("FieldList")
 	case *ast.BadExpr:
 		fmt.Printf("BadExpr")
 	case *ast.Ident:
