@@ -6,8 +6,8 @@ import (
 
 func AnalyzeGrep(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string) {
 	packagesFilename := fmt.Sprintf("%s/packages_%d_%d.csv", dataDir, offset, offset + length - 1)
-	grepFindingsFilename := fmt.Sprintf("%s/grep_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
-	errorsFilename := fmt.Sprintf("%s/errors_grep_%d_%d.csv", dataDir, offset, offset + length - 1)
+	grepFindingsFilename := fmt.Sprintf("%s/lexical/grep_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
+	errorsFilename := fmt.Sprintf("%s/lexical/errors_grep_%d_%d.csv", dataDir, offset, offset + length - 1)
 
 	if err := openPackagesFile(packagesFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
@@ -41,8 +41,8 @@ func operatorGrepAnalysis(project *ProjectData, packages []*PackageData, fileToP
 
 
 func AnalyzeVet(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string) {
-	vetFindingsFilename := fmt.Sprintf("%s/vet_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
-	errorsFilename := fmt.Sprintf("%s/errors_vet_%d_%d.csv", dataDir, offset, offset + length - 1)
+	vetFindingsFilename := fmt.Sprintf("%s/lexical/vet_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
+	errorsFilename := fmt.Sprintf("%s/lexical/errors_vet_%d_%d.csv", dataDir, offset, offset + length - 1)
 
 	if err := openVetFindingsFile(vetFindingsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
@@ -63,8 +63,8 @@ func operatorVetAnalysis(project *ProjectData, packages []*PackageData, fileToPa
 
 
 func AnalyzeGosec(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string) {
-	gosecFindingsFilename := fmt.Sprintf("%s/gosec_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
-	errorsFilename := fmt.Sprintf("%s/errors_gosec_%d_%d.csv", dataDir, offset, offset + length - 1)
+	gosecFindingsFilename := fmt.Sprintf("%s/lexical/gosec_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
+	errorsFilename := fmt.Sprintf("%s/lexical/errors_gosec_%d_%d.csv", dataDir, offset, offset + length - 1)
 
 	if err := openGosecFindingsFile(gosecFindingsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
@@ -90,7 +90,7 @@ func commonAnalysis(offset, length int, dataDir string, skipProjects []string, d
 	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
 
 	fmt.Println("reading projects data...")
-	projects, err := readProjects(projectsFilename)
+	projects, err := ReadProjects(projectsFilename)
 	if err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}

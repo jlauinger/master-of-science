@@ -1,24 +1,26 @@
 package ast
 
 import (
+	"data-aquisition/analysis"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"io/ioutil"
+	"path"
 	"strings"
 )
 
-func AnalyzeAst(mode, filename string) {
+func AnalyzeAstSingleFile(mode, filename string, pkg *analysis.PackageData) {
 	code, _ := ioutil.ReadFile(filename)
 	lines := strings.Split(string(code), "\n")
 
 	fset := token.NewFileSet()
-	node, _ := parser.ParseFile(fset, "slice.go", code, parser.ParseComments)
+	node, _ := parser.ParseFile(fset, path.Base(filename), code, parser.ParseComments)
 
-	findingsTree := &AstTreeNode{
+	findingsTree := &TreeNode{
 		Node:     nil,
-		Children: []*AstTreeNode{},
+		Children: []*TreeNode{},
 	}
 
 	ast.Walk(UnsafeVisitor{
@@ -27,8 +29,7 @@ func AnalyzeAst(mode, filename string) {
 		findingsTree: findingsTree,
 	}, node)
 
-	findingsTree.countUnsafePointer()
-	findingsTree.countUintptr()
+	findingsTree.countFindings()
 
 	switch mode {
 	case "tree":
@@ -37,20 +38,22 @@ func AnalyzeAst(mode, filename string) {
 		formatFunctions(findingsTree, fset, lines)
 	case "stmt":
 		formatStatements(findingsTree, fset, lines)
+	case "save":
+		saveFindings(findingsTree, fset, lines, pkg)
 	default:
-		fmt.Printf("unknown mode %s not in tree,func,stmt\n", mode)
+		fmt.Printf("unknown mode %s not in tree,func,stmt,save\n", mode)
 	}
 }
 
 type UnsafeVisitor struct {
 	fileset *token.FileSet
 	context []ast.Node
-	findingsTree *AstTreeNode
+	findingsTree *TreeNode
 }
 
 func (uv UnsafeVisitor) Visit(n ast.Node) ast.Visitor {
 	if isUnsafePointer(n) || isUintptr(n) {
-		uv.findingsTree.addPath(append(uv.context, n))
+		_ = uv.findingsTree.addPath(append(uv.context, n))
 	}
 
 	return UnsafeVisitor{

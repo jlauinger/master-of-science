@@ -9,7 +9,46 @@ func isUnsafePointer(n ast.Node) bool {
 	case *ast.SelectorExpr:
 		switch X := n.X.(type) {
 		case *ast.Ident:
-			if X.Name == "unsafe" {
+			if X.Name == "unsafe" && n.Sel.Name == "Pointer" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func isUnsafeSizeof(n ast.Node) bool {
+	switch n := n.(type) {
+	case *ast.SelectorExpr:
+		switch X := n.X.(type) {
+		case *ast.Ident:
+			if X.Name == "unsafe" && n.Sel.Name == "Sizeof" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func isUnsafeAlignof(n ast.Node) bool {
+	switch n := n.(type) {
+	case *ast.SelectorExpr:
+		switch X := n.X.(type) {
+		case *ast.Ident:
+			if X.Name == "unsafe" && n.Sel.Name == "Alignof" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func isUnsafeOffsetof(n ast.Node) bool {
+	switch n := n.(type) {
+	case *ast.SelectorExpr:
+		switch X := n.X.(type) {
+		case *ast.Ident:
+			if X.Name == "unsafe" && n.Sel.Name == "Offsetof" {
 				return true
 			}
 		}
@@ -22,6 +61,32 @@ func isUintptr(n ast.Node) bool {
 	case *ast.Ident:
 		if n.Name == "uintptr" {
 			return true
+		}
+	}
+	return false
+}
+
+func isSliceHeader(n ast.Node) bool {
+	switch n := n.(type) {
+	case *ast.SelectorExpr:
+		switch X := n.X.(type) {
+		case *ast.Ident:
+			if X.Name == "reflect" && n.Sel.Name == "SliceHeader" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func isStringHeader(n ast.Node) bool {
+	switch n := n.(type) {
+	case *ast.SelectorExpr:
+		switch X := n.X.(type) {
+		case *ast.Ident:
+			if X.Name == "reflect" && n.Sel.Name == "StringHeader" {
+				return true
+			}
 		}
 	}
 	return false
@@ -41,8 +106,6 @@ func isStatement(n ast.Node) bool {
 	switch n.(type) {
 	case *ast.AssignStmt:
 		return true
-	case *ast.BranchStmt:
-		return true
 	case *ast.DeclStmt:
 		return true
 	case *ast.EmptyStmt:
@@ -50,7 +113,7 @@ func isStatement(n ast.Node) bool {
 	case *ast.ExprStmt:
 		return true
 	case *ast.ForStmt:
-		return true
+		return false
 	case *ast.GoStmt:
 		return true
 	case *ast.IfStmt:
@@ -60,7 +123,7 @@ func isStatement(n ast.Node) bool {
 	case *ast.LabeledStmt:
 		return true
 	case *ast.RangeStmt:
-		return true
+		return false
 	case *ast.ReturnStmt:
 		return true
 	case *ast.SelectStmt:
@@ -68,9 +131,9 @@ func isStatement(n ast.Node) bool {
 	case *ast.SendStmt:
 		return true
 	case *ast.SwitchStmt:
-		return true
+		return false
 	case *ast.TypeSwitchStmt:
-		return true
+		return false
 	}
 	return false
 }

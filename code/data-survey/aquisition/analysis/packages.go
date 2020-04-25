@@ -11,7 +11,7 @@ import (
 func analyzeProject(project *ProjectData, writePackagesToFile bool,
 	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int) map[string]string) (map[string]string, error) {
 
-	packages, err := getProjectPackages(project)
+	packages, err := GetProjectPackages(project)
 	if err != nil {
 		return map[string]string{}, err
 	}
@@ -49,7 +49,7 @@ func analyzeProject(project *ProjectData, writePackagesToFile bool,
 	return filesToCopy, nil
 }
 
-func getProjectPackages(project *ProjectData) ([]*PackageData, error) {
+func GetProjectPackages(project *ProjectData) ([]*PackageData, error) {
 	fmt.Println("  identifying relevant packages...")
 
 	cmd := exec.Command("go", "list", "-deps", "-json", "./...")

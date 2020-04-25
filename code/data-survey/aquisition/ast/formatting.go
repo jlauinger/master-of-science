@@ -2,10 +2,12 @@ package ast
 
 import (
 	"bytes"
+	"data-aquisition/analysis"
 	"fmt"
 	"go/ast"
 	"go/printer"
 	"go/token"
+	"strings"
 )
 
 func printIndent (indent int) {
@@ -14,7 +16,7 @@ func printIndent (indent int) {
 	}
 }
 
-func printNode(n ast.Node, fset *token.FileSet) {
+func printNode(n ast.Node) {
 	switch n := n.(type) {
 	case *ast.Comment:
 		fmt.Printf("Comment")
@@ -47,7 +49,7 @@ func printNode(n ast.Node, fset *token.FileSet) {
 	case *ast.TypeAssertExpr:
 		fmt.Printf("TypeAssertExpr")
 	case *ast.CallExpr:
-		fmt.Printf("CallExpr %s(...)", n.Fun) //, argumentsToString(n.Args, fset))
+		fmt.Printf("CallExpr %s(...)", n.Fun)
 	case *ast.StarExpr:
 		fmt.Printf("StarExpr")
 	case *ast.UnaryExpr:
@@ -135,14 +137,14 @@ func argumentsToString(args []ast.Expr, fset *token.FileSet) string {
 	buf := bytes.NewBufferString("")
 
 	for _, arg := range args {
-		printer.Fprint(buf, fset, arg)
+		_ = printer.Fprint(buf, fset, arg)
 		buf.WriteString(", ")
 	}
 
 	return buf.String()
 }
 
-func formatFunctions(findingsTree *AstTreeNode, fset *token.FileSet, lines []string) {
+func formatFunctions(findingsTree *TreeNode, fset *token.FileSet, lines []string) {
 	functions := findingsTree.findFunctions()
 	for f, leaves := range *functions {
 		fmt.Printf("FUNC %s (%d, %d):\n", f.Node.(*ast.FuncDecl).Name, f.UnsafePointerCount, f.UintptrCount)
@@ -157,11 +159,11 @@ func formatFunctions(findingsTree *AstTreeNode, fset *token.FileSet, lines []str
 	}
 }
 
-func formatStatements(findingsTree *AstTreeNode, fset *token.FileSet, lines []string) {
+func formatStatements(findingsTree *TreeNode, fset *token.FileSet, lines []string) {
 	statements := findingsTree.findStatements()
 	for s, leaves := range *statements {
 		fmt.Printf("STMT ")
-		printNode(s.Node, fset)
+		printNode(s.Node)
 		fmt.Printf(" (%d, %d):\n", s.UnsafePointerCount, s.UintptrCount)
 		for _, leaf := range leaves {
 			printIter(leaf, fset, 1)
@@ -171,5 +173,120 @@ func formatStatements(findingsTree *AstTreeNode, fset *token.FileSet, lines []st
 			fmt.Println(lines[fset.Position(leaf.Node.Pos()).Line-1])
 		}
 		fmt.Println()
+	}
+}
+
+func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, pkg *analysis.PackageData) {
+	for _, finding := range findingsTree.collectLeaves() {
+		err := WriteAstFinding(FindingData{
+			MatchType:            matchTypeFor(finding),
+			LineNumber:           fset.Position(finding.Node.Pos()).Line,
+			Column:               fset.Position(finding.Node.Pos()).Column,
+			Text:                 lines[fset.Position(finding.Node.Pos()).Line - 1],
+			FileName:             fset.Position(finding.Node.Pos()).Filename,
+			PackageImportPath:    pkg.ImportPath,
+			ModulePath:           pkg.ModulePath,
+			ModuleVersion:        pkg.ModuleVersion,
+			ProjectName:          pkg.ProjectName,
+		})
+
+		if err != nil {
+			_ = WriteErrorCondition(ErrorConditionData{
+				Stage:             "finding-write",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          fset.Position(finding.Node.Pos()).Filename,
+				Message:           err.Error(),
+			})
+		}
+	}
+
+	for function := range *findingsTree.findFunctions() {
+		startLine := fset.Position(function.Node.Pos()).Line
+		endLine := fset.Position(function.Node.End()).Line
+		text := strings.Join(lines[startLine-1:endLine], "\n")
+
+		err := WriteFunction(FunctionData{
+			LineNumber:           fset.Position(function.Node.Pos()).Line,
+			Column:               fset.Position(function.Node.Pos()).Column,
+			Text:                 text,
+			NumberUnsafePointer:  function.UnsafePointerCount,
+			NumberUnsafeSizeof:   function.UnsafeSizeofCount,
+			NumberUnsafeAlignof:  function.UnsafeAlignofCount,
+			NumberUnsafeOffsetof: function.UnsafeOffsetOfCount,
+			NumberUintptr:        function.UintptrCount,
+			NumberSliceHeader:    function.SliceHeaderCount,
+			NumberStringHeader:   function.StringHeaderCount,
+			FileName:             fset.Position(function.Node.Pos()).Filename,
+			PackageImportPath:    pkg.ImportPath,
+			ModulePath:           pkg.ModulePath,
+			ModuleVersion:        pkg.ModuleVersion,
+			ProjectName:          pkg.ProjectName,
+		})
+		
+		if err != nil {
+			_ = WriteErrorCondition(ErrorConditionData{
+				Stage:             "function-write",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          fset.Position(function.Node.Pos()).Filename,
+				Message:           err.Error(),
+			})
+		}
+	}
+
+	for statement := range *findingsTree.findStatements() {
+		startLine := fset.Position(statement.Node.Pos()).Line
+		endLine := fset.Position(statement.Node.End()).Line
+		text := strings.Join(lines[startLine-1:endLine], "\n")
+
+		err := WriteStatement(StatementData{
+			LineNumber:           fset.Position(statement.Node.Pos()).Line,
+			Column:               fset.Position(statement.Node.Pos()).Column,
+			Text:                 text,
+			NumberUnsafePointer:  statement.UnsafePointerCount,
+			NumberUnsafeSizeof:   statement.UnsafeSizeofCount,
+			NumberUnsafeAlignof:  statement.UnsafeAlignofCount,
+			NumberUnsafeOffsetof: statement.UnsafeOffsetOfCount,
+			NumberUintptr:        statement.UintptrCount,
+			NumberSliceHeader:    statement.SliceHeaderCount,
+			NumberStringHeader:   statement.StringHeaderCount,
+			FileName:             fset.Position(statement.Node.Pos()).Filename,
+			PackageImportPath:    pkg.ImportPath,
+			ModulePath:           pkg.ModulePath,
+			ModuleVersion:        pkg.ModuleVersion,
+			ProjectName:          pkg.ProjectName,
+		})
+
+		if err != nil {
+			_ = WriteErrorCondition(ErrorConditionData{
+				Stage:             "statement-write",
+				ProjectName:       pkg.ProjectName,
+				PackageImportPath: pkg.ImportPath,
+				FileName:          fset.Position(statement.Node.Pos()).Filename,
+				Message:           err.Error(),
+			})
+		}
+	}
+}
+
+func matchTypeFor(n *TreeNode) string {
+	switch {
+	case isUnsafePointer(n.Node):
+		return "unsafe.Pointer"
+	case isUnsafeSizeof(n.Node):
+		return "unsafe.Sizeof"
+	case isUnsafeAlignof(n.Node):
+		return "unsafe.Alignof"
+	case isUnsafeOffsetof(n.Node):
+		return "unsafe.Offsetof"
+	case isUintptr(n.Node):
+		return "uintptr"
+	case isSliceHeader(n.Node):
+		return "reflect.SliceHeader"
+	case isStringHeader(n.Node):
+		return "reflect.StringHeader"
+	default:
+		return "unknown"
 	}
 }

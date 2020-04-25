@@ -79,7 +79,7 @@ func closeFiles() {
 	}
 }
 
-func readProjects(filename string)([]*ProjectData, error) {
+func ReadProjects(filename string)([]*ProjectData, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return []*ProjectData{}, err

@@ -11,11 +11,15 @@ dev-data/
 dev-copy/
 vaultpass
 data-survey/data/packages*
-data-survey/data/errors*
-data-survey/data/grep_findings*
-data-survey/data/vet_findings*
-data-survey/data/gosec_findings*
 data-survey/data/interesting_snippets*
+data-survey/data/lexical/errors*
+data-survey/data/lexical/grep_findings*
+data-survey/data/lexical/vet_findings*
+data-survey/data/lexical/gosec_findings*
+data-survey/data/ast/errors*
+data-survey/data/ast/ast_findings*
+data-survey/data/ast/functions*
+data-survey/data/ast/statements*
 
 # Binaries for programs and plugins
 *.exe

@@ -16,7 +16,7 @@ var analyzeCmd = &cobra.Command{
 	Short: "Runs the analysis",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Use grep, vet, or gosec")
+		fmt.Println("Use ast, grep, vet, or gosec")
 	},
 }
 

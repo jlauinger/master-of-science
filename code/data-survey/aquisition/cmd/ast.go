@@ -12,14 +12,14 @@ var astCmd = &cobra.Command{
 	Short: "Analyze abstract syntax tree",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		ast.AnalyzeAst(mode, filename)
+		ast.AnalyzeAstSingleFile(mode, filename,  nil)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(astCmd)
 
-	astCmd.PersistentFlags().StringVar(&mode, "mode", "", "print mode (tree,func,stmt)")
+	astCmd.PersistentFlags().StringVar(&mode, "mode", "", "print mode (tree,func,stmt,save)")
 	astCmd.PersistentFlags().StringVar(&filename, "file", "", "file to analyze")
 }
 
