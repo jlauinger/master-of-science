@@ -141,3 +141,35 @@ func argumentsToString(args []ast.Expr, fset *token.FileSet) string {
 
 	return buf.String()
 }
+
+func formatFunctions(findingsTree *AstTreeNode, fset *token.FileSet, lines []string) {
+	functions := findingsTree.findFunctions()
+	for f, leaves := range *functions {
+		fmt.Printf("FUNC %s (%d, %d):\n", f.Node.(*ast.FuncDecl).Name, f.UnsafePointerCount, f.UintptrCount)
+		for _, leaf := range leaves {
+			printIter(leaf, fset, 1)
+			printIndent(2)
+			fmt.Println(fset.Position(leaf.Node.Pos()))
+			printIndent(2)
+			fmt.Println(lines[fset.Position(leaf.Node.Pos()).Line-1])
+		}
+		fmt.Println()
+	}
+}
+
+func formatStatements(findingsTree *AstTreeNode, fset *token.FileSet, lines []string) {
+	statements := findingsTree.findStatements()
+	for s, leaves := range *statements {
+		fmt.Printf("STMT ")
+		printNode(s.Node, fset)
+		fmt.Printf(" (%d, %d):\n", s.UnsafePointerCount, s.UintptrCount)
+		for _, leaf := range leaves {
+			printIter(leaf, fset, 1)
+			printIndent(2)
+			fmt.Println(fset.Position(leaf.Node.Pos()))
+			printIndent(2)
+			fmt.Println(lines[fset.Position(leaf.Node.Pos()).Line-1])
+		}
+		fmt.Println()
+	}
+}

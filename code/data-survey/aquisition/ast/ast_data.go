@@ -94,6 +94,18 @@ func (t *AstTreeNode) countUintptr() int {
 	return count
 }
 
+func (t *AstTreeNode) collectLeaves() []*AstTreeNode {
+	if len(t.Children) == 0 {
+		return []*AstTreeNode{t}
+	}
+
+	leaves := []*AstTreeNode{}
+	for _, child := range t.Children {
+		leaves = append(leaves, child.collectLeaves()...)
+	}
+	return leaves
+}
+
 func (t *AstTreeNode) findFunctions() *map[*AstTreeNode][]*AstTreeNode {
 	return findFunctionsIter(t, &map[*AstTreeNode][]*AstTreeNode{})
 }
@@ -109,14 +121,17 @@ func findFunctionsIter(t *AstTreeNode, functions *map[*AstTreeNode][]*AstTreeNod
 	return functions
 }
 
-func (t *AstTreeNode) collectLeaves() []*AstTreeNode {
-	if len(t.Children) == 0 {
-		return []*AstTreeNode{t}
-	}
+func (t *AstTreeNode) findStatements() *map[*AstTreeNode][]*AstTreeNode {
+	return findStatementsIter(t, &map[*AstTreeNode][]*AstTreeNode{})
+}
 
-	leaves := []*AstTreeNode{}
-	for _, child := range t.Children {
-		leaves = append(leaves, child.collectLeaves()...)
+func findStatementsIter(t *AstTreeNode, statements *map[*AstTreeNode][]*AstTreeNode) *map[*AstTreeNode][]*AstTreeNode {
+	if isStatement(t.Node) {
+		(*statements)[t] = t.collectLeaves()
+	} else {
+		for _, child := range t.Children {
+			findStatementsIter(child, statements)
+		}
 	}
-	return leaves
+	return statements
 }

@@ -5,16 +5,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var analyzeAstCmd = &cobra.Command{
+var mode string
+
+var astCmd = &cobra.Command{
 	Use:   "ast",
 	Short: "Analyze abstract syntax tree",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		ast.AnalyzeAst()
+		ast.AnalyzeAst(mode)
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(analyzeAstCmd)
+	RootCmd.AddCommand(astCmd)
+
+	astCmd.PersistentFlags().StringVar(&mode, "mode", "", "print mode (tree,func,stmt)")
 }
 

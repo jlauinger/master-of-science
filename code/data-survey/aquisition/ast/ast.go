@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func AnalyzeAst() {
+func AnalyzeAst(mode string) {
 	filename := "/home/johannes/studium/s14/masterarbeit/download/bosun/vendor/github.com/bradfitz/slice/slice.go"
 	code, _ := ioutil.ReadFile(filename)
 	lines := strings.Split(string(code), "\n")
@@ -31,19 +31,15 @@ func AnalyzeAst() {
 	findingsTree.countUnsafePointer()
 	findingsTree.countUintptr()
 
-	//findingsTree.printRoot(fset)
-	functions := findingsTree.findFunctions()
-	
-	for f, leaves := range *functions {
-		fmt.Printf("FUNC %s (%d, %d):\n", f.Node.(*ast.FuncDecl).Name, f.UnsafePointerCount, f.UintptrCount)
-		for _, leaf := range leaves {
-			printIter(leaf, fset, 1)
-			printIndent(2)
-			fmt.Println(fset.Position(leaf.Node.Pos()))
-			printIndent(2)
-			fmt.Println(lines[fset.Position(leaf.Node.Pos()).Line-1])
-		}
-		fmt.Println()
+	switch mode {
+	case "tree":
+		findingsTree.printRoot(fset)
+	case "func":
+		formatFunctions(findingsTree, fset, lines)
+	case "stmt":
+		formatStatements(findingsTree, fset, lines)
+	default:
+		fmt.Printf("unknown mode %s not in tree,func,stmt\n", mode)
 	}
 }
 
@@ -94,6 +90,44 @@ func isFunction(n ast.Node) bool {
 		return true
 	case *ast.FuncLit:
 		return false // deliberately ignore here
+	}
+	return false
+}
+
+func isStatement(n ast.Node) bool {
+	switch n.(type) {
+	case *ast.AssignStmt:
+		return true
+	case *ast.BranchStmt:
+		return true
+	case *ast.DeclStmt:
+		return true
+	case *ast.EmptyStmt:
+		return true
+	case *ast.ExprStmt:
+		return true
+	case *ast.ForStmt:
+		return true
+	case *ast.GoStmt:
+		return true
+	case *ast.IfStmt:
+		return true
+	case *ast.IncDecStmt:
+		return true
+	case *ast.LabeledStmt:
+		return true
+	case *ast.RangeStmt:
+		return true
+	case *ast.ReturnStmt:
+		return true
+	case *ast.SelectStmt:
+		return true
+	case *ast.SendStmt:
+		return true
+	case *ast.SwitchStmt:
+		return true
+	case *ast.TypeSwitchStmt:
+		return true
 	}
 	return false
 }
