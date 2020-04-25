@@ -11,7 +11,7 @@ dev-data/
 dev-copy/
 vaultpass
 data-survey/data/packages*
-data-survey/data/interesting_snippets*
+data-survey/data/classification/interesting_snippets*
 data-survey/data/lexical/errors*
 data-survey/data/lexical/grep_findings*
 data-survey/data/lexical/vet_findings*
