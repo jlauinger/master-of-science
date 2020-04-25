@@ -48,7 +48,7 @@ func (t *AstTreeNode) addPath(path []ast.Node) error {
 	return nil
 }
 
-func (t *AstTreeNode) print(fset *token.FileSet) {
+func (t *AstTreeNode) printRoot(fset *token.FileSet) {
 	for _, child := range t.Children {
 		printIter(child, fset, 0)
 	}
@@ -92,4 +92,31 @@ func (t *AstTreeNode) countUintptr() int {
 	t.UintptrCount = count
 
 	return count
+}
+
+func (t *AstTreeNode) findFunctions() *map[*AstTreeNode][]*AstTreeNode {
+	return findFunctionsIter(t, &map[*AstTreeNode][]*AstTreeNode{})
+}
+
+func findFunctionsIter(t *AstTreeNode, functions *map[*AstTreeNode][]*AstTreeNode) *map[*AstTreeNode][]*AstTreeNode {
+	if isFunction(t.Node) {
+		(*functions)[t] = t.collectLeaves()
+	} else {
+		for _, child := range t.Children {
+			findFunctionsIter(child, functions)
+		}
+	}
+	return functions
+}
+
+func (t *AstTreeNode) collectLeaves() []*AstTreeNode {
+	if len(t.Children) == 0 {
+		return []*AstTreeNode{t}
+	}
+
+	leaves := []*AstTreeNode{}
+	for _, child := range t.Children {
+		leaves = append(leaves, child.collectLeaves()...)
+	}
+	return leaves
 }
