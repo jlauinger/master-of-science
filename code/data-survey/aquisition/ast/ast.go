@@ -15,7 +15,6 @@ func AnalyzeAst() {
 	node, _ := parser.ParseFile(fset, "slice.go", string(code), parser.ParseComments)
 
 	findingsTree := &AstTreeNode{
-		NodeType: NODE_TYPE_ROOT,
 		Node:     nil,
 		Children: []*AstTreeNode{},
 	}
@@ -25,6 +24,9 @@ func AnalyzeAst() {
 		context:      []ast.Node{},
 		findingsTree: findingsTree,
 	}, node)
+
+	findingsTree.countUnsafePointer()
+	findingsTree.countUintptr()
 
 	findingsTree.print(fset)
 }
@@ -36,20 +38,8 @@ type UnsafeVisitor struct {
 }
 
 func (uv UnsafeVisitor) Visit(n ast.Node) ast.Visitor {
-	switch n := n.(type) {
-	case *ast.SelectorExpr:
-		switch X := n.X.(type) {
-		case *ast.Ident:
-			if X.Name == "unsafe" {
-				//unrollContext(uv, n)
-				uv.findingsTree.addPath(uv.context)
-			}
-		}
-	case *ast.Ident:
-		if n.Name == "uintptr" {
-			//unrollContext(uv, n)
-			uv.findingsTree.addPath(uv.context)
-		}
+	if isUnsafePointer(n) || isUintptr(n) {
+		uv.findingsTree.addPath(append(uv.context, n))
 	}
 
 	return UnsafeVisitor{
@@ -57,4 +47,27 @@ func (uv UnsafeVisitor) Visit(n ast.Node) ast.Visitor {
 		context: append(uv.context, n),
 		findingsTree: uv.findingsTree,
 	}
+}
+
+func isUnsafePointer(n ast.Node) bool {
+	switch n := n.(type) {
+	case *ast.SelectorExpr:
+		switch X := n.X.(type) {
+		case *ast.Ident:
+			if X.Name == "unsafe" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func isUintptr(n ast.Node) bool {
+	switch n := n.(type) {
+	case *ast.Ident:
+		if n.Name == "uintptr" {
+			return true
+		}
+	}
+	return false
 }

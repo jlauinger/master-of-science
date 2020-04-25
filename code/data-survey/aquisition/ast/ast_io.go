@@ -14,130 +14,120 @@ func printIndent (indent int) {
 	}
 }
 
-func unrollContext(uv UnsafeVisitor, n ast.Node) {
-	for i, cn := range uv.context {
-		printIndent(i)
-		printNode(cn, uv.fileset)
-	}
-	printIndent(len(uv.context) + 1)
-	fmt.Println(n)
-	fmt.Println("---")
-}
-
 func printNode(n ast.Node, fset *token.FileSet) {
 	switch n := n.(type) {
 	case *ast.Comment:
-		fmt.Printf("Comment\n")
+		fmt.Printf("Comment")
 	case *ast.CommentGroup:
-		fmt.Printf("CommentGroup\n")
+		fmt.Printf("CommentGroup")
 	case *ast.Field:
-		fmt.Printf("Field: %s\n", n.Names[0].Name)
+		fmt.Printf("Field: %s", n.Names[0].Name)
 	case *ast.FieldList:
-		fmt.Printf("FieldList: %s\n", n.List[0].Names[0].Name)
+		fmt.Printf("FieldList: %s", n.List[0].Names[0].Name)
 	case *ast.BadExpr:
-		fmt.Printf("BadExpr\n")
+		fmt.Printf("BadExpr")
 	case *ast.Ident:
-		fmt.Printf("Ident: %s\n", n.Name)
+		fmt.Printf("Ident: %s", n.Name)
 	case *ast.BasicLit:
-		fmt.Printf("BasicLit: %s\n", n.Value)
+		fmt.Printf("BasicLit: %s", n.Value)
 	case *ast.Ellipsis:
-		fmt.Printf("Ellipsis\n")
+		fmt.Printf("Ellipsis")
 	case *ast.FuncLit:
-		fmt.Printf("FuncLit\n")
+		fmt.Printf("FuncLit")
 	case *ast.CompositeLit:
-		fmt.Printf("CompositeLit\n")
+		fmt.Printf("CompositeLit")
 	case *ast.ParenExpr:
-		fmt.Printf("ParenExpr\n")
+		fmt.Printf("ParenExpr")
 	case *ast.SelectorExpr:
-		fmt.Printf("SelectorExpr\n")
+		fmt.Printf("SelectorExpr")
 	case *ast.IndexExpr:
-		fmt.Printf("IndexExpr\n")
+		fmt.Printf("IndexExpr")
 	case *ast.SliceExpr:
-		fmt.Printf("SliceExpr\n")
+		fmt.Printf("SliceExpr")
 	case *ast.TypeAssertExpr:
-		fmt.Printf("TypeAssertExpr\n")
+		fmt.Printf("TypeAssertExpr")
 	case *ast.CallExpr:
-		fmt.Printf("CallExpr %s(...)\n", n.Fun) //, argumentsToString(n.Args, fset))
+		fmt.Printf("CallExpr %s(...)", n.Fun) //, argumentsToString(n.Args, fset))
 	case *ast.StarExpr:
-		fmt.Printf("StarExpr\n")
+		fmt.Printf("StarExpr")
 	case *ast.UnaryExpr:
-		fmt.Printf("UnaryExpr\n")
+		fmt.Printf("UnaryExpr")
 	case *ast.BinaryExpr:
-		fmt.Printf("BinaryExpr\n")
+		fmt.Printf("BinaryExpr")
 	case *ast.KeyValueExpr:
-		fmt.Printf("KeyValueExpr\n")
+		fmt.Printf("KeyValueExpr")
 	case *ast.ArrayType:
-		fmt.Printf("ArrayType\n")
+		fmt.Printf("ArrayType")
 	case *ast.StructType:
-		fmt.Printf("StructType\n")
+		fmt.Printf("StructType")
 	case *ast.FuncType:
-		fmt.Printf("FuncType\n")
+		fmt.Printf("FuncType")
 	case *ast.InterfaceType:
-		fmt.Printf("InterfaceType\n")
+		fmt.Printf("InterfaceType")
 	case *ast.MapType:
-		fmt.Printf("MapType\n")
+		fmt.Printf("MapType")
 	case *ast.ChanType:
-		fmt.Printf("ChanType\n")
+		fmt.Printf("ChanType")
 	case *ast.BadStmt:
-		fmt.Printf("BadStmt\n")
+		fmt.Printf("BadStmt")
 	case *ast.DeclStmt:
-		fmt.Printf("DeclStmt\n")
+		fmt.Printf("DeclStmt")
 	case *ast.EmptyStmt:
-		fmt.Printf("EmptyStmt\n")
+		fmt.Printf("EmptyStmt")
 	case *ast.LabeledStmt:
-		fmt.Printf("LabeledStmt\n")
+		fmt.Printf("LabeledStmt")
 	case *ast.ExprStmt:
-		fmt.Printf("ExprStmt\n")
+		fmt.Printf("ExprStmt")
 	case *ast.SendStmt:
-		fmt.Printf("SendStmt\n")
+		fmt.Printf("SendStmt")
 	case *ast.IncDecStmt:
-		fmt.Printf("IncDecStmt:\n")
+		fmt.Printf("IncDecStmt:")
 	case *ast.AssignStmt:
-		fmt.Printf("AssignStmt: %s\n", n.Tok.String())
+		fmt.Printf("AssignStmt: %s", n.Tok.String())
 	case *ast.GoStmt:
-		fmt.Printf("GoStmt\n")
+		fmt.Printf("GoStmt")
 	case *ast.DeferStmt:
-		fmt.Printf("DeferStmt\n")
+		fmt.Printf("DeferStmt")
 	case *ast.ReturnStmt:
-		fmt.Printf("ReturnStmt\n")
+		fmt.Printf("ReturnStmt")
 	case *ast.BranchStmt:
-		fmt.Printf("BranchStmt: %s\n", n.Tok.String())
+		fmt.Printf("BranchStmt: %s", n.Tok.String())
 	case *ast.BlockStmt:
-		fmt.Printf("BlockStmt\n")
+		fmt.Printf("BlockStmt")
 	case *ast.IfStmt:
-		fmt.Printf("IfStmt\n")
+		fmt.Printf("IfStmt")
 	case *ast.CaseClause:
-		fmt.Printf("CaseClause\n")
+		fmt.Printf("CaseClause")
 	case *ast.SwitchStmt:
-		fmt.Printf("SwitchStmt\n")
+		fmt.Printf("SwitchStmt")
 	case *ast.TypeSwitchStmt:
-		fmt.Printf("TypeSwitchStmt\n")
+		fmt.Printf("TypeSwitchStmt")
 	case *ast.CommClause:
-		fmt.Printf("CommClause\n")
+		fmt.Printf("CommClause")
 	case *ast.SelectStmt:
-		fmt.Printf("SelectStmt\n")
+		fmt.Printf("SelectStmt")
 	case *ast.ForStmt:
-		fmt.Printf("ForStmt\n")
+		fmt.Printf("ForStmt")
 	case *ast.RangeStmt:
-		fmt.Printf("RangeStmt\n")
+		fmt.Printf("RangeStmt")
 	case *ast.ImportSpec:
-		fmt.Printf("ImportSpec: %s\n", n.Name)
+		fmt.Printf("ImportSpec: %s", n.Name)
 	case *ast.ValueSpec:
-		fmt.Printf("ValueSpec: %s\n", n.Names[0].Name)
+		fmt.Printf("ValueSpec: %s", n.Names[0].Name)
 	case *ast.TypeSpec:
-		fmt.Printf("TypeSepc: %s\n", n.Name)
+		fmt.Printf("TypeSepc: %s", n.Name)
 	case *ast.BadDecl:
-		fmt.Printf("BadDecl\n")
+		fmt.Printf("BadDecl")
 	case *ast.GenDecl:
-		fmt.Printf("GenDecl: %s\n", n.Tok)
+		fmt.Printf("GenDecl: %s", n.Tok)
 	case *ast.FuncDecl:
-		fmt.Printf("FunDecl: %s\n", n.Name)
+		fmt.Printf("FunDecl: %s", n.Name)
 	case *ast.File:
-		fmt.Printf("File: %s\n", n.Name)
+		fmt.Printf("File: %s", n.Name)
 	case *ast.Package:
-		fmt.Printf("Package: %s\n", n.Name)
+		fmt.Printf("Package: %s", n.Name)
 	default:
-		fmt.Printf("unknown node type %T\n", n)
+		fmt.Printf("unknown node type %T", n)
 	}
 }
 

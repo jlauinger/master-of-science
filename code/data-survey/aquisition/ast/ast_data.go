@@ -3,18 +3,14 @@ package ast
 import (
 	"go/ast"
 	"go/token"
-)
-
-const(
-	NODE_TYPE_ROOT = "root"
-	NODE_TYPE_FUNCTION = "func"
-	NODE_TYPE_STATEMENT = "stmt"
+	"fmt"
 )
 
 type AstTreeNode struct {
-	NodeType string
-	Node ast.Node
-	Children []*AstTreeNode
+	Node               ast.Node
+	Children           []*AstTreeNode
+	UnsafePointerCount int
+	UintptrCount       int
 }
 
 func (t *AstTreeNode) addPath(path []ast.Node) error {
@@ -38,7 +34,6 @@ func (t *AstTreeNode) addPath(path []ast.Node) error {
 	}
 	if childToAdd == nil {
 		childToAdd = &AstTreeNode{
-			NodeType: "foo",
 			Node:     head,
 			Children: []*AstTreeNode{},
 		}
@@ -62,7 +57,39 @@ func (t *AstTreeNode) print(fset *token.FileSet) {
 func printIter(t *AstTreeNode, fset *token.FileSet, indent int) {
 	printIndent(indent)
 	printNode(t.Node, fset)
+	fmt.Printf(" (%d, %d)\n", t.UnsafePointerCount, t.UintptrCount)
+
 	for _, child := range t.Children {
 		printIter(child, fset, indent + 1)
 	}
+}
+
+func (t *AstTreeNode) countUnsafePointer() int {
+	count := 0
+	for _, child := range t.Children {
+		count += child.countUnsafePointer()
+	}
+
+	if isUnsafePointer(t.Node) {
+		count++
+	}
+
+	t.UnsafePointerCount = count
+
+	return count
+}
+
+func (t *AstTreeNode) countUintptr() int {
+	count := 0
+	for _, child := range t.Children {
+		count += child.countUintptr()
+	}
+
+	if isUintptr(t.Node) {
+		count++
+	}
+
+	t.UintptrCount = count
+
+	return count
 }
