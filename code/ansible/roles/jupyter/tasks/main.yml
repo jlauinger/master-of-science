@@ -78,5 +78,7 @@
       - numpy
       - matplotlib
       - pandas
+      - sklearn
+      - nltk
     virtualenv: /root/jupyter/venv
   tags: jupyter
