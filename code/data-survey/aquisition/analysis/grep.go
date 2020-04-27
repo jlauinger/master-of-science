@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-var matchTypes = []string{"unsafe.Pointer", "unsafe.Sizeof", "unsafe.Alignof", "unsafe.Offsetof",
-	"uintptr", "reflect.SliceHeader", "reflect.StringHeader"}
+var matchTypes = []string{"unsafe\\.Pointer", "unsafe\\.Sizeof", "unsafe\\.Alignof", "unsafe\\.Offsetof",
+	"uintptr", "reflect\\.SliceHeader", "reflect\\.StringHeader"}
 
 
 func grepForUnsafe(packages []*PackageData) ([]RipgrepOutputLine, error) {
