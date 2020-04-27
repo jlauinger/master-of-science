@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"data-aquisition/analysis"
+	"data-aquisition/lexical"
 	"github.com/spf13/cobra"
 )
 
@@ -10,7 +10,7 @@ var analyzeVetCmd = &cobra.Command{
 	Short: "Runs go vet on the projects",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		analysis.AnalyzeVet(offset, length, dataDir, skipProjects, doCopy, copyDestination)
+		lexical.AnalyzeVet(offset, length, dataDir, skipProjects, doCopy, copyDestination)
 	},
 }
 

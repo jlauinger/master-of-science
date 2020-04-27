@@ -2,7 +2,7 @@ package ast
 
 import (
 	"bytes"
-	"data-aquisition/analysis"
+	"data-aquisition/lexical"
 	"fmt"
 	"go/ast"
 	"go/printer"
@@ -176,7 +176,7 @@ func formatStatements(findingsTree *TreeNode, fset *token.FileSet, lines []strin
 	}
 }
 
-func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, pkg *analysis.PackageData) {
+func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, pkg *lexical.PackageData) {
 	for _, finding := range findingsTree.collectLeaves() {
 		err := WriteAstFinding(FindingData{
 			MatchType:            matchTypeFor(finding),

@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"data-aquisition/analysis"
+	"data-aquisition/lexical"
 	"fmt"
 )
 
@@ -28,7 +28,7 @@ func AnalyzeAst(offset, length int, dataDir string, skipProjects []string) {
 	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
 
 	fmt.Println("reading projects data...")
-	projects, err := analysis.ReadProjects(projectsFilename)
+	projects, err := lexical.ReadProjects(projectsFilename)
 	if err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
@@ -62,8 +62,8 @@ func AnalyzeAst(offset, length int, dataDir string, skipProjects []string) {
 	}
 }
 
-func analyzeProject(project *analysis.ProjectData) error {
-	packages, err := analysis.GetProjectPackages(project)
+func analyzeProject(project *lexical.ProjectData) error {
+	packages, err := lexical.GetProjectPackages(project)
 	if err != nil {
 		return err
 	}

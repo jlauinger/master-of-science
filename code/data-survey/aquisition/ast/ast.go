@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"data-aquisition/analysis"
+	"data-aquisition/lexical"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func AnalyzeAstSingleFile(mode, filename string, pkg *analysis.PackageData) {
+func AnalyzeAstSingleFile(mode, filename string, pkg *lexical.PackageData) {
 	code, _ := ioutil.ReadFile(filename)
 	lines := strings.Split(string(code), "\n")
 

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"data-aquisition/analysis"
+	"data-aquisition/lexical"
 	"github.com/spf13/cobra"
 )
 
@@ -10,7 +10,7 @@ var analyzeGrepCmd = &cobra.Command{
 	Short: "Extracts unsafe code fragments using grep",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		analysis.AnalyzeGrep(offset, length, dataDir, skipProjects, doCopy, copyDestination)
+		lexical.AnalyzeGrep(offset, length, dataDir, skipProjects, doCopy, copyDestination)
 	},
 }
 

@@ -2,7 +2,7 @@ package projects
 
 import (
 	"context"
-	"data-aquisition/analysis"
+	"data-aquisition/lexical"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/gocarina/gocsv"
@@ -46,25 +46,25 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 
 			fmt.Printf("%v. %v\n", (page-1)*100+(i+1), *repo.CloneURL)
 			
-			project := analysis.ProjectData{
+			project := lexical.ProjectData{
 				Rank:           i + 1,
 				Name:           repo.GetFullName(),
 				GithubCloneUrl: repo.GetCloneURL(),
 				NumberOfStars:  repo.GetStargazersCount(),
 				NumberOfForks:  repo.GetForksCount(),
 				GithubId:       *repo.ID,
-				CreatedAt:      analysis.DateTime{Time: repo.CreatedAt.Time},
-				LastPushedAt:   analysis.DateTime{Time: repo.PushedAt.Time},
-				UpdatedAt:      analysis.DateTime{Time: repo.UpdatedAt.Time},
+				CreatedAt:      lexical.DateTime{Time: repo.CreatedAt.Time},
+				LastPushedAt:   lexical.DateTime{Time: repo.PushedAt.Time},
+				UpdatedAt:      lexical.DateTime{Time: repo.UpdatedAt.Time},
 				Size:           *repo.Size,
 				CheckoutPath:   path,
 			}
 
 			if headerWritten {
-				gocsv.MarshalWithoutHeaders([]analysis.ProjectData{project}, projectsFile)
+				gocsv.MarshalWithoutHeaders([]lexical.ProjectData{project}, projectsFile)
 			} else {
 				headerWritten = true
-				gocsv.Marshal([]analysis.ProjectData{project}, projectsFile)
+				gocsv.Marshal([]lexical.ProjectData{project}, projectsFile)
 			}
 
 			if download {
