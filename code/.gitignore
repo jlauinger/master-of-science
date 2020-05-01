@@ -2,6 +2,7 @@ download/
 .vagrant/
 *-logoutput.txt
 main
+race-slice
 data-aquisition
 .gdb_history
 venv/
