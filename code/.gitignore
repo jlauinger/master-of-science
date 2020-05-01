@@ -1,4 +1,5 @@
 download/
+.vagrant/
 *-logoutput.txt
 main
 data-aquisition
