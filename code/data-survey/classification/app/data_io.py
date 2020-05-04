@@ -19,4 +19,4 @@ def load_data(filename):
 
 
 def get_interesting_files():
-    return sorted(list(glob.glob(app.config['DATA_DIR'] + '/classification/interesting_snippets*.csv')))
+    return sorted(list(glob.glob(app.config['DATA_DIR'] + '/classification/*.csv')))
