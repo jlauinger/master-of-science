@@ -56,12 +56,7 @@ func render(fset *token.FileSet, x interface{}) string {
 	return buf.String()
 }
 
-func compositeLiteralIsReflectHeader(cl *ast.CompositeLit, pass *analysis.Pass) bool {
-	literalType, ok := pass.TypesInfo.Types[cl]
-	if !ok {
-		return false
-	}
-
+func typeIsReflectHeader(t types.Type) bool {
 	sliceHeaderType := types.NewStruct([]*types.Var{
 		types.NewVar(token.NoPos, nil, "Data", types.Typ[types.Uintptr]),
 		types.NewVar(token.NoPos, nil, "Len", types.Typ[types.Int]),
@@ -72,12 +67,24 @@ func compositeLiteralIsReflectHeader(cl *ast.CompositeLit, pass *analysis.Pass) 
 		types.NewVar(token.NoPos, nil, "Len", types.Typ[types.Int]),
 	}, nil)
 
-	if (types.AssignableTo(sliceHeaderType, literalType.Type.Underlying()) ||
-		types.AssignableTo(stringHeaderType, literalType.Type.Underlying())) {
-		return true
+	var effectiveType types.Type
+	pt, ok := t.Underlying().(*types.Pointer)
+	if ok {
+		effectiveType = pt.Elem().Underlying()
+	} else {
+		effectiveType = t.Underlying()
 	}
 
-	return false
+	return types.AssignableTo(sliceHeaderType, effectiveType) || types.AssignableTo(stringHeaderType, effectiveType)
+}
+
+func compositeLiteralIsReflectHeader(cl *ast.CompositeLit, pass *analysis.Pass) bool {
+	literalType, ok := pass.TypesInfo.Types[cl]
+	if !ok {
+		return false
+	}
+
+	return typeIsReflectHeader(literalType.Type)
 }
 
 func assigningToReflectHeader(assignStmt *ast.AssignStmt, pass *analysis.Pass) bool {
@@ -92,11 +99,10 @@ func assigningToReflectHeader(assignStmt *ast.AssignStmt, pass *analysis.Pass) b
 			return false
 		}
 
-		t := lhsType.Type.String()
-
-		if t == "*reflect.SliceHeader" || t == "reflect.SliceHeader" || t == "*reflect.StringHeader" || t == "reflect.StringHeader" {
+		if (typeIsReflectHeader(lhsType.Type)) {
 			return true
 		}
 	}
 	return false
 }
+
