@@ -8,8 +8,15 @@
   <component name="Go" enabled="true" />
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/ansible" />
+      <excludeFolder url="file://$MODULE_DIR$/data-survey/analysis" />
+      <excludeFolder url="file://$MODULE_DIR$/data-survey/classification" />
+      <excludeFolder url="file://$MODULE_DIR$/data-survey/data" />
       <excludeFolder url="file://$MODULE_DIR$/download" />
+      <excludeFolder url="file://$MODULE_DIR$/hacking" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/writings" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
