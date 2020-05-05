@@ -3,7 +3,7 @@ download/
 *-logoutput.txt
 main
 race-slice
-literalheader
+linter
 data-aquisition
 .gdb_history
 venv/
