@@ -1,0 +1,21 @@
+package literalheader_test
+
+import (
+	"testing"
+  "linter/passes/literalheader"
+	"golang.org/x/tools/go/analysis/analysistest"
+)
+
+func Test(t *testing.T) {
+	testdata := analysistest.TestData()
+	testPackages := []string{
+		"bad/composite_literal",
+		"bad/header_in_struct",
+		"bad/type_alias",
+		"bad/variable_declaration",
+
+		"good/safe_cast",
+	}
+	analysistest.Run(t, testdata, literalheader.Analyzer, testPackages...)
+}
+
