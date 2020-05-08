@@ -190,7 +190,7 @@ func nodeAssignsObject(n ast.Node, object types.Object, pass *analysis.Pass) (bo
 			continue
 		}
 		lhsObject, ok := pass.TypesInfo.Defs[lhsIdent]
-		if !ok {
+		if !ok || lhsObject == nil {
 			continue
 		}
 		if lhsObject.Id() == object.Id() {

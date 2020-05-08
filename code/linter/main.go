@@ -7,5 +7,8 @@ import (
 )
 
 func main() {
-	multichecker.Main(literalheader.Analyzer, unsafecount.Analyzer,)
+	multichecker.Main(
+		literalheader.Analyzer,
+		unsafecount.Analyzer,
+		)
 }

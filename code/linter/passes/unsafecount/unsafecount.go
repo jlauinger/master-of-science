@@ -18,13 +18,14 @@ var Analyzer = &analysis.Analyzer{
 }
 
 type UnsafeCount struct {
-	Count int
+	This int
+	Total int
 }
 
 func (uc *UnsafeCount) AFact() {}
 
 func (uc *UnsafeCount) String() string {
-	return fmt.Sprintf("%d unsafe.Pointer usages", uc.Count)
+	return fmt.Sprintf("%d unsafe.Pointer usages", uc.This)
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
@@ -39,14 +40,18 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		}
 	})
 
-	pass.ExportPackageFact(&UnsafeCount{Count: unsafePointerCount})
-
-	fmt.Printf("%s: unsafe pointer count: %d\n", pass.Pkg.Name(), unsafePointerCount)
+	fact := &UnsafeCount{
+		This:  unsafePointerCount,
+		Total: unsafePointerCount,
+	}
 
 	for _, pkg := range pass.Pkg.Imports() {
 		var pkgUnsafeCount UnsafeCount
 		pass.ImportPackageFact(pkg, &pkgUnsafeCount)
+		fact.Total += pkgUnsafeCount.Total
 	}
+
+	pass.ExportPackageFact(fact)
 
 	return nil, nil
 }
