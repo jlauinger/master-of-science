@@ -1,12 +1,11 @@
 package main
 
 import (
-	"golang.org/x/tools/go/analysis/unitchecker"
-
+	"golang.org/x/tools/go/analysis/multichecker"
 	"linter/passes/literalheader"
 	"linter/passes/unsafecount"
 )
 
 func main() {
-	unitchecker.Main(literalheader.Analyzer, unsafecount.Analyzer,)
+	multichecker.Main(literalheader.Analyzer, unsafecount.Analyzer,)
 }
