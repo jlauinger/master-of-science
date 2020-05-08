@@ -13,6 +13,8 @@ func Test(t *testing.T) {
 		"bad/header_in_struct",
 		"bad/type_alias",
 		"bad/variable_declaration",
+		"bad/unsafe_cast",
+		"bad/nil_cast",
 
 		"good/safe_cast",
 	}

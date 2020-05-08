@@ -69,6 +69,19 @@ func typeIsReflectHeader(t types.Type) bool {
 	return types.AssignableTo(sliceHeaderType, effectiveType) || types.AssignableTo(stringHeaderType, effectiveType)
 }
 
+func typeIsSliceOrStringReferenceType(t types.Type) bool {
+	stringType := types.NewPointer(types.Typ[types.String])
+	if types.AssignableTo(stringType, t) {
+		return true
+	}
+
+	if t.String()[0:3] == "*[]" {
+		return true
+	}
+
+	return false
+}
+
 func compositeLiteralIsReflectHeader(cl *ast.CompositeLit, pass *analysis.Pass) bool {
 	literalType, ok := pass.TypesInfo.Types[cl]
 	if !ok {
@@ -224,5 +237,29 @@ func definitionExprIsCastFromRealSlice(expr ast.Expr, pass *analysis.Pass) bool 
 		return false
 	}
 
-	return true
+	sourceCast, ok := callExpr.Args[0].(*ast.CallExpr)
+	if !ok {
+		return false
+	}
+
+	sourceSelector, ok := sourceCast.Fun.(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+
+	sourceReceiver, ok := sourceSelector.X.(*ast.Ident)
+	if !ok {
+		return false
+	}
+
+	if sourceSelector.Sel.Name != "Pointer" || sourceReceiver.Name != "unsafe" {
+		return false
+	}
+
+	sourceType, ok := pass.TypesInfo.Types[sourceCast.Args[0]]
+	if !ok {
+		return false
+	}
+
+	return typeIsSliceOrStringReferenceType(sourceType.Type)
 }
