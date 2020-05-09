@@ -1,8 +1,8 @@
-package unsafecount_test
+package unsafecountpass_test
 
 import (
+	"geiger/unsafecountpass"
 	"golang.org/x/tools/go/analysis/analysistest"
-	"linter/passes/unsafecount"
 	"testing"
 )
 
@@ -11,7 +11,7 @@ func Test(t *testing.T) {
 	testPackages := []string{
 		"some_unsafe",
 	}
-	analysistest.Run(t, testdata, unsafecount.Analyzer, testPackages...)
+	analysistest.Run(t, testdata, unsafecountpass.Analyzer, testPackages...)
 }
 
 

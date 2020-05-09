@@ -1,15 +1,16 @@
-package unsafecount
+package unsafecountpass
 
 import (
 	"fmt"
+	"geiger/facts"
+	"geiger/tools/go/analysis"
+	"geiger/tools/go/analysis/passes/inspect"
 	"go/ast"
-	"golang.org/x/tools/go/analysis"
-	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
 )
 
 var Analyzer = &analysis.Analyzer{
-	Name: "unsafecount",
+	Name: "geiger",
 	Doc:  "reports usages of unsafe Pointer",
 	Run:  run,
 	Requires: []*analysis.Analyzer{inspect.Analyzer},
@@ -42,16 +43,16 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	fact := &UnsafeCount{
 		This:  unsafePointerCount,
-		Total: unsafePointerCount,
 	}
 
 	for _, pkg := range pass.Pkg.Imports() {
 		var pkgUnsafeCount UnsafeCount
 		pass.ImportPackageFact(pkg, &pkgUnsafeCount)
-		fact.Total += pkgUnsafeCount.Total
 	}
 
 	pass.ExportPackageFact(fact)
+
+	facts.Store(pass.Pkg, fact.This)
 
 	return nil, nil
 }
