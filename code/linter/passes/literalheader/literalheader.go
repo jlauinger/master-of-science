@@ -48,6 +48,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 }
 
 func typeIsReflectHeader(t types.Type) bool {
+	if t.String() == "invalid type" {
+		return false
+	}
+
 	sliceHeaderType := types.NewStruct([]*types.Var{
 		types.NewVar(token.NoPos, nil, "Data", types.Typ[types.Uintptr]),
 		types.NewVar(token.NoPos, nil, "Len", types.Typ[types.Int]),
@@ -117,6 +121,7 @@ func assigningToReflectHeader(assignStmt *ast.AssignStmt, pass *analysis.Pass, s
 		if lhsObject == nil {
 			return true
 		}
+
 
 		if typeIsReflectHeader(lhsObject.Type()) {
 			cfgStack := findPathInCFG(cfgs.FuncDecl(function), assignStmt)

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"golang.org/x/tools/go/analysis/multichecker"
+	"golang.org/x/tools/go/analysis/singlechecker"
 	"linter/passes/literalheader"
 )
 
 func main() {
-	multichecker.Main(literalheader.Analyzer,)
+	singlechecker.Main(literalheader.Analyzer)
 }
