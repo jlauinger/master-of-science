@@ -8,12 +8,15 @@ import (
 )
 
 func runLinter(project *ProjectData, packages []*PackageData) []LinterFindingLine {
-	packagePaths := make([]string, len(packages))
+	packagePaths := make([]string, 0)
 
 	fmt.Println("  running linter")
 
-	for i, pkg := range packages {
-		packagePaths[i] = pkg.ImportPath
+	for _, pkg := range packages {
+		if pkg.ImportPath == "runtime" {
+			continue
+		}
+		packagePaths = append(packagePaths, pkg.ImportPath)
 	}
 
 	args := []string{"-c=0"}
