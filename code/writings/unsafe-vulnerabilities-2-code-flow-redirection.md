@@ -9,6 +9,7 @@ what is being executed.
  1. [Information leakage](unsafe-vulnerabilities-1-information-leakage.md)
  2. Code flow redirection (enjoy!)
  3. [ROP and spawning a shell](unsafe-vulnerabilities-3-rop-and-spawning-a-shell.md)
+ 4. [SliceHeader literals](unsafe-vulnerabilities-4-sliceheader-literal.md)
 
 
 ## Buffer overflow, part 2: controlling the return address

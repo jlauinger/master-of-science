@@ -10,6 +10,7 @@ for binary exploitation and run a shell in the program context.
  1. [Information leakage](unsafe-vulnerabilities-1-information-leakage.md)
  2. [Code flow redirection](unsafe-vulnerabilities-2-code-flow-redirection.md)
  3. ROP and spawning a shell (enjoy!)
+ 4. [SliceHeader literals](unsafe-vulnerabilities-4-sliceheader-literal.md)
 
 
 ## Executing code on the stack

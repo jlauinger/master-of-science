@@ -1,6 +1,6 @@
-# Exploitation Exercise with Go unsafe.Pointer
+# Exploitation Exercise with unsafe.Pointer in Go
 
-April 12, 2020. Johannes Lauinger
+May 11, 2020. Johannes Lauinger (johannes@lauinger-it.de)
 
 Go is a generally safe language. It has memory safety measures that should render common buffer overflow vulnerabilities
 which often exist in C programs impossible.
@@ -8,7 +8,7 @@ which often exist in C programs impossible.
 The `unsafe` std package defeats this memory safety. With `unsafe.Pointer`, we can create a pointer of arbitrary type.
 The compiler can't and won't enforce safety measures on this pointer.
 
-In this first of a three-part series on practically exploiting unsafe.Pointer usage, we will cover the possibilities
+In this first of a four-part series on practically exploiting unsafe.Pointer usage, we will cover the possibilities
 that come with `unsafe.Pointer` and show a first problem: a possible information leakage.
 
 
@@ -17,6 +17,7 @@ that come with `unsafe.Pointer` and show a first problem: a possible information
  1. Information leakage (enjoy!)
  2. [Code flow redirection](unsafe-vulnerabilities-2-code-flow-redirection.md)
  3. [ROP and spawning a shell](unsafe-vulnerabilities-3-rop-and-spawning-a-shell.md)
+ 4. [SliceHeader literals](unsafe-vulnerabilities-4-sliceheader-literal.md)
 
 
 ## Buffer overflows, part 1: the stack layout 
