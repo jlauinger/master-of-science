@@ -135,17 +135,17 @@ func assigningToReflectHeader(assignStmt *ast.AssignStmt, pass *analysis.Pass, s
 }
 
 func findPathInCFG(cfg *cfg.CFG, stmt ast.Node) []ast.Node {
-	_, stack := findPathInCFGIter(cfg.Blocks[0], stmt, []ast.Node{})
+	_, stack := findPathInCFGIter(cfg.Blocks[0], stmt)
 	return stack
 }
 
-func findPathInCFGIter(block *cfg.Block, stmt ast.Node, stack []ast.Node) (bool, []ast.Node) {
-	contained, nodes := nodesUntilStmt(block.Nodes, stmt)
+func findPathInCFGIter(block *cfg.Block, stmt ast.Node) (bool, []ast.Node) {
+	contained, nodes := nodesUntilStmt(&block.Nodes, stmt)
 	if contained {
 		return true, nodes
 	} else {
 		for _, child := range block.Succs {
-			found, childStack := findPathInCFGIter(child, stmt, stack)
+			found, childStack := findPathInCFGIter(child, stmt)
 			if found {
 				return true, append(block.Nodes, childStack...)
 			}
@@ -154,12 +154,12 @@ func findPathInCFGIter(block *cfg.Block, stmt ast.Node, stack []ast.Node) (bool,
 	return false, []ast.Node{}
 }
 
-func nodesUntilStmt(nodes []ast.Node, stmt ast.Node) (bool, []ast.Node) {
+func nodesUntilStmt(nodes *[]ast.Node, stmt ast.Node) (bool, []ast.Node) {
 	count := 0
-	for _, n := range nodes {
+	for _, n := range *nodes {
 		count++
 		if n == stmt {
-			return true, nodes[:count]
+			return true, (*nodes)[:count]
 		}
 	}
 	return false, []ast.Node{}
