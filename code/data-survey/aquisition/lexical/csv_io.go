@@ -13,52 +13,45 @@ var vetFindingsFile *os.File
 var vetFindingsFileHeaderWritten = false
 var gosecFindingsFile *os.File
 var gosecFindingsFileHeaderWritten = false
+var linterFindingsFile *os.File
+var linterFindingsFileHeaderWritten = false
 var errorConditionsFile *os.File
 var errorConditionsFileHeaderWritten = false
 
 func openPackagesFile(packagesFilename string) error {
 	var err error
 	packagesFile, err = os.OpenFile(packagesFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func openGrepFindingsFile(grepFilename string) error {
 	var err error
 	grepFindingsFile, err = os.OpenFile(grepFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
-func openVetFindingsFile(vetFile string) error {
+func openVetFindingsFile(vetFilename string) error {
 	var err error
-	vetFindingsFile, err = os.OpenFile(vetFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	vetFindingsFile, err = os.OpenFile(vetFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	return err
 }
 
 func openGosecFindingsFile(gosecFilename string) error {
 	var err error
 	gosecFindingsFile, err = os.OpenFile(gosecFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
+}
+
+func openLinterFindingsFile(linterFilename string) error {
+	var err error
+	linterFindingsFile, err = os.OpenFile(linterFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	return err
 }
 
 func openErrorConditionsFile(errorsFilename string) error {
 	var err error
 	errorConditionsFile, err = os.OpenFile(errorsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func closeFiles() {
@@ -73,6 +66,9 @@ func closeFiles() {
 	}
 	if gosecFindingsFile != nil {
 		gosecFindingsFile.Close()
+	}
+	if linterFindingsFile != nil {
+		linterFindingsFile.Close()
 	}
 	if errorConditionsFile != nil {
 		errorConditionsFile.Close()
@@ -128,6 +124,15 @@ func WriteGosecFinding(gosecFinding GosecFindingData) error {
 	} else {
 		gosecFindingsFileHeaderWritten = true
 		return gocsv.Marshal([]GosecFindingData{gosecFinding}, gosecFindingsFile)
+	}
+}
+
+func WriteLinterFinding(linterFinding LinterFindingData) error {
+	if linterFindingsFileHeaderWritten {
+		return gocsv.MarshalWithoutHeaders([]LinterFindingData{linterFinding}, linterFindingsFile)
+	} else {
+		linterFindingsFileHeaderWritten = true
+		return gocsv.Marshal([]LinterFindingData{linterFinding}, linterFindingsFile)
 	}
 }
 

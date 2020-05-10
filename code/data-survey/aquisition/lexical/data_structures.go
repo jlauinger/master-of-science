@@ -82,6 +82,20 @@ type VetFindingData struct {
 	FileCopyPath         string `csv:"file_copy_path"`
 }
 
+type LinterFindingData struct {
+	Message              string `csv:"message"`
+	Context              string `csv:"context"`
+	LineNumber           int    `csv:"line_number"`
+	Column               int    `csv:"column"`
+	RawOutput            string `csv:"raw_output"`
+
+	FileName             string `csv:"file_name"`
+	PackageImportPath    string `csv:"package_import_path"`
+	ModulePath           string `csv:"module_path"`
+	ModuleVersion        string `csv:"module_version"`
+	ProjectName          string `csv:"project_name"`
+}
+
 type GosecFindingData struct {
 	Message              string `csv:"message"`
 	Context              string `csv:"context"`
@@ -248,6 +262,14 @@ type RipgrepTime struct {
 // Vet parsing ---------------------------------------------------------------------------------------------------------
 
 type VetFindingLine struct {
+	Message     string
+	ContextLine string
+}
+
+
+// Linter parsing ------------------------------------------------------------------------------------------------------
+
+type LinterFindingLine struct {
 	Message     string
 	ContextLine string
 }

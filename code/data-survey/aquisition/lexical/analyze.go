@@ -84,6 +84,28 @@ func operatorGosecAnalysis(project *ProjectData, packages []*PackageData, fileTo
 }
 
 
+func AnalyzeLinter(offset, length int, dataDir string, skipProjects []string) {
+	linterFindingsFilename := fmt.Sprintf("%s/lexical/linter_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
+	errorsFilename := fmt.Sprintf("%s/lexical/errors_linter_%d_%d.csv", dataDir, offset, offset + length - 1)
+
+	if err := openLinterFindingsFile(linterFindingsFilename); err != nil {
+		fmt.Printf("ERROR: %v\n", err)
+	}
+	if err := openErrorConditionsFile(errorsFilename); err != nil {
+		fmt.Printf("ERROR: %v\n", err)
+	}
+	defer closeFiles()
+
+	commonAnalysis(offset, length, dataDir, skipProjects, false, "", false, operatorLinterAnalysis)
+}
+func operatorLinterAnalysis(project *ProjectData, packages []*PackageData, fileToPackageMap map[string]*PackageData,
+	_, _ map[string]int) map[string]string {
+
+	linterFindings := runLinter(project, packages)
+	return analyzeLinterFindings(linterFindings, fileToPackageMap, project)
+}
+
+
 func commonAnalysis(offset, length int, dataDir string, skipProjects []string, doCopy bool, copyDestination string, writePackagesToFile bool,
 	operator func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int) map[string]string) {
 
