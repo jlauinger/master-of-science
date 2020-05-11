@@ -96,6 +96,12 @@ statement will fill the slice with data from standard input, but the function th
 while the underlying array is only 8 bytes long. This is not the completely identical to the unbounded `gets()` call,
 but the effect is the same as the confused slice is more than long enough to provide an attack surface.
 
+To sketch a threat model, recall the binary communication protocol from the last part of this blog series. We mentioned
+that in order to have dynamic packet lengths, we would add a length field. If we write the code for the server application
+without the dangers of explicitly creating slice headers in mind, we could simply use the length coming from the request
+data as length for our slice. This would create a situation similar to the one above, and because the length would be
+set by an attacker, a bit closer to the Heartbleed bug [[1]](#references) as well. 
+
 
 ## Crafting a binary exploit
 
@@ -190,7 +196,7 @@ Stopped reason: SIGSEGV
 
 We pipe the output of the exploit script into the program, and we see that the program receives a `SIGSEGV` segmentation
 fault signal. This signal means that the processor tried to read or write data at an invalid address, here it's because
-it tried to execute the `ret` instruction and jump to an address that is determined by our ASCII characters. To see
+it tried to execute the `ret` instruction and jump to an address consisting of our ASCII characters. To see
 which address the CPU would jump to, we need to look at the top of the stack:
 
 ```gdb
@@ -339,6 +345,11 @@ crash, the objective was to decide which code should be executed and this was su
 You can read the full POC code in the Github repository that I created for this post series:
 
 {% github jlauinger/go-unsafepointer-poc no-readme %}
+
+
+## References
+
+ - [1] The Heartbleed Bug (CVE-2014-0160) https://heartbleed.com/
 
 
 Next week we are going to continue with part 3: Spawning a shell using Return Oriented Programming (ROP)
