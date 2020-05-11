@@ -29,11 +29,11 @@ Because the stack is always a bit unpredictable (for example, environment variab
 they could be different on each program run), the exact address of the shell code could vary slightly. And if we would
 miss it by even a byte, the code would become corrupted and stop working.
 
-To mitigate this, we could send a lot of `NOP` instructions (opcode `0x90`) between the address and the shell code, and
+To mitigate this, we could send a lot of `NOP` instructions (opcode `0x90` [2]) between the address and the shell code, and
 then try to jump into the middle of those instructions. This way, we don't have to hit the exact correct byte, instead
 the exploit also works if we jump to an address that is a few bytes before or after. This is because all possible
 target addresses (within some range) would be `NOP` instructions, and the CPU would just follow along all `NOP`
-instructions until it reaches the shell code and executes it. This technique is called the nop slide, because the CPU in 
+instructions until it reaches the shell code and executes it. This technique is called the nop slide [3], because the CPU in 
 a way slides down a slope of NOPs.
 
 The payload that we would inject could look like this:
@@ -53,7 +53,7 @@ not be executed! Different names for this are R^W (read xor write) or NX (Non-eX
 use by all major operating systems for years, and it effectively prevents us from writing our code onto the stack and
 then executing it.
 
-Another mitigation is Address Space Layout Randomization (ASLR), which randomizes the addresses of dynamically linked
+Another mitigation is Address Space Layout Randomization (ASLR) [1], which randomizes the addresses of dynamically linked
 libraries, or maybe even functions inside the binary itself, when loading it into the RAM. This way, we can not use GDB
 to analyze the binary locally and determine addresses where we might jump to, because on the exploit target (possibly
 remote) the addresses would be completely different.
@@ -190,6 +190,10 @@ Putting the ROP techniques from above into play, the plan looks like this:
  1. Set the executable and writable flags for a memory page belonging to the program
  2. Write some code that spawns a shell into the page
  3. Jump to that code
+ 
+The following steps are based on the excellent blog articles [4, 5, 6]. Give them a read for even more details on ROP
+chains and exploit development.
+ 
  
 **Step 1: Get a memory page with RWX permissions**
 
@@ -376,7 +380,7 @@ johannes@host-pc ~ $ ./exploit_rop.py
 [+] Starting local process './main': pid 75369
 [*] Switching to interactive mode
 $ id
-uid=1000(johannes) gid=1000(johannes) groups=1000(johannes),54(lock),972(docker),987(uucp),1001(plugdev)
+uid=1000(johannes) gid=1000(johannes) groups=1000(johannes),54(lock),1001(plugdev)
 $  
 ```
 
@@ -391,13 +395,17 @@ You can read the full POC exploit code in the Github repository that I created f
 {% github jlauinger/go-unsafepointer-poc no-readme %}
 
 
-## Further reading
+## References
 
-Here are some excellent further resources on ROP exploitation on x86_64 architecture:
-
- - https://medium.com/@buff3r/basic-buffer-overflow-on-64-bit-architecture-3fb74bab3558
- - https://failingsilently.wordpress.com/2017/12/14/rop-chain-shell/
- - https://0x00sec.org/t/64-bit-rop-you-rule-em-all/1937
+ - [1] Cook, Kees. "Kernel address space layout randomization." Linux Security Summit (2013). https://outflux.net/slides/2013/lss/kaslr.pdf
+ - [2] https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf
+ - [3] https://en.wikipedia.org/wiki/NOP_slide
+ - [4] Basic buffer overflow on 64-bit architecture
+   https://medium.com/@buff3r/basic-buffer-overflow-on-64-bit-architecture-3fb74bab3558
+ - [5] A Simple ROP Exploit – /bin/sh via syscall 
+   https://failingsilently.wordpress.com/2017/12/14/rop-chain-shell/
+ - [6] 64-bit ROP | You rule ‘em all!
+   https://0x00sec.org/t/64-bit-rop-you-rule-em-all/1937
 
 
 Next week we are going to continue with part 4: The dangers of directly creating `reflect.SliceHeader` literals
