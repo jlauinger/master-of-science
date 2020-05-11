@@ -110,7 +110,7 @@ into the stack at exactly the right position to be loaded into the instruction p
 
 Playing around with the program shows an input prompt that reads some data and then seems to just swallow it:
 
-```shell script
+```shell
 $ ./main 
 Hello World
 $ 
@@ -119,7 +119,7 @@ $
 However, putting in a large string will crash the program. That is a pretty good hint that there is potential to
 exploit a buffer overflow.
 
-```shell script
+```shell
 $ ./main
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -214,7 +214,7 @@ jump to.
 Just before closing GDB, let's quickly use it to find the address of our specially crafted `win` function. First, try
 to directly access its address:
 
-```shell script
+```shell
 gdb-peda$ x main.win
 No symbol "main.win" in current context.
 ``` 
@@ -300,7 +300,7 @@ print(padding + win_p)
 
 Running the program with this input creates the following output:
 
-```shell script
+```shell
 $ ./exploit_win.py | ./main
 win!
 unexpected fault address 0xc000072000

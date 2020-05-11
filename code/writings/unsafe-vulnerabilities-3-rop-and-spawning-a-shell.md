@@ -46,7 +46,7 @@ The payload that we would inject could look like this:
 Unfortunately, these days it isn't quite that easy anymore. Operating system developers have done a lot of work to 
 implement countermeasures against this simple code-on-the-stack exploit.
 
-Data Execution Prevention is a technique which assigns different permissions to the memory pages used by a program. There
+Data Execution Prevention [[7]](#references) is a technique which assigns different permissions to the memory pages used by a program. There
 are pages that can only be read (like literals and constants), pages that can be read and executed (like the program
 instructions itself) and pages that can be written (e.g. the stack or heap). But the pages that can be written to can
 not be executed! Different names for this are R^W (read xor write) or NX (Non-eXecutable memory). This technique has been in
@@ -62,7 +62,7 @@ Fortunately for this proof of concept, Go does not really use ASLR. The binaries
 deterministic addresses, and at least this small program gets statically linked so there are no dynamic libraries that
 could be loaded at different addresses. We can see this by running some analysis on the binary file:
 
-```shell script
+```shell
 $ readelf -l main
 
 Elf file type is EXEC (Executable file)
@@ -167,7 +167,7 @@ func main() {
 
 The following command shows quite a lot of ROP gadgets (snippets) that are contained in our binary:
 
-```shell script
+```shell
 ropper --file main --search "%"
 0x000000000041996b: adc al, 0; ret; 
 0x000000000042dee5: adc al, 0x1f; mov dword ptr [rsp + 0x28], edx; mov qword ptr [rsp + 0x30], rax; mov rbp, qword ptr [rsp + 0x10]; add rsp, 0x18; ret; 
@@ -375,7 +375,7 @@ payload += p64(buf)
 
 If we run the final exploit, we get the following output:
 
-```shell script
+```shell
 johannes@host-pc ~ $ ./exploit_rop.py        
 [+] Starting local process './main': pid 75369
 [*] Switching to interactive mode
@@ -406,6 +406,7 @@ You can read the full POC exploit code in the Github repository that I created f
    https://failingsilently.wordpress.com/2017/12/14/rop-chain-shell/
  - [6] 64-bit ROP | You rule ‘em all!
    https://0x00sec.org/t/64-bit-rop-you-rule-em-all/1937
+ - [7] https://en.wikipedia.org/wiki/Executable_space_protection
 
 
 Next week we are going to continue with part 4: The dangers of directly creating `reflect.SliceHeader` literals

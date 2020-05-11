@@ -113,7 +113,7 @@ safety measures. Here, we cast the buffer into a new byte buffer, but with a big
 Running this script will read the newly created, dangerous buffer. The length information will be inappropriate, and 
 thus the program will read memory after the end of the harmless data, revealing the secret data:
 
-```shell script
+```shell
 $ go run main.go 
 AAAAAAAAl33t-h4xx0r-w1ns!
 ```
