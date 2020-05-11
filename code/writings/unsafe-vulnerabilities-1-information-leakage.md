@@ -217,6 +217,8 @@ repository.
 This blog post was written as part of my work on my Master's thesis at the 
 [Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.
 
+Title picture by Maria Letta. Thanks a lot for her excellent [Free Gophers Pack](https://github.com/MariaLetta/free-gophers-pack)!
+
 
 ## References
 
