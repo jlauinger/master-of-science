@@ -22,7 +22,7 @@ Now comes the `ret` machine instruction. It is actually equivalent to `pop $rip`
 The processor will fetch the address stored on the top of the stack, put it into the instruction pointer register, and
 continue execution at that address.
 
-TODO: add a picture here
+![Return to saved RIP](assets/return.svg)
 
 If we can somehow change the return address stored on the stack to an address we can control, we can change the program
 control flow. 

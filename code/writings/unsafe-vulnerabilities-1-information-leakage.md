@@ -9,7 +9,7 @@ The `unsafe` standard library package defeats this memory safety. With `unsafe.P
 arbitrary type. The compiler can't and won't enforce safety measures on this type of pointer.
 
 In this first of a four-part series on practically exploiting unsafe.Pointer usage, we will cover the possibilities
-that come with `unsafe.Pointer` and show a first problem: a possible information leakage.
+that come with `unsafe.Pointer` and look at a first potential vulnerability: an information leakage.
 
 
 ## Parts:
@@ -24,13 +24,8 @@ that come with `unsafe.Pointer` and show a first problem: a possible information
 
 Let's start with a short discussion of the stack. A stack is a data structure that grows like a tower of things. New 
 items can be pushed onto the stack, and items on the stack can be removed or popped. A CPU uses a stack to keep track 
-of data that is meaningful in the current context. Most importantly, it is used for calling functions. 
-
-The stack used in the `x86_64` architecture is an area in the RAM which is identified by the stack pointer register
-`$rsp`. When the current program calls a function, the return address as well as some function parameters (more on this
-later) are pushed onto the stack, and the processor jumps to the first instruction of the function. This jump is done
-by setting the instruction pointer register `$rip`. Then, when the function returns (by executing the `ret` instruction),
-the return address is popped from the stack and put into the `$rip` register.
+of data that is meaningful in the current context. Most importantly, it is used for calling functions. The stack used 
+in the `x86_64` architecture is an area in the RAM which is identified by the stack pointer register `$rsp`.
 
 Pushing something onto the stack is done be decrementing the stack pointer by some amount, e.g. a processor word (8 byte
 on 64-bit architecture). Then the data is written to the address where the stack pointer now points to. Decrementing the
@@ -38,15 +33,22 @@ stack pointer marks the memory region as belonging to the stack. When popping va
 is incremented again, marking the memory region as free again. Because the stack pointer decrements with new data, we
 can say that the stack grows to the bottom, starting from high addresses in memory and growing to low addresses.
 
-TODO: add picture here
+![Stack Visualization](assets/stack.svg)
+
+When the current program calls a function, the return address as well as some function parameters (more on this
+later) are pushed onto the stack, and the processor jumps to the first instruction of the function. This jump is done
+by setting the instruction pointer register `$rip`. Then, when the function returns (by executing the `ret` instruction),
+the return address is popped from the stack and put into the `$rip` register.
 
 The function can store local variables on the stack (inside its so-called stack frame). These are pushed onto the stack
-after the return address, meaning the variables are at lower memory addresses than the return address. Furthermore,
-variables on the stack are located directly next to each other. This is why bounds checking is very important for
-buffers. Reading or writing outside the bounds of a variable means we are reading or writing other variables. We call
-this buffer overflow.
+after the return address and saved registers, meaning the variables are at lower memory addresses than the return 
+address. Furthermore, variables on the stack are located directly next to each other. This is why bounds checking is 
+very important for buffers. Reading or writing outside the bounds of a variable means we are reading or writing other 
+variables. We call this buffer overflow.
 
-TODO: add picture here
+This is a visualization of a stack frame for a function:
+
+![Stack Frame Layout](assets/frame.svg)
 
 
 ## Go memory safety

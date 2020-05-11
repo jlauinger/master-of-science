@@ -38,8 +38,8 @@ a way slides down a slope of NOPs.
 
 The payload that we would inject could look like this:
 
-TODO: add a picture here
- 
+![Nop Slide Inject Payload](assets/payload.svg) 
+
 
 ## DEP and ASLR: mitigations against buffer overflows
 
