@@ -25,11 +25,13 @@ that come with `unsafe.Pointer` and look at a first potential vulnerability: an 
 So why did I write this blog post? I am a computer science student at TU Darmstadt, Germany. I am currently writing my
 Master's thesis on an analysis of real-world usage patterns of the Go `unsafe` package. As part of the research, I look
 into actual use cases of `unsafe.Pointer` references in the biggest open source Go projects, analyze and categorize them,
-and identify potentially dangerous patterns and vulnerabilities.
+and identify potentially dangerous patterns and vulnerabilities. I am also comparing the unsafe features of Go to the
+unsafe mode in Rust [[4]](#references), as there are some similarities.
 
 As a first step in finding out which usage patterns are dangerous, I created some artificial proof of concepts that
 demonstrate applications that are vulnerable due to a wrong use of `unsafe.Pointer`. While doing this, I figured this
-could be an interesting read or even short exercise for Go developers.
+could be an interesting read or even short exercise for Go developers. If you have some ideas or thoughts on this topic,
+I'd be very happy to know!
 
 So grab your favorite beverage, fire up your code editor of choice, and enjoy this little journey covering different
 types of vulnerabilities. We will look at the exact problem in the code and explain why it arises, and discuss possible
