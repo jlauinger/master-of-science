@@ -191,7 +191,7 @@ Putting the ROP techniques from above into play, the plan looks like this:
  2. Write some code that spawns a shell into the page
  3. Jump to that code
  
-The following steps are based on the excellent blog articles [4, 5, 6](#references). Give them a read for even more details on ROP
+The following steps are based on the excellent blog articles [[4, 5, 6]](#references). Give them a read for even more details on ROP
 chains and exploit development.
  
  
