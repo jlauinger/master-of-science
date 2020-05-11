@@ -347,9 +347,15 @@ You can read the full POC code in the Github repository that I created for this 
 {% github jlauinger/go-unsafepointer-poc no-readme %}
 
 
+## Acknowledgements
+
+This blog post was written as part of my work on my Master's thesis at the 
+[Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.
+
+
 ## References
 
- - [1] The Heartbleed Bug (CVE-2014-0160) https://heartbleed.com/
+ - [1] [The Heartbleed Bug (CVE-2014-0160)](https://heartbleed.com/)
 
 
 Next week we are going to continue with part 3: Spawning a shell using Return Oriented Programming (ROP)

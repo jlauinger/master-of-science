@@ -8,7 +8,7 @@ vulnerabilities, like they often exist in C programs.
 The `unsafe` standard library package defeats this memory safety. With `unsafe.Pointer`, we can create a pointer of 
 arbitrary type. The compiler can't and won't enforce safety measures on this type of pointer.
 
-In this first of a four-part series on practically exploiting unsafe.Pointer usage, we will cover the possibilities
+In this first of a four-part, weekly series on practically exploiting unsafe.Pointer usage, we will cover the possibilities
 that come with `unsafe.Pointer` and look at a first potential vulnerability: an information leakage.
 
 
@@ -18,6 +18,22 @@ that come with `unsafe.Pointer` and look at a first potential vulnerability: an 
  2. [Code flow redirection](unsafe-vulnerabilities-2-code-flow-redirection.md)
  3. [ROP and spawning a shell](unsafe-vulnerabilities-3-rop-and-spawning-a-shell.md)
  4. [SliceHeader literals](unsafe-vulnerabilities-4-sliceheader-literal.md)
+
+
+## What is this about?
+
+So why did I write this blog post? I am a computer science student at TU Darmstadt, Germany. I am currently writing my
+Master's thesis on an analysis of real-world usage patterns of the Go `unsafe` package. As part of the research, I look
+into actual use cases of `unsafe.Pointer` references in the biggest open source Go projects, analyze and categorize them,
+and identify potentially dangerous patterns and vulnerabilities.
+
+As a first step in finding out which usage patterns are dangerous, I created some artificial proof of concepts that
+demonstrate applications that are vulnerable due to a wrong use of `unsafe.Pointer`. While doing this, I figured this
+could be an interesting read or even short exercise for Go developers.
+
+So grab your favorite beverage, fire up your code editor of choice, and enjoy this little journey covering different
+types of vulnerabilities. We will look at the exact problem in the code and explain why it arises, and discuss possible
+means of introducing such a problem in the real world.
 
 
 ## Buffer overflows, part 1: the stack layout 
@@ -196,11 +212,18 @@ If you'd like to check out the complete code and run it for yourself, you can sa
 repository.
 
 
+## Acknowledgements
+
+This blog post was written as part of my work on my Master's thesis at the 
+[Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.
+
+
 ## References
 
- - [1] Package unsafe https://golang.org/pkg/unsafe/
- - [2] Eli Bendersky. Where the top of the stack is on x86 (2011) https://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/
- - [3] The Heartbleed Bug (CVE-2014-0160) https://heartbleed.com/
+ - [1] [Package unsafe](https://golang.org/pkg/unsafe/)
+ - [2] [Eli Bendersky. Where the top of the stack is on x86 (2011)](https://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/)
+ - [3] [The Heartbleed Bug (CVE-2014-0160)](https://heartbleed.com/)
+ - [4] [Unsafe Rust](https://doc.rust-lang.org/book/ch19-01-unsafe-rust.html)
 
 
 Next week we are going to continue with part 2: Code flow redirection!

@@ -13,3 +13,12 @@ In this fourth part, we will explore a very common, but unsafe code pattern: cre
 
 
 ## Executing code on the stack
+
+
+## Introducing a static code analysis tool!
+
+
+## Acknowledgements
+
+This blog post was written as part of my work on my Master's thesis at the 
+[Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.

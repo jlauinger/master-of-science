@@ -395,18 +395,21 @@ You can read the full POC exploit code in the Github repository that I created f
 {% github jlauinger/go-unsafepointer-poc no-readme %}
 
 
+## Acknowledgements
+
+This blog post was written as part of my work on my Master's thesis at the 
+[Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.
+
+
 ## References
 
- - [1] Cook, Kees. "Kernel address space layout randomization." Linux Security Summit (2013). https://outflux.net/slides/2013/lss/kaslr.pdf
- - [2] https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf
- - [3] https://en.wikipedia.org/wiki/NOP_slide
- - [4] Basic buffer overflow on 64-bit architecture
-   https://medium.com/@buff3r/basic-buffer-overflow-on-64-bit-architecture-3fb74bab3558
- - [5] A Simple ROP Exploit – /bin/sh via syscall 
-   https://failingsilently.wordpress.com/2017/12/14/rop-chain-shell/
- - [6] 64-bit ROP | You rule ‘em all!
-   https://0x00sec.org/t/64-bit-rop-you-rule-em-all/1937
- - [7] https://en.wikipedia.org/wiki/Executable_space_protection
+ - [1] [Address Space Layout Randomization](https://en.wikipedia.org/wiki/Address_space_layout_randomization)
+ - [2] [x64 Cheatsheet](https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf)
+ - [3] [NOP Slide](https://en.wikipedia.org/wiki/NOP_slide)
+ - [4] [Basic buffer overflow on 64-bit architecture](https://medium.com/@buff3r/basic-buffer-overflow-on-64-bit-architecture-3fb74bab3558)
+ - [5] [A Simple ROP Exploit – /bin/sh via syscall](https://failingsilently.wordpress.com/2017/12/14/rop-chain-shell/)
+ - [6] [64-bit ROP | You rule ‘em all!](https://0x00sec.org/t/64-bit-rop-you-rule-em-all/1937)
+ - [7] [Executable Space Protection](https://en.wikipedia.org/wiki/Executable_space_protection)
 
 
 Next week we are going to continue with part 4: The dangers of directly creating `reflect.SliceHeader` literals
