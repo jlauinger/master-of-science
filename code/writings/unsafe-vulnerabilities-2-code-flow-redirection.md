@@ -16,7 +16,7 @@ what is being executed.
 
 In the first part we learned that local variables are located on the stack at addresses just below the return address.
 When the function returns, it will increment the stack pointer to the point where no space for local variables is used,
-effectively freeing them. This means the stack pointer `$rsp` will then point to the stored return address.
+effectively freeing them. The stack pointer `$rsp` will then point to the stored return address.
 
 Now comes the `ret` machine instruction. It is actually equivalent to `pop $rip` or even `mov $rip, [$rsp]; add $rsp, 8`.
 The processor will fetch the address stored on the top of the stack, put it into the instruction pointer register, and
@@ -32,8 +32,8 @@ control flow.
 
 To see how we can actually exploit this, we will have a look at a proof of concept exploit with an example program.
 
-First, we add a `win` function to be compiled into the binary. This is so that we have a target to redirect the code 
-flow to. This is a good first step in code flow exploitation. The function does not do very much, it simply prints 
+First, we create a `win` function to be compiled into the binary. We can use it as a target to redirect the code 
+flow to. This is a good first step in learning code flow exploitation. The function does not do very much, it simply prints 
 "win!" so that we know we did good:
 
 ```go
@@ -45,24 +45,24 @@ func win() {
 The main function of the program looks like this: 
 
 ```go
-// initialize the reader outside of the main function to simplify POC development, as there are less local variables
-// on the stack.
+// initialize the reader outside of the main function to simplify POC development, as 
+// there are less local variables on the stack.
 var reader = bufio.NewReader(os.Stdin)
 
 func main() {
     // this is a harmless buffer, containing some harmless data
     harmlessData := [8]byte{'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'}
     
-    // create a slice of length 512 byte, but assign the address of the harmless data as its buffer.
-    // use the reflect.SliceHeader to change the slice
+    // create a slice of length 512 byte, but assign the address of the harmless data as
+    // its buffer. Use the reflect.SliceHeader to change the slice
     confusedSlice := make([]byte, 512)
     sliceHeader := (*reflect.SliceHeader)(unsafe.Pointer(&confusedSlice))
     harmlessDataAddress := uintptr(unsafe.Pointer(&(harmlessData[0])))
     sliceHeader.Data = harmlessDataAddress
     
-    // now read into the confused slice from STDIN. This is not quite as bad as a gets() call in C, but almost. The
-    // function will read up to 512 byte, but the underlying buffer is only 8 bytes. This function is the complete
-    // vulnerability, nothing else needed
+    // now read into the confused slice from STDIN. This is not quite as bad as a gets()
+    // call in C, but almost. The function will read up to 512 byte, but the underlying
+    // buffer is only 8 bytes. This function is pretty much the complete vulnerability
     _, _ = reader.Read(confusedSlice)
 }
 ```
@@ -93,7 +93,7 @@ small buffer as its underlying array, but the length will still be set to 512 by
 
 This is a misuse of the `unsafe` package and it creates a very dangerous situation: Calling `reader.Read()` in the next
 statement will fill the slice with data from standard input, but the function thinks it is safe to read up to 512 bytes
-while the underlying array is only 8 bytes long. This is not the completely identical to the unbounded `gets()` call,
+while the underlying array is only 8 bytes long. This is not completely identical to the unbounded `gets()` call,
 but the effect is the same as the confused slice is more than long enough to provide an attack surface.
 
 To sketch a threat model, recall the binary communication protocol from the last part of this blog series. We mentioned
@@ -206,7 +206,7 @@ gdb-peda$ x/8wx $rsp
 ```
 
 Using the `x` command, we inspect 8 words of data (each word is 4 bytes in GDB) and print them in hexadecimal form. The
-first two blocks (8 bytes total) are the 64-bit processor word that the CPU wants to put into the `$rip` register. We 
+first two blocks (8 bytes total) are the 64-bit word that the CPU wants to put into the `$rip` register. We 
 can see that it is `0x4f4f4f4f50505050`. Looking at the ASCII table, we see that it corresponds to `OOOOPPPP`, and 
 therefore we need to cut the padding just before the O's and replace those eight characters with the address we want to 
 jump to.
