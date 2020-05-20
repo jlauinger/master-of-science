@@ -13,7 +13,7 @@ import (
 )
 
 var maxIndent int
-var shortenSeen bool
+var shortenSeenPackages, showStandardPackages bool
 
 var RootCmd = &cobra.Command{
 	Use:   "geiger",
@@ -23,7 +23,11 @@ var RootCmd = &cobra.Command{
 		facts.Init()
 		singlechecker.Run(unsafecountpass.Analyzer)
 		results := facts.GetAll()
-		prettyprint.Print(results, maxIndent, shortenSeen)
+		prettyprint.Print(results, prettyprint.Config{
+			MaxIndent:            maxIndent,
+			ShortenSeenPackages:  shortenSeenPackages,
+			ShowStandardPackages: showStandardPackages,
+		})
 	},
 }
 
@@ -35,11 +39,18 @@ func Execute() {
 		maxIndent = 2
 	}
 
-	shortenSeenValue, err := strconv.ParseBool(os.Getenv("GEIGER_SHORTEN_SEEN"))
+	shortenSeenPackagesValue, err := strconv.ParseBool(os.Getenv("GEIGER_SHORTEN_SEEN"))
 	if err == nil {
-		shortenSeen = shortenSeenValue
+		shortenSeenPackages = shortenSeenPackagesValue
 	} else {
-		shortenSeen = true
+		shortenSeenPackages = true
+	}
+
+	showStandardPackagesValue, err := strconv.ParseBool(os.Getenv("GEIGER_SHOW_STD"))
+	if err == nil {
+		showStandardPackages = showStandardPackagesValue
+	} else {
+		showStandardPackages = false
 	}
 
 	if err := RootCmd.Execute(); err != nil {

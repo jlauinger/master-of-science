@@ -6,17 +6,31 @@ import (
 	"go/types"
 )
 
-func Print(results map[*types.Package]*facts.PackageInfo, maxIndent int, shortenSeen bool) {
+type Config struct {
+	MaxIndent            int
+	ShortenSeenPackages  bool
+	ShowStandardPackages bool
+}
+
+func Print(results map[*types.Package]*facts.PackageInfo, config Config) {
 	forest := buildForest(results)
 
 	for _, tree := range forest {
-		printTree(tree, 0, maxIndent, &map[*types.Package]bool{}, shortenSeen)
+		printTree(tree, 0, &map[*types.Package]bool{}, config)
 		fmt.Println("")
+	}
+
+	if config.ShowStandardPackages == false {
+		fmt.Println("Not showing packages from the standard library. Use GEIGER_SHOW_STD=true to include them.")
 	}
 }
 
-func printTree(root *PackageTreeNode, indent, maxIndent int, seen *map[*types.Package]bool, shortenSeen bool) {
-	if indent > maxIndent {
+func printTree(root *PackageTreeNode, indent int, seen *map[*types.Package]bool, config Config) {
+	if config.ShowStandardPackages == false && isStandardPackage(root.Pkg.Path()) {
+		return
+	}
+
+	if indent > config.MaxIndent {
 		return
 	}
 	printIndent(indent)
@@ -26,7 +40,7 @@ func printTree(root *PackageTreeNode, indent, maxIndent int, seen *map[*types.Pa
 	fmt.Printf("%s: %d (total %d)", root.Pkg.Path(), root.Info.ThisCount, totalCount)
 
 	_, ok := (*seen)[root.Pkg]
-	if ok && shortenSeen {
+	if ok && config.ShortenSeenPackages {
 		if len(root.Children) > 0 {
 			fmt.Printf("...\n")
 		} else {
@@ -36,7 +50,7 @@ func printTree(root *PackageTreeNode, indent, maxIndent int, seen *map[*types.Pa
 		fmt.Printf("\n")
 		(*seen)[root.Pkg] = true
 		for _, child := range root.Children {
-			printTree(child, indent + 1, maxIndent, seen, shortenSeen)
+			printTree(child, indent + 1, seen, config)
 		}
 	}
 }
