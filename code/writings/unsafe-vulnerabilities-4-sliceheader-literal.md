@@ -12,10 +12,22 @@ In this fourth part, we will explore a very common, but unsafe code pattern: cre
  4. SliceHeader literals (enjoy!)
 
 
-## Executing code on the stack
+## Garbage Collection
+
+First, let's quickly go through garbage collection. Go offers memory management to the programmer. It automatically
+allocates 
 
 
 ## Introducing a static code analysis tool!
+
+{% github jlauinger/go-safer no-readme %}
+
+
+## Complete POC code
+
+You can read the full POC code in the Github repository that I created for this post series:
+
+{% github jlauinger/go-unsafepointer-poc no-readme %}
 
 
 ## Acknowledgements
