@@ -52,16 +52,23 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 		childIndex++
 		isLast := childIndex == childCount
 
+		var nextChildIndents []IndentType
+		if isLast {
+			nextChildIndents = append(nextIndents, L)
+		} else {
+			nextChildIndents = append(nextIndents, T)
+		}
+
 		_, ok := (*seen)[child]
 		if config.ShortenSeenPackages && ok {
-			table.Append([]string{"", "", fmt.Sprintf("%s%s...", getIndentString(nextIndents), child.PkgPath)})
+			table.Append([]string{"", "", fmt.Sprintf("%s%s...", getIndentString(nextChildIndents), child.PkgPath)})
 			continue
 		}
 
 		if isLast {
-			printPkgTree(child, append(nextIndents, L), config, table, seen)
+			printPkgTree(child, nextChildIndents, config, table, seen)
 		} else {
-			printPkgTree(child, append(nextIndents, T), config, table, seen)
+			printPkgTree(child, nextChildIndents, config, table, seen)
 		}
 	}
 }

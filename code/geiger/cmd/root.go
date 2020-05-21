@@ -16,15 +16,6 @@ var RootCmd = &cobra.Command{
 	Long: `https://github.com/stg-tud/thesis-2020-lauinger-code`,
 	Args: cobra.RangeArgs(0, 1000),
 	Run: func(cmd *cobra.Command, args []string) {
-		/*facts.Init()
-		singlechecker.Run(unsafecountpass.Analyzer)
-		results := facts.GetAll()
-		prettyprint.Print(results, prettyprint.Config{
-			MaxIndent:            maxIndent,
-			ShortenSeenPackages:  shortenSeenPackages,
-			ShowStandardPackages: showStandardPackages,
-			ShowTestingPackages: showTestingPackages,
-		})*/
 		rewrite.Run(rewrite.Config{
 			MaxIndent:            maxIndent,
 			ShortenSeenPackages:  shortenSeenPackages,
