@@ -1,4 +1,4 @@
-package rewrite
+package counter
 
 import (
 	"go/ast"
@@ -47,7 +47,7 @@ func getUnsafeCount(pkg *packages.Package, config Config) int {
 	return unsafePointerCount
 }
 
-func getTotalCount(pkg *packages.Package, config Config, seen *map[*packages.Package]bool) int {
+func getTotalUnsafeCount(pkg *packages.Package, config Config, seen *map[*packages.Package]bool) int {
 	_, ok := (*seen)[pkg]
 	if ok {
 		return 0
@@ -57,7 +57,7 @@ func getTotalCount(pkg *packages.Package, config Config, seen *map[*packages.Pac
 	totalCount := getUnsafeCount(pkg, config)
 
 	for _, child := range pkg.Imports {
-		totalCount += getTotalCount(child, config, seen)
+		totalCount += getTotalUnsafeCount(child, config, seen)
 	}
 
 	return totalCount

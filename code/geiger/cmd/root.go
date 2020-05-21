@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"geiger/rewrite"
+	"geiger/counter"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -16,7 +16,7 @@ var RootCmd = &cobra.Command{
 	Long: `https://github.com/stg-tud/thesis-2020-lauinger-code`,
 	Args: cobra.RangeArgs(0, 1000),
 	Run: func(cmd *cobra.Command, args []string) {
-		rewrite.Run(rewrite.Config{
+		counter.Run(counter.Config{
 			MaxIndent:            maxIndent,
 			ShortenSeenPackages:  shortenSeenPackages,
 			ShowStandardPackages: showStandardPackages,

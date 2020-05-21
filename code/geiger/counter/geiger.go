@@ -1,4 +1,4 @@
-package rewrite
+package counter
 
 import (
 	"github.com/olekukonko/tablewriter"

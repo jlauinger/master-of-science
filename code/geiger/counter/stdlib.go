@@ -1,4 +1,4 @@
-package rewrite
+package counter
 
 import "golang.org/x/tools/go/packages"
 

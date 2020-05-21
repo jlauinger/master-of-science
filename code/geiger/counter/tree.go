@@ -1,4 +1,4 @@
-package rewrite
+package counter
 
 import (
 	"fmt"
@@ -19,22 +19,14 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 	(*seen)[pkg] = true
 
 	countInThisPackage := getUnsafeCount(pkg, config)
-	totalCount := getTotalCount(pkg, config, &map[*packages.Package]bool{})
+	totalCount := getTotalUnsafeCount(pkg, config, &map[*packages.Package]bool{})
 	nameString := fmt.Sprintf("%s%s", getIndentString(indents), pkg.PkgPath)
 
-	var colors []tablewriter.Colors
-	if countInThisPackage > 0 {
-		colors = []tablewriter.Colors{{tablewriter.FgRedColor}, {tablewriter.FgRedColor}, {tablewriter.FgRedColor}}
-	} else if totalCount == 0 {
-		colors = []tablewriter.Colors{{tablewriter.FgGreenColor}, {tablewriter.FgGreenColor}, {tablewriter.FgGreenColor}}
-	} else {
-		colors = []tablewriter.Colors{{tablewriter.Normal}, {tablewriter.Normal}, {tablewriter.Normal}}
-	}
+	colors := getColors(countInThisPackage, totalCount)
 
 	table.Rich([]string{strconv.Itoa(countInThisPackage), strconv.Itoa(totalCount), nameString}, colors)
 
 	childCount, _ := getImportsCount(pkg.Imports, config)
-
 	nextIndents := getNextIndents(indents)
 
 	if len(indents) == config.MaxIndent && childCount > 0 {
@@ -50,27 +42,40 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 		}
 
 		childIndex++
-		isLast := childIndex == childCount
-
-		var nextChildIndents []IndentType
-		if isLast {
-			nextChildIndents = append(nextIndents, L)
-		} else {
-			nextChildIndents = append(nextIndents, T)
-		}
+		childIndents := getChildIndents(childIndex, childCount, nextIndents)
 
 		_, ok := (*seen)[child]
 		if config.ShortenSeenPackages && ok {
-			table.Append([]string{"", "", fmt.Sprintf("%s%s...", getIndentString(nextChildIndents), child.PkgPath)})
+			table.Append([]string{"", "", fmt.Sprintf("%s%s...", getIndentString(childIndents), child.PkgPath)})
 			continue
 		}
 
-		if isLast {
-			printPkgTree(child, nextChildIndents, config, table, seen)
-		} else {
-			printPkgTree(child, nextChildIndents, config, table, seen)
-		}
+		printPkgTree(child, childIndents, config, table, seen)
 	}
+}
+
+func getChildIndents(childIndex int, childCount int, nextIndents []IndentType) []IndentType {
+	isLast := childIndex == childCount
+
+	var nextChildIndents []IndentType
+	if isLast {
+		nextChildIndents = append(nextIndents, L)
+	} else {
+		nextChildIndents = append(nextIndents, T)
+	}
+	return nextChildIndents
+}
+
+func getColors(countInThisPackage int, totalCount int) []tablewriter.Colors {
+	var colors []tablewriter.Colors
+	if countInThisPackage > 0 {
+		colors = []tablewriter.Colors{{tablewriter.FgRedColor}, {tablewriter.FgRedColor}, {tablewriter.FgRedColor}}
+	} else if totalCount == 0 {
+		colors = []tablewriter.Colors{{tablewriter.FgGreenColor}, {tablewriter.FgGreenColor}, {tablewriter.FgGreenColor}}
+	} else {
+		colors = []tablewriter.Colors{{tablewriter.Normal}, {tablewriter.Normal}, {tablewriter.Normal}}
+	}
+	return colors
 }
 
 func getNextIndents(indents []IndentType) []IndentType {
