@@ -41,7 +41,7 @@ func Execute() {
 }
 
 func init() {
-	RootCmd.PersistentFlags().IntVar(&maxIndent, "level", 2, "Maximum indent level")
+	RootCmd.PersistentFlags().IntVar(&maxIndent, "level", 10, "Maximum indent level")
 	RootCmd.PersistentFlags().BoolVar(&shortenSeenPackages, "dnr", true, "Do not repeat packages")
 	RootCmd.PersistentFlags().BoolVar(&showStandardPackages, "show-std", false, "Show Goland stdlib packages")
 }

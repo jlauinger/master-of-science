@@ -15,8 +15,8 @@ func init() {
 	}
 }
 
-func isStandardPackage(pkg string) bool {
-	_, ok := standardPackages[pkg]
+func isStandardPackage(pkg *packages.Package) bool {
+	_, ok := standardPackages[pkg.PkgPath]
 	return ok
 }
 
