@@ -151,7 +151,7 @@ func load(patterns []string, allSyntax bool) ([]*packages.Package, error) {
 	}
 	conf := packages.Config{
 		Mode:  mode,
-		Tests: true,
+		Tests: false, // jl: changed to exclude tests
 	}
 	initial, err := packages.Load(&conf, patterns...)
 	if err == nil {

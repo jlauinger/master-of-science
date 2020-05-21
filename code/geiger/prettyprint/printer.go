@@ -10,6 +10,7 @@ type Config struct {
 	MaxIndent            int
 	ShortenSeenPackages  bool
 	ShowStandardPackages bool
+	ShowTestingPackages bool
 }
 
 func Print(results map[*types.Package]*facts.PackageInfo, config Config) {
