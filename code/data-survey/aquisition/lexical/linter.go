@@ -8,9 +8,19 @@ import (
 )
 
 func runLinter(project *ProjectData, packages []*PackageData) []LinterFindingLine {
+	chunkLength := 100
+	lines := make([]LinterFindingLine, 0, 1000)
+	for i := 0; i < len(packages); i += chunkLength {
+		pkgs := packages[i:Min(len(packages), i+chunkLength)]
+		lines = append(lines, runLinterEx(project, pkgs, i, len(packages))...)
+	}
+	return lines
+}
+
+func runLinterEx(project *ProjectData, packages []*PackageData, start, length int) []LinterFindingLine {
 	packagePaths := make([]string, 0)
 
-	fmt.Println("  running linter")
+	fmt.Printf("  running linter for %d of %d...\n", start, length)
 
 	for _, pkg := range packages {
 		if pkg.ImportPath == "runtime" {
