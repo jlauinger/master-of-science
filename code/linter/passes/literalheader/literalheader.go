@@ -135,17 +135,21 @@ func assigningToReflectHeader(assignStmt *ast.AssignStmt, pass *analysis.Pass, s
 }
 
 func findPathInCFG(cfg *cfg.CFG, stmt ast.Node) []ast.Node {
-	_, stack := findPathInCFGIter(cfg.Blocks[0], &stmt)
+	_, stack := findPathInCFGIter(cfg.Blocks[0], &stmt, 0)
 	return stack
 }
 
-func findPathInCFGIter(block *cfg.Block, stmt *ast.Node) (bool, []ast.Node) {
+func findPathInCFGIter(block *cfg.Block, stmt *ast.Node, depth int) (bool, []ast.Node) {
+	if depth > 1000 { // avoid stack exhaustion
+		return false, []ast.Node{}
+	}
+
 	contained, nodes := nodesUntilStmt(&block.Nodes, stmt)
 	if contained {
 		return true, nodes
 	} else {
 		for _, child := range block.Succs {
-			found, childStack := findPathInCFGIter(child, stmt)
+			found, childStack := findPathInCFGIter(child, stmt, depth + 1)
 			if found {
 				return true, append(block.Nodes, childStack...)
 			}
