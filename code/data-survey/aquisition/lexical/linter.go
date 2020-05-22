@@ -122,7 +122,7 @@ func analyzeLinterFindings(linterFindings []LinterFindingLine, fileToPackageMap 
 
 		filename := fullFilename[len(pkg.Dir)+1:]
 
-		if strings.Contains(filename, "test") {
+		if strings.Contains(filename, "_test.go") {
 			continue
 		}
 
