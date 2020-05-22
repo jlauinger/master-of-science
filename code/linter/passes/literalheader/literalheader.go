@@ -33,7 +33,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		if compositeLiteralIsReflectHeader(node, pass) {
 			pass.Reportf(n.Pos(), "reflect header composite literal found")
 		}
-		return false
+		return true
 	})
 
 	inspectResult.WithStack([]ast.Node{(*ast.AssignStmt)(nil)}, func(n ast.Node, push bool, stack []ast.Node) bool {
@@ -41,7 +41,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		if assigningToReflectHeader(node, pass, stack, cfgResult) {
 			pass.Reportf(n.Pos(), "assigning to reflect header object")
 		}
-		return false
+		return true
 	})
 
 	return nil, nil

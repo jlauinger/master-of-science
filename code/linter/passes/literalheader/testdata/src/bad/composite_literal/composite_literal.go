@@ -7,7 +7,7 @@ import (
 
 func UnsafeCastString(str string) []byte {
 	strH := (*reflect.StringHeader)(unsafe.Pointer(&str))
-	sH := &reflect.SliceHeader{ // want "reflect header composite literal found"
+	sH := &reflect.SliceHeader{ // want "reflect header composite literal found" "reflect header composite literal found"
 		Data: strH.Data,
 		Cap: strH.Len,
 		Len: strH.Len,

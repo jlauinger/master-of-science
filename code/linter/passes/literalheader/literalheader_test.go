@@ -10,6 +10,7 @@ func Test(t *testing.T) {
 	testdata := analysistest.TestData()
 	testPackages := []string{
 		"bad/composite_literal",
+		"bad/composite_in_composite",
 		"bad/header_in_struct",
 		"bad/type_alias",
 		"bad/variable_declaration",
