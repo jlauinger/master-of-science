@@ -1,4 +1,4 @@
-module data-aquisition
+module data-acquisition
 
 go 1.14
 

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"data-aquisition/ast"
+	"data-acquisition/ast"
 	"github.com/spf13/cobra"
 )
 

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"data-aquisition/lexical"
+	"data-acquisition/lexical"
 	"github.com/spf13/cobra"
 )
 

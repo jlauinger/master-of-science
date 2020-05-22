@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"data-aquisition/projects"
+	"data-acquisition/projects"
 )
 
 var download bool

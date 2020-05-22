@@ -2,7 +2,7 @@ package ast
 
 import (
 	"bytes"
-	"data-aquisition/lexical"
+	"data-acquisition/lexical"
 	"fmt"
 	"go/ast"
 	"go/printer"

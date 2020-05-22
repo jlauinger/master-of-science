@@ -2,7 +2,7 @@ package projects
 
 import (
 	"context"
-	"data-aquisition/lexical"
+	"data-acquisition/lexical"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/gocarina/gocsv"

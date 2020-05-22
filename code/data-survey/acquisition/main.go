@@ -1,7 +1,7 @@
 package main
 
 import (
-	"data-aquisition/cmd"
+	"data-acquisition/cmd"
 )
 
 func main() {

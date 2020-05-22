@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"data-aquisition/lexical"
+	"data-acquisition/lexical"
 	"fmt"
 )
 
