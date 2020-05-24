@@ -346,13 +346,14 @@ func saferStringToBytes(s *string) []byte {
     // create an actual slice
     bytes := make([]byte, 0, 0)
    
-    // create the string and slice headers by casting. Obtain pointers to the headers to be able to change the slice
-    // header properties in the next step
+    // create the string and slice headers by casting. Obtain pointers to the 
+    // headers to be able to change the slice header properties in the next step
     stringHeader := (*reflect.StringHeader)(unsafe.Pointer(s))
     sliceHeader := (*reflect.SliceHeader)(unsafe.Pointer(&bytes))
 
-    // set the slice's length and capacity temporarily to zero (this is actually unnecessary here because the slice is
-    // already initialized as zero, but if you are reusing a different slice this is important
+    // set the slice's length and capacity temporarily to zero (this is actually
+    // unnecessary here because the slice is already initialized as zero, but if 
+    // you are reusing a different slice this is important
     sliceHeader.Len = 0
     sliceHeader.Cap = 0
 
@@ -363,7 +364,8 @@ func saferStringToBytes(s *string) []byte {
     sliceHeader.Cap = stringHeader.Len
     sliceHeader.Len = stringHeader.Len
 
-    // use the keep alive dummy function to make sure the original string s is not freed up until this point
+    // use the keep alive dummy function to make sure the original string s is not 
+    // freed up until this point
     runtime.KeepAlive(s)  // or runtime.KeepAlive(*s)
    
     // return the valid bytes slice (still read-only though)
