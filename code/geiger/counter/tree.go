@@ -59,7 +59,7 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 			totalCountInChild := getTotalUnsafeCount(child, config, &map[*packages.Package]bool{})
 			table.Rich([]string{strconv.Itoa(countInChild), strconv.Itoa(totalCountInChild),
 				fmt.Sprintf("%s%s...", getIndentString(childIndents), child.PkgPath)},
-				getColors(countInChild, totalCountInChild))
+				getColors(0, totalCountInChild))
 			continue
 		}
 
