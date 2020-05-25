@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/tools/go/packages"
+	"sort"
 	"strconv"
 )
 
@@ -35,8 +36,16 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 		return
 	}
 
+	childKeys := make([]string, 0, len(pkg.Imports))
+	for childKey := range pkg.Imports {
+		childKeys = append(childKeys, childKey)
+	}
+	sort.Strings(childKeys)
+
 	childIndex := 0
-	for _, child := range pkg.Imports {
+	for _, childKey := range childKeys {
+		child := pkg.Imports[childKey]
+
 		if config.ShowStandardPackages == false && isStandardPackage(child) {
 			continue
 		}
