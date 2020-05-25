@@ -330,7 +330,7 @@ but still this might occur every few minutes.
 
 Now, if such a memory confusion happens, there might be some read-only slice that contains unexpected data. If the
 server application happens to use that slice for creating the response output that is sent to the user, even with some
-intermediate conversions in between, the application might server unexpected memory contents back to the user. So with
+intermediate conversions in between, the application might serve unexpected memory contents back to the user. So with
 this vulnerability in place, a user might suddenly, and randomly, get some scrambled data instead of an HTML response,
 and if that user were to look into the data they might find the application secrets. This is a clear information leak
 vulnerability, and the fact that it is caused by widely used code makes it very dangerous. 
@@ -434,7 +434,7 @@ myHeader := &MysteryType{Len: 42, Cap: 42, Data: uintptr(unsafe.Pointer(&source)
 
 the linter will catch the `MysteryType` composite literal just as if it were a direct `SliceHeader` literal.
 
-The second situation is more difficult. It analysis all assignments and uses the same mechanism to catch type aliases
+The second situation is more difficult. It analyzes all assignments and uses the same mechanism to catch type aliases
 for the object receiving the assignment as well. To determine whether it is a safe header derived from a cast, the pass
 depends on the `ctrlflow` pass, receiving the control flow graph for the package. It finds the function containing the
 assignment. Then, starting from the assignment the linter follows the graph backwards to the last assignment to the
