@@ -2,6 +2,7 @@ package counter
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/tools/go/packages"
 	"os"
@@ -51,4 +52,14 @@ func Run(config Config, paths... string) {
 	}
 
 	table.Render()
+
+	printLegend(config)
+}
+
+func printLegend(config Config) {
+	fmt.Println()
+
+	fmt.Printf("%s have no unsafe.Pointer usages\n", color.GreenString("Packages in green"))
+	fmt.Printf("%s contain unsafe.Pointer usages\n", color.RedString("Packages in red"))
+	fmt.Printf("%s import packages with unsafe.Pointer usages\n", color.WhiteString("Packages in white"))
 }
