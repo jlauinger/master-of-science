@@ -10,6 +10,7 @@ type Config struct {
 	MaxIndent            int
 	ShortenSeenPackages  bool
 	ShowStandardPackages bool
+	PrintLinkToPkgGoDev  bool
 }
 
 func Run(config Config, paths... string) {

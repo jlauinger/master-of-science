@@ -21,7 +21,7 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 
 	countInThisPackage := getUnsafeCount(pkg, config)
 	totalCount := getTotalUnsafeCount(pkg, config, &map[*packages.Package]bool{})
-	nameString := fmt.Sprintf("%s%s", getIndentString(indents), pkg.PkgPath)
+	nameString := fmt.Sprintf("%s%s", getIndentString(indents), getPrintedPackageName(pkg, config))
 
 	colors := getColors(countInThisPackage, totalCount)
 
@@ -58,7 +58,7 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 			countInChild := getUnsafeCount(child, config)
 			totalCountInChild := getTotalUnsafeCount(child, config, &map[*packages.Package]bool{})
 			table.Rich([]string{strconv.Itoa(countInChild), strconv.Itoa(totalCountInChild),
-				fmt.Sprintf("%s%s...", getIndentString(childIndents), child.PkgPath)},
+				fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
 				getColors(0, totalCountInChild))
 			continue
 		}
@@ -123,16 +123,3 @@ func getIndentString(indents []IndentType) string {
 	return str
 }
 
-func getImportsCount(pkgs map[string]*packages.Package, config Config) (childCount, stdLibCount int) {
-	for _, pkg := range pkgs {
-		if isStandardPackage(pkg) {
-			stdLibCount++
-			if config.ShowStandardPackages {
-				childCount++
-			}
-		} else {
-			childCount++
-		}
-	}
-	return
-}

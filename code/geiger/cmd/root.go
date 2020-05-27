@@ -8,7 +8,7 @@ import (
 )
 
 var maxIndent int
-var shortenSeenPackages, showStandardPackages bool
+var shortenSeenPackages, showStandardPackages, printLinkToPkgGoDev bool
 
 var RootCmd = &cobra.Command{
 	Use:   "geiger",
@@ -20,6 +20,7 @@ var RootCmd = &cobra.Command{
 			MaxIndent:            maxIndent,
 			ShortenSeenPackages:  shortenSeenPackages,
 			ShowStandardPackages: showStandardPackages,
+			PrintLinkToPkgGoDev:  printLinkToPkgGoDev,
 		}, args...)
 	},
 }
@@ -35,4 +36,5 @@ func init() {
 	RootCmd.PersistentFlags().IntVar(&maxIndent, "level", 10, "Maximum indent level")
 	RootCmd.PersistentFlags().BoolVar(&shortenSeenPackages, "dnr", true, "Do not repeat packages")
 	RootCmd.PersistentFlags().BoolVar(&showStandardPackages, "show-std", false, "Show Goland stdlib packages")
+	RootCmd.PersistentFlags().BoolVar(&printLinkToPkgGoDev, "link", false, "Print link to pkg.go.dev instead of package name")
 }
