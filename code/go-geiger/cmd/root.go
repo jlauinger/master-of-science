@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"geiger/counter"
 	"github.com/spf13/cobra"
+	"go-geiger/counter"
 	"os"
 )
 

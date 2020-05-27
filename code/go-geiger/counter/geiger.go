@@ -53,10 +53,10 @@ func Run(config Config, paths... string) {
 
 	table.Render()
 
-	printLegend(config)
+	printLegend()
 }
 
-func printLegend(config Config) {
+func printLegend() {
 	fmt.Println()
 
 	fmt.Printf("%s have no unsafe.Pointer usages\n", color.GreenString("Packages in green"))

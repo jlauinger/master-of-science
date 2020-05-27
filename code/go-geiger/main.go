@@ -1,6 +1,6 @@
 package main
 
-import "geiger/cmd"
+import "go-geiger/cmd"
 
 func main() {
 	cmd.Execute()

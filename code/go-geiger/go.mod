@@ -1,4 +1,4 @@
-module geiger
+module go-geiger
 
 go 1.14
 
