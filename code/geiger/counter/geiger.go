@@ -1,6 +1,7 @@
 package counter
 
 import (
+	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/tools/go/packages"
 	"os"
@@ -11,12 +12,19 @@ type Config struct {
 	ShortenSeenPackages  bool
 	ShowStandardPackages bool
 	PrintLinkToPkgGoDev  bool
+	PrintUnsafeLines     bool
 }
 
 func Run(config Config, paths... string) {
+	mode := packages.NeedImports | packages.NeedDeps | packages.NeedSyntax |
+			packages.NeedFiles | packages.NeedName
+
+	if config.PrintUnsafeLines {
+		mode |= packages.NeedTypes
+	}
+
 	pkgs, err := packages.Load(&packages.Config{
-		Mode:       packages.NeedImports | packages.NeedDeps | packages.NeedSyntax |
-					packages.NeedFiles | packages.NeedName,
+		Mode:       mode,
 		Tests:      false,
 	}, paths...)
 
@@ -36,6 +44,10 @@ func Run(config Config, paths... string) {
 
 	for _, pkg := range pkgs {
 		printPkgTree(pkg, []IndentType{}, config, table, &map[*packages.Package]bool{})
+	}
+
+	if config.PrintUnsafeLines {
+		fmt.Println()
 	}
 
 	table.Render()

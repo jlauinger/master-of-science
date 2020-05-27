@@ -37,9 +37,13 @@ func getUnsafeCount(pkg *packages.Package, config Config) int {
 
 	inspectResult.Preorder([]ast.Node{(*ast.SelectorExpr)(nil)}, func(n ast.Node) {
 		node := n.(*ast.SelectorExpr)
-		if isUnsafePointer(node) {
-			unsafePointerCount++
+		if !isUnsafePointer(node) {
+			return
 		}
+		if config.PrintUnsafeLines {
+			printLine(pkg, n)
+		}
+		unsafePointerCount++
 	})
 
 	packageUnsafeCountCache[pkg] = unsafePointerCount

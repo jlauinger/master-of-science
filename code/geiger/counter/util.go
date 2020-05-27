@@ -2,7 +2,10 @@ package counter
 
 import (
 	"fmt"
+	"go/ast"
 	"golang.org/x/tools/go/packages"
+	"io"
+	"os"
 	"strings"
 )
 
@@ -38,4 +41,40 @@ func getImportsCount(pkgs map[string]*packages.Package, config Config) (childCou
 		}
 	}
 	return
+}
+
+func printLine(pkg *packages.Package, n ast.Node) {
+	file := pkg.Fset.File(n.Pos())
+	lineNumber := file.Position(n.Pos()).Line  // 1-based
+
+	start := file.Position(file.LineStart(lineNumber)).Offset
+	end := file.Position(file.LineStart(Min(file.LineCount(), lineNumber + 1))).Offset
+	length := end - start
+
+	filename := file.Name()
+
+	f, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	_, err = f.Seek(int64(start), 0)
+	if err != nil {
+		panic(err)
+	}
+	line := make([]byte, length)
+	_, err = io.ReadAtLeast(f, line, length)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s: %s\n",
+		pkg.Fset.File(n.Pos()).Position(n.Pos()).String(),
+		strings.Trim(string(line), "\n\t "))
+}
+
+func Min(x, y int) int {
+	if x > y {
+		return y
+	}
+	return x
 }
