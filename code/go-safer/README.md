@@ -9,7 +9,7 @@ Go Vet-style linter to find incorrect uses of `reflect.SliceHeader` and `reflect
 
  1. There is a composite literal of underlying type `reflect.SliceHeader` or `reflect.StringHeader`
  2. There is an assignment to an instance of type `reflect.SliceHeader` or `reflect.StringHeader` that was not created
-    by casting an actual slice or string
+    by casting an actual slice or `string`
     
 Pattern 1 identifies code that looks like this:
 
@@ -49,8 +49,13 @@ directory.
 
 ## Why are these patterns insecure?
 
-For more details, read this blog post: 
-[Golang Slice Header GC-Based Data Confusion on Real-World Code](https://dev.to/jlauinger)
+If `reflect.SliceHeader` or `reflect.StringHeader` is not created by casting a real slice or `string`, then the Go runtime
+will not treat the `Data` field within these types as a reference to the underlying data array. Therefore, if the garbage
+collector runs just before the final cast from the literal header instance to a real slice or `string`, it may collect
+the original slice or `string`. This can lead to an information leak vulnerability.
+
+For more details, such as a Proof-of-Concept exploit and a suggestion for a fixed version of these unsafe patterns, read 
+this blog post: [Golang Slice Header GC-Based Data Confusion on Real-World Code](https://dev.to/jlauinger)
 
 
 ## Install
