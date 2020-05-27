@@ -1,4 +1,4 @@
-module linter
+module go-safer
 
 go 1.14
 
