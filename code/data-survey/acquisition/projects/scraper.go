@@ -43,9 +43,14 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 
 		for i, repo := range repos.Repositories {
 			path := downloadDir + "/" + *repo.Name
+			revision := ""
 
 			fmt.Printf("%v. %v\n", (page-1)*100+(i+1), *repo.CloneURL)
-			
+
+			if download {
+				revision = downloadRepo(repo, path)
+			}
+
 			project := lexical.ProjectData{
 				Rank:           i + 1,
 				Name:           repo.GetFullName(),
@@ -53,6 +58,7 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 				NumberOfStars:  repo.GetStargazersCount(),
 				NumberOfForks:  repo.GetForksCount(),
 				GithubId:       *repo.ID,
+				Revision:       revision,
 				CreatedAt:      lexical.DateTime{Time: repo.CreatedAt.Time},
 				LastPushedAt:   lexical.DateTime{Time: repo.PushedAt.Time},
 				UpdatedAt:      lexical.DateTime{Time: repo.UpdatedAt.Time},
@@ -66,18 +72,14 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 				headerWritten = true
 				gocsv.Marshal([]lexical.ProjectData{project}, projectsFile)
 			}
-
-			if download {
-				downloadRepo(repo, path)
-			}
 		}
 	}
 }
 
-func downloadRepo(repo github.Repository, path string) {
+func downloadRepo(repo github.Repository, path string) string {
 	fmt.Printf("  Downloading to %v ...", path)
 
-	_, err := git.PlainClone(path, false, &git.CloneOptions{
+	cloneCtx, err := git.PlainClone(path, false, &git.CloneOptions{
 		URL:               *repo.CloneURL,
 		Depth:             1,
 		Progress:          nil,
@@ -118,5 +120,14 @@ func downloadRepo(repo github.Repository, path string) {
 		}
 	}
 
+	head, err := cloneCtx.Head()
+	if err != nil {
+		fmt.Printf("ERROR: %v!", err)
+	}
+	revision := head.Hash().String()
+
+	fmt.Printf("  checked out revision %s\n", revision)
 	fmt.Println("  done!")
+
+	return revision
 }

@@ -18,6 +18,7 @@ type ProjectData struct {
 	NumberOfStars  int      `csv:"project_number_of_stars"`
 	NumberOfForks  int      `csv:"project_number_of_forks"`
 	GithubId       int64    `csv:"project_github_id"`
+	Revision       string   `csv:"project_revision"`
 	CreatedAt      DateTime `csv:"project_created_at"`
 	LastPushedAt   DateTime `csv:"project_last_pushed_at"`
 	UpdatedAt      DateTime `csv:"project_updated_at"`
