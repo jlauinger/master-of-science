@@ -48,7 +48,7 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, access
 		}
 
 		for i, repo := range repos.Repositories {
-			path := downloadDir + "/" + *repo.Name
+			path := downloadDir + "/" + repo.GetFullName()
 			revision := ""
 
 			fmt.Printf("%v. %v\n", (page-1)*100+(i+1), *repo.CloneURL)
