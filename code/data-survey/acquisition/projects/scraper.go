@@ -87,12 +87,8 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, access
 }
 
 func createFork(client *github.Client, repo github.Repository) {
-	var owner string
-	if repo.GetOrganization() != nil {
-		owner = repo.GetOrganization().GetName()
-	} else {
-		owner = repo.GetOwner().GetName()
-	}
+	components := strings.Split(repo.GetFullName(), "/")
+	owner := components[0]
 
 	_, _, err := client.Repositories.CreateFork(context.Background(), owner, *repo.Name,
 		&github.RepositoryCreateForkOptions{})
