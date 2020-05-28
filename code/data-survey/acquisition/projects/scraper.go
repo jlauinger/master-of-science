@@ -58,7 +58,7 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, access
 			}
 
 			if createForks {
-				createFork(client, repo, forkTargetOrg)
+				createFork(client, repo)
 			}
 
 			project := lexical.ProjectData{
@@ -101,7 +101,7 @@ func createFork(client *github.Client, repo github.Repository) {
 		fmt.Printf("ERROR: %v!", err)
 	}
 
-	fmt.Printf("  forked to %s/%s\n", targetOrg, *repo.Name)
+	fmt.Printf("  forked to %s\n", *repo.Name)
 }
 
 func downloadRepo(repo github.Repository, path string) string {
