@@ -94,6 +94,7 @@ func createFork(client *github.Client, repo github.Repository, targetOrg string)
 	if !ok && err != nil {
 		fmt.Printf("ERROR: %v!", err)
 	}
+	fmt.Printf("  forked to %s/%s\n", targetOrg, *repo.Name)
 }
 
 func downloadRepo(repo github.Repository, path string) string {
