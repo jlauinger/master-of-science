@@ -150,8 +150,7 @@ func downloadRepo(repo github.Repository, path string) string {
 	}
 	revision := head.Hash().String()
 
-	fmt.Printf("  checked out revision %s\n", revision)
-	fmt.Println("  done!")
+	fmt.Printf("\n  done with revision %s\n", revision)
 
 	return revision
 }
