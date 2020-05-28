@@ -87,13 +87,21 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, forkTa
 }
 
 func createFork(client *github.Client, repo github.Repository, targetOrg string) {
-	_, _, err := client.Repositories.CreateFork(context.Background(), *repo.Owner.Name, *repo.Name, &github.RepositoryCreateForkOptions{
+	var owner string
+	if repo.GetOrganization() != nil {
+		owner = repo.GetOrganization().GetName()
+	} else {
+		owner = repo.GetOwner().GetName()
+	}
+
+	_, _, err := client.Repositories.CreateFork(context.Background(), owner, *repo.Name, &github.RepositoryCreateForkOptions{
 		Organization: targetOrg,
 	})
 	_, ok := err.(*github.AcceptedError)
 	if !ok && err != nil {
 		fmt.Printf("ERROR: %v!", err)
 	}
+
 	fmt.Printf("  forked to %s/%s\n", targetOrg, *repo.Name)
 }
 
