@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-func GetProjects(dataDir, downloadDir string, download, createForks bool, forkTargetOrg, accessToken string) {
+func GetProjects(dataDir, downloadDir string, download, createForks bool, accessToken string) {
 	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
 
 	fmt.Printf("Saving project data to %s\n", projectsFilename)
@@ -86,7 +86,7 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, forkTa
 	}
 }
 
-func createFork(client *github.Client, repo github.Repository, targetOrg string) {
+func createFork(client *github.Client, repo github.Repository) {
 	var owner string
 	if repo.GetOrganization() != nil {
 		owner = repo.GetOrganization().GetName()
@@ -94,9 +94,8 @@ func createFork(client *github.Client, repo github.Repository, targetOrg string)
 		owner = repo.GetOwner().GetName()
 	}
 
-	_, _, err := client.Repositories.CreateFork(context.Background(), owner, *repo.Name, &github.RepositoryCreateForkOptions{
-		Organization: targetOrg,
-	})
+	_, _, err := client.Repositories.CreateFork(context.Background(), owner, *repo.Name,
+		&github.RepositoryCreateForkOptions{})
 	_, ok := err.(*github.AcceptedError)
 	if !ok && err != nil {
 		fmt.Printf("ERROR: %v!", err)
