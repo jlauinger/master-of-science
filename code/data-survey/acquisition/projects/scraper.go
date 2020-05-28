@@ -7,13 +7,14 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
-func GetProjects(dataDir, downloadDir string, download bool) {
+func GetProjects(dataDir, downloadDir string, download, createForks bool, forkTargetOrg, accessToken string) {
 	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
 
 	fmt.Printf("Saving project data to %s\n", projectsFilename)
@@ -27,7 +28,12 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 	defer projectsFile.Close()
 
 	fmt.Println("Getting information about top 500 Go projects...")
-	client := github.NewClient(nil)
+
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: accessToken},
+	)
+	tc := oauth2.NewClient(context.Background(), ts)
+	client := github.NewClient(tc)
 
 	for page := 1; page <= 5; page++ {
 		repos, _, err := client.Search.Repositories(context.Background(), "language:Go", &github.SearchOptions{
@@ -51,6 +57,10 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 				revision = downloadRepo(repo, path)
 			}
 
+			if createForks {
+				createFork(client, repo, forkTargetOrg)
+			}
+
 			project := lexical.ProjectData{
 				Rank:           i + 1,
 				Name:           repo.GetFullName(),
@@ -67,12 +77,22 @@ func GetProjects(dataDir, downloadDir string, download bool) {
 			}
 
 			if headerWritten {
-				gocsv.MarshalWithoutHeaders([]lexical.ProjectData{project}, projectsFile)
+				_ = gocsv.MarshalWithoutHeaders([]lexical.ProjectData{project}, projectsFile)
 			} else {
 				headerWritten = true
-				gocsv.Marshal([]lexical.ProjectData{project}, projectsFile)
+				_ = gocsv.Marshal([]lexical.ProjectData{project}, projectsFile)
 			}
 		}
+	}
+}
+
+func createFork(client *github.Client, repo github.Repository, targetOrg string) {
+	_, _, err := client.Repositories.CreateFork(context.Background(), *repo.Owner.Name, *repo.Name, &github.RepositoryCreateForkOptions{
+		Organization: targetOrg,
+	})
+	_, ok := err.(*github.AcceptedError)
+	if !ok && err != nil {
+		fmt.Printf("ERROR: %v!", err)
 	}
 }
 
