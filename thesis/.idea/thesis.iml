@@ -2,7 +2,14 @@
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludePattern pattern="*.aux" />
+      <excludePattern pattern="*.bbl" />
+      <excludePattern pattern="*.blg" />
+      <excludePattern pattern="*.log" />
+      <excludePattern pattern="*.out" />
+      <excludePattern pattern="*.toc" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
