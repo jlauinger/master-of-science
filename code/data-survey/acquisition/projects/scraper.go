@@ -38,7 +38,7 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, access
 	for page := 1; page <= 5; page++ {
 		repos, _, err := client.Search.Repositories(context.Background(), "language:Go", &github.SearchOptions{
 			ListOptions: github.ListOptions{
-				PerPage: 100, // 100,
+				PerPage: 100,
 				Page: page,
 			},
 		})
@@ -62,7 +62,7 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, access
 			}
 
 			project := lexical.ProjectData{
-				Rank:           i + 1,
+				Rank:           (page-1)*100+(i+1),
 				Name:           repo.GetFullName(),
 				GithubCloneUrl: repo.GetCloneURL(),
 				NumberOfStars:  repo.GetStargazersCount(),
