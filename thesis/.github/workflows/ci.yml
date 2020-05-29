@@ -1,7 +1,5 @@
 name: CI
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
     branches: [ master ]
@@ -20,11 +18,11 @@ jobs:
       with:
         root_file: thesis.tex
 
-    - name: get shortsha
+    - name: Get short SHA
       id: vars
       run: echo ::set-output name=sha_short::$(git rev-parse --short=7 ${{ github.sha }})
 
-    - name: create PDF file with SHA in its name
+    - name: Create PDF file with SHA in its name
       run: mv thesis.pdf thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
 
     - uses: actions/upload-artifact@v2
