@@ -46,6 +46,7 @@ jobs:
     steps:
       - name: Install pdftotext
         run: |
+          pip3 install setuptools
           pip3 install wheel
           pip3 install pdftotext
 
