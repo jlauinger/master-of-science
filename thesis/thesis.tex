@@ -1,5 +1,5 @@
 \documentclass[
-    ngerman,
+    english,
     ruledheaders=section,
     class=report,
     thesis={type=master},
@@ -38,11 +38,11 @@
 %% thesis cover page
 \include{frontback/title}
 
-%% declaration (no help etc.)
-\affidavit
-
 %% abstract and Zusammenfassung
 \include{frontback/abstract}
+
+%% acknowledgments
+\include{frontback/acknowledgments}
 
 %% table of contents
 \tableofcontents
@@ -81,5 +81,8 @@
 \addcontentsline{toc}{chapter}{\bibname}
 \bibliographystyle{unsrt}
 \bibliography{config/references}
+
+%% declaration (no help etc.)
+\affidavit
 
 \end{document}
