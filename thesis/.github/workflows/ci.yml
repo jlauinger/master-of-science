@@ -25,3 +25,7 @@ jobs:
         name: thesis-lauinger-${GITHUB_SHA::8}.pdf
         path: thesis.pdf
 
+    # Make the log available for download
+    - uses: actions/upload-artifact@v2
+      with:
+        path: thesis.log
