@@ -57,7 +57,9 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: thesis-lauinger-${{ steps.vars.outputs.sha_short }}
-          path: thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
+
+      - name: What is in the directory?
+        run: ls -la
 
       - name: Report word count
         run: |
