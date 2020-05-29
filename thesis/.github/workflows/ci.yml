@@ -22,7 +22,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: thesis-lauinger-${{ github.sha::8 }}.pdf
+        name: thesis-lauinger-${{ GITHUB_SHA::8 }}.pdf
         path: thesis.pdf
 
     - uses: actions/upload-artifact@v2
