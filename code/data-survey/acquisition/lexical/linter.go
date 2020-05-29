@@ -20,7 +20,7 @@ func runLinter(project *ProjectData, packages []*PackageData) []LinterFindingLin
 func runLinterEx(project *ProjectData, packages []*PackageData, start, length int) []LinterFindingLine {
 	packagePaths := make([]string, 0)
 
-	fmt.Printf("  running linter for %d of %d...\n", start, length)
+	fmt.Printf("  running go-safer for %d of %d...\n", start, length)
 
 	for _, pkg := range packages {
 		if pkg.ImportPath == "runtime" {
@@ -32,7 +32,7 @@ func runLinterEx(project *ProjectData, packages []*PackageData, start, length in
 	args := []string{"-c=0"}
 	args = append(args, packagePaths...)
 
-	cmd := exec.Command("linter", args...)
+	cmd := exec.Command("go-safer", args...)
 	cmd.Dir = project.CheckoutPath
 
 	linterOutput, _ := cmd.CombinedOutput()
