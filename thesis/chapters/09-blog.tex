@@ -230,15 +230,14 @@ First, we create a win function to be compiled into the binary. We can use it as
 flow to. This is a good first step in learning code flow exploitation. The function does not do very much, it simply prints
 "win!" so that we know we did good:
 
-go
+\begin{lstlisting}[language=Golang, label=lst:win-function, caption=Target function \texttt{win} for code flow redirection]
 func win() 
     fmt.Println("win!")
-
-
+\end{lstlisting}
 
 The main function of the program looks like this:
 
-go
+\begin{lstlisting}[language=Golang, label=lst:redirection-poc-1, caption=Code flow redirection POC first part]
 // initialize the reader outside of the main function to simplify POC development, as
 // there are less local variables on the stack.
 var reader = bufio.NewReader(os.Stdin)
@@ -258,7 +257,7 @@ func main()
     // call in C, but almost. The function will read up to 512 byte, but the underlying
     // buffer is only 8 bytes. This function is pretty much the complete vulnerability
     ,  = reader.Read(confusedSlice)
-
+\end{lstlisting}
 
 
 There is a buffer of length 8 bytes with some harmless data. It is created as a local variable, which means it will live
@@ -271,6 +270,8 @@ overflows, so for this to work we are using the unsafe.Pointer type.
 We initialize a slice with initial length and capacity 512 bytes. The slice is actually placed on the heap, not the
 stack, but that is irrelevant for the vulnerability. Next, using the reflect.SliceHeader structure we can extract
 the slice header data structure that Go uses internally to represent the slice. It looks like this:
+
+For testing, I here refer to Listing~\ref{lst:win-function}.
 
 go
 type SliceHeader struct 

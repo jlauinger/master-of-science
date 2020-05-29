@@ -24,6 +24,30 @@
 \usepackage{longtable}
 \usepackage{booktabs}
 
+\usepackage[justification=centering]{caption}
+
+\usepackage{color}
+\definecolor{verylightgray}{RGB}{240,240,240}
+\definecolor{darkgreen}{RGB}{20, 150, 20}
+\usepackage{styles/listings-golang}
+\lstset{
+    frame=none,
+    rulecolor=\color{red},
+    backgroundcolor=\color{verylightgray},
+    basicstyle=\footnotesize,
+    keywordstyle=\color{blue},
+    numbers=left,
+    numbersep=5pt,
+    showstringspaces=false,
+    stringstyle=\color{darkgreen},
+    tabsize=4,
+    language=Golang,
+    xleftmargin=17pt,
+    framexleftmargin=27pt,
+    framexrightmargin=5pt,
+    framexbottommargin=4pt
+}
+
 \newcommand{\todo}[1]{{\color{red}{\textbf{TODO: }#1}}}
 \newcommand{\checkNum}[1]{{\textcolor{orange}{\textit{#1}}}}
 
@@ -70,6 +94,14 @@
 \renewcommand{\listtablename}[0]{List of Tables}
 \addcontentsline{toc}{chapter}{\listtablename}
 \listoftables
+
+%% list of listings
+\newpage
+\renewcommand{\lstlistingname}[0]{List of Listings}
+\renewcommand{\lstlistlistingname}{List of Listings}
+\addcontentsline{toc}{chapter}{\lstlistingname}
+\lstlistoflistings
+
 
 %% bibliography
 \newpage
