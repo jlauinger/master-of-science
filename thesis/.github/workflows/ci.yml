@@ -12,6 +12,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SHORTSHA: $(git rev-parse --short=8 ${{ github.sha }})
+
     steps:
     - uses: actions/checkout@v2
       
@@ -22,7 +25,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: thesis-lauinger-${{ GITHUB_SHA::8 }}.pdf
+        name: thesis-lauinger-${{ SHORTSHA }}.pdf
         path: thesis.pdf
 
     - uses: actions/upload-artifact@v2
