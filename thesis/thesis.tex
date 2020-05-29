@@ -1,20 +1,22 @@
-% !TEX jobname = thesis
-% !TEX output_directory = output
-
 \documentclass[
-    accentcolor=tud9c,
-    %colorbacktitle,
-    ruledheaders=chapter,
-    class=book,
-    11pt,
-    paper=a4,
-    bigchapter,
-    twoside=false
-]{styles/tudreport}
+    ngerman,
+    ruledheaders=section,
+    class=report,
+    thesis={type=master},
+    accentcolor=9c,
+    custommargins=false,
+    marginpar=false,
+    %BCOR=5mm, %Bindekorrektur, falls notwendig
+    parskip=half-,
+    fontsize=11pt,
+    %logofile=example-image, %Falls die Logo Dateien nicht vorliegen
+]{tudapub}
 
 \usepackage[utf8]{inputenc}
 \usepackage[ngerman, english]{babel}
+\usepackage[autostyle]{csquotes}
 \usepackage{hyperref}
+\usepackage{microtype}
 
 \usepackage{enumitem}
 \usepackage{setspace}
@@ -25,40 +27,25 @@
 \usepackage{longtable}
 \usepackage{booktabs}
 
-% Two commands which could be helpful for you ...
-% ... First, a command to handle todos in a simple way
 \newcommand{\todo}[1]{{\color{red}{\textbf{TODO: }#1}}}
-% ... Second, a command which highlights numbers you need to check.
 \newcommand{\checkNum}[1]{{\textcolor{orange}{\textit{#1}}}}
-% If you have checked all information in red, change the color to black.
-%\newcommand{\checkTitle}[1]{{\textcolor{red}{\textit{#1}}}}
-\newcommand{\checkTitle}[1]{{\textcolor{black}{\textit{#1}}}}
-\input{frontback/title}
 
 \setlength{\parindent}{0em}
 \setlength{\parskip}{1em}
 
-\titlespacing\section{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
-\titlespacing\subsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
-\titlespacing\subsubsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
-
-
 \begin{document}
 
-%% front page
-\pagenumbering{roman}%
-\maketitle%
-%% declaration
-\input{frontback/declaration}%
-\cleardoublepage%
-%% abstract
-\input{frontback/abstract}%
-\cleardoublepage%
+%% thesis cover page
+\include{frontback/title}
+
+%% declaration (no help etc.)
+\affidavit
+
+%% abstract and Zusammenfassung
+\include{frontback/abstract}
+
 %% table of contents
-\renewcommand\contentsname{Table of Contents}%
-\tableofcontents%
-\cleardoublepage%
-\pagenumbering{arabic}%
+\tableofcontents
 
 %% content chapters
 \include{chapters/01-introduction}
@@ -76,18 +63,22 @@
 \include{appendix/a-projects}
 
 %% list of figures
-%\newpage
-%\renewcommand{\listfigurename}[0]{List of Figures}
-%\addcontentsline{toc}{chapter}{\listfigurename}
-%\listoffigures
-%\todo{The list of figures is optional, you can remove it if you don't feel the need.}
+\newpage
+\renewcommand{\listfigurename}[0]{List of Figures}
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listoffigures
+
+%% list of tables
+\newpage
+\renewcommand{\listtablename}[0]{List of Tables}
+\addcontentsline{toc}{chapter}{\listtablename}
+\listoftables
 
 %% bibliography
 \newpage
 \singlespacing
 \renewcommand{\bibname}{References}
 \addcontentsline{toc}{chapter}{\bibname}
-%\nocite{*}
 \bibliographystyle{unsrt}
 \bibliography{config/references}
 

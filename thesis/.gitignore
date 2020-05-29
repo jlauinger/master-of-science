@@ -7,11 +7,13 @@
 *.fdb_latexmk
 *.fls
 *.lof
+*.lot
 *.log
 *.out
 *.run.xml
 *.synctex.gz
 *.toc
+*.xmpi
 /*.pdf
 output/
 

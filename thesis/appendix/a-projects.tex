@@ -1,11 +1,16 @@
 %% -----------------------------------------------------------------------------
 
-\chapter{Go Open Source Projects Under Analysis}\label{app:projects}
+\chapter{Go Open-Source Projects Under Analysis}\label{app:projects}
+
+To compile a suitable set of open-source Go projects that should be analyzed in this thesis, I searched on Github for
+projects that use Go as their language, sorted by stars, and selected the top 500 most-starred projects. For reference,
+here is an index of the projects I downloaded and analyzed.
 
 %% created by Pandas in notebook table-formatting.ipynb
 
 \begin{longtable}{llrrll}
-    \caption{Top 500 Go projects on Github}\\
+    \caption{\centering Top 500 most-starred open-source Go projects on Github}
+    \label{tbl:projects}\\
     \toprule
     {}  &                                               Name &  Stars &  Forks &    Last Pushed &    Revision \\
     \midrule
@@ -16,9 +21,9 @@
     {}  &                                               Name &  Stars &  Forks &    Last Pushed &    Revision \\
     \midrule
     \endhead
-    \hline \multicolumn{6}{c}{\textit{Continued on next page}} \\
+    \multicolumn{6}{c}{\textit{Continued on next page}} \\
     \endfoot
-    \hline
+    \bottomrule
     \endlastfoot
     1   &                                          golang/go &  72988 &  10460 & 2020-05-28 &  6bf2eea62a \\
     2   &                              kubernetes/kubernetes &  66512 &  23806 & 2020-05-28 &  fb9e1946b0 \\
@@ -520,5 +525,4 @@
     498 &                              googleforgames/agones &   3082 &    356 & 2020-05-28 &  d017250c43 \\
     499 &                       kubernetes-sigs/external-dns &   3078 &    926 & 2020-05-28 &  deaeca2ab1 \\
     500 &                                   gwuhaolin/livego &   3075 &    902 & 2020-05-20 &  bf65635cef \\
-    \bottomrule
 \end{longtable}

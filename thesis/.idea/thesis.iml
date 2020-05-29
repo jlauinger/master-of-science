@@ -9,6 +9,9 @@
       <excludePattern pattern="*.log" />
       <excludePattern pattern="*.out" />
       <excludePattern pattern="*.toc" />
+      <excludePattern pattern="*.lof" />
+      <excludePattern pattern="*.xmpi" />
+      <excludePattern pattern="*.lot" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
