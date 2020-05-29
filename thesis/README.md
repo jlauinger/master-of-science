@@ -1,5 +1,7 @@
 # Identify Unsafe Usages in Go Code
 
+![CI](https://github.com/stg-tud/thesis-2020-Lauinger/workflows/CI/badge.svg)
+
 Modern programming languages like Rust and Go have mechanisms to protect potential
 unsafe usages, e.g., derefences of raw pointers or modifying static variables. Thus, it is
 recommended to avoid unsafe usages. However, if a developer wants to avoid unsafe

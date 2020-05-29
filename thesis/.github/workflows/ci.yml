@@ -12,9 +12,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      SHA8: ${GITHUB_SHA::8}
-
     steps:
     - uses: actions/checkout@v2
       
@@ -25,9 +22,10 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: thesis-lauinger-$SHA8.pdf
+        name: thesis-lauinger-${{ github.sha::8 }}.pdf
         path: thesis.pdf
 
     - uses: actions/upload-artifact@v2
       with:
+        name: thesis.log
         path: thesis.log
