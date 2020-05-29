@@ -15,22 +15,24 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: get shortsha
-      id: vars
-      run: |
-        echo ::set-output name=sha_short::$(git rev-parse --short=8 ${{ github.sha }})
-
     - name: Compile LaTeX document
       uses: dante-ev/latex-action@master
       with:
         root_file: thesis.tex
 
-    - uses: actions/upload-artifact@v2
-      with:
-        name: thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
-        path: thesis.pdf
+    - name: get shortsha
+      id: vars
+      run: echo ::set-output name=sha_short::$(git rev-parse --short=7 ${{ github.sha }})
+
+    - name: create PDF file with SHA in its name
+      run: mv thesis.pdf thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
 
     - uses: actions/upload-artifact@v2
       with:
-        name: thesis.log
+        name: thesis-lauinger-${{ steps.vars.outputs.sha_short }}
+        path: thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: log
         path: thesis.log
