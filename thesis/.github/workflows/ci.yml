@@ -45,7 +45,9 @@ jobs:
 
     steps:
       - name: Install pdftotext
-        run: pip install pdftotext
+        run: |
+          pip install wheel
+          pip install pdftotext
 
       - name: Get short SHA
         id: vars
