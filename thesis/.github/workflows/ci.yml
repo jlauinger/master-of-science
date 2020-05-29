@@ -19,9 +19,9 @@ jobs:
         root_file: thesis.tex
 
     - name: Compile LaTeX document (2nd time)
-        uses: dante-ev/latex-action@master
-        with:
-          root_file: thesis.tex
+      uses: dante-ev/latex-action@master
+      with:
+        root_file: thesis.tex
 
     - name: Get short SHA
       id: vars
