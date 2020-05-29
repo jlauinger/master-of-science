@@ -1,0 +1,66 @@
+%% This is file `beamerthemeTUDa.sty' version 2.09 (2020/03/13),
+%% it is part of
+%% TUDa-CI -- Corporate Design for TU Darmstadt
+%% ----------------------------------------------------------------------------
+%%
+%%  Copyright (C) 2018--2020 by Marei Peischl <marei@peitex.de>
+%%
+%% ============================================================================
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3c
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%% http://www.latex-project.org/lppl.txt
+%% and version 1.3c or later is part of all distributions of LaTeX
+%% version 2008/05/04 or later.
+%%
+%% This work has the LPPL maintenance status `maintained'.
+%%
+%% The Current Maintainers of this work are
+%%   Marei Peischl <tuda-ci@peitex.de>
+%%   Markus Lazanowski <latex@ce.tu-darmstadt.de>
+%%
+%% The development respository can be found at
+%% https://github.com/tudace/tuda_latex_templates
+%% Please use the issue tracker for feedback!
+%%
+%% ============================================================================
+%%
+\def\fileversion{2.09}
+\def\filedate{2020/03/13}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthemeTUDa}
+ [\filedate\space\fileversion\space beamer theme using the Corporate Design of TU Darmstadt]
+
+\RequirePackage{expl3}
+\RequirePackage{l3keys2e}
+
+\mode<presentation>
+
+\ExplSyntaxOn
+
+\keys_define:nn {TUDa/beamer} {
+	accentcolor .code:n = \PassOptionsToPackage{accentcolor=#1}{tudacolors},
+	colortitle .code:n = \PassOptionsToPackage{accentcolor=#1}{beamercolorthemeTUDa},
+	colorbacktitle .code:n = \PassOptionsToPackage{accentcolor=#1}{beamercolorthemeTUDa},
+	colorframetitle .code:n = \PassOptionsToPackage{accentcolor=#1}{beamercolorthemeTUDa},
+	colorback .code:n = \PassOptionsToPackage{accentcolor=#1}{beamercolorthemeTUDa},
+	logo .code:n = \PassOptionsToPackage{logo=#1}{beamerouterthemeTUDa}
+}
+
+\ProcessKeysOptions{TUDa/beamer}
+
+\ExplSyntaxOff
+
+\usefonttheme{TUDa}
+\usecolortheme{TUDa}
+\useoutertheme{TUDa}
+\useinnertheme{TUDa}
+%
+\setbeamertemplate{navigation symbols}{}
+%\setbeamersize{text margin left=1em,text margin right=1em}
+
+
+\mode<all>
+
+\endinput
