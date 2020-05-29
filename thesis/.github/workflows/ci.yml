@@ -1,0 +1,27 @@
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      
+    # Runs a single command using the runners shell
+    - name: Compile the document
+      run: make
+
+    # Make the compiled document available for download
+    - uses: actions/upload-artifact@v2
+      with:
+        name: thesis-lauinger-${GITHUB_SHA::8}.pdf
+        path: thesis.pdf
+
