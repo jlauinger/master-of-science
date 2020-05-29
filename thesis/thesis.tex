@@ -84,19 +84,22 @@
 \include{appendix/a-projects}
 
 %% list of figures
-\newpage
+\clearpage
+\phantomsection
 \renewcommand{\listfigurename}[0]{List of Figures}
 \addcontentsline{toc}{chapter}{\listfigurename}
 \listoffigures
 
 %% list of tables
-\newpage
+\clearpage
+\phantomsection
 \renewcommand{\listtablename}[0]{List of Tables}
 \addcontentsline{toc}{chapter}{\listtablename}
 \listoftables
 
 %% list of listings
-\newpage
+\clearpage
+\phantomsection
 \renewcommand{\lstlistingname}[0]{List of Listings}
 \renewcommand{\lstlistlistingname}{List of Listings}
 \addcontentsline{toc}{chapter}{\lstlistingname}
@@ -104,7 +107,8 @@
 
 
 %% bibliography
-\newpage
+\clearpage
+\phantomsection
 \singlespacing
 \renewcommand{\bibname}{References}
 \addcontentsline{toc}{chapter}{\bibname}
