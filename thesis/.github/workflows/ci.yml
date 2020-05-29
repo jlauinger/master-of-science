@@ -12,12 +12,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      SHORTSHA: $(git rev-parse --short=8 ${{ github.sha }})
-
     steps:
     - uses: actions/checkout@v2
-      
+
+    - name: get shortsha
+      id: vars
+      run: |
+        echo ::set-output name=sha_short::$(git rev-parse --short=8 ${{ github.sha }})
+
     - name: Compile LaTeX document
       uses: dante-ev/latex-action@master
       with:
@@ -25,7 +27,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: thesis-lauinger-${{ SHORTSHA }}.pdf
+        name: thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
         path: thesis.pdf
 
     - uses: actions/upload-artifact@v2
