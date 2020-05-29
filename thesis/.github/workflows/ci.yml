@@ -39,3 +39,24 @@ jobs:
       with:
         name: log
         path: thesis.log
+
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install pdftotext
+        run: pip install pdftotext
+
+      - name: Get short SHA
+        id: vars
+        run: echo ::set-output name=sha_short::$(git rev-parse --short=7 ${{ github.sha }})
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: thesis-lauinger-${{ steps.vars.outputs.sha_short }}
+          path: thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
+
+      - name: Report word count
+        run: |
+          pdftotext thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
+          wc -w thesis-lauinger-${{ steps.vars.outputs.sha_short }}.txt
