@@ -306,7 +306,8 @@ series.
 First, the function that contains the actual vulnerability, `unsafeStringToBytes`, is taken from real-world Go code.
 There are hundreds of times this code pattern is used in open-source Go libraries, and taking into account that they
 are reused across multiple projects, there are actually tens of thousands of times this is used in the 500 most starred
-open-source Go projects.
+open-source Go projects. I already submitted pull requests with a fix to the underlying Go libraries that contained 
+this code pattern.
 
 Unlike in part 3 of this series, we didn't gain remote code execution with this exploit PoC. We didn't even violate the
 read-only nature of the slice returned from `unsafeStringToBytes`. And the exploit is not even particularly reliable, it
@@ -399,6 +400,19 @@ freed it is imported to still have them referenced by the original slice / strin
 
 Setting `Len` after `Cap` ensures that the slice never has a capacity lower than its length, which would be an illegal
 state.
+
+It is probably also okay to do the casting in a single statement, but I am not completely sure about this. The reasoning
+would be that a statement is evaluated atomically and the garbage collector can not run within the statement. But this
+might be false. A one-statement cast would look like this:
+
+```go
+stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&s))
+b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+    Data: stringHeader.Data,
+    Cap: stringHeader.Len,
+    Len: stringHeader.Len,
+}))
+```
 
 The takeaway of this should be that it is very very difficult to get this cast right and safe, and therefore this type
 of in-place cast should better not be used at all.
