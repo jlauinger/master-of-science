@@ -1,4 +1,4 @@
-module go-safer
+module github.com/stg-tud/thesis-2020-Lauinger-code/go-safer
 
 go 1.14
 
