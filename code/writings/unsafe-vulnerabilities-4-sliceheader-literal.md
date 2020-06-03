@@ -3,6 +3,12 @@
 In this fourth part, we will explore a very common, but unsafe code pattern: creating `reflect.SliceHeader` and
 `reflect.StringHeader` objects from scratch instead of deriving them by cast.
 
+We will see three problems that come from this: an implicit read-only property, a GC race that can lead to a data 
+confusion and information leak, and an escape-analysis error that leads to dangling pointers.
+
+Then, we will look at an improved version of the cast, and introduce a linter that can find some of the occurances of 
+this specific, unsafe code pattern.
+
 
 ## Parts:
 
