@@ -91,14 +91,14 @@ copied from the `StringHeader`, and `Cap` is set to the same value as `Len`.
 Lastly, we cast the `*reflect.SliceHeader` into a `*[]byte`, again using an intermediate `unsafe.Pointer` object. The
 `*[]byte` is dereferenced and returned.
 
-Thus the function is casting a `string` into a `[]byte` object. 
+Thus the function is casting a `*string` into a `[]byte` object. 
 
 
 ## First problem: implicit read-only slices
 
-Remember that the Go documentation said that strings
-are **read-only** `[]byte` slices? Well, that could turn into a problem here! The `[]byte` object returned by the
-function is not read-only anymore, so the compiler will not complain if we modify its contents:
+Remember that the Go documentation said that strings are **read-only** `[]byte` slices? Well, that could turn into a 
+problem here! The `[]byte` object returned by the function is not read-only anymore, so the compiler will not complain 
+if we modify its contents:
 
 ```go
 func main() {
@@ -128,7 +128,7 @@ should be avoided at all costs.
 But there is a second, much more subtle and dangerous problem in the code above.
 
 
-## Garbage collector race introduced by slice and string header literals
+## Second problem: garbage collector race introduced by slice and string header literals
 
 Rule 6 of the [`unsafe` package documentation](https://golang.org/pkg/unsafe/) specifically states that "A program 
 should not declare or allocate variables of these struct types." Why is that?
@@ -239,7 +239,7 @@ used to count how many loops are needed to succeed. The `firstChar` variable is 
 line that is read.
 
 Then, the first line (a string) is converted to a `[]byte` slice using the unsafe casting function from above. At this
-point, `bytes` and `s` should be the same string. Particularly, the `bytes[0]` should equal `firstChar`.
+point, `bytes` and `s` should be the same string. Particularly, `bytes[0]` should equal `firstChar`.
 
 After the conversion, the second line is read. The result from `ReadString` is not even used, but the important part of
 this is that if the garbage collector was run inside `unsafeStringToBytes`, then `ReadString` will reuse the heap space
@@ -320,7 +320,7 @@ First, let's create a potential real-world use case for analysis, set the likeli
 about the impact. Imagine a server application written in Go. It handles incoming requests, does some internal
 calculations and creates an output that is sent back to the client. Of course the application holds some private state,
 imagine credentials to the database backend or private key data for example. Let's also say that there are 1,000
-requests coming in each second. That number of requests is not low, but also not extremely high.
+requests coming in each second. That number of requests is not low, but still in reach of big applications.
 
 Let's ignore the case of crashing the program for now, since for this threat model assessment we can just assume that
 if the server application crashes, some daemon supervisor will just restart it. We can think of the loop in the exploit
@@ -335,6 +335,90 @@ intermediate conversions in between, the application might serve unexpected memo
 this vulnerability in place, a user might suddenly, and randomly, get some scrambled data instead of an HTML response,
 and if that user were to look into the data they might find the application secrets. This is a clear information leak
 vulnerability, and the fact that it is caused by widely used code makes it very dangerous. 
+
+
+# Third problem: flawed escape analysis can lead to invalid references
+
+On top of the two problems already discussed, there is even a third one. Go uses escape analysis to determine whether a
+variable should be placed on the heap or the stack. If the Go compiler determines that a variable might live longer than
+the function where it is declared, then that value needs to be allocated on the heap. If the compiler can see that the
+value is valid at most as long as the current function executes, then that value can be on the function's stack.
+
+Basically, a value lives potentially longer than the current function if a reference to it is stored somewhere or it is
+returned to the calling function. When the current function passes a reference to a value into some other function, then
+the Go compiler will look into that function and transitively determine whether the value can be on the stack. This goes
+down to the point where the value might be used by some C code, e.g. a native library, in which case the compiler must
+assume that the value might be retained longer than the current function, and must therefore be allocated on the heap.
+
+If a value might live longer than the current function, we say that the value escapes. Likewise, we say it does not
+escape if it can never outlive the function, thus can be put on the stack. The Go compiler will show the escape decisions
+with the flag `go build -gcflags='-m'`.
+
+Now, the incorrect cast code in the example above breaks the chain of referencing that lets the compiler see that a
+reference to a value is retained. Recall the function:
+
+```go
+func unsafeStringToBytes(s *string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(s))
+	sliceHeader := &reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+    
+    // At this point, there is no reference to s anymore, thus s does not escape here
+    // sliceHeader does not resemble a valid reference to s to the compiler
+    // it only works "by accident", and even that only if the garbage 
+    // collector does not run exactly here, as described in problem 2
+
+	return *(*[]byte)(unsafe.Pointer(sliceHeader))
+}
+```
+
+Imagine a function that uses `unsafeStringToBytes` like this:
+
+```go
+func GetBytes() []byte {
+	reader := bufio.NewReader(strings.NewReader("abcdefgh"))
+	s, _ := reader.ReadString('\n')
+	out := StringToBytes(s)
+	fmt.Printf("GetBytes:%s\n", out) // expected stdout is "abcdefgh"
+	return out
+}
+```
+
+The `GetBytes` function creates a string `"abcdefgh"`. It uses a `reader` to do so to make sure the string is actually
+allocated, more on this in just a bit. Then, the string is cast using the unsafe cast function, resulting in a `[]byte`
+slice. The slice is printed to `stdout`, and in fact this produces the `abcdefgh` output as expected. Finally, the slice
+is returned (and even with the slice being copied, which means the slice **header** is copied, this returns a reference
+to the original underlying data array of `s`).
+
+When the compiler runs its escape analysis, it will see that `s` is passed to a function `StringToBytes`, so it looks
+into that. As described above, due to the incorrect, unsafe cast there is a broken link in the referencing, and the
+compiler assumes that `s` will not escape. Transitively, `s` does not escape in `GetBytes` because it is not used after
+the function call. Therefore `s` will be allocated on the stack of `GetBytes`.
+
+If we call `GetBytes` from the `main` function, the memory will have become invalid:
+
+```go
+func main() {
+	bytesResult := GetBytes() 
+    // expected stdout is "abcdefgh", but in reality it's undefined
+	fmt.Printf("main:%s\n", bytesResult)
+}
+```
+
+The result of `GetBytes` is a slice, containing a reference into the stack of `GetBytes`. When the slice is returned,
+that reference surpasses the lifetime of that stack, because after we return to `main`, the stack of `GetBytes` is
+destroyed. Therefore, using the result of the unsafe cast works within `GetBytes`, but it might not if we return the
+reference to even more functions.
+
+This works with casts from slices to strings as well, and in that case we don't have to do something like the `reader`
+call above, instead even simple direct slice literals are dangerous. The reason for the `reader` above is that if we
+had created the string from a string literal, like `s := "abcdefgh`, then `s` would have been allocated neither on the
+heap nor on the stack. Instead, it would have been a string constant in the constant data section of the resulting
+binary, and therefore the reference to that data would have continued to work after returning to `main`. The proof of
+concept relies on the value to live on the stack however.
 
 
 ## The "correct" way of in-place slice casting using the `unsafe` package
@@ -395,15 +479,16 @@ changing the `Data` field but before adjusting the `Len` and `Cap` fields, the s
 invalid memory. When the slice is of a type containing references, such as a `struct`, the garbage collector must go
 through the slice to recursively mark the referenced objects, and if the length is set too high it will do so on invalid
 memory. If the length is just zero, this won't happen. However, in order to ensure the referenced objects itself are not
-freed it is imported to still have them referenced by the original slice / string. This is ensured by the call to
+freed it is important to still have them referenced by the original slice / string. This is ensured by the call to
 `runtime.KeepAlive` as stated in point 5.
 
 Setting `Len` after `Cap` ensures that the slice never has a capacity lower than its length, which would be an illegal
 state.
 
-It is probably also okay to do the casting in a single statement, but I am not completely sure about this. The reasoning
-would be that a statement is evaluated atomically and the garbage collector can not run within the statement. But this
-might be false. A one-statement cast would look like this:
+It might also be okay to do the casting in a single statement, but I am not completely sure about this. The reasoning would
+be that a statement is evaluated atomically and the garbage collector can not run within the statement. But this
+might be false, and also it does not fix the third problem, the flawed escape analysis, at all! A one-statement cast 
+would look like this:
 
 ```go
 stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&s))
@@ -483,3 +568,6 @@ You can read the full POC code in the Github repository that I created for this 
 
 This blog post was written as part of my work on my Master's thesis at the 
 [Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.
+
+Title picture by Maria Letta. Thanks a lot for her excellent 
+[Free Gophers Pack](https://github.com/MariaLetta/free-gophers-pack)!
