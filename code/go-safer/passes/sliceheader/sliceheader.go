@@ -1,7 +1,6 @@
 package sliceheader
 
 import (
-	"fmt"
 	"golang.org/x/tools/go/cfg"
 
 	"go/ast"
@@ -23,8 +22,6 @@ var Analyzer = &analysis.Analyzer{
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
-	fmt.Printf("") // to "need" fmt Package
-
 	inspectResult := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	cfgResult := pass.ResultOf[ctrlflow.Analyzer].(*ctrlflow.CFGs)
 
