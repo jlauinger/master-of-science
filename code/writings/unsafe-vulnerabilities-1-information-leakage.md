@@ -214,7 +214,7 @@ If you'd like to check out the complete code and run it for yourself, you can sa
 repository.
 
 
-## Acknowledgements
+## Acknowledgments
 
 This blog post was written as part of my work on my Master's thesis at the 
 [Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.

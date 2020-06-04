@@ -570,7 +570,7 @@ You can read the full POC code in the Github repository that I created for this 
 {% github jlauinger/go-unsafepointer-poc no-readme %}
 
 
-## Acknowledgements
+## Acknowledgments
 
 This blog post was written as part of my work on my Master's thesis at the 
 [Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.
