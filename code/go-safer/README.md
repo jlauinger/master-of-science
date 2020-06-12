@@ -134,6 +134,16 @@ $ go-safer -help
 ```
 
 
+## Dependency Management
+
+If your project uses Go modules and a `go.mod` file, `go-safer` will fetch all dependencies automatically before it
+analyzes them. It behaves exactly like `go build` would.
+
+If you use a different form of dependency management, e.g. manual `go get`, `go mod vendor` or anything else, you need
+to run your dependency management before running `go-safer` in order to have all dependencies up to date before 
+analysis.
+
+
 ## Development
 
 To get the source code and compile the binary, run this:
