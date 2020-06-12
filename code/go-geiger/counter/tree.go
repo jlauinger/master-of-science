@@ -16,7 +16,15 @@ const (
 	L
 )
 
-func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, table *tablewriter.Table, seen *map[*packages.Package]bool) {
+type Stats struct {
+	ImportCount             int
+	UnsafeCount             int
+	TransitivelyUnsafeCount int
+	SafeCount               int
+}
+
+func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, table *tablewriter.Table,
+	seen *map[*packages.Package]bool) (stats Stats) {
 	(*seen)[pkg] = true
 
 	countInThisPackage := getUnsafeCount(pkg, config)
@@ -42,6 +50,16 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 	}
 	sort.Strings(childKeys)
 
+	// do not count the outermost parent package in the import stats
+	stats.ImportCount += childCount
+	if countInThisPackage > 0 {
+		stats.UnsafeCount += 1
+	} else if totalCount > 0 {
+		stats.TransitivelyUnsafeCount += 1
+	} else {
+		stats.SafeCount += 1
+	}
+
 	childIndex := 0
 	for _, childKey := range childKeys {
 		child := pkg.Imports[childKey]
@@ -60,11 +78,20 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 			table.Rich([]string{strconv.Itoa(countInChild), strconv.Itoa(totalCountInChild),
 				fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
 				getColors(0, totalCountInChild))
+
+			stats.ImportCount -= 1
 			continue
 		}
 
-		printPkgTree(child, childIndents, config, table, seen)
+		childStats := printPkgTree(child, childIndents, config, table, seen)
+
+		stats.ImportCount += childStats.ImportCount
+		stats.UnsafeCount += childStats.UnsafeCount
+		stats.TransitivelyUnsafeCount += childStats.TransitivelyUnsafeCount
+		stats.SafeCount += childStats.SafeCount
 	}
+
+	return
 }
 
 func getChildIndents(childIndex int, childCount int, nextIndents []IndentType) []IndentType {
