@@ -15,6 +15,7 @@
 *.synctex.gz
 *.toc
 *.xmpi
+*.xmpdata
 /*.pdf
 output/
 
