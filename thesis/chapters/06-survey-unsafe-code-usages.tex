@@ -1,0 +1,90 @@
+%% -----------------------------------------------------------------------------
+
+\chapter{Survey of unsafe code usages in popular Go projects}\label{ch:survey}
+
+A major contribution of this thesis is an analysis of unsafe code usage in the wild:
+the top 500 most popular open source Go projects.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Most popular open source Go projects}\label{sec:most-popular-projects}
+
+From Github, these are the most popular Go projects: refer to Table~\ref{tbl:projects}.
+
+Explain how they can be found and downloaded using the Github API.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Methods of generating data points and data structure}\label{sec:survey-acquisition-methods}
+
+Show the results of running the dependency checker tool against the repositories. Figure~\ref{fig:unsafe-usages-by-package-n20}
+shows the number of \texttt{unsafe.Pointer} usages by package for the top 20 packages with most usages.
+
+\begin{figure}[h]
+    \begin{center}
+        \input{assets/figures/unsafe-usages-by-package-n20.pgf}
+    \end{center}
+    \caption{Unsafe usages by package for the top 20 packages with most usages}
+    \label{fig:unsafe-usages-by-package-n20}
+\end{figure}
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Description of data set}\label{sec:survey-dataset}
+
+Number of data points etc
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Methods of analyzing the data}\label{sec:survey-analysis-methods}
+
+How did I process the data set? Approach to build results etc.
+
+
+\subsection{Jupyter Notebooks}
+
+Describe purpose, deployment and notebook structure?
+
+
+\subsection{Python Flask application for manual classification}
+
+Describe purpose, development and deployment
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Survey Results}\label{sec:survey-results}
+
+Description of results, plots, first conclusions. Tell a story!
+
+
+\subsection{Usage statistics in projects, modules, packages, and registries}\label{subsec:results-stats}
+
+
+\subsection{Distribution of different unsafe token types}\label{subsec:results-tokens}
+
+
+\subsection{Module and package popularity}\label{subsec:results-popularity}
+
+
+\subsection{Fluctuation of unsafe usages count over time}\label{subsec:results-time-change}
+
+
+\subsection{Correlations of unsafe tokens used together in a file or statement}\label{subsec:results-correlation-together}
+
+
+\subsection{Go Vet and Gosec tools coverage of unsafe snippets}\label{subsec:results-vet-gosec}
+
+
+\subsection{Correlation of unsafe usages with project features}\label{subsec:results-correlation-project}
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Publication of data set}\label{sec:survey-publication}
+
+To obtain the data set, do this:

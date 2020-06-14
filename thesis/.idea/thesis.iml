@@ -12,6 +12,8 @@
       <excludePattern pattern="*.lof" />
       <excludePattern pattern="*.xmpi" />
       <excludePattern pattern="*.lot" />
+      <excludePattern pattern="*.lol" />
+      <excludePattern pattern="*.xmpdata" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
