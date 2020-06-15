@@ -42,7 +42,7 @@ func structCastWithMismatchingTargetLength(expr *ast.CallExpr, pass *analysis.Pa
 	srcType := getObjectType(src, pass)
 	dstType := getObjectType(dst, pass)
 
-	return checkIncompatibleStructsCast(srcType, dstType, pass)
+	return checkIncompatibleStructsCast(srcType, dstType)
 }
 
 func detectUnsafeCast(expr ast.Expr) (ast.Expr, ast.Expr, bool) {
@@ -104,7 +104,7 @@ func getObjectType(expr ast.Expr, pass *analysis.Pass) types.Type {
 	return pass.TypesInfo.Types[expr].Type.Underlying()
 }
 
-func checkIncompatibleStructsCast(src types.Type, dst types.Type, pass *analysis.Pass) bool {
+func checkIncompatibleStructsCast(src types.Type, dst types.Type) bool {
 	srcStruct, ok := src.(*types.Struct)
 	if !ok {
 		return false
