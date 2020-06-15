@@ -142,12 +142,35 @@ Unsafe usages include usages of \texttt{unsafe.Pointer}, \texttt{uintptr}, \text
 
 \subsection{Usage statistics in projects, modules, packages, and registries}\label{subsec:results-stats}
 
+First is some statistics about how many unsafe usages were found using Grep.
+Unsafe usages are occurrences of the following tokens:
+
+\begin{itemize}
+    \item \texttt{unsafe.Pointer}
+    \item \texttt{unsafe.Sizeof}
+    \item \texttt{unsafe.Alignof}
+    \item \texttt{unsafe.Offsetof}
+    \item \texttt{uintptr}
+    \item \texttt{reflect.SliceHeader}
+    \item \texttt{reflect.StringHeader}
+\end{itemize}
+
+Figure~\ref{fig:unsafe-usages-by-project-n30} shows the top 30 projects with the most unsafe usages.
+We see that \texttt{kubernetes/kubernetes} and \texttt{rancher/k3s} lead the list with more than 10,000 usages.
+
 \begin{figure}[ht]
     \centering
     {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/stats/unsafe-usages-by-project-n30.tikz}}
     \caption{Unsafe usages by project for the top 30 projects with most usages}
     \label{fig:unsafe-usages-by-project-n30}
 \end{figure}
+
+Looking at individual modules, we see from Figure~\ref{fig:unsafe-usages-by-module-n30} that most usages are contained
+in the Go standard library.
+Second place with still a lot of unsafe usages is the \texttt{k8s/kubernetes} module, followed by
+\texttt{golang.org/x/sys}.
+The \texttt{sys} module already has some space to the \texttt{kubernetes} one, and after that the modules have much
+fewer unsafe usages.
 
 \begin{figure}[ht]
     \centering
@@ -156,6 +179,11 @@ Unsafe usages include usages of \texttt{unsafe.Pointer}, \texttt{uintptr}, \text
     \label{fig:unsafe-usages-by-module-n30}
 \end{figure}
 
+Figure~\ref{fig:unsafe-usages-by-package-n30} shows the top 30 packages with the most unsafe usages.
+Keeping in mind that we just learned that the standard library has the most usages, we can now see that they are mostly
+in the \texttt{runtime}, \texttt{syscall}, and \texttt{reflect} packages.
+We can identify some more packages from this figure which are analyzed in more detail in Chapter~\ref{ch:code-vulnerabilities}.
+
 \begin{figure}[ht]
     \centering
     {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/stats/unsafe-usages-by-package-n30.tikz}}
@@ -163,12 +191,23 @@ Unsafe usages include usages of \texttt{unsafe.Pointer}, \texttt{uintptr}, \text
     \label{fig:unsafe-usages-by-package-n30}
 \end{figure}
 
+Looking at Figure~\ref{fig:unsafe-usages-by-registry}, we see that if we skip the standard library and the Kubernetes
+situation, almost all unsafe usages are contained in packages that are hosted on github.com.
+However, the data also shows (without plot) that github.com is by far the largest registry, therefore this is expected.
+The other big registry is gorgonia.org, which hosts a machine learning framework that will be part of the discussion in
+Chapter~\ref{ch:code-vulnerabilities}.
+
 \begin{figure}[ht]
     \centering
     {\scriptsize \includegraphics[width=\textwidth, height=7cm]{assets/plots/stats/unsafe-usages-by-registry.tikz}}
     \caption{Unsafe usages by registry}
     \label{fig:unsafe-usages-by-registry}
 \end{figure}
+
+Finally, we see from Figure~\ref{fig:fraction-of-unsafe-modules-and-packages} that only about 20 percent of modules, and
+less than 5 percent of packages contain unsafe usages.
+We conclude that they are clustered in a small group of packages.
+In other words, if a package contains \textit{any} unsafe usage then it will probably contain \textit{many}.
 
 \begin{figure}[ht]
     \centering
@@ -251,6 +290,41 @@ We can take away two important insights from this.
 %% -----------------------------------------------------------------------------
 
 \subsection{Correlations of unsafe tokens used together in a file or statement}\label{subsec:results-correlation-together}
+
+Number of unsafe.Pointer files: 1061
+Number of uintptr files: 1147
+
+Number of files with both usages: 496
+
+Number of unsafe.Pointer lines: 12135
+Number of uintptr lines: 11951
+
+Number of usages of unsafe.Pointer in files where at least one other uintptr occurs: 6846
+Number of usages of uinttr in files where at least one other unsafe.Pointer occurs: 5939
+
+In der gleichen Funktion: 11,738
+Alleinstehend: 8,841
+Insgesamt: 20,579
+
+Im gleichen Statement: 7,246 (verteilt auf 2,123 Statements)
+Falls ein Statement unsafe enthält, enthält es im Schnitt 3.4 solcher Nutzungen.
+Alleinstehend: 13,757
+Insgesamt: 21,003
+
+Hinweis zur Interpretation: Es gibt also 8,466 unsafe.Pointer oder uintptr Nutzungen (zusammen).
+Oben bei der Auswertung von Vorkommnissen in der gleichen Datei steht:
+
+Number of lines containing unsafe.Pointer in files where at least one other uintptr occurs: 6889
+
+Nun könnte man sich denken: wie können 8466 Vorkommnisse im gleichen Statement sein, wenn nur 6889 überhaupt in der
+gleichen Datei auch nur ein anderes Vorkommen haben?
+
+Die Antwort darauf ist: Viele Zeilen enthalten mehrere unsafe.Pointer oder mehrere uintptr Vorkommnisse.
+Diese werden bei der Dateianalyse dedupliziert, weil nach dem Subset Package/File/LineNumber Duplikate entfernt werden.
+Das ist nötig, weil ansonsten der Merge mit dem Datensatz selbst dafür sorgt, dass insgesamt mehr Usages zu existieren
+scheinen als es überhaupt gibt, denn jede Usage in der Zeile würde mit allen Usages in ebendieser Zeile gematcht werden.
+
+Der Datensatz, den Grep erzeugt hat, erlaubt an dieser Stelle leider einfach keine genauere Auswertung.
 
 \begin{figure}[ht]
     \centering
@@ -418,6 +492,15 @@ popularity. Table~\ref{tbl:most-interesting-modules-by-score} shows the top 20 m
         \bottomrule
     \end{tabular}
 \end{table}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Number of reflect.SliceHeader and reflect.StringHeader usages}\label{subsec:results-sliceheader}
+
+SliceHeader and StringHeader count: 341 and XX before deduplication.
+
+These get analyzed in depth in Chapter~\ref{ch:code-vulnerabilities}.
 
 
 %% -----------------------------------------------------------------------------
