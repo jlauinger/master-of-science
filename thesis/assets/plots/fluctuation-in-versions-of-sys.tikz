@@ -1,0 +1,61 @@
+% This file was created by tikzplotlib v0.9.2.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+title={Number of unsafe usages in versions of sys},
+x grid style={white!69.0196078431373!black},
+xmin=0, xmax=462,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ylabel={module\_version},
+ymin=-0.5, ymax=37.5,
+ytick style={color=black},
+ytick={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37},
+yticklabels={v0.0.0-20170927054621-314a259e304f,v0.0.0-20180830151530-49385e6e1522,v0.0.0-20181122145206-62eef0e2fa9b,v0.0.0-20190130150945-aca44879d564,v0.0.0-20190222072716-a9d3bda3a223,v0.0.0-20190312061237-fead79001313,v0.0.0-20190405154228-4b34438f7a67,v0.0.0-20190419153524-e8e3143a4f4a,v0.0.0-20190507160741-ecd444e8653b,v0.0.0-20190528183647-3626398d7749,v0.0.0-20190606165138-5da285871e9c,v0.0.0-20190624142023-c5567b49c5d0,v0.0.0-20190712062909-fae7ac547cb7,v0.0.0-20190801041406-cbf593c0f2f3,v0.0.0-20190813064441-fde4db37ae7a,v0.0.0-20190922100055-0a153f010e69,v0.0.0-20191001151750-bb3f8db39f24,v0.0.0-20191009170203-06d7bd2c5f4f,v0.0.0-20191018095205-727590c5006e,v0.0.0-20191026070338-33540a1f6037,v0.0.0-20191029155521-f43be2a4598c,v0.0.0-20191105231009-c1f44814a5cd,v0.0.0-20191120155948-bd437916bb0e,v0.0.0-20191204072324-ce4227a45e2e,v0.0.0-20191220142924-d4481acd189f,v0.0.0-20191224085550-c709ea063b76,v0.0.0-20200106162015-b016eb3dc98e,v0.0.0-20200116001909-b77594299b42,v0.0.0-20200122134326-e047566fdf82,v0.0.0-20200202164722-d101bd2416d5,v0.0.0-20200217220822-9197077df867,v0.0.0-20200302150141-5c8b2ff67527,v0.0.0-20200321134203-328b4cd54aae,v0.0.0-20200327173247-9dae0f8f5775,v0.0.0-20200413165638-669c56c373c4,v0.0.0-20200501052902-10377860bb8e,v0.0.0-20200509044756-6aff5f38e54f,v0.0.0-20200519105757-fe76b779f299}
+]
+\draw[draw=none,fill=color0] (axis cs:0,-0.25) rectangle (axis cs:315,0.25);
+
+\draw[draw=none,fill=color0] (axis cs:0,0.75) rectangle (axis cs:346,1.25);
+\draw[draw=none,fill=color0] (axis cs:0,1.75) rectangle (axis cs:363,2.25);
+\draw[draw=none,fill=color0] (axis cs:0,2.75) rectangle (axis cs:367,3.25);
+\draw[draw=none,fill=color0] (axis cs:0,3.75) rectangle (axis cs:370,4.25);
+\draw[draw=none,fill=color0] (axis cs:0,4.75) rectangle (axis cs:376,5.25);
+\draw[draw=none,fill=color0] (axis cs:0,5.75) rectangle (axis cs:379,6.25);
+\draw[draw=none,fill=color0] (axis cs:0,6.75) rectangle (axis cs:379,7.25);
+\draw[draw=none,fill=color0] (axis cs:0,7.75) rectangle (axis cs:387,8.25);
+\draw[draw=none,fill=color0] (axis cs:0,8.75) rectangle (axis cs:388,9.25);
+\draw[draw=none,fill=color0] (axis cs:0,9.75) rectangle (axis cs:388,10.25);
+\draw[draw=none,fill=color0] (axis cs:0,10.75) rectangle (axis cs:392,11.25);
+\draw[draw=none,fill=color0] (axis cs:0,11.75) rectangle (axis cs:392,12.25);
+\draw[draw=none,fill=color0] (axis cs:0,12.75) rectangle (axis cs:403,13.25);
+\draw[draw=none,fill=color0] (axis cs:0,13.75) rectangle (axis cs:392,14.25);
+\draw[draw=none,fill=color0] (axis cs:0,14.75) rectangle (axis cs:403,15.25);
+\draw[draw=none,fill=color0] (axis cs:0,15.75) rectangle (axis cs:403,16.25);
+\draw[draw=none,fill=color0] (axis cs:0,16.75) rectangle (axis cs:404,17.25);
+\draw[draw=none,fill=color0] (axis cs:0,17.75) rectangle (axis cs:403,18.25);
+\draw[draw=none,fill=color0] (axis cs:0,18.75) rectangle (axis cs:403,19.25);
+\draw[draw=none,fill=color0] (axis cs:0,19.75) rectangle (axis cs:403,20.25);
+\draw[draw=none,fill=color0] (axis cs:0,20.75) rectangle (axis cs:403,21.25);
+\draw[draw=none,fill=color0] (axis cs:0,21.75) rectangle (axis cs:403,22.25);
+\draw[draw=none,fill=color0] (axis cs:0,22.75) rectangle (axis cs:403,23.25);
+\draw[draw=none,fill=color0] (axis cs:0,23.75) rectangle (axis cs:428,24.25);
+\draw[draw=none,fill=color0] (axis cs:0,24.75) rectangle (axis cs:428,25.25);
+\draw[draw=none,fill=color0] (axis cs:0,25.75) rectangle (axis cs:428,26.25);
+\draw[draw=none,fill=color0] (axis cs:0,26.75) rectangle (axis cs:428,27.25);
+\draw[draw=none,fill=color0] (axis cs:0,27.75) rectangle (axis cs:428,28.25);
+\draw[draw=none,fill=color0] (axis cs:0,28.75) rectangle (axis cs:428,29.25);
+\draw[draw=none,fill=color0] (axis cs:0,29.75) rectangle (axis cs:428,30.25);
+\draw[draw=none,fill=color0] (axis cs:0,30.75) rectangle (axis cs:428,31.25);
+\draw[draw=none,fill=color0] (axis cs:0,31.75) rectangle (axis cs:434,32.25);
+\draw[draw=none,fill=color0] (axis cs:0,32.75) rectangle (axis cs:434,33.25);
+\draw[draw=none,fill=color0] (axis cs:0,33.75) rectangle (axis cs:434,34.25);
+\draw[draw=none,fill=color0] (axis cs:0,34.75) rectangle (axis cs:440,35.25);
+\draw[draw=none,fill=color0] (axis cs:0,35.75) rectangle (axis cs:440,36.25);
+\draw[draw=none,fill=color0] (axis cs:0,36.75) rectangle (axis cs:440,37.25);
+\end{axis}
+
+\end{tikzpicture}

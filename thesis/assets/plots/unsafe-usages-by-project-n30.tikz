@@ -1,0 +1,53 @@
+% This file was created by tikzplotlib v0.9.2.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+title={Number of unsafe.Pointer usages per project},
+x grid style={white!69.0196078431373!black},
+xmin=0, xmax=10568.25,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ylabel={project\_name},
+ymin=-0.5, ymax=29.5,
+ytick style={color=black},
+ytick={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29},
+yticklabels={GoAdminGroup/go-admin,containous/traefik,hashicorp/vault,derailed/k9s,fnproject/fn,dapr/dapr,kubesphere/kubesphere,minio/minio,tsuru/tsuru,concourse/concourse,operator-framework/operator-sdk,istio/istio,travisjeffery/jocko,pingcap/tidb,gorgonia/gorgonia,pachyderm/pachyderm,grafana/loki,containers/libpod,jetstack/cert-manager,hashicorp/packer,hashicorp/terraform,elastic/beats,rook/rook,cilium/cilium,weaveworks/scope,rancher/rancher,mattermost/mattermost-server,google/gvisor,rancher/k3s,kubernetes/kubernetes}
+]
+\draw[draw=none,fill=color0] (axis cs:0,-0.25) rectangle (axis cs:7055,0.25);
+
+\draw[draw=none,fill=color0] (axis cs:0,0.75) rectangle (axis cs:7062,1.25);
+\draw[draw=none,fill=color0] (axis cs:0,1.75) rectangle (axis cs:7066,2.25);
+\draw[draw=none,fill=color0] (axis cs:0,2.75) rectangle (axis cs:7072,3.25);
+\draw[draw=none,fill=color0] (axis cs:0,3.75) rectangle (axis cs:7075,4.25);
+\draw[draw=none,fill=color0] (axis cs:0,4.75) rectangle (axis cs:7084,5.25);
+\draw[draw=none,fill=color0] (axis cs:0,5.75) rectangle (axis cs:7094,6.25);
+\draw[draw=none,fill=color0] (axis cs:0,6.75) rectangle (axis cs:7096,7.25);
+\draw[draw=none,fill=color0] (axis cs:0,7.75) rectangle (axis cs:7097,8.25);
+\draw[draw=none,fill=color0] (axis cs:0,8.75) rectangle (axis cs:7164,9.25);
+\draw[draw=none,fill=color0] (axis cs:0,9.75) rectangle (axis cs:7199,10.25);
+\draw[draw=none,fill=color0] (axis cs:0,10.75) rectangle (axis cs:7227,11.25);
+\draw[draw=none,fill=color0] (axis cs:0,11.75) rectangle (axis cs:7234,12.25);
+\draw[draw=none,fill=color0] (axis cs:0,12.75) rectangle (axis cs:7263,13.25);
+\draw[draw=none,fill=color0] (axis cs:0,13.75) rectangle (axis cs:7313,14.25);
+\draw[draw=none,fill=color0] (axis cs:0,14.75) rectangle (axis cs:7387,15.25);
+\draw[draw=none,fill=color0] (axis cs:0,15.75) rectangle (axis cs:7394,16.25);
+\draw[draw=none,fill=color0] (axis cs:0,16.75) rectangle (axis cs:7417,17.25);
+\draw[draw=none,fill=color0] (axis cs:0,17.75) rectangle (axis cs:7433,18.25);
+\draw[draw=none,fill=color0] (axis cs:0,18.75) rectangle (axis cs:7492,19.25);
+\draw[draw=none,fill=color0] (axis cs:0,19.75) rectangle (axis cs:7503,20.25);
+\draw[draw=none,fill=color0] (axis cs:0,20.75) rectangle (axis cs:7638,21.25);
+\draw[draw=none,fill=color0] (axis cs:0,21.75) rectangle (axis cs:7738,22.25);
+\draw[draw=none,fill=color0] (axis cs:0,22.75) rectangle (axis cs:7786,23.25);
+\draw[draw=none,fill=color0] (axis cs:0,23.75) rectangle (axis cs:7806,24.25);
+\draw[draw=none,fill=color0] (axis cs:0,24.75) rectangle (axis cs:7843,25.25);
+\draw[draw=none,fill=color0] (axis cs:0,25.75) rectangle (axis cs:7940,26.25);
+\draw[draw=none,fill=color0] (axis cs:0,26.75) rectangle (axis cs:8423,27.25);
+\draw[draw=none,fill=color0] (axis cs:0,27.75) rectangle (axis cs:9742,28.25);
+\draw[draw=none,fill=color0] (axis cs:0,28.75) rectangle (axis cs:10065,29.25);
+\end{axis}
+
+\end{tikzpicture}
