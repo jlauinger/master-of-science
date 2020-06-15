@@ -1,0 +1,25 @@
+% This file was created by tikzplotlib v0.9.2.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+title={Vet findings in context with unsafe usage lines},
+x grid style={white!69.0196078431373!black},
+xlabel={Numer of lines},
+xmin=0, xmax=28921.2,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ymin=-0.170833333333333, ymax=0.8375,
+ytick style={color=black},
+ytick={0,0.333333333333333,0.666666666666667},
+yticklabels={only unsafe usage found,{vet complained, but no unsafe usage},unsafe usage and vet complained}
+]
+\draw[draw=none,fill=color0] (axis cs:0,-0.125) rectangle (axis cs:27544,0.125);
+\draw[draw=none,fill=color0] (axis cs:0,0.208333333333333) rectangle (axis cs:21987,0.458333333333333);
+\draw[draw=none,fill=color0] (axis cs:0,0.541666666666667) rectangle (axis cs:211,0.791666666666667);
+\end{axis}
+
+\end{tikzpicture}

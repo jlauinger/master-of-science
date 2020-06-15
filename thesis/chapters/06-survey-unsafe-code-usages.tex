@@ -143,46 +143,77 @@ Unsafe usages include usages of \texttt{unsafe.Pointer}, \texttt{uintptr}, \text
 \subsection{Usage statistics in projects, modules, packages, and registries}\label{subsec:results-stats}
 
 \begin{figure}[ht]
-    \begin{center}
-    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/unsafe-usages-by-project-n30.tikz}}
-    \end{center}
-    \caption{unsafe usages by project for the top 30 projects with most usages}
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/stats/unsafe-usages-by-project-n30.tikz}}
+    \caption{Unsafe usages by project for the top 30 projects with most usages}
     \label{fig:unsafe-usages-by-project-n30}
 \end{figure}
 
 \begin{figure}[ht]
-    \begin{center}
-    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/unsafe-usages-by-module-n30.tikz}}
-    \end{center}
-    \caption{unsafe usages by module for the top 30 modules with most usages}
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/stats/unsafe-usages-by-module-n30.tikz}}
+    \caption{Unsafe usages by module for the top 30 modules with most usages}
     \label{fig:unsafe-usages-by-module-n30}
 \end{figure}
 
 \begin{figure}[ht]
-    \begin{center}
-    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/unsafe-usages-by-package-n30.tikz}}
-    \end{center}
-    \caption{unsafe usages by package for the top 30 packages with most usages}
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/stats/unsafe-usages-by-package-n30.tikz}}
+    \caption{Unsafe usages by package for the top 30 packages with most usages}
     \label{fig:unsafe-usages-by-package-n30}
 \end{figure}
 
 \begin{figure}[ht]
-    \begin{center}
-    {\scriptsize \includegraphics[width=\textwidth, height=7cm]{assets/plots/unsafe-usages-by-registry.tikz}}
-    \end{center}
-    \caption{unsafe usages by registry}
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=7cm]{assets/plots/stats/unsafe-usages-by-registry.tikz}}
+    \caption{Unsafe usages by registry}
     \label{fig:unsafe-usages-by-registry}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \subfigure[Modules]{
+        {\scriptsize \includegraphics[width=0.4\textwidth]{assets/plots/stats/pie-modules.tikz}}
+        \label{subfig:fraction-of-unsafe-modules}
+    }
+    \subfigure[Packages]{
+        {\scriptsize \includegraphics[width=0.4\textwidth]{assets/plots/stats/pie-packages.tikz}}
+        \label{subfig:fraction-of-unsafe-packages}
+    }
+    \caption{Fraction of modules and packages containing unsafe usages}
+    \label{fig:fraction-of-unsafe-modules-and-packages}
 \end{figure}
 
 
 %% -----------------------------------------------------------------------------
 
-\subsection{Distribution of different unsafe token types}\label{subsec:results-tokens}
+\subsection{Distribution of different unsafe token types}\label{subsec:results-tokens-distribution}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=0.5\textwidth, height=9cm]{assets/plots/tokens-distribution/distribution-different-unsafe-token-types.tikz}}
+    \caption{Distribution of different types of unsafe token types}
+    \label{fig:unsafe-tokens-distribution}
+\end{figure}
 
 
 %% -----------------------------------------------------------------------------
 
 \subsection{Module and package popularity}\label{subsec:results-popularity}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/popularity/popularity-module-n30.tikz}}
+    \caption{Module popularity by number of importing projects, N=30}
+    \label{fig:popularity-module}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/popularity/popularity-package-without-std-n30.tikz}}
+    \caption{Package popularity by number of importing projects, excluding standard library, N=30}
+    \label{fig:popularity-package}
+\end{figure}
 
 
 %% -----------------------------------------------------------------------------
@@ -190,9 +221,8 @@ Unsafe usages include usages of \texttt{unsafe.Pointer}, \texttt{uintptr}, \text
 \subsection{Fluctuation of unsafe usages count over time}\label{subsec:results-time-change}
 
 \begin{figure}[ht]
-    \begin{center}
-    {\scriptsize \includegraphics[width=\textwidth, height=10cm]{assets/plots/fluctuation-in-versions-of-sys.tikz}}
-    \end{center}
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=10cm]{assets/plots/time-change/fluctuation-in-versions-of-sys.tikz}}
     \caption{Number of unsafe usages in different versions (every other) of sys over time}
     \label{fig:fluctuation-in-versions-of-sys}
 \end{figure}
@@ -222,15 +252,172 @@ We can take away two important insights from this.
 
 \subsection{Correlations of unsafe tokens used together in a file or statement}\label{subsec:results-correlation-together}
 
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=3cm]{assets/plots/correlation-together/use-in-same-line.tikz}}
+    \caption{Usage of unsafe together in the same line}
+    \label{fig:correlations-unsafe-usage-same-line}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \subfigure[Functions]{
+        {\scriptsize \includegraphics[width=0.4\textwidth]{assets/plots/correlation-together/use-in-same-function.tikz}}
+        \label{subfig:correlations-unsafe-usage-same-function}
+    }
+    \subfigure[Statements]{
+        {\scriptsize \includegraphics[width=0.4\textwidth]{assets/plots/correlation-together/use-in-same-statement.tikz}}
+        \label{subfig:correlations-unsafe-usage-same-statement}
+    }
+    \caption{Usage of unsafe in the same function or statement}
+    \label{fig:correlations-unsafe-usage-same-function-and-statement}
+\end{figure}
+
 
 %% -----------------------------------------------------------------------------
 
 \subsection{Go Vet and Gosec tools coverage of unsafe snippets}\label{subsec:results-vet-gosec}
 
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/vet-gosec/vet-findings-per-project-n30.tikz}}
+    \caption{Go Vet findings per projects for the top 30 projects with the most findings}
+    \label{fig:vet-findings-per-project-n30}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=4cm]{assets/plots/vet-gosec/vet-findings-correlated-unsafe-findings.tikz}}
+    \caption{Correlation of Go Vet and Grep unsafe findings}
+    \label{fig:correlation-vet-grep-findings}
+\end{figure}
+
+\begin{table}
+    \centering
+    \caption{Vet possible misuse of unsafe.Pointer findings per package}
+    \label{tbl:vet-misuse-findings}
+
+    \subtable[Raw findings before deduplication]{
+        \label{subtbl:vet-findings-duplicates}
+        \begin{tabular}{lr}
+            \toprule
+            Package                                 & Number of findings          \\
+            \midrule
+            runtime                                 &                      60164 \\
+            sync/atomic                             &                        338 \\
+            strings                                 &                        335 \\
+            github.com/modern-go/reflect2           &                         46 \\
+            golang.org/x/sys/unix                   &                         16 \\
+            github.com/spaolacci/murmur3            &                         11 \\
+            gorgonia.org/tensor                     &                          8 \\
+            github.com/apache/arrow/go/arrow/math   &                          6 \\
+            github.com/minio/simdjson-go            &                          4 \\
+            github.com/apache/arrow/go/arrow/memory &                          4 \\
+            github.com/AndreasBriese/bbloom         &                          4 \\
+            github.com/coocood/bbloom               &                          2 \\
+            github.com/segmentio/encoding/json      &                          1 \\
+            \bottomrule
+        \end{tabular}
+    }
+
+    \subtable[After deduplication]{
+        \label{subtbl:vet-findings-deduplicated}
+        \begin{tabular}{lr}
+            \toprule
+            Package                                 & Number of findings          \\
+            \midrule
+            runtime                                 &                         175 \\
+            gorgonia.org/tensor                     &                           8 \\
+            github.com/apache/arrow/go/arrow/math   &                           6 \\
+            github.com/minio/simdjson-go            &                           3 \\
+            github.com/apache/arrow/go/arrow/memory &                           3 \\
+            github.com/spaolacci/murmur3            &                           2 \\
+            github.com/coocood/bbloom               &                           2 \\
+            github.com/AndreasBriese/bbloom         &                           2 \\
+            sync/atomic                             &                           1 \\
+            strings                                 &                           1 \\
+            golang.org/x/sys/unix                   &                           1 \\
+            github.com/segmentio/encoding/json      &                           1 \\
+            github.com/modern-go/reflect2           &                           1 \\
+            \bottomrule
+        \end{tabular}
+    }
+\end{table}
+
 
 %% -----------------------------------------------------------------------------
 
 \subsection{Correlation of unsafe usages with project features}\label{subsec:results-correlation-project}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/correlation-project/correlation-imports-grep-vet.tikz}}
+    \caption{Correlation of number of imports, Grep unsafe, and Vet findings of projects}
+    \label{fig:correlations-project-imports-grep-vet}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/correlation-project/correlation-unsafe-stars.tikz}}
+    \caption{Correlation of number of unsafe usages and number of stars of projects}
+    \label{fig:correlations-project-unsafe-stars}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/correlation-project/correlation-unsafe-age.tikz}}
+    \caption{Correlation of number of unsafe usages and age of projects}
+    \label{fig:correlations-project-unsafe-age}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/correlation-project/correlation-unsafe-module-popularity.tikz}}
+    \caption{Correlation of number of unsafe usages and popularity of modules}
+    \label{fig:correlations-module-unsafe-popularity}
+\end{figure}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Most interesting modules for analysis}\label{subsec:results-most-interesting-modules}
+
+To determine which modules are the most interesting ones for analysis in Chapter~\ref{ch:code-vulnerabilities}, I use
+a score.
+It is the product of unsafe usage count in a module and the import count of that module, a good indication of its
+popularity. Table~\ref{tbl:most-interesting-modules-by-score} shows the top 20 most interesting modules.
+
+\begin{table}
+    \centering
+    \caption{Most interesting modules for analysis by score, N=20}
+    \label{tbl:most-interesting-modules-by-score}
+    \begin{tabular}{llrrr}
+        \toprule
+        {} &                           Module & Unsafe usages count & Import count &    Score \\
+        \midrule
+        1  &                              std &                6676 &          495 &  3304620 \\
+        2  &                 golang.org/x/sys &                1163 &          235 &   273305 \\
+        3  &                 golang.org/x/net &                  91 &          217 &    19747 \\
+        4  &      github.com/json-iterator/go &                 225 &           71 &    15975 \\
+        5  &    github.com/modern-go/reflect2 &                 215 &           71 &    15265 \\
+        6  &                k8s.io/kubernetes &                1887 &            8 &    15096 \\
+        7  &       github.com/golang/protobuf &                  65 &          168 &    10920 \\
+        8  &         github.com/gogo/protobuf &                 103 &          105 &    10815 \\
+        9  &  github.com/hashicorp/go-msgpack &                 792 &           12 &     9504 \\
+        10 &       github.com/ugorji/go/codec &                 823 &           11 &     9053 \\
+        11 &               golang.org/x/tools &                 178 &           42 &     7476 \\
+        12 &              golang.org/x/crypto &                  28 &          191 &     5348 \\
+        13 &             github.com/ugorji/go &                 804 &            6 &     4824 \\
+        14 &       github.com/davecgh/go-spew &                  38 &          106 &     4028 \\
+        15 &                 go.etcd.io/bbolt &                 148 &           24 &     3552 \\
+        16 &   k8s.io/apiextensions-apiserver &                 124 &           26 &     3224 \\
+        17 &               gonum.org/v1/gonum &                 416 &            5 &     2080 \\
+        18 &         github.com/docker/docker &                  42 &           47 &     1974 \\
+        19 &   github.com/vishvananda/netlink &                 158 &           12 &     1896 \\
+        20 &                gvisor.dev/gvisor &                1846 &            1 &     1846 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 
 %% -----------------------------------------------------------------------------
