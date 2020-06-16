@@ -1,7 +1,7 @@
 package main
 
 import (
-	"data-acquisition/cmd"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition/cmd"
 )
 
 func main() {

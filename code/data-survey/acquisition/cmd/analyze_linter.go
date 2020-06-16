@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"data-acquisition/lexical"
 	"github.com/spf13/cobra"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition/lexical"
 )
 
 var analyzeLinterCmd = &cobra.Command{

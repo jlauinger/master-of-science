@@ -2,8 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-
-	"data-acquisition/projects"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition/projects"
 )
 
 var download, createForks bool

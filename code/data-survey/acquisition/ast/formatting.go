@@ -2,8 +2,8 @@ package ast
 
 import (
 	"bytes"
-	"data-acquisition/lexical"
 	"fmt"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition/lexical"
 	"go/ast"
 	"go/printer"
 	"go/token"

@@ -2,11 +2,11 @@ package projects
 
 import (
 	"context"
-	"data-acquisition/lexical"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/google/go-github/github"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition/lexical"
 	"golang.org/x/oauth2"
 	"os"
 	"os/exec"

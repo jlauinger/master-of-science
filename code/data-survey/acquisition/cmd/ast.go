@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"data-acquisition/ast"
 	"github.com/spf13/cobra"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition/ast"
 )
 
 var mode, filename string

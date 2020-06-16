@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"data-acquisition/lexical"
 	"fmt"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition/lexical"
 )
 
 func AnalyzeAst(offset, length int, dataDir string, skipProjects []string) {
