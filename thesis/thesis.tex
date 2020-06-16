@@ -6,68 +6,23 @@
     accentcolor=9c,
     custommargins=false, % true ist default
     marginpar=false,
-    %BCOR=5mm, %Bindekorrektur, falls notwendig
+    %BCOR=5mm, % Bindekorrektur, falls notwendig
     parskip=half-,
     fontsize=11pt,
     logofile=assets/images/tuda_logo,
 ]{styles/tuda-ci/tudapub}
 
-\usepackage[main=english, ngerman]{babel}
-\usepackage[autostyle]{csquotes}
+%% configuration and packages
+\include{config/typography}
+\include{config/figures}
+\include{config/tables}
+\include{config/listings}
+\include{config/utilities}
 
-\usepackage{enumitem}
-\usepackage{setspace}
-\setstretch{1.1}
-
-\usepackage[none]{tocbibind}
-
-\usepackage{longtable}
-\usepackage{booktabs}
-\usepackage{subfigure}
-
-\usepackage[justification=centering]{caption}
-
-\usepackage{tikz}
-\usepackage{tikzscale}
-\usepackage{pgfplots}
-\DeclareUnicodeCharacter{2212}{−}
-\usepgfplotslibrary{groupplots,dateplot}
-\usetikzlibrary{patterns,shapes.arrows}
-\pgfplotsset{compat=newest}
-\newlength\figureheight
-\newlength\figurewidth
-
-\usepackage{color}
-\definecolor{verylightgray}{RGB}{240,240,240}
-\definecolor{darkgreen}{RGB}{20, 150, 20}
-\usepackage{styles/listings-golang}
-\lstset{
-    frame=none,
-    rulecolor=\color{red},
-    backgroundcolor=\color{verylightgray},
-    basicstyle=\footnotesize,
-    keywordstyle=\color{blue},
-    numbers=left,
-    numbersep=5pt,
-    showstringspaces=false,
-    stringstyle=\color{darkgreen},
-    tabsize=4,
-    language=Golang,
-    xleftmargin=17pt,
-    framexleftmargin=27pt,
-    framexrightmargin=5pt,
-    framexbottommargin=4pt
-}
-
-\newcommand{\todo}[1]{{\color{red}{\textbf{TODO: }#1}}}
-\newcommand{\checkNum}[1]{{\textcolor{orange}{\textit{#1}}}}
-
-\setlength{\parindent}{0em}
-\setlength{\parskip}{1em}
 
 \begin{document}
 
-%% thesis cover page
+%% thesis cover page and information
 \include{frontback/title}
 
 %% abstract and Zusammenfassung
