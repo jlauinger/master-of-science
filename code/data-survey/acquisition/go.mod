@@ -1,4 +1,4 @@
-module github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition
+module github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition
 
 go 1.14
 

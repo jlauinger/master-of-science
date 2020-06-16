@@ -26,17 +26,17 @@ mkdir -p /path/to/copied/files
 Download repositories:
 
 ```shell script
-./data-acquisition projects --download --data-dir=/path/to/data --destination=/path/to/repositories
+./acquisition projects --download --data-dir=/path/to/data --destination=/path/to/repositories
 ```
 
 Run analysis steps. You can run one at a time:
 
 ```shell script
-./data-acquisition analyze grep --data-dir=/path/to/data
-./data-acquisition analyze vet --data-dir=/path/to/data
-./data-acquisition analyze gosec --data-dir=/path/to/data
-./data-acquisition analyze ast --data-dir=/path/to/data
-./data-acquisition analyze linter --data-dir=/path/to/data
+./acquisition analyze grep --data-dir=/path/to/data
+./acquisition analyze vet --data-dir=/path/to/data
+./acquisition analyze gosec --data-dir=/path/to/data
+./acquisition analyze ast --data-dir=/path/to/data
+./acquisition analyze linter --data-dir=/path/to/data
 ```
 
 To do better parallelization, you can split the analysis into buckets. `go vet` already automatically parallelizes as
@@ -46,20 +46,20 @@ program runtime, so chunking can give a little extra optimization. Not specifyin
 defaults 0 and 500.
 
 ```shell script
-./data-acquisition analyze grep --offset 350 --length 50--data-dir=/path/to/data
+./acquisition analyze grep --offset 350 --length 50--data-dir=/path/to/data
 ```
 
 You can skip projects with the skip argument. It can be applied multiple times.
 
 ```shell script
-./data-acquisition analyze grep --data-dir=/path/to/data --skip golang/go --skip avelino/awesome-go
+./acquisition analyze grep --data-dir=/path/to/data --skip golang/go --skip avelino/awesome-go
 ```
 
 It is recommended to copy the vulnerable files into a specific directory. The resulting path will be written into the
 CSV findings files, and later analysis can use those files to do context expansion on the finding context.
 
 ```shell script
-./data-acquisition analyze grep --data-dir=/path/to/data --copy --copy-destination=/path/to/copied/files
+./acquisition analyze grep --data-dir=/path/to/data --copy --copy-destination=/path/to/copied/files
 ```
 
 Then, concatenate the resulting CSV files, dropping the headers in all but the first.

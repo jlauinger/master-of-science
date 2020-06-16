@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition/ast"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/ast"
 )
 
 var analyzeAstCmd = &cobra.Command{

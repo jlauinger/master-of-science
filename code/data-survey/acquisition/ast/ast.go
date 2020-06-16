@@ -2,7 +2,7 @@ package ast
 
 import (
 	"fmt"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/data-acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
 	"go/ast"
 	"go/parser"
 	"go/token"
