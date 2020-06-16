@@ -104,8 +104,11 @@ The data set size in terms of object count is shown in Table~\ref{tbl:survey-dat
     \end{tabular}
 \end{table}
 
-A thing worth mentioning is that there a bit less AST unsafe findings compared to the Grep unsafe findings. This is
-because the Grep run includes comments containing \texttt{unsafe.Pointer}, while the AST run does not.
+A thing worth mentioning is that there a bit less AST unsafe findings compared to the Grep unsafe findings.
+This is because the Grep run includes comments containing \texttt{unsafe.Pointer}, while the AST run does not.
+
+The different data set objects have several fields that are included in the CSV data.
+Appendix~\ref{ch:data-structure} shows the data structure and data types of each object types in multiple tables.
 
 
 %% -----------------------------------------------------------------------------
@@ -312,7 +315,7 @@ There are 496 files that contain each at least one of both.
 
 In terms of line, there are 12135 distinct lines of code that contain \texttt{unsafe.Pointer}.
 There are 11951 lines that contain \texttt{uintptr}.
-We can already see that since there are more \texttt{uintptr} occurences in total, but less lines, that \texttt{uintptr}
+We can already see that since there are more \texttt{uintptr} occurrences in total, but less lines, that \texttt{uintptr}
 is clustered more within the same line.
 
 There are 6846 usages of \texttt{unsafe.Pointer} that are within files where at least one other \texttt{uintptr} occurs.
@@ -325,7 +328,8 @@ There are 13,757 usages in statements that contain no further unsafe usage.
 Those are distributed among 2,123 statements, making an average of 3.4 unsafe usages per statement for the statements
 that contain at least one usage.
 
-The important part is that unsafe usages may occur in clusters. Those are interesting to look into.
+The important part is that unsafe usages may occur in clusters.
+Those are interesting to look into.
 
 \begin{figure}[ht]
     \centering
@@ -452,8 +456,8 @@ package and all of which therefore add to the non-deduplicated count.
 
 \subsection{Correlation of unsafe usages with project features}\label{subsec:results-correlation-project}
 
-Figure~\ref{fig:correlations-project-imports-grep-vet} shows a dot for each project. The x and y axis show the number
-of modules and packages imported by the project.
+Figure~\ref{fig:correlations-project-imports-grep-vet} shows a dot for each project.
+The x and y axis show the number of modules and packages imported by the project.
 We see a linear correlation which is expected.
 More modules mean more packages as each module must have at least one package.
 
