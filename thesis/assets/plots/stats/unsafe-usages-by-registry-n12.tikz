@@ -1,0 +1,35 @@
+% This file was created by tikzplotlib v0.9.2.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+title={Number of unsafe.Pointer usages in packages of registry},
+x grid style={white!69.0196078431373!black},
+xmin=0, xmax=3558.45,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ylabel={module\_registry},
+ymin=-0.5, ymax=11.5,
+ytick style={color=black},
+ytick={0,1,2,3,4,5,6,7,8,9,10,11},
+yticklabels={gonum.org,bazil.org,go.elastic.co,go.opentelemetry.io,google.golang.org,go.etcd.io,gopkg.in,gorgonia.org,golang.org/x,k8s.io,std,github.com}
+]
+\draw[draw=none,fill=color0] (axis cs:0,-0.25) rectangle (axis cs:10,0.25);
+
+\draw[draw=none,fill=color0] (axis cs:0,0.75) rectangle (axis cs:12,1.25);
+\draw[draw=none,fill=color0] (axis cs:0,1.75) rectangle (axis cs:13,2.25);
+\draw[draw=none,fill=color0] (axis cs:0,2.75) rectangle (axis cs:19,3.25);
+\draw[draw=none,fill=color0] (axis cs:0,3.75) rectangle (axis cs:41,4.25);
+\draw[draw=none,fill=color0] (axis cs:0,4.75) rectangle (axis cs:56,5.25);
+\draw[draw=none,fill=color0] (axis cs:0,5.75) rectangle (axis cs:61,6.25);
+\draw[draw=none,fill=color0] (axis cs:0,6.75) rectangle (axis cs:299,7.25);
+\draw[draw=none,fill=color0] (axis cs:0,7.75) rectangle (axis cs:550,8.25);
+\draw[draw=none,fill=color0] (axis cs:0,8.75) rectangle (axis cs:2151,9.25);
+\draw[draw=none,fill=color0] (axis cs:0,9.75) rectangle (axis cs:3002,10.25);
+\draw[draw=none,fill=color0] (axis cs:0,10.75) rectangle (axis cs:3389,11.25);
+\end{axis}
+
+\end{tikzpicture}
