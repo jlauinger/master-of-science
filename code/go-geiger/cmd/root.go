@@ -13,7 +13,7 @@ var shortenSeenPackages, showStandardPackages, printLinkToPkgGoDev, printUnsafeL
 var RootCmd = &cobra.Command{
 	Use:   "geiger",
 	Short: "Counts unsafe usages in dependencies",
-	Long: `https://github.com/stg-tud/thesis-2020-lauinger-code`,
+	Long: `https://github.com/stg-tud/thesis-2020-lauinger-code/go-geiger`,
 	Args: cobra.RangeArgs(0, 1000),
 	Run: func(cmd *cobra.Command, args []string) {
 		counter.Run(counter.Config{
