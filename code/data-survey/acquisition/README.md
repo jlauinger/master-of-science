@@ -1,13 +1,24 @@
 # Data Acquisition Tool
 
-Iteration 3
+Iteration 3 (Go implementation)
+
+
+## Package or Module?
+
+ - A Go module must be a VCS repository or a VCS repository should contain a single Go module.
+ - A Go module should contain one or more packages
+ - A package should contain one or more .go files in a single directory.
+
+Read this:
+
+https://medium.com/rungo/anatomy-of-modules-in-go-c8274d215c16
 
 
 ## Usage
 
 ```shell script
 go build
-mkdir -p /path/to/data
+mkdir -p /path/to/data/{analysis,ast,classification,lexical}
 mkdir -p /path/to/repositories
 mkdir -p /path/to/copied/files
 ```
@@ -24,6 +35,8 @@ Run analysis steps. You can run one at a time:
 ./data-acquisition analyze grep --data-dir=/path/to/data
 ./data-acquisition analyze vet --data-dir=/path/to/data
 ./data-acquisition analyze gosec --data-dir=/path/to/data
+./data-acquisition analyze ast --data-dir=/path/to/data
+./data-acquisition analyze linter --data-dir=/path/to/data
 ```
 
 To do better parallelization, you can split the analysis into buckets. `go vet` already automatically parallelizes as
@@ -34,7 +47,6 @@ defaults 0 and 500.
 
 ```shell script
 ./data-acquisition analyze grep --offset 350 --length 50--data-dir=/path/to/data
-...
 ```
 
 You can skip projects with the skip argument. It can be applied multiple times.
@@ -53,13 +65,23 @@ CSV findings files, and later analysis can use those files to do context expansi
 Then, concatenate the resulting CSV files, dropping the headers in all but the first.
 
 
-## Package or Module?
+## Development
 
- - A Go module must be a VCS repository or a VCS repository should contain a single Go module.
- - A Go module should contain one or more packages
- - A package should contain one or more .go files in a single directory.
+To get the source code and compile the binary, run this:
+
+```
+$ git clone https://github.com/stg-tud/thesis-2020-lauinger-code
+$ cd thesis-2020-lauinger-code/data-survey/acquisition
+$ go build
+```
 
 
-Read this:
+## License
 
-https://medium.com/rungo/anatomy-of-modules-in-go-c8274d215c16
+Licensed under the MIT License (the "License"). You may not use this project except in compliance with the License. You 
+may obtain a copy of the License [here](https://opensource.org/licenses/MIT).
+
+Copyright 2020 Johannes Lauinger
+
+This tool has been developed as part of my Master's thesis at the 
+[Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.

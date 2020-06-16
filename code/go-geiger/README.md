@@ -67,8 +67,8 @@ analysis.
 To get the source code and compile the binary, run this:
 
 ```
-$ git clone https://github.com/stg-tud/thesis-2020-lauinger-code/go-geiger
-$ cd go-geiger
+$ git clone https://github.com/stg-tud/thesis-2020-lauinger-code
+$ cd thesis-2020-lauinger-code/go-geiger
 $ go build
 ```
 
