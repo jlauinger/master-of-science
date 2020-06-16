@@ -16,6 +16,14 @@
 *.toc
 *.xmpi
 *.xmpdata
+*.acn
+*.glo
+*.ist
+*.acr
+*.alg
+*.glg
+*.gls
+*.glsdefs
 /*.pdf
 output/
 

@@ -14,6 +14,14 @@
       <excludePattern pattern="*.lot" />
       <excludePattern pattern="*.lol" />
       <excludePattern pattern="*.xmpdata" />
+      <excludePattern pattern="*.acn" />
+      <excludePattern pattern="*.glo" />
+      <excludePattern pattern="*.ist" />
+      <excludePattern pattern="*.acr" />
+      <excludePattern pattern="*.alg" />
+      <excludePattern pattern="*.glg" />
+      <excludePattern pattern="*.gls" />
+      <excludePattern pattern="*.glsdefs" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

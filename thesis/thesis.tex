@@ -14,6 +14,7 @@
 
 %% configuration and packages
 \include{config/typography}
+\include{config/acronyms-setup}
 \include{config/figures}
 \include{config/tables}
 \include{config/listings}
@@ -21,6 +22,9 @@
 
 
 \begin{document}
+
+%% configuration that has to be inside document
+\include{config/acronyms-definition}
 
 %% thesis cover page and information
 \include{frontback/title}
@@ -51,32 +55,32 @@
 \include{appendix/B-projects}
 \include{appendix/C-data-structure}
 
+%% list of acronyms
+\clearpage\phantomsection
+\addcontentsline{toc}{chapter}{List of Abbreviations}
+\printglossary[type=\acronymtype, nonumberlist, title=List of Abbreviations]
+
 %% list of figures
-\clearpage
-\phantomsection
+\clearpage\phantomsection
 \renewcommand{\listfigurename}[0]{List of Figures}
 \addcontentsline{toc}{chapter}{\listfigurename}
 \listoffigures
 
 %% list of tables
-\clearpage
-\phantomsection
+\clearpage\phantomsection
 \renewcommand{\listtablename}[0]{List of Tables}
 \addcontentsline{toc}{chapter}{\listtablename}
 \listoftables
 
 %% list of listings
-\clearpage
-\phantomsection
+\clearpage\phantomsection
 \renewcommand{\lstlistingname}[0]{List of Listings}
 \renewcommand{\lstlistlistingname}{List of Listings}
 \addcontentsline{toc}{chapter}{\lstlistingname}
 \lstlistoflistings
 
 %% bibliography
-\clearpage
-\phantomsection
-\singlespacing
+\clearpage\phantomsection\singlespacing
 \renewcommand{\bibname}{References}
 \addcontentsline{toc}{chapter}{\bibname}
 \bibliographystyle{unsrt}
