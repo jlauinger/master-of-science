@@ -354,7 +354,7 @@ The important part is that unsafe usages may occur in clusters. Those are intere
 \subsection{Go Vet and Gosec tools coverage of unsafe snippets}\label{subsec:results-vet-gosec}
 
 The Gosec coverage is not interesting because Gosec only has a single rule concerning unsafe usages which is the
-existance of \texttt{unsafe.Pointer} in the code.
+existence of \texttt{unsafe.Pointer} in the code.
 This is already identified by the Grep analysis.
 
 Go Vet has an analysis pass for possible misuses of \texttt{unsafe.Pointer}.
@@ -533,7 +533,7 @@ Table~\ref{tbl:most-interesting-modules-by-score} shows the top 20 most interest
     \centering
     \caption{Most interesting modules for analysis by score, N=20}
     \label{tbl:most-interesting-modules-by-score}
-    \begin{tabular}{llrrr}
+    \begin{tabular}{rlrrr}
         \toprule
         {} &                           Module & Unsafe usages count & Import count &    Score \\
         \midrule
