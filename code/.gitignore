@@ -1,28 +1,41 @@
+## data
 download/
-.vagrant/
-*-logoutput.txt
-main
-race-slice
-linter/linter
-data-aquisition
-.gdb_history
-venv/
-.ipynb_checkpoints/
-__pycache__/
-backup-data/
-dev-data/
-dev-copy/
-vaultpass
 data-survey/data/packages*
-data-survey/data/classification/interesting_snippets*
 data-survey/data/lexical/errors*
 data-survey/data/lexical/grep_findings*
 data-survey/data/lexical/vet_findings*
 data-survey/data/lexical/gosec_findings*
+data-survey/data/lexical/linter_findings*
 data-survey/data/ast/errors*
 data-survey/data/ast/ast_findings*
 data-survey/data/ast/functions*
 data-survey/data/ast/statements*
+data-survey/data/figures/
+backup-data/
+dev-data/
+dev-copy/
+
+## hacking
+.vagrant/
+.gdb_history
+
+## ansible
+vaultpass
+
+## python
+venv/
+.ipynb_checkpoints/
+__pycache__/
+
+## Go tools binaries
+main
+race-slice
+go-safer/go-safer
+go-geiger/go-geiger
+data-survey/acquisition/acquisition
+
+## misc
+*-logoutput.txt
 
 # Binaries for programs and plugins
 *.exe
