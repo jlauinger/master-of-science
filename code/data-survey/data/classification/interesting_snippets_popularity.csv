@@ -1,0 +1,3901 @@
+,Unnamed: 0,text,context,line_number,column,absolute_offset,match_type,file_name,file_loc,file_byte_size,package_import_path,module_path,module_version,project_name,file_copy_path,label
+0,0,"	return *(*string)(unsafe.Pointer(&any.buf))
+","	return 0
+}
+
+func (any *arrayLazyAny) ToString() string {
+	return *(*string)(unsafe.Pointer(&any.buf))
+}
+
+func (any *arrayLazyAny) ToVal(val interface{}) {
+	iter := any.cfg.BorrowIterator(any.buf)
+	defer any.cfg.ReturnIterator(iter)
+",90.0,19.0,1236.0,unsafe.Pointer,any_array.go,4838.0,278.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/any_array.go,cast:slice_to_str
+1,1,"			return WrapUint32(uint32(val.(uintptr)))
+","		}
+		return WrapUint64(uint64(val.(uint)))
+	case reflect.Uintptr:
+		if ptrSize == 32 {
+			return WrapUint32(uint32(val.(uintptr)))
+		}
+		return WrapUint64(uint64(val.(uintptr)))
+	case reflect.Uint8:
+		return WrapUint32(uint32(val.(uint8)))
+	case reflect.Uint16:
+",124.0,33.0,2591.0,uintptr,any.go,7195.0,325.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/any.go,manual:safe
+2,2,"		return WrapUint64(uint64(val.(uintptr)))
+","	case reflect.Uintptr:
+		if ptrSize == 32 {
+			return WrapUint32(uint32(val.(uintptr)))
+		}
+		return WrapUint64(uint64(val.(uintptr)))
+	case reflect.Uint8:
+		return WrapUint32(uint32(val.(uint8)))
+	case reflect.Uint16:
+		return WrapUint32(uint32(val.(uint16)))
+	case reflect.Uint32:
+",126.0,32.0,2639.0,uintptr,any.go,7195.0,325.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/any.go,manual:safe
+3,3,"func (codec *anyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type anyCodec struct {
+	valType reflect2.Type
+}
+
+func (codec *anyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	panic(""not implemented"")
+}
+
+func (codec *anyCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	obj := codec.valType.UnsafeIndirect(ptr)
+",290.0,34.0,6382.0,unsafe.Pointer,any.go,7195.0,325.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/any.go,unused
+4,4,"func (codec *anyCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","func (codec *anyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	panic(""not implemented"")
+}
+
+func (codec *anyCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	obj := codec.valType.UnsafeIndirect(ptr)
+	any := obj.(Any)
+	any.WriteTo(stream)
+}
+
+",294.0,34.0,6479.0,unsafe.Pointer,any.go,7195.0,325.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/any.go,unclassified
+5,5,"func (codec *anyCodec) IsEmpty(ptr unsafe.Pointer) bool {
+","	any := obj.(Any)
+	any.WriteTo(stream)
+}
+
+func (codec *anyCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	obj := codec.valType.UnsafeIndirect(ptr)
+	any := obj.(Any)
+	return any.Size() == 0
+}
+
+",300.0,35.0,6631.0,unsafe.Pointer,any.go,7195.0,325.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/any.go,manual:safe
+6,6,"func (codec *directAnyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type directAnyCodec struct {
+}
+
+func (codec *directAnyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*(*Any)(ptr) = iter.readAny()
+}
+
+func (codec *directAnyCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	any := *(*Any)(ptr)
+",309.0,40.0,6808.0,unsafe.Pointer,any.go,7195.0,325.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/any.go,unclassified
+7,7,"func (codec *directAnyCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","func (codec *directAnyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*(*Any)(ptr) = iter.readAny()
+}
+
+func (codec *directAnyCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	any := *(*Any)(ptr)
+	if any == nil {
+		stream.WriteNil()
+		return
+	}
+",313.0,40.0,6916.0,unsafe.Pointer,any.go,7195.0,325.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/any.go,unclassified
+8,8,"func (codec *directAnyCodec) IsEmpty(ptr unsafe.Pointer) bool {
+","	}
+	any.WriteTo(stream)
+}
+
+func (codec *directAnyCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	any := *(*Any)(ptr)
+	return any.Size() == 0
+}
+",322.0,41.0,7084.0,unsafe.Pointer,any.go,7195.0,325.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/any.go,unclassified
+9,9,"	return *(*string)(unsafe.Pointer(&str))
+","	}
+	if len(str) == 0 {
+		iter.ReportError(""readNumberAsString"", ""invalid number"")
+	}
+	return *(*string)(unsafe.Pointer(&str))
+}
+
+func (iter *Iterator) readFloat32SlowPath() (ret float32) {
+	str := iter.readNumberAsString()
+	if iter.Error != nil && iter.Error != io.EOF {
+",185.0,19.0,4058.0,unsafe.Pointer,iter_float.go,7571.0,339.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/iter_float.go,unclassified
+10,10,"func (cfg *frozenConfig) addDecoderToCache(cacheKey uintptr, decoder ValDecoder) {
+","	cfg.decoderCache = concurrent.NewMap()
+	cfg.encoderCache = concurrent.NewMap()
+}
+
+func (cfg *frozenConfig) addDecoderToCache(cacheKey uintptr, decoder ValDecoder) {
+	cfg.decoderCache.Store(cacheKey, decoder)
+}
+
+func (cfg *frozenConfig) addEncoderToCache(cacheKey uintptr, encoder ValEncoder) {
+	cfg.encoderCache.Store(cacheKey, encoder)
+",90.0,52.0,2638.0,uintptr,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+11,11,"func (cfg *frozenConfig) addEncoderToCache(cacheKey uintptr, encoder ValEncoder) {
+","func (cfg *frozenConfig) addDecoderToCache(cacheKey uintptr, decoder ValDecoder) {
+	cfg.decoderCache.Store(cacheKey, decoder)
+}
+
+func (cfg *frozenConfig) addEncoderToCache(cacheKey uintptr, encoder ValEncoder) {
+	cfg.encoderCache.Store(cacheKey, encoder)
+}
+
+func (cfg *frozenConfig) getDecoderFromCache(cacheKey uintptr) ValDecoder {
+	decoder, found := cfg.decoderCache.Load(cacheKey)
+",94.0,52.0,2767.0,uintptr,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+12,12,"func (cfg *frozenConfig) getDecoderFromCache(cacheKey uintptr) ValDecoder {
+","func (cfg *frozenConfig) addEncoderToCache(cacheKey uintptr, encoder ValEncoder) {
+	cfg.encoderCache.Store(cacheKey, encoder)
+}
+
+func (cfg *frozenConfig) getDecoderFromCache(cacheKey uintptr) ValDecoder {
+	decoder, found := cfg.decoderCache.Load(cacheKey)
+	if found {
+		return decoder.(ValDecoder)
+	}
+	return nil
+",98.0,54.0,2896.0,uintptr,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+13,13,"func (cfg *frozenConfig) getEncoderFromCache(cacheKey uintptr) ValEncoder {
+","	}
+	return nil
+}
+
+func (cfg *frozenConfig) getEncoderFromCache(cacheKey uintptr) ValEncoder {
+	encoder, found := cfg.encoderCache.Load(cacheKey)
+	if found {
+		return encoder.(ValEncoder)
+	}
+	return nil
+",106.0,54.0,3083.0,uintptr,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+14,14,"	encoder := &funcEncoder{func(ptr unsafe.Pointer, stream *Stream) {
+","	return api
+}
+
+func (cfg *frozenConfig) validateJsonRawMessage(extension EncoderExtension) {
+	encoder := &funcEncoder{func(ptr unsafe.Pointer, stream *Stream) {
+		rawMessage := *(*json.RawMessage)(ptr)
+		iter := cfg.BorrowIterator([]byte(rawMessage))
+		iter.Read()
+		if iter.Error != nil {
+			stream.WriteRaw(""null"")
+",183.0,34.0,5093.0,unsafe.Pointer,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+15,15,"	}, func(ptr unsafe.Pointer) bool {
+","		} else {
+			cfg.ReturnIterator(iter)
+			stream.WriteRaw(string(rawMessage))
+		}
+	}, func(ptr unsafe.Pointer) bool {
+		return len(*((*json.RawMessage)(ptr))) == 0
+	}}
+	extension[reflect2.TypeOfPtr((*json.RawMessage)(nil)).Elem()] = encoder
+	extension[reflect2.TypeOfPtr((*RawMessage)(nil)).Elem()] = encoder
+}
+",193.0,13.0,5399.0,unsafe.Pointer,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+16,16,"	extension[reflect2.TypeOfPtr((*interface{})(nil)).Elem()] = &funcDecoder{func(ptr unsafe.Pointer, iter *Iterator) {
+","	extension[reflect2.TypeOfPtr((*RawMessage)(nil)).Elem()] = encoder
+}
+
+func (cfg *frozenConfig) useNumber(extension DecoderExtension) {
+	extension[reflect2.TypeOfPtr((*interface{})(nil)).Elem()] = &funcDecoder{func(ptr unsafe.Pointer, iter *Iterator) {
+		exitingValue := *((*interface{})(ptr))
+		if exitingValue != nil && reflect.TypeOf(exitingValue).Kind() == reflect.Ptr {
+			iter.ReadVal(exitingValue)
+			return
+		}
+",201.0,83.0,5694.0,unsafe.Pointer,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+17,17,"func (encoder *lossyFloat32Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","
+type lossyFloat32Encoder struct {
+}
+
+func (encoder *lossyFloat32Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat32Lossy(*((*float32)(ptr)))
+}
+
+func (encoder *lossyFloat32Encoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float32)(ptr)) == 0
+",231.0,47.0,6523.0,unsafe.Pointer,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+18,18,"func (encoder *lossyFloat32Encoder) IsEmpty(ptr unsafe.Pointer) bool {
+","func (encoder *lossyFloat32Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat32Lossy(*((*float32)(ptr)))
+}
+
+func (encoder *lossyFloat32Encoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float32)(ptr)) == 0
+}
+
+type lossyFloat64Encoder struct {
+}
+",235.0,48.0,6653.0,unsafe.Pointer,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+19,19,"func (encoder *lossyFloat64Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","
+type lossyFloat64Encoder struct {
+}
+
+func (encoder *lossyFloat64Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat64Lossy(*((*float64)(ptr)))
+}
+
+func (encoder *lossyFloat64Encoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float64)(ptr)) == 0
+",242.0,47.0,6796.0,unsafe.Pointer,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+20,20,"func (encoder *lossyFloat64Encoder) IsEmpty(ptr unsafe.Pointer) bool {
+","func (encoder *lossyFloat64Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat64Lossy(*((*float64)(ptr)))
+}
+
+func (encoder *lossyFloat64Encoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float64)(ptr)) == 0
+}
+
+// EnableLossyFloatMarshalling keeps 10**(-6) precision
+// for float variables for better performance.
+",246.0,48.0,6926.0,unsafe.Pointer,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+21,21,"func (encoder *htmlEscapedStringEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","
+type htmlEscapedStringEncoder struct {
+}
+
+func (encoder *htmlEscapedStringEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	str := *((*string)(ptr))
+	stream.WriteStringWithHTMLEscaped(str)
+}
+
+func (encoder *htmlEscapedStringEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+",261.0,52.0,7446.0,unsafe.Pointer,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+22,22,"func (encoder *htmlEscapedStringEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","	str := *((*string)(ptr))
+	stream.WriteStringWithHTMLEscaped(str)
+}
+
+func (encoder *htmlEscapedStringEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*string)(ptr)) == """"
+}
+
+func (cfg *frozenConfig) escapeHTML(encoderExtension EncoderExtension) {
+	encoderExtension[reflect2.TypeOfPtr((*string)(nil)).Elem()] = &htmlEscapedStringEncoder{}
+",266.0,53.0,7601.0,unsafe.Pointer,config.go,10516.0,375.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/config.go,unclassified
+23,23,"func (encoder *dynamicEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","type dynamicEncoder struct {
+	valType reflect2.Type
+}
+
+func (encoder *dynamicEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	obj := encoder.valType.UnsafeIndirect(ptr)
+	stream.WriteVal(obj)
+}
+
+func (encoder *dynamicEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+",13.0,42.0,139.0,unsafe.Pointer,reflect_dynamic.go,1458.0,70.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_dynamic.go,unclassified
+24,24,"func (encoder *dynamicEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","	obj := encoder.valType.UnsafeIndirect(ptr)
+	stream.WriteVal(obj)
+}
+
+func (encoder *dynamicEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.valType.UnsafeIndirect(ptr) == nil
+}
+
+type efaceDecoder struct {
+}
+",18.0,43.0,284.0,unsafe.Pointer,reflect_dynamic.go,1458.0,70.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_dynamic.go,unclassified
+25,25,"func (decoder *efaceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type efaceDecoder struct {
+}
+
+func (decoder *efaceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	pObj := (*interface{})(ptr)
+	obj := *pObj
+	if obj == nil {
+		*pObj = iter.Read()
+		return
+",25.0,40.0,434.0,unsafe.Pointer,reflect_dynamic.go,1458.0,70.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_dynamic.go,unclassified
+26,26,"func (decoder *ifaceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type ifaceDecoder struct {
+	valType *reflect2.UnsafeIFaceType
+}
+
+func (decoder *ifaceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if iter.ReadNil() {
+		decoder.valType.UnsafeSet(ptr, decoder.valType.UnsafeNew())
+		return
+	}
+	obj := decoder.valType.UnsafeIndirect(ptr)
+",59.0,40.0,1107.0,unsafe.Pointer,reflect_dynamic.go,1458.0,70.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_dynamic.go,unclassified
+27,27,"func (encoder emptyArrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","}
+
+type emptyArrayEncoder struct{}
+
+func (encoder emptyArrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteEmptyArray()
+}
+
+func (encoder emptyArrayEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return true
+",27.0,44.0,626.0,unsafe.Pointer,reflect_array.go,2652.0,104.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_array.go,unclassified
+28,28,"func (encoder emptyArrayEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","func (encoder emptyArrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteEmptyArray()
+}
+
+func (encoder emptyArrayEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return true
+}
+
+type arrayEncoder struct {
+	arrayType   *reflect2.UnsafeArrayType
+",31.0,45.0,733.0,unsafe.Pointer,reflect_array.go,2652.0,104.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_array.go,unclassified
+29,29,"func (encoder *arrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	arrayType   *reflect2.UnsafeArrayType
+	elemEncoder ValEncoder
+}
+
+func (encoder *arrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteArrayStart()
+	elemPtr := unsafe.Pointer(ptr)
+	encoder.elemEncoder.Encode(elemPtr, stream)
+	for i := 1; i < encoder.arrayType.Len(); i++ {
+		stream.WriteMore()
+",40.0,40.0,910.0,unsafe.Pointer,reflect_array.go,2652.0,104.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_array.go,unclassified
+30,30,"	elemPtr := unsafe.Pointer(ptr)
+","}
+
+func (encoder *arrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteArrayStart()
+	elemPtr := unsafe.Pointer(ptr)
+	encoder.elemEncoder.Encode(elemPtr, stream)
+	for i := 1; i < encoder.arrayType.Len(); i++ {
+		stream.WriteMore()
+		elemPtr = encoder.arrayType.UnsafeGetIndex(ptr, i)
+		encoder.elemEncoder.Encode(elemPtr, stream)
+",42.0,12.0,1010.0,unsafe.Pointer,reflect_array.go,2652.0,104.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_array.go,unclassified
+31,31,"func (encoder *arrayEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		stream.Error = fmt.Errorf(""%v: %s"", encoder.arrayType, stream.Error.Error())
+	}
+}
+
+func (encoder *arrayEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+}
+
+type arrayDecoder struct {
+	arrayType   *reflect2.UnsafeArrayType
+",55.0,41.0,1419.0,unsafe.Pointer,reflect_array.go,2652.0,104.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_array.go,unclassified
+32,32,"func (decoder *arrayDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	arrayType   *reflect2.UnsafeArrayType
+	elemDecoder ValDecoder
+}
+
+func (decoder *arrayDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.doDecode(ptr, iter)
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf(""%v: %s"", decoder.arrayType, iter.Error.Error())
+	}
+}
+",64.0,40.0,1593.0,unsafe.Pointer,reflect_array.go,2652.0,104.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_array.go,unclassified
+33,33,"func (decoder *arrayDecoder) doDecode(ptr unsafe.Pointer, iter *Iterator) {
+","		iter.Error = fmt.Errorf(""%v: %s"", decoder.arrayType, iter.Error.Error())
+	}
+}
+
+func (decoder *arrayDecoder) doDecode(ptr unsafe.Pointer, iter *Iterator) {
+	c := iter.nextToken()
+	arrayType := decoder.arrayType
+	if c == 'n' {
+		iter.skipThreeBytes('u', 'l', 'l')
+		return
+",71.0,42.0,1825.0,unsafe.Pointer,reflect_array.go,2652.0,104.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_array.go,unclassified
+34,34,"	Decode(ptr unsafe.Pointer, iter *Iterator)
+","// 2. append to slice, if the existing cap is not enough, allocate will be done using Reflect.New
+// 3. assignment to map, both key and value will be reflect.Value
+// For a simple struct binding, it will be reflect.Value free and allocation free
+type ValDecoder interface {
+	Decode(ptr unsafe.Pointer, iter *Iterator)
+}
+
+// ValEncoder is an internal type registered to cache as needed.
+// Don't confuse jsoniter.ValEncoder with json.Encoder.
+// For json.Encoder's adapter, refer to jsoniter.AdapterEncoder(todo godoc link).
+",22.0,12.0,828.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+35,35,"	IsEmpty(ptr unsafe.Pointer) bool
+","// ValEncoder is an internal type registered to cache as needed.
+// Don't confuse jsoniter.ValEncoder with json.Encoder.
+// For json.Encoder's adapter, refer to jsoniter.AdapterEncoder(todo godoc link).
+type ValEncoder interface {
+	IsEmpty(ptr unsafe.Pointer) bool
+	Encode(ptr unsafe.Pointer, stream *Stream)
+}
+
+type checkIsEmpty interface {
+	IsEmpty(ptr unsafe.Pointer) bool
+",29.0,13.0,1106.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+36,36,"	Encode(ptr unsafe.Pointer, stream *Stream)
+","// Don't confuse jsoniter.ValEncoder with json.Encoder.
+// For json.Encoder's adapter, refer to jsoniter.AdapterEncoder(todo godoc link).
+type ValEncoder interface {
+	IsEmpty(ptr unsafe.Pointer) bool
+	Encode(ptr unsafe.Pointer, stream *Stream)
+}
+
+type checkIsEmpty interface {
+	IsEmpty(ptr unsafe.Pointer) bool
+}
+",30.0,12.0,1140.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+37,37,"func (encoder *onePtrEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","type onePtrEncoder struct {
+	encoder ValEncoder
+}
+
+func (encoder *onePtrEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.encoder.IsEmpty(unsafe.Pointer(&ptr))
+}
+
+func (encoder *onePtrEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.encoder.Encode(unsafe.Pointer(&ptr), stream)
+",214.0,42.0,5699.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+38,38,"	return encoder.encoder.IsEmpty(unsafe.Pointer(&ptr))
+","	encoder ValEncoder
+}
+
+func (encoder *onePtrEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.encoder.IsEmpty(unsafe.Pointer(&ptr))
+}
+
+func (encoder *onePtrEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.encoder.Encode(unsafe.Pointer(&ptr), stream)
+}
+",215.0,32.0,5764.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+39,39,"func (encoder *onePtrEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","func (encoder *onePtrEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.encoder.IsEmpty(unsafe.Pointer(&ptr))
+}
+
+func (encoder *onePtrEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.encoder.Encode(unsafe.Pointer(&ptr), stream)
+}
+
+func encoderOfType(ctx *ctx, typ reflect2.Type) ValEncoder {
+	encoder := getTypeEncoderFromExtension(ctx, typ)
+",218.0,41.0,5821.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+40,40,"	encoder.encoder.Encode(unsafe.Pointer(&ptr), stream)
+","	return encoder.encoder.IsEmpty(unsafe.Pointer(&ptr))
+}
+
+func (encoder *onePtrEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.encoder.Encode(unsafe.Pointer(&ptr), stream)
+}
+
+func encoderOfType(ctx *ctx, typ reflect2.Type) ValEncoder {
+	encoder := getTypeEncoderFromExtension(ctx, typ)
+	if encoder != nil {
+",219.0,24.0,5896.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+41,41,"func (decoder *lazyErrorDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type lazyErrorDecoder struct {
+	err error
+}
+
+func (decoder *lazyErrorDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if iter.WhatIsNext() != NilValue {
+		if iter.Error == nil {
+			iter.Error = decoder.err
+		}
+	} else {
+",293.0,44.0,7750.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+42,42,"func (encoder *lazyErrorEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","type lazyErrorEncoder struct {
+	err error
+}
+
+func (encoder *lazyErrorEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if ptr == nil {
+		stream.WriteNil()
+	} else if stream.Error == nil {
+		stream.Error = encoder.err
+	}
+",307.0,44.0,7996.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+43,43,"func (encoder *lazyErrorEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		stream.Error = encoder.err
+	}
+}
+
+func (encoder *lazyErrorEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+}
+
+type placeholderDecoder struct {
+	decoder ValDecoder
+",315.0,45.0,8179.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+44,44,"func (decoder *placeholderDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type placeholderDecoder struct {
+	decoder ValDecoder
+}
+
+func (decoder *placeholderDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.decoder.Decode(ptr, iter)
+}
+
+type placeholderEncoder struct {
+	encoder ValEncoder
+",323.0,46.0,8320.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+45,45,"func (encoder *placeholderEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","type placeholderEncoder struct {
+	encoder ValEncoder
+}
+
+func (encoder *placeholderEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.encoder.Encode(ptr, stream)
+}
+
+func (encoder *placeholderEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.encoder.IsEmpty(ptr)
+",331.0,46.0,8494.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+46,46,"func (encoder *placeholderEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","func (encoder *placeholderEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.encoder.Encode(ptr, stream)
+}
+
+func (encoder *placeholderEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.encoder.IsEmpty(ptr)
+}
+",335.0,47.0,8614.0,unsafe.Pointer,reflect.go,8723.0,337.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect.go,unclassified
+47,47,"func (codec *jsonRawMessageCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type jsonRawMessageCodec struct {
+}
+
+func (codec *jsonRawMessageCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*((*json.RawMessage)(ptr)) = json.RawMessage(iter.SkipAndReturnBytes())
+}
+
+func (codec *jsonRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteRaw(string(*((*json.RawMessage)(ptr))))
+",35.0,45.0,747.0,unsafe.Pointer,reflect_json_raw_message.go,1593.0,60.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_raw_message.go,unclassified
+48,48,"func (codec *jsonRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","func (codec *jsonRawMessageCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*((*json.RawMessage)(ptr)) = json.RawMessage(iter.SkipAndReturnBytes())
+}
+
+func (codec *jsonRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteRaw(string(*((*json.RawMessage)(ptr))))
+}
+
+func (codec *jsonRawMessageCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*json.RawMessage)(ptr))) == 0
+",39.0,45.0,902.0,unsafe.Pointer,reflect_json_raw_message.go,1593.0,60.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_raw_message.go,unclassified
+49,49,"func (codec *jsonRawMessageCodec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *jsonRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteRaw(string(*((*json.RawMessage)(ptr))))
+}
+
+func (codec *jsonRawMessageCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*json.RawMessage)(ptr))) == 0
+}
+
+type jsoniterRawMessageCodec struct {
+}
+",43.0,46.0,1037.0,unsafe.Pointer,reflect_json_raw_message.go,1593.0,60.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_raw_message.go,unclassified
+50,50,"func (codec *jsoniterRawMessageCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type jsoniterRawMessageCodec struct {
+}
+
+func (codec *jsoniterRawMessageCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*((*RawMessage)(ptr)) = RawMessage(iter.SkipAndReturnBytes())
+}
+
+func (codec *jsoniterRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteRaw(string(*((*RawMessage)(ptr))))
+",50.0,49.0,1195.0,unsafe.Pointer,reflect_json_raw_message.go,1593.0,60.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_raw_message.go,unclassified
+51,51,"func (codec *jsoniterRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","func (codec *jsoniterRawMessageCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*((*RawMessage)(ptr)) = RawMessage(iter.SkipAndReturnBytes())
+}
+
+func (codec *jsoniterRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteRaw(string(*((*RawMessage)(ptr))))
+}
+
+func (codec *jsoniterRawMessageCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*RawMessage)(ptr))) == 0
+",54.0,49.0,1344.0,unsafe.Pointer,reflect_json_raw_message.go,1593.0,60.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_raw_message.go,unclassified
+52,52,"func (codec *jsoniterRawMessageCodec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *jsoniterRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteRaw(string(*((*RawMessage)(ptr))))
+}
+
+func (codec *jsoniterRawMessageCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*RawMessage)(ptr))) == 0
+}
+",58.0,50.0,1478.0,unsafe.Pointer,reflect_json_raw_message.go,1593.0,60.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_raw_message.go,unclassified
+53,53,"func (decoder *funcDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type funcDecoder struct {
+	fun DecoderFunc
+}
+
+func (decoder *funcDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.fun(ptr, iter)
+}
+
+type funcEncoder struct {
+	fun         EncoderFunc
+",172.0,39.0,4651.0,unsafe.Pointer,reflect_extension.go,14530.0,483.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_extension.go,unclassified
+54,54,"	isEmptyFunc func(ptr unsafe.Pointer) bool
+","}
+
+type funcEncoder struct {
+	fun         EncoderFunc
+	isEmptyFunc func(ptr unsafe.Pointer) bool
+}
+
+func (encoder *funcEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.fun(ptr, stream)
+}
+",178.0,22.0,4802.0,unsafe.Pointer,reflect_extension.go,14530.0,483.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_extension.go,unclassified
+55,55,"func (encoder *funcEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	fun         EncoderFunc
+	isEmptyFunc func(ptr unsafe.Pointer) bool
+}
+
+func (encoder *funcEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.fun(ptr, stream)
+}
+
+func (encoder *funcEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	if encoder.isEmptyFunc == nil {
+",181.0,39.0,4848.0,unsafe.Pointer,reflect_extension.go,14530.0,483.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_extension.go,unclassified
+56,56,"func (encoder *funcEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","func (encoder *funcEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.fun(ptr, stream)
+}
+
+func (encoder *funcEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	if encoder.isEmptyFunc == nil {
+		return false
+	}
+	return encoder.isEmptyFunc(ptr)
+}
+",185.0,40.0,4950.0,unsafe.Pointer,reflect_extension.go,14530.0,483.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_extension.go,unclassified
+57,57,"type DecoderFunc func(ptr unsafe.Pointer, iter *Iterator)
+","	return encoder.isEmptyFunc(ptr)
+}
+
+// DecoderFunc the function form of TypeDecoder
+type DecoderFunc func(ptr unsafe.Pointer, iter *Iterator)
+
+// EncoderFunc the function form of TypeEncoder
+type EncoderFunc func(ptr unsafe.Pointer, stream *Stream)
+
+// RegisterTypeDecoderFunc register TypeDecoder for a type with function
+",193.0,26.0,5148.0,unsafe.Pointer,reflect_extension.go,14530.0,483.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_extension.go,unclassified
+58,58,"type EncoderFunc func(ptr unsafe.Pointer, stream *Stream)
+","// DecoderFunc the function form of TypeDecoder
+type DecoderFunc func(ptr unsafe.Pointer, iter *Iterator)
+
+// EncoderFunc the function form of TypeEncoder
+type EncoderFunc func(ptr unsafe.Pointer, stream *Stream)
+
+// RegisterTypeDecoderFunc register TypeDecoder for a type with function
+func RegisterTypeDecoderFunc(typ string, fun DecoderFunc) {
+	typeDecoders[typ] = &funcDecoder{fun}
+}
+",196.0,26.0,5255.0,unsafe.Pointer,reflect_extension.go,14530.0,483.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_extension.go,unclassified
+59,59,"func RegisterTypeEncoderFunc(typ string, fun EncoderFunc, isEmptyFunc func(unsafe.Pointer) bool) {
+","	fieldDecoders[fmt.Sprintf(""%s/%s"", typ, field)] = decoder
+}
+
+// RegisterTypeEncoderFunc register TypeEncoder for a type with encode/isEmpty function
+func RegisterTypeEncoderFunc(typ string, fun EncoderFunc, isEmptyFunc func(unsafe.Pointer) bool) {
+	typeEncoders[typ] = &funcEncoder{fun, isEmptyFunc}
+}
+
+// RegisterTypeEncoder register TypeEncoder for a type
+func RegisterTypeEncoder(typ string, encoder ValEncoder) {
+",219.0,75.0,6135.0,unsafe.Pointer,reflect_extension.go,14530.0,483.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_extension.go,unclassified
+60,60,"func RegisterFieldEncoderFunc(typ string, field string, fun EncoderFunc, isEmptyFunc func(unsafe.Pointer) bool) {
+","	typeEncoders[typ] = encoder
+}
+
+// RegisterFieldEncoderFunc register TypeEncoder for a struct field with encode/isEmpty function
+func RegisterFieldEncoderFunc(typ string, field string, fun EncoderFunc, isEmptyFunc func(unsafe.Pointer) bool) {
+	RegisterFieldEncoder(typ, field, &funcEncoder{fun, isEmptyFunc})
+}
+
+// RegisterFieldEncoder register TypeEncoder for a struct field
+func RegisterFieldEncoder(typ string, field string, encoder ValEncoder) {
+",229.0,90.0,6532.0,unsafe.Pointer,reflect_extension.go,14530.0,483.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_extension.go,unclassified
+61,61,"func (decoder *mapDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	keyDecoder  ValDecoder
+	elemDecoder ValDecoder
+}
+
+func (decoder *mapDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	mapType := decoder.mapType
+	c := iter.nextToken()
+	if c == 'n' {
+		iter.skipThreeBytes('u', 'l', 'l')
+		*(*unsafe.Pointer)(ptr) = nil
+",146.0,38.0,3812.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+62,62,"		*(*unsafe.Pointer)(ptr) = nil
+","	mapType := decoder.mapType
+	c := iter.nextToken()
+	if c == 'n' {
+		iter.skipThreeBytes('u', 'l', 'l')
+		*(*unsafe.Pointer)(ptr) = nil
+		mapType.UnsafeSet(ptr, mapType.UnsafeNew())
+		return
+	}
+	if mapType.UnsafeIsNil(ptr) {
+		mapType.UnsafeSet(ptr, mapType.UnsafeMakeMap(0))
+",151.0,5.0,3987.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+63,63,"func (decoder *numericMapKeyDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type numericMapKeyDecoder struct {
+	decoder ValDecoder
+}
+
+func (decoder *numericMapKeyDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	c := iter.nextToken()
+	if c != '""' {
+		iter.ReportError(""ReadMapCB"", `expect "", but found `+string([]byte{c}))
+		return
+	}
+",202.0,48.0,5355.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+64,64,"func (encoder *numericMapKeyEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","type numericMapKeyEncoder struct {
+	encoder ValEncoder
+}
+
+func (encoder *numericMapKeyEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.writeByte('""')
+	encoder.encoder.Encode(ptr, stream)
+	stream.writeByte('""')
+}
+
+",220.0,48.0,5780.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+65,65,"func (encoder *numericMapKeyEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","	encoder.encoder.Encode(ptr, stream)
+	stream.writeByte('""')
+}
+
+func (encoder *numericMapKeyEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+}
+
+type dynamicMapKeyEncoder struct {
+	ctx     *ctx
+",226.0,49.0,5948.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+66,66,"func (encoder *dynamicMapKeyEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	ctx     *ctx
+	valType reflect2.Type
+}
+
+func (encoder *dynamicMapKeyEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	obj := encoder.valType.UnsafeIndirect(ptr)
+	encoderOfMapKey(encoder.ctx, reflect2.TypeOf(obj)).Encode(reflect2.PtrOf(obj), stream)
+}
+
+func (encoder *dynamicMapKeyEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+",235.0,48.0,6112.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+67,67,"func (encoder *dynamicMapKeyEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","	obj := encoder.valType.UnsafeIndirect(ptr)
+	encoderOfMapKey(encoder.ctx, reflect2.TypeOf(obj)).Encode(reflect2.PtrOf(obj), stream)
+}
+
+func (encoder *dynamicMapKeyEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	obj := encoder.valType.UnsafeIndirect(ptr)
+	return encoderOfMapKey(encoder.ctx, reflect2.TypeOf(obj)).IsEmpty(reflect2.PtrOf(obj))
+}
+
+type mapEncoder struct {
+",240.0,49.0,6329.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+68,68,"func (encoder *mapEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	keyEncoder  ValEncoder
+	elemEncoder ValEncoder
+}
+
+func (encoder *mapEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if *(*unsafe.Pointer)(ptr) == nil {
+		stream.WriteNil()
+		return
+	}
+	stream.WriteObjectStart()
+",251.0,38.0,6649.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+69,69,"	if *(*unsafe.Pointer)(ptr) == nil {
+","	elemEncoder ValEncoder
+}
+
+func (encoder *mapEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if *(*unsafe.Pointer)(ptr) == nil {
+		stream.WriteNil()
+		return
+	}
+	stream.WriteObjectStart()
+	iter := encoder.mapType.UnsafeIterate(ptr)
+",252.0,7.0,6721.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+70,70,"func (encoder *mapEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","	}
+	stream.WriteObjectEnd()
+}
+
+func (encoder *mapEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	iter := encoder.mapType.UnsafeIterate(ptr)
+	return !iter.HasNext()
+}
+
+type sortKeysMapEncoder struct {
+",274.0,39.0,7198.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+71,71,"func (encoder *sortKeysMapEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	keyEncoder  ValEncoder
+	elemEncoder ValEncoder
+}
+
+func (encoder *sortKeysMapEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if *(*unsafe.Pointer)(ptr) == nil {
+		stream.WriteNil()
+		return
+	}
+	stream.WriteObjectStart()
+",285.0,46.0,7452.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+72,72,"func (encoder *sortKeysMapEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","	stream.cfg.ReturnStream(subStream)
+	stream.cfg.ReturnIterator(subIter)
+}
+
+func (encoder *sortKeysMapEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	iter := encoder.mapType.UnsafeIterate(ptr)
+	return !iter.HasNext()
+}
+
+type encodedKeyValues []encodedKV
+",328.0,47.0,8674.0,unsafe.Pointer,reflect_map.go,9136.0,342.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_map.go,unclassified
+73,73,"func (encoder *marshalerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	checkIsEmpty checkIsEmpty
+	valType      reflect2.Type
+}
+
+func (encoder *marshalerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	obj := encoder.valType.UnsafeIndirect(ptr)
+	if encoder.valType.IsNullable() && reflect2.IsNil(obj) {
+		stream.WriteNil()
+		return
+	}
+",91.0,44.0,2500.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+74,74,"func (encoder *marshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		stream.Write(bytes)
+	}
+}
+
+func (encoder *marshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.checkIsEmpty.IsEmpty(ptr)
+}
+
+type directMarshalerEncoder struct {
+	checkIsEmpty checkIsEmpty
+",112.0,45.0,3029.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+75,75,"func (encoder *directMarshalerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","type directMarshalerEncoder struct {
+	checkIsEmpty checkIsEmpty
+}
+
+func (encoder *directMarshalerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	marshaler := *(*json.Marshaler)(ptr)
+	if marshaler == nil {
+		stream.WriteNil()
+		return
+	}
+",120.0,50.0,3209.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+76,76,"func (encoder *directMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		stream.Write(bytes)
+	}
+}
+
+func (encoder *directMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.checkIsEmpty.IsEmpty(ptr)
+}
+
+type textMarshalerEncoder struct {
+	valType       reflect2.Type
+",134.0,51.0,3501.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+77,77,"func (encoder *textMarshalerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	stringEncoder ValEncoder
+	checkIsEmpty  checkIsEmpty
+}
+
+func (encoder *textMarshalerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	obj := encoder.valType.UnsafeIndirect(ptr)
+	if encoder.valType.IsNullable() && reflect2.IsNil(obj) {
+		stream.WriteNil()
+		return
+	}
+",144.0,48.0,3741.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+78,78,"		encoder.stringEncoder.Encode(unsafe.Pointer(&str), stream)
+","	if err != nil {
+		stream.Error = err
+	} else {
+		str := string(bytes)
+		encoder.stringEncoder.Encode(unsafe.Pointer(&str), stream)
+	}
+}
+
+func (encoder *textMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.checkIsEmpty.IsEmpty(ptr)
+",156.0,31.0,4112.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+79,79,"func (encoder *textMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		encoder.stringEncoder.Encode(unsafe.Pointer(&str), stream)
+	}
+}
+
+func (encoder *textMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.checkIsEmpty.IsEmpty(ptr)
+}
+
+type directTextMarshalerEncoder struct {
+	stringEncoder ValEncoder
+",160.0,49.0,4179.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+80,80,"func (encoder *directTextMarshalerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	stringEncoder ValEncoder
+	checkIsEmpty  checkIsEmpty
+}
+
+func (encoder *directTextMarshalerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	marshaler := *(*encoding.TextMarshaler)(ptr)
+	if marshaler == nil {
+		stream.WriteNil()
+		return
+	}
+",169.0,54.0,4394.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+81,81,"func (encoder *directTextMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		encoder.stringEncoder.Encode(unsafe.Pointer(&str), stream)
+	}
+}
+
+func (encoder *directTextMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.checkIsEmpty.IsEmpty(ptr)
+}
+
+type unmarshalerDecoder struct {
+	valType reflect2.Type
+",184.0,55.0,4760.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+82,82,"func (decoder *unmarshalerDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type unmarshalerDecoder struct {
+	valType reflect2.Type
+}
+
+func (decoder *unmarshalerDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	valType := decoder.valType
+	obj := valType.UnsafeIndirect(ptr)
+	unmarshaler := obj.(json.Unmarshaler)
+	iter.nextToken()
+	iter.unreadByte() // skip spaces
+",192.0,46.0,4942.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+83,83,"func (decoder *textUnmarshalerDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type textUnmarshalerDecoder struct {
+	valType reflect2.Type
+}
+
+func (decoder *textUnmarshalerDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	valType := decoder.valType
+	obj := valType.UnsafeIndirect(ptr)
+	if reflect2.IsNil(obj) {
+		ptrType := valType.(*reflect2.UnsafePtrType)
+		elemType := ptrType.Elem()
+",209.0,50.0,5394.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+84,84,"		ptrType.UnsafeSet(ptr, unsafe.Pointer(&elem))
+","	if reflect2.IsNil(obj) {
+		ptrType := valType.(*reflect2.UnsafePtrType)
+		elemType := ptrType.Elem()
+		elem := elemType.UnsafeNew()
+		ptrType.UnsafeSet(ptr, unsafe.Pointer(&elem))
+		obj = valType.UnsafeIndirect(ptr)
+	}
+	unmarshaler := (obj).(encoding.TextUnmarshaler)
+	str := iter.ReadString()
+	err := unmarshaler.UnmarshalText([]byte(str))
+",216.0,25.0,5675.0,unsafe.Pointer,reflect_marshaler.go,5964.0,225.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_marshaler.go,unclassified
+85,85,"func (decoder *OptionalDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	ValueType    reflect2.Type
+	ValueDecoder ValDecoder
+}
+
+func (decoder *OptionalDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if iter.ReadNil() {
+		*((*unsafe.Pointer)(ptr)) = nil
+	} else {
+		if *((*unsafe.Pointer)(ptr)) == nil {
+			//pointer to null, we have to allocate memory to hold the value
+",32.0,43.0,742.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+86,86,"		*((*unsafe.Pointer)(ptr)) = nil
+","}
+
+func (decoder *OptionalDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if iter.ReadNil() {
+		*((*unsafe.Pointer)(ptr)) = nil
+	} else {
+		if *((*unsafe.Pointer)(ptr)) == nil {
+			//pointer to null, we have to allocate memory to hold the value
+			newPtr := decoder.ValueType.UnsafeNew()
+			decoder.ValueDecoder.Decode(newPtr, iter)
+",34.0,6.0,840.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+87,87,"		if *((*unsafe.Pointer)(ptr)) == nil {
+","func (decoder *OptionalDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if iter.ReadNil() {
+		*((*unsafe.Pointer)(ptr)) = nil
+	} else {
+		if *((*unsafe.Pointer)(ptr)) == nil {
+			//pointer to null, we have to allocate memory to hold the value
+			newPtr := decoder.ValueType.UnsafeNew()
+			decoder.ValueDecoder.Decode(newPtr, iter)
+			*((*unsafe.Pointer)(ptr)) = newPtr
+		} else {
+",36.0,9.0,884.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+88,88,"			*((*unsafe.Pointer)(ptr)) = newPtr
+","		if *((*unsafe.Pointer)(ptr)) == nil {
+			//pointer to null, we have to allocate memory to hold the value
+			newPtr := decoder.ValueType.UnsafeNew()
+			decoder.ValueDecoder.Decode(newPtr, iter)
+			*((*unsafe.Pointer)(ptr)) = newPtr
+		} else {
+			//reuse existing instance
+			decoder.ValueDecoder.Decode(*((*unsafe.Pointer)(ptr)), iter)
+		}
+	}
+",40.0,7.0,1079.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+89,89,"			decoder.ValueDecoder.Decode(*((*unsafe.Pointer)(ptr)), iter)
+","			decoder.ValueDecoder.Decode(newPtr, iter)
+			*((*unsafe.Pointer)(ptr)) = newPtr
+		} else {
+			//reuse existing instance
+			decoder.ValueDecoder.Decode(*((*unsafe.Pointer)(ptr)), iter)
+		}
+	}
+}
+
+type dereferenceDecoder struct {
+",43.0,35.0,1157.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+90,90,"func (decoder *dereferenceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	valueType    reflect2.Type
+	valueDecoder ValDecoder
+}
+
+func (decoder *dereferenceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if *((*unsafe.Pointer)(ptr)) == nil {
+		//pointer to null, we have to allocate memory to hold the value
+		newPtr := decoder.valueType.UnsafeNew()
+		decoder.valueDecoder.Decode(newPtr, iter)
+		*((*unsafe.Pointer)(ptr)) = newPtr
+",54.0,46.0,1352.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+91,91,"	if *((*unsafe.Pointer)(ptr)) == nil {
+","	valueDecoder ValDecoder
+}
+
+func (decoder *dereferenceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if *((*unsafe.Pointer)(ptr)) == nil {
+		//pointer to null, we have to allocate memory to hold the value
+		newPtr := decoder.valueType.UnsafeNew()
+		decoder.valueDecoder.Decode(newPtr, iter)
+		*((*unsafe.Pointer)(ptr)) = newPtr
+	} else {
+",55.0,8.0,1432.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+92,92,"		*((*unsafe.Pointer)(ptr)) = newPtr
+","	if *((*unsafe.Pointer)(ptr)) == nil {
+		//pointer to null, we have to allocate memory to hold the value
+		newPtr := decoder.valueType.UnsafeNew()
+		decoder.valueDecoder.Decode(newPtr, iter)
+		*((*unsafe.Pointer)(ptr)) = newPtr
+	} else {
+		//reuse existing instance
+		decoder.valueDecoder.Decode(*((*unsafe.Pointer)(ptr)), iter)
+	}
+}
+",59.0,6.0,1623.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+93,93,"		decoder.valueDecoder.Decode(*((*unsafe.Pointer)(ptr)), iter)
+","		decoder.valueDecoder.Decode(newPtr, iter)
+		*((*unsafe.Pointer)(ptr)) = newPtr
+	} else {
+		//reuse existing instance
+		decoder.valueDecoder.Decode(*((*unsafe.Pointer)(ptr)), iter)
+	}
+}
+
+type OptionalEncoder struct {
+	ValueEncoder ValEncoder
+",62.0,34.0,1698.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+94,94,"func (encoder *OptionalEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","type OptionalEncoder struct {
+	ValueEncoder ValEncoder
+}
+
+func (encoder *OptionalEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if *((*unsafe.Pointer)(ptr)) == nil {
+		stream.WriteNil()
+	} else {
+		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), stream)
+	}
+",70.0,43.0,1825.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+95,95,"		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), stream)
+","func (encoder *OptionalEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if *((*unsafe.Pointer)(ptr)) == nil {
+		stream.WriteNil()
+	} else {
+		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), stream)
+	}
+}
+
+func (encoder *OptionalEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*unsafe.Pointer)(ptr)) == nil
+",74.0,34.0,1971.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+96,96,"func (encoder *OptionalEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), stream)
+	}
+}
+
+func (encoder *OptionalEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*unsafe.Pointer)(ptr)) == nil
+}
+
+type dereferenceEncoder struct {
+	ValueEncoder ValEncoder
+",78.0,44.0,2042.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+97,97,"	return *((*unsafe.Pointer)(ptr)) == nil
+","	}
+}
+
+func (encoder *OptionalEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*unsafe.Pointer)(ptr)) == nil
+}
+
+type dereferenceEncoder struct {
+	ValueEncoder ValEncoder
+}
+",79.0,12.0,2109.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+98,98,"func (encoder *dereferenceEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","type dereferenceEncoder struct {
+	ValueEncoder ValEncoder
+}
+
+func (encoder *dereferenceEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if *((*unsafe.Pointer)(ptr)) == nil {
+		stream.WriteNil()
+	} else {
+		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), stream)
+	}
+",86.0,46.0,2214.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+99,99,"func (encoder *dereferenceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), stream)
+	}
+}
+
+func (encoder *dereferenceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	dePtr := *((*unsafe.Pointer)(ptr))
+	if dePtr == nil {
+		return true
+	}
+	return encoder.ValueEncoder.IsEmpty(dePtr)
+",94.0,47.0,2434.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+100,100,"	dePtr := *((*unsafe.Pointer)(ptr))
+","	}
+}
+
+func (encoder *dereferenceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	dePtr := *((*unsafe.Pointer)(ptr))
+	if dePtr == nil {
+		return true
+	}
+	return encoder.ValueEncoder.IsEmpty(dePtr)
+}
+",95.0,14.0,2504.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+101,101,"func (encoder *dereferenceEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
+","	}
+	return encoder.ValueEncoder.IsEmpty(dePtr)
+}
+
+func (encoder *dereferenceEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
+	deReferenced := *((*unsafe.Pointer)(ptr))
+	if deReferenced == nil {
+		return true
+	}
+	isEmbeddedPtrNil, converted := encoder.ValueEncoder.(IsEmbeddedPtrNil)
+",102.0,56.0,2623.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+102,102,"	deReferenced := *((*unsafe.Pointer)(ptr))
+","	return encoder.ValueEncoder.IsEmpty(dePtr)
+}
+
+func (encoder *dereferenceEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
+	deReferenced := *((*unsafe.Pointer)(ptr))
+	if deReferenced == nil {
+		return true
+	}
+	isEmbeddedPtrNil, converted := encoder.ValueEncoder.(IsEmbeddedPtrNil)
+	if !converted {
+",103.0,21.0,2702.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+103,103,"	fieldPtr := unsafe.Pointer(deReferenced)
+","	isEmbeddedPtrNil, converted := encoder.ValueEncoder.(IsEmbeddedPtrNil)
+	if !converted {
+		return false
+	}
+	fieldPtr := unsafe.Pointer(deReferenced)
+	return isEmbeddedPtrNil.IsEmbeddedPtrNil(fieldPtr)
+}
+
+type referenceEncoder struct {
+	encoder ValEncoder
+",111.0,13.0,2895.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+104,104,"func (encoder *referenceEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","type referenceEncoder struct {
+	encoder ValEncoder
+}
+
+func (encoder *referenceEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.encoder.Encode(unsafe.Pointer(&ptr), stream)
+}
+
+func (encoder *referenceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.encoder.IsEmpty(unsafe.Pointer(&ptr))
+",119.0,44.0,3046.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+105,105,"func (encoder *referenceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","func (encoder *referenceEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.encoder.Encode(unsafe.Pointer(&ptr), stream)
+}
+
+func (encoder *referenceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.encoder.IsEmpty(unsafe.Pointer(&ptr))
+}
+
+type referenceDecoder struct {
+	decoder ValDecoder
+",123.0,45.0,3181.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+106,106,"func (decoder *referenceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type referenceDecoder struct {
+	decoder ValDecoder
+}
+
+func (decoder *referenceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.decoder.Decode(unsafe.Pointer(&ptr), iter)
+}
+",131.0,44.0,3360.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+107,107,"	decoder.decoder.Decode(unsafe.Pointer(&ptr), iter)
+","	decoder ValDecoder
+}
+
+func (decoder *referenceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.decoder.Decode(unsafe.Pointer(&ptr), iter)
+}
+",132.0,24.0,3438.0,unsafe.Pointer,reflect_optional.go,3492.0,133.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_optional.go,unclassified
+108,108,"func (encoder *sliceEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	sliceType   *reflect2.UnsafeSliceType
+	elemEncoder ValEncoder
+}
+
+func (encoder *sliceEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if encoder.sliceType.UnsafeIsNil(ptr) {
+		stream.WriteNil()
+		return
+	}
+	length := encoder.sliceType.UnsafeLengthOf(ptr)
+",27.0,40.0,627.0,unsafe.Pointer,reflect_slice.go,2662.0,99.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_slice.go,unclassified
+109,109,"func (encoder *sliceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		stream.Error = fmt.Errorf(""%v: %s"", encoder.sliceType, stream.Error.Error())
+	}
+}
+
+func (encoder *sliceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.sliceType.UnsafeLengthOf(ptr) == 0
+}
+
+type sliceDecoder struct {
+	sliceType   *reflect2.UnsafeSliceType
+",50.0,41.0,1300.0,unsafe.Pointer,reflect_slice.go,2662.0,99.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_slice.go,unclassified
+110,110,"func (decoder *sliceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	sliceType   *reflect2.UnsafeSliceType
+	elemDecoder ValDecoder
+}
+
+func (decoder *sliceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.doDecode(ptr, iter)
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf(""%v: %s"", decoder.sliceType, iter.Error.Error())
+	}
+}
+",59.0,40.0,1511.0,unsafe.Pointer,reflect_slice.go,2662.0,99.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_slice.go,unclassified
+111,111,"func (decoder *sliceDecoder) doDecode(ptr unsafe.Pointer, iter *Iterator) {
+","		iter.Error = fmt.Errorf(""%v: %s"", decoder.sliceType, iter.Error.Error())
+	}
+}
+
+func (decoder *sliceDecoder) doDecode(ptr unsafe.Pointer, iter *Iterator) {
+	c := iter.nextToken()
+	sliceType := decoder.sliceType
+	if c == 'n' {
+		iter.skipThreeBytes('u', 'l', 'l')
+		sliceType.UnsafeSetNil(ptr)
+",66.0,42.0,1743.0,unsafe.Pointer,reflect_slice.go,2662.0,99.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_slice.go,unclassified
+112,112,"func (encoder *structFieldEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	fieldEncoder ValEncoder
+	omitempty    bool
+}
+
+func (encoder *structFieldEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	fieldPtr := encoder.field.UnsafeGet(ptr)
+	encoder.fieldEncoder.Encode(fieldPtr, stream)
+	if stream.Error != nil && stream.Error != io.EOF {
+		stream.Error = fmt.Errorf(""%s: %s"", encoder.field.Name(), stream.Error.Error())
+	}
+",108.0,46.0,2513.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+113,113,"func (encoder *structFieldEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		stream.Error = fmt.Errorf(""%s: %s"", encoder.field.Name(), stream.Error.Error())
+	}
+}
+
+func (encoder *structFieldEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	fieldPtr := encoder.field.UnsafeGet(ptr)
+	return encoder.fieldEncoder.IsEmpty(fieldPtr)
+}
+
+func (encoder *structFieldEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
+",116.0,47.0,2822.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+114,114,"func (encoder *structFieldEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
+","	fieldPtr := encoder.field.UnsafeGet(ptr)
+	return encoder.fieldEncoder.IsEmpty(fieldPtr)
+}
+
+func (encoder *structFieldEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
+	isEmbeddedPtrNil, converted := encoder.fieldEncoder.(IsEmbeddedPtrNil)
+	if !converted {
+		return false
+	}
+	fieldPtr := encoder.field.UnsafeGet(ptr)
+",121.0,56.0,2984.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+115,115,"	IsEmbeddedPtrNil(ptr unsafe.Pointer) bool
+","	return isEmbeddedPtrNil.IsEmbeddedPtrNil(fieldPtr)
+}
+
+type IsEmbeddedPtrNil interface {
+	IsEmbeddedPtrNil(ptr unsafe.Pointer) bool
+}
+
+type structEncoder struct {
+	typ    reflect2.Type
+	fields []structFieldTo
+",131.0,22.0,3301.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+116,116,"func (encoder *structEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	encoder *structFieldEncoder
+	toName  string
+}
+
+func (encoder *structEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteObjectStart()
+	isNotFirst := false
+	for _, field := range encoder.fields {
+		if field.encoder.omitempty && field.encoder.IsEmpty(ptr) {
+			continue
+",144.0,41.0,3500.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+117,117,"func (encoder *structEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","		stream.Error = fmt.Errorf(""%v.%s"", encoder.typ, stream.Error.Error())
+	}
+}
+
+func (encoder *structEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+}
+
+type emptyStructEncoder struct {
+}
+",167.0,42.0,4097.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+118,118,"func (encoder *emptyStructEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","
+type emptyStructEncoder struct {
+}
+
+func (encoder *emptyStructEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteEmptyObject()
+}
+
+func (encoder *emptyStructEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+",174.0,46.0,4215.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+119,119,"func (encoder *emptyStructEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","func (encoder *emptyStructEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteEmptyObject()
+}
+
+func (encoder *emptyStructEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+}
+
+type stringModeNumberEncoder struct {
+	elemEncoder ValEncoder
+",178.0,47.0,4325.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+120,120,"func (encoder *stringModeNumberEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","type stringModeNumberEncoder struct {
+	elemEncoder ValEncoder
+}
+
+func (encoder *stringModeNumberEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.writeByte('""')
+	encoder.elemEncoder.Encode(ptr, stream)
+	stream.writeByte('""')
+}
+
+",186.0,51.0,4477.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+121,121,"func (encoder *stringModeNumberEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","	encoder.elemEncoder.Encode(ptr, stream)
+	stream.writeByte('""')
+}
+
+func (encoder *stringModeNumberEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.elemEncoder.IsEmpty(ptr)
+}
+
+type stringModeStringEncoder struct {
+	elemEncoder ValEncoder
+",192.0,52.0,4652.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+122,122,"func (encoder *stringModeStringEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+","	elemEncoder ValEncoder
+	cfg         *frozenConfig
+}
+
+func (encoder *stringModeStringEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	tempStream := encoder.cfg.BorrowStream(nil)
+	defer encoder.cfg.ReturnStream(tempStream)
+	encoder.elemEncoder.Encode(ptr, tempStream)
+	stream.WriteString(string(tempStream.Buffer()))
+}
+",201.0,51.0,4863.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+123,123,"func (encoder *stringModeStringEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+","	encoder.elemEncoder.Encode(ptr, tempStream)
+	stream.WriteString(string(tempStream.Buffer()))
+}
+
+func (encoder *stringModeStringEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.elemEncoder.IsEmpty(ptr)
+}
+",208.0,52.0,5134.0,unsafe.Pointer,reflect_struct_encoder.go,5252.0,210.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_encoder.go,unclassified
+124,124,"const ptrSize = 32 << uintptr(^uintptr(0)>>63)
+","
+	""github.com/modern-go/reflect2""
+)
+
+const ptrSize = 32 << uintptr(^uintptr(0)>>63)
+
+func createEncoderOfNative(ctx *ctx, typ reflect2.Type) ValEncoder {
+	if typ.Kind() == reflect.Slice && typ.(reflect2.SliceType).Elem().Kind() == reflect.Uint8 {
+		sliceDecoder := decoderOfSlice(ctx, typ)
+		return &base64Codec{sliceDecoder: sliceDecoder}
+",12.0,22.0,115.0,uintptr,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+125,125,"		if typeName != ""uintptr"" {
+","			return encoderOfType(ctx, reflect2.TypeOfPtr((*uint32)(nil)).Elem())
+		}
+		return &uint32Codec{}
+	case reflect.Uintptr:
+		if typeName != ""uintptr"" {
+			return encoderOfType(ctx, reflect2.TypeOfPtr((*uintptr)(nil)).Elem())
+		}
+		if ptrSize == 32 {
+			return &uint32Codec{}
+		}
+",79.0,18.0,2080.0,uintptr,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+126,126,"			return encoderOfType(ctx, reflect2.TypeOfPtr((*uintptr)(nil)).Elem())
+","		}
+		return &uint32Codec{}
+	case reflect.Uintptr:
+		if typeName != ""uintptr"" {
+			return encoderOfType(ctx, reflect2.TypeOfPtr((*uintptr)(nil)).Elem())
+		}
+		if ptrSize == 32 {
+			return &uint32Codec{}
+		}
+		return &uint64Codec{}
+",80.0,50.0,2109.0,uintptr,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+127,127,"			return decoderOfType(ctx, reflect2.TypeOfPtr((*uintptr)(nil)).Elem())
+","		}
+		return &uint32Codec{}
+	case reflect.Uintptr:
+		if typeName != ""uintptr"" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*uintptr)(nil)).Elem())
+		}
+		if ptrSize == 32 {
+			return &uint32Codec{}
+		}
+		return &uint64Codec{}
+",175.0,50.0,4810.0,uintptr,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+128,128,"func (codec *stringCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type stringCodec struct {
+}
+
+func (codec *stringCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*((*string)(ptr)) = iter.ReadString()
+}
+
+func (codec *stringCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	str := *((*string)(ptr))
+",208.0,37.0,5608.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+129,129,"func (codec *stringCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","func (codec *stringCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*((*string)(ptr)) = iter.ReadString()
+}
+
+func (codec *stringCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	str := *((*string)(ptr))
+	stream.WriteString(str)
+}
+
+func (codec *stringCodec) IsEmpty(ptr unsafe.Pointer) bool {
+",212.0,37.0,5721.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+130,130,"func (codec *stringCodec) IsEmpty(ptr unsafe.Pointer) bool {
+","	str := *((*string)(ptr))
+	stream.WriteString(str)
+}
+
+func (codec *stringCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*string)(ptr)) == """"
+}
+
+type int8Codec struct {
+}
+",217.0,38.0,5846.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+131,131,"func (codec *int8Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type int8Codec struct {
+}
+
+func (codec *int8Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int8)(ptr)) = iter.ReadInt8()
+	}
+}
+
+",224.0,35.0,5969.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+132,132,"func (codec *int8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*int8)(ptr)) = iter.ReadInt8()
+	}
+}
+
+func (codec *int8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt8(*((*int8)(ptr)))
+}
+
+func (codec *int8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int8)(ptr)) == 0
+",230.0,35.0,6102.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+133,133,"func (codec *int8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *int8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt8(*((*int8)(ptr)))
+}
+
+func (codec *int8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int8)(ptr)) == 0
+}
+
+type int16Codec struct {
+}
+",234.0,36.0,6209.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+134,134,"func (codec *int16Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type int16Codec struct {
+}
+
+func (codec *int16Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int16)(ptr)) = iter.ReadInt16()
+	}
+}
+
+",241.0,36.0,6328.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+135,135,"func (codec *int16Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*int16)(ptr)) = iter.ReadInt16()
+	}
+}
+
+func (codec *int16Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt16(*((*int16)(ptr)))
+}
+
+func (codec *int16Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int16)(ptr)) == 0
+",247.0,36.0,6464.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+136,136,"func (codec *int16Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *int16Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt16(*((*int16)(ptr)))
+}
+
+func (codec *int16Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int16)(ptr)) == 0
+}
+
+type int32Codec struct {
+}
+",251.0,37.0,6574.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+137,137,"func (codec *int32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type int32Codec struct {
+}
+
+func (codec *int32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int32)(ptr)) = iter.ReadInt32()
+	}
+}
+
+",258.0,36.0,6695.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+138,138,"func (codec *int32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*int32)(ptr)) = iter.ReadInt32()
+	}
+}
+
+func (codec *int32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt32(*((*int32)(ptr)))
+}
+
+func (codec *int32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int32)(ptr)) == 0
+",264.0,36.0,6831.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+139,139,"func (codec *int32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *int32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt32(*((*int32)(ptr)))
+}
+
+func (codec *int32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int32)(ptr)) == 0
+}
+
+type int64Codec struct {
+}
+",268.0,37.0,6941.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+140,140,"func (codec *int64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type int64Codec struct {
+}
+
+func (codec *int64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int64)(ptr)) = iter.ReadInt64()
+	}
+}
+
+",275.0,36.0,7062.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+141,141,"func (codec *int64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*int64)(ptr)) = iter.ReadInt64()
+	}
+}
+
+func (codec *int64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt64(*((*int64)(ptr)))
+}
+
+func (codec *int64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int64)(ptr)) == 0
+",281.0,36.0,7198.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+142,142,"func (codec *int64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *int64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt64(*((*int64)(ptr)))
+}
+
+func (codec *int64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int64)(ptr)) == 0
+}
+
+type uint8Codec struct {
+}
+",285.0,37.0,7308.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+143,143,"func (codec *uint8Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type uint8Codec struct {
+}
+
+func (codec *uint8Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint8)(ptr)) = iter.ReadUint8()
+	}
+}
+
+",292.0,36.0,7429.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+144,144,"func (codec *uint8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*uint8)(ptr)) = iter.ReadUint8()
+	}
+}
+
+func (codec *uint8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint8(*((*uint8)(ptr)))
+}
+
+func (codec *uint8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint8)(ptr)) == 0
+",298.0,36.0,7565.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+145,145,"func (codec *uint8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *uint8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint8(*((*uint8)(ptr)))
+}
+
+func (codec *uint8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint8)(ptr)) == 0
+}
+
+type uint16Codec struct {
+}
+",302.0,37.0,7675.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+146,146,"func (codec *uint16Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type uint16Codec struct {
+}
+
+func (codec *uint16Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint16)(ptr)) = iter.ReadUint16()
+	}
+}
+
+",309.0,37.0,7797.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+147,147,"func (codec *uint16Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*uint16)(ptr)) = iter.ReadUint16()
+	}
+}
+
+func (codec *uint16Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint16(*((*uint16)(ptr)))
+}
+
+func (codec *uint16Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint16)(ptr)) == 0
+",315.0,37.0,7936.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+148,148,"func (codec *uint16Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *uint16Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint16(*((*uint16)(ptr)))
+}
+
+func (codec *uint16Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint16)(ptr)) == 0
+}
+
+type uint32Codec struct {
+}
+",319.0,38.0,8049.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+149,149,"func (codec *uint32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type uint32Codec struct {
+}
+
+func (codec *uint32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint32)(ptr)) = iter.ReadUint32()
+	}
+}
+
+",326.0,37.0,8173.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+150,150,"func (codec *uint32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*uint32)(ptr)) = iter.ReadUint32()
+	}
+}
+
+func (codec *uint32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint32(*((*uint32)(ptr)))
+}
+
+func (codec *uint32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint32)(ptr)) == 0
+",332.0,37.0,8312.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+151,151,"func (codec *uint32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *uint32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint32(*((*uint32)(ptr)))
+}
+
+func (codec *uint32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint32)(ptr)) == 0
+}
+
+type uint64Codec struct {
+}
+",336.0,38.0,8425.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+152,152,"func (codec *uint64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type uint64Codec struct {
+}
+
+func (codec *uint64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint64)(ptr)) = iter.ReadUint64()
+	}
+}
+
+",343.0,37.0,8549.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+153,153,"func (codec *uint64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*uint64)(ptr)) = iter.ReadUint64()
+	}
+}
+
+func (codec *uint64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint64(*((*uint64)(ptr)))
+}
+
+func (codec *uint64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint64)(ptr)) == 0
+",349.0,37.0,8688.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+154,154,"func (codec *uint64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *uint64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint64(*((*uint64)(ptr)))
+}
+
+func (codec *uint64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint64)(ptr)) == 0
+}
+
+type float32Codec struct {
+}
+",353.0,38.0,8801.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+155,155,"func (codec *float32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type float32Codec struct {
+}
+
+func (codec *float32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*float32)(ptr)) = iter.ReadFloat32()
+	}
+}
+
+",360.0,38.0,8926.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+156,156,"func (codec *float32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*float32)(ptr)) = iter.ReadFloat32()
+	}
+}
+
+func (codec *float32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat32(*((*float32)(ptr)))
+}
+
+func (codec *float32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float32)(ptr)) == 0
+",366.0,38.0,9068.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+157,157,"func (codec *float32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *float32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat32(*((*float32)(ptr)))
+}
+
+func (codec *float32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float32)(ptr)) == 0
+}
+
+type float64Codec struct {
+}
+",370.0,39.0,9184.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+158,158,"func (codec *float64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type float64Codec struct {
+}
+
+func (codec *float64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*float64)(ptr)) = iter.ReadFloat64()
+	}
+}
+
+",377.0,38.0,9311.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+159,159,"func (codec *float64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*float64)(ptr)) = iter.ReadFloat64()
+	}
+}
+
+func (codec *float64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat64(*((*float64)(ptr)))
+}
+
+func (codec *float64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float64)(ptr)) == 0
+",383.0,38.0,9453.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+160,160,"func (codec *float64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *float64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat64(*((*float64)(ptr)))
+}
+
+func (codec *float64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float64)(ptr)) == 0
+}
+
+type boolCodec struct {
+}
+",387.0,39.0,9569.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+161,161,"func (codec *boolCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type boolCodec struct {
+}
+
+func (codec *boolCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*bool)(ptr)) = iter.ReadBool()
+	}
+}
+
+",394.0,35.0,9693.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+162,162,"func (codec *boolCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*bool)(ptr)) = iter.ReadBool()
+	}
+}
+
+func (codec *boolCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteBool(*((*bool)(ptr)))
+}
+
+func (codec *boolCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return !(*((*bool)(ptr)))
+",400.0,35.0,9826.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+163,163,"func (codec *boolCodec) IsEmpty(ptr unsafe.Pointer) bool {
+","func (codec *boolCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteBool(*((*bool)(ptr)))
+}
+
+func (codec *boolCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return !(*((*bool)(ptr)))
+}
+
+type base64Codec struct {
+	sliceType    *reflect2.UnsafeSliceType
+",404.0,36.0,9933.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+164,164,"func (codec *base64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	sliceType    *reflect2.UnsafeSliceType
+	sliceDecoder ValDecoder
+}
+
+func (codec *base64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if iter.ReadNil() {
+		codec.sliceType.UnsafeSetNil(ptr)
+		return
+	}
+	switch iter.WhatIsNext() {
+",413.0,37.0,10116.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+165,165,"			codec.sliceType.UnsafeSet(ptr, unsafe.Pointer(&dst))
+","		dst, err := base64.StdEncoding.DecodeString(src)
+		if err != nil {
+			iter.ReportError(""decode base64"", err.Error())
+		} else {
+			codec.sliceType.UnsafeSet(ptr, unsafe.Pointer(&dst))
+		}
+	case ArrayValue:
+		codec.sliceDecoder.Decode(ptr, iter)
+	default:
+		iter.ReportError(""base64Codec"", ""invalid input"")
+",425.0,34.0,10460.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+166,166,"func (codec *base64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		iter.ReportError(""base64Codec"", ""invalid input"")
+	}
+}
+
+func (codec *base64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if codec.sliceType.UnsafeIsNil(ptr) {
+		stream.WriteNil()
+		return
+	}
+	src := *((*[]byte)(ptr))
+",434.0,37.0,10644.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+167,167,"func (codec *base64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","	}
+	stream.writeByte('""')
+}
+
+func (codec *base64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*[]byte)(ptr))) == 0
+}
+",451.0,38.0,11054.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_native.go,unclassified
+168,168,"func (decoder *generalStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fields                map[string]*structFieldDecoder
+	disallowUnknownFields bool
+}
+
+func (decoder *generalStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",499.0,48.0,14370.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+169,169,"func (decoder *generalStructDecoder) decodeOneField(ptr unsafe.Pointer, iter *Iterator) {
+","	}
+	iter.decrementDepth()
+}
+
+func (decoder *generalStructDecoder) decodeOneField(ptr unsafe.Pointer, iter *Iterator) {
+	var field string
+	var fieldDecoder *structFieldDecoder
+	if iter.cfg.objectFieldMustBeSimpleString {
+		fieldBytes := iter.ReadStringAsSlice()
+		field = *(*string)(unsafe.Pointer(&fieldBytes))
+",519.0,56.0,14874.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+170,170,"		field = *(*string)(unsafe.Pointer(&fieldBytes))
+","	var field string
+	var fieldDecoder *structFieldDecoder
+	if iter.cfg.objectFieldMustBeSimpleString {
+		fieldBytes := iter.ReadStringAsSlice()
+		field = *(*string)(unsafe.Pointer(&fieldBytes))
+		fieldDecoder = decoder.fields[field]
+		if fieldDecoder == nil && !iter.cfg.caseSensitive {
+			fieldDecoder = decoder.fields[strings.ToLower(field)]
+		}
+	} else {
+",524.0,21.0,15106.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+171,171,"func (decoder *skipObjectDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type skipObjectDecoder struct {
+	typ reflect2.Type
+}
+
+func (decoder *skipObjectDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	valueType := iter.WhatIsNext()
+	if valueType != ObjectValue && valueType != NilValue {
+		iter.ReportError(""skipObjectDecoder"", ""expect object or null"")
+		return
+	}
+",559.0,45.0,16042.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+172,172,"func (decoder *oneFieldStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash    int64
+	fieldDecoder *structFieldDecoder
+}
+
+func (decoder *oneFieldStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",574.0,49.0,16423.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+173,173,"func (decoder *twoFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash2    int64
+	fieldDecoder2 *structFieldDecoder
+}
+
+func (decoder *twoFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",605.0,50.0,17085.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+174,174,"func (decoder *threeFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash3    int64
+	fieldDecoder3 *structFieldDecoder
+}
+
+func (decoder *threeFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",641.0,52.0,17887.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+175,175,"func (decoder *fourFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash4    int64
+	fieldDecoder4 *structFieldDecoder
+}
+
+func (decoder *fourFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",681.0,51.0,18816.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+176,176,"func (decoder *fiveFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash5    int64
+	fieldDecoder5 *structFieldDecoder
+}
+
+func (decoder *fiveFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",725.0,51.0,19870.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+177,177,"func (decoder *sixFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash6    int64
+	fieldDecoder6 *structFieldDecoder
+}
+
+func (decoder *sixFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",773.0,50.0,21049.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+178,178,"func (decoder *sevenFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash7    int64
+	fieldDecoder7 *structFieldDecoder
+}
+
+func (decoder *sevenFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",825.0,52.0,22355.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+179,179,"func (decoder *eightFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash8    int64
+	fieldDecoder8 *structFieldDecoder
+}
+
+func (decoder *eightFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",881.0,52.0,23789.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+180,180,"func (decoder *nineFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash9    int64
+	fieldDecoder9 *structFieldDecoder
+}
+
+func (decoder *nineFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",941.0,51.0,25348.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+181,181,"func (decoder *tenFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	fieldHash10    int64
+	fieldDecoder10 *structFieldDecoder
+}
+
+func (decoder *tenFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+",1005.0,50.0,27052.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+182,182,"func (decoder *structFieldDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	field        reflect2.StructField
+	fieldDecoder ValDecoder
+}
+
+func (decoder *structFieldDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	fieldPtr := decoder.field.UnsafeGet(ptr)
+	decoder.fieldDecoder.Decode(fieldPtr, iter)
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf(""%s: %s"", decoder.field.Name(), iter.Error.Error())
+	}
+",1052.0,46.0,28273.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+183,183,"func (decoder *stringModeStringDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","	elemDecoder ValDecoder
+	cfg         *frozenConfig
+}
+
+func (decoder *stringModeStringDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.elemDecoder.Decode(ptr, iter)
+	str := *((*string)(ptr))
+	tempIter := decoder.cfg.BorrowIterator([]byte(str))
+	defer decoder.cfg.ReturnIterator(tempIter)
+	*((*string)(ptr)) = tempIter.ReadString()
+",1065.0,51.0,28664.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+184,184,"func (decoder *stringModeNumberDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","type stringModeNumberDecoder struct {
+	elemDecoder ValDecoder
+}
+
+func (decoder *stringModeNumberDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	c := iter.nextToken()
+	if c != '""' {
+		iter.ReportError(""stringModeNumberDecoder"", `expect "", but found `+string([]byte{c}))
+		return
+	}
+",1077.0,51.0,29022.0,unsafe.Pointer,reflect_struct_decoder.go,29458.0,1092.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_struct_decoder.go,unclassified
+185,185,"func (codec *jsonNumberCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type jsonNumberCodec struct {
+}
+
+func (codec *jsonNumberCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	switch iter.WhatIsNext() {
+	case StringValue:
+		*((*json.Number)(ptr)) = json.Number(iter.ReadString())
+	case NilValue:
+		iter.skipFourBytes('n', 'u', 'l', 'l')
+",61.0,41.0,1337.0,unsafe.Pointer,reflect_json_number.go,2694.0,112.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_number.go,unclassified
+186,186,"func (codec *jsonNumberCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*json.Number)(ptr)) = json.Number([]byte(iter.readNumberAsString()))
+	}
+}
+
+func (codec *jsonNumberCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	number := *((*json.Number)(ptr))
+	if len(number) == 0 {
+		stream.writeByte('0')
+	} else {
+		stream.WriteRaw(string(number))
+",73.0,41.0,1694.0,unsafe.Pointer,reflect_json_number.go,2694.0,112.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_number.go,unclassified
+187,187,"func (codec *jsonNumberCodec) IsEmpty(ptr unsafe.Pointer) bool {
+","		stream.WriteRaw(string(number))
+	}
+}
+
+func (codec *jsonNumberCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*json.Number)(ptr))) == 0
+}
+
+type jsoniterNumberCodec struct {
+}
+",82.0,42.0,1900.0,unsafe.Pointer,reflect_json_number.go,2694.0,112.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_number.go,unclassified
+188,188,"func (codec *jsoniterNumberCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+","
+type jsoniterNumberCodec struct {
+}
+
+func (codec *jsoniterNumberCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	switch iter.WhatIsNext() {
+	case StringValue:
+		*((*Number)(ptr)) = Number(iter.ReadString())
+	case NilValue:
+		iter.skipFourBytes('n', 'u', 'l', 'l')
+",89.0,45.0,2046.0,unsafe.Pointer,reflect_json_number.go,2694.0,112.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_number.go,unclassified
+189,189,"func (codec *jsoniterNumberCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+","		*((*Number)(ptr)) = Number([]byte(iter.readNumberAsString()))
+	}
+}
+
+func (codec *jsoniterNumberCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	number := *((*Number)(ptr))
+	if len(number) == 0 {
+		stream.writeByte('0')
+	} else {
+		stream.WriteRaw(string(number))
+",101.0,45.0,2382.0,unsafe.Pointer,reflect_json_number.go,2694.0,112.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_number.go,unclassified
+190,190,"func (codec *jsoniterNumberCodec) IsEmpty(ptr unsafe.Pointer) bool {
+","		stream.WriteRaw(string(number))
+	}
+}
+
+func (codec *jsoniterNumberCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*Number)(ptr))) == 0
+}
+",110.0,46.0,2587.0,unsafe.Pointer,reflect_json_number.go,2694.0,112.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,kubernetes/kubernetes,github.com/json-iterator/go/reflect_json_number.go,unclassified
+191,191,"type field uintptr
+","const unsafeAllowed = true
+
+// A field identifies a field in a struct, accessible from a pointer.
+// In this implementation, a field is identified by its byte offset from the start of the struct.
+type field uintptr
+
+// toField returns a field equivalent to the given reflect field.
+func toField(f *reflect.StructField) field {
+	return field(f.Offset)
+}
+",48.0,11.0,2054.0,uintptr,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+192,192,"// The implementation here uses unsafe.Pointer to create a generic pointer.
+","	return f != invalidField
+}
+
+// The pointer type below is for the new table-driven encoder/decoder.
+// The implementation here uses unsafe.Pointer to create a generic pointer.
+// In pointer_reflect.go we use reflect instead of unsafe to implement
+// the same (but slower) interface.
+type pointer struct {
+	p unsafe.Pointer
+}
+",67.0,32.0,2562.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+193,193,"	p unsafe.Pointer
+","// The implementation here uses unsafe.Pointer to create a generic pointer.
+// In pointer_reflect.go we use reflect instead of unsafe to implement
+// the same (but slower) interface.
+type pointer struct {
+	p unsafe.Pointer
+}
+
+// size of pointer
+var ptrSize = unsafe.Sizeof(uintptr(0))
+
+",71.0,3.0,2767.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+194,194,"var ptrSize = unsafe.Sizeof(uintptr(0))
+","	p unsafe.Pointer
+}
+
+// size of pointer
+var ptrSize = unsafe.Sizeof(uintptr(0))
+
+// toPointer converts an interface of pointer type to a pointer
+// that points to the same target.
+func toPointer(i *Message) pointer {
+	// Super-tricky - read pointer out of data word of interface value.
+",75.0,14.0,2807.0,unsafe.Sizeof,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+195,195,"	return pointer{p: (*[2]unsafe.Pointer)(unsafe.Pointer(i))[1]}
+","func toPointer(i *Message) pointer {
+	// Super-tricky - read pointer out of data word of interface value.
+	// Saves ~25ns over the equivalent:
+	// return valToPointer(reflect.ValueOf(*i))
+	return pointer{p: (*[2]unsafe.Pointer)(unsafe.Pointer(i))[1]}
+}
+
+// toAddrPointer converts an interface to a pointer that points to
+// the interface data.
+func toAddrPointer(i *interface{}, isptr, deref bool) (p pointer) {
+",83.0,24.0,3135.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+196,196,"		p = pointer{p: unsafe.Pointer(uintptr(unsafe.Pointer(i)) + ptrSize)}
+","	// Super-tricky - read or get the address of data word of interface value.
+	if isptr {
+		// The interface is of pointer type, thus it is a direct interface.
+		// The data word is the pointer data itself. We take its address.
+		p = pointer{p: unsafe.Pointer(uintptr(unsafe.Pointer(i)) + ptrSize)}
+	} else {
+		// The interface is not of pointer type. The data word is the pointer
+		// to the data.
+		p = pointer{p: (*[2]unsafe.Pointer)(unsafe.Pointer(i))[1]}
+	}
+",93.0,17.0,3585.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+197,197,"		p = pointer{p: (*[2]unsafe.Pointer)(unsafe.Pointer(i))[1]}
+","		p = pointer{p: unsafe.Pointer(uintptr(unsafe.Pointer(i)) + ptrSize)}
+	} else {
+		// The interface is not of pointer type. The data word is the pointer
+		// to the data.
+		p = pointer{p: (*[2]unsafe.Pointer)(unsafe.Pointer(i))[1]}
+	}
+	if deref {
+		p.p = *(*unsafe.Pointer)(p.p)
+	}
+	return p
+",97.0,22.0,3756.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+198,198,"		p.p = *(*unsafe.Pointer)(p.p)
+","		// to the data.
+		p = pointer{p: (*[2]unsafe.Pointer)(unsafe.Pointer(i))[1]}
+	}
+	if deref {
+		p.p = *(*unsafe.Pointer)(p.p)
+	}
+	return p
+}
+
+// valToPointer converts v to a pointer. v must be of pointer type.
+",100.0,11.0,3832.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+199,199,"	return pointer{p: unsafe.Pointer(v.Pointer())}
+","}
+
+// valToPointer converts v to a pointer. v must be of pointer type.
+func valToPointer(v reflect.Value) pointer {
+	return pointer{p: unsafe.Pointer(v.Pointer())}
+}
+
+// offset converts from a pointer to a structure to a pointer to
+// one of its fields.
+func (p pointer) offset(f field) pointer {
+",107.0,19.0,3993.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+200,200,"	return pointer{p: unsafe.Pointer(uintptr(p.p) + uintptr(f))}
+","		if !f.IsValid() {
+			panic(""invalid field"")
+		}
+	*/
+	return pointer{p: unsafe.Pointer(uintptr(p.p) + uintptr(f))}
+}
+
+func (p pointer) isNil() bool {
+	return p.p == nil
+}
+",120.0,19.0,4382.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+201,201,"	return pointer{p: *(*unsafe.Pointer)(p.p)}
+","}
+
+// getPointer loads the pointer at p and returns it.
+func (p pointer) getPointer() pointer {
+	return pointer{p: *(*unsafe.Pointer)(p.p)}
+}
+
+// setPointer stores the pointer q at p.
+func (p pointer) setPointer(q pointer) {
+	*(*unsafe.Pointer)(p.p) = q.p
+",263.0,22.0,8089.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+202,202,"	*(*unsafe.Pointer)(p.p) = q.p
+","}
+
+// setPointer stores the pointer q at p.
+func (p pointer) setPointer(q pointer) {
+	*(*unsafe.Pointer)(p.p) = q.p
+}
+
+// append q to the slice pointed to by p.
+func (p pointer) appendPointer(q pointer) {
+	s := (*[]unsafe.Pointer)(p.p)
+",268.0,4.0,8218.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+203,203,"	s := (*[]unsafe.Pointer)(p.p)
+","}
+
+// append q to the slice pointed to by p.
+func (p pointer) appendPointer(q pointer) {
+	s := (*[]unsafe.Pointer)(p.p)
+	*s = append(*s, q.p)
+}
+
+// getInterfacePointer returns a pointer that points to the
+// interface data of the interface pointed by p.
+",273.0,10.0,8338.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+204,204,"	return pointer{p: (*(*[2]unsafe.Pointer)(p.p))[1]}
+","// getInterfacePointer returns a pointer that points to the
+// interface data of the interface pointed by p.
+func (p pointer) getInterfacePointer() pointer {
+	// Super-tricky - read pointer out of data word of interface value.
+	return pointer{p: (*(*[2]unsafe.Pointer)(p.p))[1]}
+}
+
+// asPointerTo returns a reflect.Value that is a pointer to an
+// object of type t stored at p.
+func (p pointer) asPointerTo(t reflect.Type) reflect.Value {
+",281.0,26.0,8621.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+205,205,"	return (*unmarshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+","	return reflect.NewAt(t, p.p)
+}
+
+func atomicLoadUnmarshalInfo(p **unmarshalInfo) *unmarshalInfo {
+	return (*unmarshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreUnmarshalInfo(p **unmarshalInfo, v *unmarshalInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadMarshalInfo(p **marshalInfo) *marshalInfo {
+",291.0,46.0,8931.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+206,206,"	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+","func atomicLoadUnmarshalInfo(p **unmarshalInfo) *unmarshalInfo {
+	return (*unmarshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreUnmarshalInfo(p **unmarshalInfo, v *unmarshalInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadMarshalInfo(p **marshalInfo) *marshalInfo {
+	return (*marshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreMarshalInfo(p **marshalInfo, v *marshalInfo) {
+",294.0,23.0,9085.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+207,207,"	return (*marshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+","func atomicStoreUnmarshalInfo(p **unmarshalInfo, v *unmarshalInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadMarshalInfo(p **marshalInfo) *marshalInfo {
+	return (*marshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreMarshalInfo(p **marshalInfo, v *marshalInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadMergeInfo(p **mergeInfo) *mergeInfo {
+",297.0,44.0,9224.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+208,208,"	return (*mergeInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+","func atomicStoreMarshalInfo(p **marshalInfo, v *marshalInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadMergeInfo(p **mergeInfo) *mergeInfo {
+	return (*mergeInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreMergeInfo(p **mergeInfo, v *mergeInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadDiscardInfo(p **discardInfo) *discardInfo {
+",303.0,42.0,9503.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+209,209,"	return (*discardInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+","func atomicStoreMergeInfo(p **mergeInfo, v *mergeInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadDiscardInfo(p **discardInfo) *discardInfo {
+	return (*discardInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreDiscardInfo(p **discardInfo, v *discardInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+",309.0,44.0,9780.0,unsafe.Pointer,pointer_unsafe.go,10006.0,313.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+210,210,"	el.stack = make([]uintptr, 32)
+","	el.ref()
+	el.Family, el.Title = family, title
+	el.Start = time.Now()
+	el.events = make([]logEntry, 0, maxEventsPerLog)
+	el.stack = make([]uintptr, 32)
+	n := runtime.Callers(2, el.stack)
+	el.stack = el.stack[:n]
+
+	getEventFamily(family).add(el)
+	return el
+",138.0,19.0,3409.0,uintptr,events.go,12549.0,532.0,golang.org/x/net/trace,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/trace/events.go,unclassified
+211,211,"	stack []uintptr
+","	// Timing information.
+	Start time.Time
+
+	// Call stack where this event log was created.
+	stack []uintptr
+
+	// Append-only sequence of events.
+	//
+	// TODO(sameer): change this to a ring buffer to avoid the array copy
+	// when we hit maxEventsPerLog.
+",258.0,9.0,6175.0,uintptr,events.go,12549.0,532.0,golang.org/x/net/trace,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/trace/events.go,unclassified
+212,212,"func printStackRecord(w io.Writer, stk []uintptr) {
+","
+// printStackRecord prints the function + source line information
+// for a single stack trace.
+// Adapted from runtime/pprof/pprof.go.
+func printStackRecord(w io.Writer, stk []uintptr) {
+	for _, pc := range stk {
+		f := runtime.FuncForPC(pc)
+		if f == nil {
+			continue
+		}
+",374.0,41.0,9190.0,uintptr,events.go,12549.0,532.0,golang.org/x/net/trace,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/trace/events.go,unclassified
+213,213,"// errno returns v's underlying uintptr, else 0.
+","		log.Printf(format, args...)
+	}
+}
+
+// errno returns v's underlying uintptr, else 0.
+//
+// TODO: remove this helper function once http2 can use build
+// tags. See comment in isClosedConnError.
+func errno(v error) uintptr {
+	if rv := reflect.ValueOf(v); rv.Kind() == reflect.Uintptr {
+",652.0,32.0,23727.0,uintptr,server.go,93270.0,2962.0,golang.org/x/net/http2,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/http2/server.go,unclassified
+214,214,"func errno(v error) uintptr {
+","// errno returns v's underlying uintptr, else 0.
+//
+// TODO: remove this helper function once http2 can use build
+// tags. See comment in isClosedConnError.
+func errno(v error) uintptr {
+	if rv := reflect.ValueOf(v); rv.Kind() == reflect.Uintptr {
+		return uintptr(rv.Uint())
+	}
+	return 0
+}
+",656.0,20.0,23884.0,uintptr,server.go,93270.0,2962.0,golang.org/x/net/http2,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/http2/server.go,unclassified
+215,215,"		return uintptr(rv.Uint())
+","// TODO: remove this helper function once http2 can use build
+// tags. See comment in isClosedConnError.
+func errno(v error) uintptr {
+	if rv := reflect.ValueOf(v); rv.Kind() == reflect.Uintptr {
+		return uintptr(rv.Uint())
+	}
+	return 0
+}
+
+// isClosedConnError reports whether err is an error from use of a closed
+",658.0,9.0,23975.0,uintptr,server.go,93270.0,2962.0,golang.org/x/net/http2,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/http2/server.go,unclassified
+216,216,"		uintptr(unsafe.Pointer(&x[0])) <= uintptr(unsafe.Pointer(&y[len(y)-1])) &&
+","// AnyOverlap reports whether x and y share memory at any (not necessarily
+// corresponding) index. The memory beyond the slice length is ignored.
+func AnyOverlap(x, y []byte) bool {
+	return len(x) > 0 && len(y) > 0 &&
+		uintptr(unsafe.Pointer(&x[0])) <= uintptr(unsafe.Pointer(&y[len(y)-1])) &&
+		uintptr(unsafe.Pointer(&y[0])) <= uintptr(unsafe.Pointer(&x[len(x)-1]))
+}
+
+// InexactOverlap reports whether x and y share memory at any non-corresponding
+// index. The memory beyond the slice length is ignored. Note that x and y can
+",17.0,2.0,614.0,uintptr,aliasing.go,1262.0,32.0,golang.org/x/crypto/internal/subtle,golang.org/x/crypto,v0.0.0-20200220183623-bac4c82f6975,kubernetes/kubernetes,golang.org/x/crypto/internal/subtle/aliasing.go,unclassified
+217,217,"		uintptr(unsafe.Pointer(&y[0])) <= uintptr(unsafe.Pointer(&x[len(x)-1]))
+","// corresponding) index. The memory beyond the slice length is ignored.
+func AnyOverlap(x, y []byte) bool {
+	return len(x) > 0 && len(y) > 0 &&
+		uintptr(unsafe.Pointer(&x[0])) <= uintptr(unsafe.Pointer(&y[len(y)-1])) &&
+		uintptr(unsafe.Pointer(&y[0])) <= uintptr(unsafe.Pointer(&x[len(x)-1]))
+}
+
+// InexactOverlap reports whether x and y share memory at any non-corresponding
+// index. The memory beyond the slice length is ignored. Note that x and y can
+// have different lengths and still not have any inexact overlap.
+",18.0,2.0,691.0,uintptr,aliasing.go,1262.0,32.0,golang.org/x/crypto/internal/subtle,golang.org/x/crypto,v0.0.0-20200220183623-bac4c82f6975,kubernetes/kubernetes,golang.org/x/crypto/internal/subtle/aliasing.go,unclassified
+218,218,"	h.Control = (*byte)(unsafe.Pointer(&b[0]))
+","	h.Iovlen = uint64(l)
+}
+
+func (h *msghdr) setControl(b []byte) {
+	h.Control = (*byte)(unsafe.Pointer(&b[0]))
+	h.Controllen = uint64(len(b))
+}
+",22.0,21.0,434.0,unsafe.Pointer,msghdr_linux_64bit.go,511.0,24.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/msghdr_linux_64bit.go,unclassified
+219,219,"		h.Name = (*byte)(unsafe.Pointer(&sa[0]))
+","	if len(oob) > 0 {
+		h.setControl(oob)
+	}
+	if sa != nil {
+		h.Name = (*byte)(unsafe.Pointer(&sa[0]))
+		h.Namelen = uint32(len(sa))
+	}
+}
+
+func (h *msghdr) name() []byte {
+",18.0,19.0,380.0,unsafe.Pointer,msghdr_linux.go,740.0,36.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/msghdr_linux.go,unclassified
+220,220,"		return (*[sizeofSockaddrInet6]byte)(unsafe.Pointer(h.Name))[:h.Namelen]
+","}
+
+func (h *msghdr) name() []byte {
+	if h.Name != nil && h.Namelen > 0 {
+		return (*[sizeofSockaddrInet6]byte)(unsafe.Pointer(h.Name))[:h.Namelen]
+	}
+	return nil
+}
+
+func (h *msghdr) controllen() int {
+",25.0,38.0,529.0,unsafe.Pointer,msghdr_linux.go,740.0,36.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/msghdr_linux.go,unclassified
+221,221,"	fn := func(s uintptr) bool {
+","		return 0, err
+	}
+	var operr error
+	var n int
+	fn := func(s uintptr) bool {
+		n, operr = recvmmsg(s, hs, flags)
+		if operr == syscall.EAGAIN {
+			return false
+		}
+		return true
+",29.0,14.0,572.0,uintptr,rawconn_mmsg.go,1628.0,79.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/rawconn_mmsg.go,unclassified
+222,222,"	b := (*[4]byte)(unsafe.Pointer(&i))
+",")
+
+func init() {
+	i := uint32(1)
+	b := (*[4]byte)(unsafe.Pointer(&i))
+	if b[0] == 1 {
+		NativeEndian = binary.LittleEndian
+	} else {
+		NativeEndian = binary.BigEndian
+	}
+",22.0,17.0,384.0,unsafe.Pointer,sys.go,639.0,33.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys.go,unclassified
+223,223,"	fn := func(s uintptr) {
+","
+func (o *Option) get(c *Conn, b []byte) (int, error) {
+	var operr error
+	var n int
+	fn := func(s uintptr) {
+		n, operr = getsockopt(s, o.Level, o.Name, b)
+	}
+	if err := c.c.Control(fn); err != nil {
+		return 0, err
+	}
+",46.0,14.0,876.0,uintptr,rawconn.go,1309.0,64.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/rawconn.go,unclassified
+224,224,"	v.Base = (*byte)(unsafe.Pointer(&b[0]))
+","	l := len(b)
+	if l == 0 {
+		return
+	}
+	v.Base = (*byte)(unsafe.Pointer(&b[0]))
+	v.Len = uint64(l)
+}
+",17.0,18.0,390.0,unsafe.Pointer,iovec_64bit.go,452.0,19.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/iovec_64bit.go,unclassified
+225,225,"func getsockopt(s uintptr, level, name int, b []byte) (int, error) {
+","	""syscall""
+	""unsafe""
+)
+
+func getsockopt(s uintptr, level, name int, b []byte) (int, error) {
+	l := uint32(len(b))
+	_, _, errno := syscall.Syscall6(syscall.SYS_GETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&l)), 0)
+	return int(l), errnoErr(errno)
+}
+
+",14.0,18.0,271.0,uintptr,sys_unix.go,1174.0,33.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_unix.go,unclassified
+226,226,"	_, _, errno := syscall.Syscall6(syscall.SYS_GETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&l)), 0)
+",")
+
+func getsockopt(s uintptr, level, name int, b []byte) (int, error) {
+	l := uint32(len(b))
+	_, _, errno := syscall.Syscall6(syscall.SYS_GETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&l)), 0)
+	return int(l), errnoErr(errno)
+}
+
+func setsockopt(s uintptr, level, name int, b []byte) error {
+	_, _, errno := syscall.Syscall6(syscall.SYS_SETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(len(b)), 0)
+",16.0,60.0,361.0,uintptr,sys_unix.go,1174.0,33.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_unix.go,unclassified
+227,227,"func setsockopt(s uintptr, level, name int, b []byte) error {
+","	_, _, errno := syscall.Syscall6(syscall.SYS_GETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&l)), 0)
+	return int(l), errnoErr(errno)
+}
+
+func setsockopt(s uintptr, level, name int, b []byte) error {
+	_, _, errno := syscall.Syscall6(syscall.SYS_SETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(len(b)), 0)
+	return errnoErr(errno)
+}
+
+func recvmsg(s uintptr, h *msghdr, flags int) (int, error) {
+",20.0,18.0,551.0,uintptr,sys_unix.go,1174.0,33.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_unix.go,unclassified
+228,228,"	_, _, errno := syscall.Syscall6(syscall.SYS_SETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(len(b)), 0)
+","	return int(l), errnoErr(errno)
+}
+
+func setsockopt(s uintptr, level, name int, b []byte) error {
+	_, _, errno := syscall.Syscall6(syscall.SYS_SETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(len(b)), 0)
+	return errnoErr(errno)
+}
+
+func recvmsg(s uintptr, h *msghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall(syscall.SYS_RECVMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+",21.0,60.0,613.0,uintptr,sys_unix.go,1174.0,33.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_unix.go,unclassified
+229,229,"func recvmsg(s uintptr, h *msghdr, flags int) (int, error) {
+","	_, _, errno := syscall.Syscall6(syscall.SYS_SETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(len(b)), 0)
+	return errnoErr(errno)
+}
+
+func recvmsg(s uintptr, h *msghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall(syscall.SYS_RECVMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+	return int(n), errnoErr(errno)
+}
+
+func sendmsg(s uintptr, h *msghdr, flags int) (int, error) {
+",25.0,15.0,783.0,uintptr,sys_unix.go,1174.0,33.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_unix.go,unclassified
+230,230,"	n, _, errno := syscall.Syscall(syscall.SYS_RECVMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+","	return errnoErr(errno)
+}
+
+func recvmsg(s uintptr, h *msghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall(syscall.SYS_RECVMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+	return int(n), errnoErr(errno)
+}
+
+func sendmsg(s uintptr, h *msghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall(syscall.SYS_SENDMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+",26.0,56.0,844.0,uintptr,sys_unix.go,1174.0,33.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_unix.go,unclassified
+231,231,"func sendmsg(s uintptr, h *msghdr, flags int) (int, error) {
+","	n, _, errno := syscall.Syscall(syscall.SYS_RECVMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+	return int(n), errnoErr(errno)
+}
+
+func sendmsg(s uintptr, h *msghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall(syscall.SYS_SENDMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+	return int(n), errnoErr(errno)
+}
+",30.0,15.0,979.0,uintptr,sys_unix.go,1174.0,33.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_unix.go,unclassified
+232,232,"	n, _, errno := syscall.Syscall(syscall.SYS_SENDMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+","	return int(n), errnoErr(errno)
+}
+
+func sendmsg(s uintptr, h *msghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall(syscall.SYS_SENDMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+	return int(n), errnoErr(errno)
+}
+",31.0,56.0,1040.0,uintptr,sys_unix.go,1174.0,33.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_unix.go,unclassified
+233,233,"	var p uintptr
+","	""unsafe""
+)
+
+func probeProtocolStack() int {
+	var p uintptr
+	return int(unsafe.Sizeof(p))
+}
+
+func recvmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+",15.0,7.0,270.0,uintptr,sys_linux.go,761.0,27.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_linux.go,unclassified
+234,234,"	return int(unsafe.Sizeof(p))
+",")
+
+func probeProtocolStack() int {
+	var p uintptr
+	return int(unsafe.Sizeof(p))
+}
+
+func recvmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+	return int(n), errnoErr(errno)
+",16.0,12.0,285.0,unsafe.Sizeof,sys_linux.go,761.0,27.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_linux.go,unclassified
+235,235,"func recvmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+","	var p uintptr
+	return int(unsafe.Sizeof(p))
+}
+
+func recvmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+	return int(n), errnoErr(errno)
+}
+
+func sendmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+",19.0,16.0,318.0,uintptr,sys_linux.go,761.0,27.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_linux.go,unclassified
+236,236,"	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+","	return int(unsafe.Sizeof(p))
+}
+
+func recvmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+	return int(n), errnoErr(errno)
+}
+
+func sendmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall6(sysSENDMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+",20.0,49.0,383.0,uintptr,sys_linux.go,761.0,27.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_linux.go,unclassified
+237,237,"func sendmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+","	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+	return int(n), errnoErr(errno)
+}
+
+func sendmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall6(sysSENDMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+	return int(n), errnoErr(errno)
+}
+",24.0,16.0,540.0,uintptr,sys_linux.go,761.0,27.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_linux.go,unclassified
+238,238,"	n, _, errno := syscall.Syscall6(sysSENDMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+","	return int(n), errnoErr(errno)
+}
+
+func sendmmsg(s uintptr, hs []mmsghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall6(sysSENDMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
+	return int(n), errnoErr(errno)
+}
+",25.0,49.0,605.0,uintptr,sys_linux.go,761.0,27.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/sys_linux.go,unclassified
+239,239,"	cm.TTL = int(*(*byte)(unsafe.Pointer(&b[:1][0])))
+","	return m.Next(1)
+}
+
+func parseTTL(cm *ControlMessage, b []byte) {
+	cm.TTL = int(*(*byte)(unsafe.Pointer(&b[:1][0])))
+}
+",72.0,23.0,1646.0,unsafe.Pointer,control_unix.go,1699.0,73.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/control_unix.go,unclassified
+240,240,"		pi := (*inetPktinfo)(unsafe.Pointer(&m.Data(sizeofInetPktinfo)[0]))
+","func marshalPacketInfo(b []byte, cm *ControlMessage) []byte {
+	m := socket.ControlMessage(b)
+	m.MarshalHeader(iana.ProtocolIP, sysIP_PKTINFO, sizeofInetPktinfo)
+	if cm != nil {
+		pi := (*inetPktinfo)(unsafe.Pointer(&m.Data(sizeofInetPktinfo)[0]))
+		if ip := cm.Src.To4(); ip != nil {
+			copy(pi.Spec_dst[:], ip)
+		}
+		if cm.IfIndex > 0 {
+			pi.setIfindex(cm.IfIndex)
+",21.0,23.0,483.0,unsafe.Pointer,control_pktinfo.go,945.0,39.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/control_pktinfo.go,unclassified
+241,241,"	pi := (*inetPktinfo)(unsafe.Pointer(&b[0]))
+","	return m.Next(sizeofInetPktinfo)
+}
+
+func parsePacketInfo(cm *ControlMessage, b []byte) {
+	pi := (*inetPktinfo)(unsafe.Pointer(&b[0]))
+	cm.IfIndex = int(pi.Ifindex)
+	if len(cm.Dst) < net.IPv4len {
+		cm.Dst = make(net.IP, net.IPv4len)
+	}
+	copy(cm.Dst, pi.Addr[:])
+",33.0,22.0,770.0,unsafe.Pointer,control_pktinfo.go,945.0,39.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/control_pktinfo.go,unclassified
+242,242,"	mreqn := (*ipMreqn)(unsafe.Pointer(&b[0]))
+","	b := make([]byte, so.Len)
+	if _, err := so.Get(c, b); err != nil {
+		return nil, err
+	}
+	mreqn := (*ipMreqn)(unsafe.Pointer(&b[0]))
+	if mreqn.Ifindex == 0 {
+		return nil, nil
+	}
+	ifi, err := net.InterfaceByIndex(int(mreqn.Ifindex))
+	if err != nil {
+",21.0,21.0,433.0,unsafe.Pointer,sys_asmreqn.go,967.0,42.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_asmreqn.go,unclassified
+243,243,"	b := (*[sizeofIPMreqn]byte)(unsafe.Pointer(&mreqn))[:sizeofIPMreqn]
+","	}
+	if grp != nil {
+		mreqn.Multiaddr = [4]byte{grp[0], grp[1], grp[2], grp[3]}
+	}
+	b := (*[sizeofIPMreqn]byte)(unsafe.Pointer(&mreqn))[:sizeofIPMreqn]
+	return so.Set(c, b)
+}
+",40.0,29.0,875.0,unsafe.Pointer,sys_asmreqn.go,967.0,42.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_asmreqn.go,unclassified
+244,244,"		s := (*[sizeofGroupReq]byte)(unsafe.Pointer(&gr))
+","	gr.setGroup(grp)
+	var b []byte
+	if compatFreeBSD32 {
+		var d [sizeofGroupReq + 4]byte
+		s := (*[sizeofGroupReq]byte)(unsafe.Pointer(&gr))
+		copy(d[:4], s[:4])
+		copy(d[8:], s[4:])
+		b = d[:]
+	} else {
+		b = (*[sizeofGroupReq]byte)(unsafe.Pointer(&gr))[:sizeofGroupReq]
+",25.0,31.0,526.0,unsafe.Pointer,sys_ssmreq.go,1248.0,52.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_ssmreq.go,unclassified
+245,245,"		b = (*[sizeofGroupReq]byte)(unsafe.Pointer(&gr))[:sizeofGroupReq]
+","		copy(d[:4], s[:4])
+		copy(d[8:], s[4:])
+		b = d[:]
+	} else {
+		b = (*[sizeofGroupReq]byte)(unsafe.Pointer(&gr))[:sizeofGroupReq]
+	}
+	return so.Set(c, b)
+}
+
+func (so *sockOpt) setGroupSourceReq(c *socket.Conn, ifi *net.Interface, grp, src net.IP) error {
+",30.0,30.0,641.0,unsafe.Pointer,sys_ssmreq.go,1248.0,52.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_ssmreq.go,unclassified
+246,246,"		s := (*[sizeofGroupSourceReq]byte)(unsafe.Pointer(&gsr))
+","	gsr.setSourceGroup(grp, src)
+	var b []byte
+	if compatFreeBSD32 {
+		var d [sizeofGroupSourceReq + 4]byte
+		s := (*[sizeofGroupSourceReq]byte)(unsafe.Pointer(&gsr))
+		copy(d[:4], s[:4])
+		copy(d[8:], s[4:])
+		b = d[:]
+	} else {
+		b = (*[sizeofGroupSourceReq]byte)(unsafe.Pointer(&gsr))[:sizeofGroupSourceReq]
+",44.0,37.0,1019.0,unsafe.Pointer,sys_ssmreq.go,1248.0,52.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_ssmreq.go,unclassified
+247,247,"		b = (*[sizeofGroupSourceReq]byte)(unsafe.Pointer(&gsr))[:sizeofGroupSourceReq]
+","		copy(d[:4], s[:4])
+		copy(d[8:], s[4:])
+		b = d[:]
+	} else {
+		b = (*[sizeofGroupSourceReq]byte)(unsafe.Pointer(&gsr))[:sizeofGroupSourceReq]
+	}
+	return so.Set(c, b)
+}
+",49.0,36.0,1141.0,unsafe.Pointer,sys_ssmreq.go,1248.0,52.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_ssmreq.go,unclassified
+248,248,"		Filter: (*unix.SockFilter)(unsafe.Pointer(&f[0])),
+","
+func (so *sockOpt) setAttachFilter(c *socket.Conn, f []bpf.RawInstruction) error {
+	prog := unix.SockFprog{
+		Len:    uint16(len(f)),
+		Filter: (*unix.SockFilter)(unsafe.Pointer(&f[0])),
+	}
+	b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
+	return so.Set(c, b)
+}
+",20.0,29.0,433.0,unsafe.Pointer,sys_bpf.go,594.0,24.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_bpf.go,unclassified
+249,249,"	b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
+","	prog := unix.SockFprog{
+		Len:    uint16(len(f)),
+		Filter: (*unix.SockFilter)(unsafe.Pointer(&f[0])),
+	}
+	b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
+	return so.Set(c, b)
+}
+",22.0,36.0,489.0,unsafe.Pointer,sys_bpf.go,594.0,24.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_bpf.go,unclassified
+250,250,"	return (*ICMPFilter)(unsafe.Pointer(&b[0])), nil
+","	}
+	if n != sizeofICMPFilter {
+		return nil, errNotImplemented
+	}
+	return (*ICMPFilter)(unsafe.Pointer(&b[0])), nil
+}
+
+func (so *sockOpt) setICMPFilter(c *socket.Conn, f *ICMPFilter) error {
+	b := (*[sizeofICMPFilter]byte)(unsafe.Pointer(f))[:sizeofICMPFilter]
+	return so.Set(c, b)
+",44.0,22.0,970.0,unsafe.Pointer,sockopt_posix.go,1761.0,71.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sockopt_posix.go,unclassified
+251,251,"	b := (*[sizeofICMPFilter]byte)(unsafe.Pointer(f))[:sizeofICMPFilter]
+","	return (*ICMPFilter)(unsafe.Pointer(&b[0])), nil
+}
+
+func (so *sockOpt) setICMPFilter(c *socket.Conn, f *ICMPFilter) error {
+	b := (*[sizeofICMPFilter]byte)(unsafe.Pointer(f))[:sizeofICMPFilter]
+	return so.Set(c, b)
+}
+
+func (so *sockOpt) setGroup(c *socket.Conn, ifi *net.Interface, grp net.IP) error {
+	switch so.typ {
+",48.0,32.0,1095.0,unsafe.Pointer,sockopt_posix.go,1761.0,71.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sockopt_posix.go,unclassified
+252,252,"	sa := (*sockaddrInet)(unsafe.Pointer(&gr.Group))
+","	pi.Ifindex = int32(i)
+}
+
+func (gr *groupReq) setGroup(grp net.IP) {
+	sa := (*sockaddrInet)(unsafe.Pointer(&gr.Group))
+	sa.Family = syscall.AF_INET
+	copy(sa.Addr[:], grp)
+}
+
+func (gsr *groupSourceReq) setSourceGroup(grp, src net.IP) {
+",48.0,23.0,2695.0,unsafe.Pointer,sys_linux.go,3069.0,60.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_linux.go,unclassified
+253,253,"	sa := (*sockaddrInet)(unsafe.Pointer(&gsr.Group))
+","	copy(sa.Addr[:], grp)
+}
+
+func (gsr *groupSourceReq) setSourceGroup(grp, src net.IP) {
+	sa := (*sockaddrInet)(unsafe.Pointer(&gsr.Group))
+	sa.Family = syscall.AF_INET
+	copy(sa.Addr[:], grp)
+	sa = (*sockaddrInet)(unsafe.Pointer(&gsr.Source))
+	sa.Family = syscall.AF_INET
+	copy(sa.Addr[:], src)
+",54.0,23.0,2861.0,unsafe.Pointer,sys_linux.go,3069.0,60.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_linux.go,unclassified
+254,254,"	sa = (*sockaddrInet)(unsafe.Pointer(&gsr.Source))
+","func (gsr *groupSourceReq) setSourceGroup(grp, src net.IP) {
+	sa := (*sockaddrInet)(unsafe.Pointer(&gsr.Group))
+	sa.Family = syscall.AF_INET
+	copy(sa.Addr[:], grp)
+	sa = (*sockaddrInet)(unsafe.Pointer(&gsr.Source))
+	sa.Family = syscall.AF_INET
+	copy(sa.Addr[:], src)
+}
+",57.0,22.0,2964.0,unsafe.Pointer,sys_linux.go,3069.0,60.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_linux.go,unclassified
+255,255,"		pi := (*inet6Pktinfo)(unsafe.Pointer(&m.Data(sizeofInet6Pktinfo)[0]))
+","func marshalPacketInfo(b []byte, cm *ControlMessage) []byte {
+	m := socket.ControlMessage(b)
+	m.MarshalHeader(iana.ProtocolIPv6, sysIPV6_PKTINFO, sizeofInet6Pktinfo)
+	if cm != nil {
+		pi := (*inet6Pktinfo)(unsafe.Pointer(&m.Data(sizeofInet6Pktinfo)[0]))
+		if ip := cm.Src.To16(); ip != nil && ip.To4() == nil {
+			copy(pi.Addr[:], ip)
+		}
+		if cm.IfIndex > 0 {
+			pi.setIfindex(cm.IfIndex)
+",47.0,24.0,1259.0,unsafe.Pointer,control_rfc3542_unix.go,2589.0,94.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/control_rfc3542_unix.go,unclassified
+256,256,"	pi := (*inet6Pktinfo)(unsafe.Pointer(&b[0]))
+","	return m.Next(sizeofInet6Pktinfo)
+}
+
+func parsePacketInfo(cm *ControlMessage, b []byte) {
+	pi := (*inet6Pktinfo)(unsafe.Pointer(&b[0]))
+	if len(cm.Dst) < net.IPv6len {
+		cm.Dst = make(net.IP, net.IPv6len)
+	}
+	copy(cm.Dst, pi.Addr[:])
+	cm.IfIndex = int(pi.Ifindex)
+",59.0,23.0,1565.0,unsafe.Pointer,control_rfc3542_unix.go,2589.0,94.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/control_rfc3542_unix.go,unclassified
+257,257,"		sa := (*sockaddrInet6)(unsafe.Pointer(&m.Data(sizeofSockaddrInet6)[0]))
+","func marshalNextHop(b []byte, cm *ControlMessage) []byte {
+	m := socket.ControlMessage(b)
+	m.MarshalHeader(iana.ProtocolIPv6, sysIPV6_NEXTHOP, sizeofSockaddrInet6)
+	if cm != nil {
+		sa := (*sockaddrInet6)(unsafe.Pointer(&m.Data(sizeofSockaddrInet6)[0]))
+		sa.setSockaddr(cm.NextHop, cm.IfIndex)
+	}
+	return m.Next(sizeofSockaddrInet6)
+}
+
+",71.0,25.0,1922.0,unsafe.Pointer,control_rfc3542_unix.go,2589.0,94.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/control_rfc3542_unix.go,unclassified
+258,258,"	mi := (*ipv6Mtuinfo)(unsafe.Pointer(&b[0]))
+","	return m.Next(sizeofIPv6Mtuinfo)
+}
+
+func parsePathMTU(cm *ControlMessage, b []byte) {
+	mi := (*ipv6Mtuinfo)(unsafe.Pointer(&b[0]))
+	if len(cm.Dst) < net.IPv6len {
+		cm.Dst = make(net.IP, net.IPv6len)
+	}
+	copy(cm.Dst, mi.Addr.Addr[:])
+	cm.IfIndex = int(mi.Addr.Scope_id)
+",87.0,22.0,2381.0,unsafe.Pointer,control_rfc3542_unix.go,2589.0,94.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/control_rfc3542_unix.go,unclassified
+259,259,"	b := (*[sizeofICMPv6Filter]byte)(unsafe.Pointer(f))[:sizeofICMPv6Filter]
+","	return (*ICMPFilter)(unsafe.Pointer(&b[0])), nil
+}
+
+func (so *sockOpt) setICMPFilter(c *socket.Conn, f *ICMPFilter) error {
+	b := (*[sizeofICMPv6Filter]byte)(unsafe.Pointer(f))[:sizeofICMPv6Filter]
+	return so.Set(c, b)
+}
+
+func (so *sockOpt) getMTUInfo(c *socket.Conn) (*net.Interface, int, error) {
+	b := make([]byte, so.Len)
+",47.0,34.0,1042.0,unsafe.Pointer,sockopt_posix.go,2199.0,89.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/sockopt_posix.go,unclassified
+260,260,"	sa := (*sockaddrInet6)(unsafe.Pointer(&gr.Group))
+","	mreq.Ifindex = int32(i)
+}
+
+func (gr *groupReq) setGroup(grp net.IP) {
+	sa := (*sockaddrInet6)(unsafe.Pointer(&gr.Group))
+	sa.Family = syscall.AF_INET6
+	copy(sa.Addr[:], grp)
+}
+
+func (gsr *groupSourceReq) setSourceGroup(grp, src net.IP) {
+",63.0,24.0,3499.0,unsafe.Pointer,sys_linux.go,3879.0,75.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/sys_linux.go,unclassified
+261,261,"	sa := (*sockaddrInet6)(unsafe.Pointer(&gsr.Group))
+","	copy(sa.Addr[:], grp)
+}
+
+func (gsr *groupSourceReq) setSourceGroup(grp, src net.IP) {
+	sa := (*sockaddrInet6)(unsafe.Pointer(&gsr.Group))
+	sa.Family = syscall.AF_INET6
+	copy(sa.Addr[:], grp)
+	sa = (*sockaddrInet6)(unsafe.Pointer(&gsr.Source))
+	sa.Family = syscall.AF_INET6
+	copy(sa.Addr[:], src)
+",69.0,24.0,3667.0,unsafe.Pointer,sys_linux.go,3879.0,75.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/sys_linux.go,unclassified
+262,262,"	sa = (*sockaddrInet6)(unsafe.Pointer(&gsr.Source))
+","func (gsr *groupSourceReq) setSourceGroup(grp, src net.IP) {
+	sa := (*sockaddrInet6)(unsafe.Pointer(&gsr.Group))
+	sa.Family = syscall.AF_INET6
+	copy(sa.Addr[:], grp)
+	sa = (*sockaddrInet6)(unsafe.Pointer(&gsr.Source))
+	sa.Family = syscall.AF_INET6
+	copy(sa.Addr[:], src)
+}
+",72.0,23.0,3772.0,unsafe.Pointer,sys_linux.go,3879.0,75.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/sys_linux.go,unclassified
+263,263,"	b := (*[sizeofIPv6Mreq]byte)(unsafe.Pointer(&mreq))[:sizeofIPv6Mreq]
+","	copy(mreq.Multiaddr[:], grp)
+	if ifi != nil {
+		mreq.setIfindex(ifi.Index)
+	}
+	b := (*[sizeofIPv6Mreq]byte)(unsafe.Pointer(&mreq))[:sizeofIPv6Mreq]
+	return so.Set(c, b)
+}
+",22.0,30.0,500.0,unsafe.Pointer,sys_asmreq.go,593.0,24.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/sys_asmreq.go,unclassified
+264,264,"	h := (*cmsghdr)(unsafe.Pointer(&m[0]))
+","func (m ControlMessage) MarshalHeader(lvl, typ, dataLen int) error {
+	if len(m) < controlHeaderLen() {
+		return errors.New(""short message"")
+	}
+	h := (*cmsghdr)(unsafe.Pointer(&m[0]))
+	h.set(controlMessageLen(dataLen), lvl, typ)
+	return nil
+}
+
+// ParseHeader parses and returns the header fields of the control
+",142.0,17.0,3465.0,unsafe.Pointer,socket.go,7824.0,288.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/socket.go,unclassified
+265,265,"		h := (*cmsghdr)(unsafe.Pointer(&m[0]))
+","// Parse works for both standard and compatible messages.
+func (m ControlMessage) Parse() ([]ControlMessage, error) {
+	var ms []ControlMessage
+	for len(m) >= controlHeaderLen() {
+		h := (*cmsghdr)(unsafe.Pointer(&m[0]))
+		l := h.len()
+		if l <= 0 {
+			return nil, errors.New(""invalid header length"")
+		}
+		if uint64(l) < uint64(controlHeaderLen()) {
+",179.0,18.0,4603.0,unsafe.Pointer,socket.go,7824.0,288.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/socket.go,unclassified
+266,266,"	""uintptr"":    true,
+","	""uint16"":     true,
+	""uint32"":     true,
+	""uint64"":     true,
+	""uint8"":      true,
+	""uintptr"":    true,
+}
+
+func cleanPackageName(name string) GoPackageName {
+	name = strings.Map(badToUnderscore, name)
+	// Identifier must not be keyword or predeclared identifier: insert _.
+",637.0,2.0,20859.0,uintptr,generator.go,92290.0,2806.0,github.com/golang/protobuf/protoc-gen-go/generator,github.com/golang/protobuf,v1.3.3,kubernetes/kubernetes,github.com/golang/protobuf/protoc-gen-go/generator/generator.go,unclassified
+267,267,"		Filter: (*sockFilter)(unsafe.Pointer(&f[0])),
+","
+func (so *sockOpt) setAttachFilter(c *socket.Conn, f []bpf.RawInstruction) error {
+	prog := sockFProg{
+		Len:    uint16(len(f)),
+		Filter: (*sockFilter)(unsafe.Pointer(&f[0])),
+	}
+	b := (*[sizeofSockFprog]byte)(unsafe.Pointer(&prog))[:sizeofSockFprog]
+	return so.Set(c, b)
+}
+",19.0,24.0,403.0,unsafe.Pointer,sys_bpf.go,549.0,23.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20190724013045-ca1201d0de80,fatedier/frp,golang.org/x/net/ipv4/sys_bpf.go,unclassified
+268,268,"	b := (*[sizeofSockFprog]byte)(unsafe.Pointer(&prog))[:sizeofSockFprog]
+","	prog := sockFProg{
+		Len:    uint16(len(f)),
+		Filter: (*sockFilter)(unsafe.Pointer(&f[0])),
+	}
+	b := (*[sizeofSockFprog]byte)(unsafe.Pointer(&prog))[:sizeofSockFprog]
+	return so.Set(c, b)
+}
+",21.0,31.0,454.0,unsafe.Pointer,sys_bpf.go,549.0,23.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20190724013045-ca1201d0de80,fatedier/frp,golang.org/x/net/ipv4/sys_bpf.go,unclassified
+269,269,"	bw := (*[maxRate / 8]uint64)(unsafe.Pointer(&buf[0]))
+","
+import ""unsafe""
+
+func xorInUnaligned(d *state, buf []byte) {
+	bw := (*[maxRate / 8]uint64)(unsafe.Pointer(&buf[0]))
+	n := len(buf)
+	if n >= 72 {
+		d.a[0] ^= bw[0]
+		d.a[1] ^= bw[1]
+		d.a[2] ^= bw[2]
+",13.0,30.0,285.0,unsafe.Pointer,xor_unaligned.go,1074.0,58.0,golang.org/x/crypto/sha3,golang.org/x/crypto,v0.0.0-20190308221718-c2843e01d9a2,v2ray/v2ray-core,golang.org/x/crypto/sha3/xor_unaligned.go,unclassified
+270,270,"	ab := (*[maxRate]uint8)(unsafe.Pointer(&d.a[0]))
+","	}
+}
+
+func copyOutUnaligned(d *state, buf []byte) {
+	ab := (*[maxRate]uint8)(unsafe.Pointer(&d.a[0]))
+	copy(buf, ab[:])
+}
+
+var (
+	xorIn   = xorInUnaligned
+",49.0,25.0,893.0,unsafe.Pointer,xor_unaligned.go,1074.0,58.0,golang.org/x/crypto/sha3,golang.org/x/crypto,v0.0.0-20190308221718-c2843e01d9a2,v2ray/v2ray-core,golang.org/x/crypto/sha3/xor_unaligned.go,unclassified
+271,271,"	return (*[maxRate]byte)(unsafe.Pointer(b))
+","// A storageBuf is an aligned array of maxRate bytes.
+type storageBuf [maxRate / 8]uint64
+
+func (b *storageBuf) asBytes() *[maxRate]byte {
+	return (*[maxRate]byte)(unsafe.Pointer(b))
+}
+
+//go:nocheckptr
+//
+// xorInUnaligned intentionally reads the input buffer as an unaligned slice of
+",16.0,25.0,380.0,unsafe.Pointer,xor_unaligned.go,1649.0,76.0,golang.org/x/crypto/sha3,golang.org/x/crypto,v0.0.0-20200311171314-f7b00557c8c4,ethereum/go-ethereum,golang.org/x/crypto/sha3/xor_unaligned.go,unclassified
+272,272,"	bw := (*[maxRate / 8]uint64)(unsafe.Pointer(&buf[0]))[: n/8 : n/8]
+","// xorInUnaligned uses unaligned reads and writes to update d.a to contain d.a
+// XOR buf.
+func xorInUnaligned(d *state, buf []byte) {
+	n := len(buf)
+	bw := (*[maxRate / 8]uint64)(unsafe.Pointer(&buf[0]))[: n/8 : n/8]
+	if n >= 72 {
+		d.a[0] ^= bw[0]
+		d.a[1] ^= bw[1]
+		d.a[2] ^= bw[2]
+		d.a[3] ^= bw[3]
+",32.0,30.0,862.0,unsafe.Pointer,xor_unaligned.go,1649.0,76.0,golang.org/x/crypto/sha3,golang.org/x/crypto,v0.0.0-20200311171314-f7b00557c8c4,ethereum/go-ethereum,golang.org/x/crypto/sha3/xor_unaligned.go,unclassified
+273,273,"		return pointer{p: unsafe.Pointer(uintptr(unsafe.Pointer(i)) + ptrSize)}
+","	// Super-tricky - read or get the address of data word of interface value.
+	if isptr {
+		// The interface is of pointer type, thus it is a direct interface.
+		// The data word is the pointer data itself. We take its address.
+		return pointer{p: unsafe.Pointer(uintptr(unsafe.Pointer(i)) + ptrSize)}
+	}
+	// The interface is not of pointer type. The data word is the pointer
+	// to the data.
+	return pointer{p: (*[2]unsafe.Pointer)(unsafe.Pointer(i))[1]}
+}
+",93.0,20.0,3574.0,unsafe.Pointer,pointer_unsafe.go,9931.0,308.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v1.2.0,drone/drone,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+274,274,"		f := os.NewFile(uintptr(s), ""datagram-oriented icmp"")
+","		if err := syscall.Bind(s, sa); err != nil {
+			syscall.Close(s)
+			return nil, os.NewSyscallError(""bind"", err)
+		}
+		f := os.NewFile(uintptr(s), ""datagram-oriented icmp"")
+		c, cerr = net.FilePacketConn(f)
+		f.Close()
+	default:
+		c, cerr = net.ListenPacket(network, address)
+	}
+",86.0,18.0,2403.0,uintptr,listen_posix.go,2840.0,103.0,golang.org/x/net/icmp,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/icmp/listen_posix.go,unclassified
+275,275,"	Pointer    uintptr     // offset within the data where the error was detected
+",")
+
+// A ParamProb represents an ICMP parameter problem message body.
+type ParamProb struct {
+	Pointer    uintptr     // offset within the data where the error was detected
+	Data       []byte      // data, known as original datagram field
+	Extensions []Extension // extensions
+}
+
+// Len implements the Len method of MessageBody interface.
+",16.0,12.0,355.0,uintptr,paramprob.go,1939.0,72.0,golang.org/x/net/icmp,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/icmp/paramprob.go,unclassified
+276,276,"		p.Pointer = uintptr(binary.BigEndian.Uint32(b[:4]))
+","		return nil, errMessageTooShort
+	}
+	p := &ParamProb{}
+	if proto == iana.ProtocolIPv6ICMP {
+		p.Pointer = uintptr(binary.BigEndian.Uint32(b[:4]))
+		p.Data = make([]byte, len(b)-4)
+		copy(p.Data, b[4:])
+		return p, nil
+	}
+	p.Pointer = uintptr(b[0])
+",60.0,14.0,1643.0,uintptr,paramprob.go,1939.0,72.0,golang.org/x/net/icmp,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/icmp/paramprob.go,unclassified
+277,277,"	p.Pointer = uintptr(b[0])
+","		p.Data = make([]byte, len(b)-4)
+		copy(p.Data, b[4:])
+		return p, nil
+	}
+	p.Pointer = uintptr(b[0])
+	var err error
+	p.Data, p.Extensions, err = parseMultipartMessageBody(proto, typ, b)
+	if err != nil {
+		return nil, err
+	}
+",65.0,13.0,1772.0,uintptr,paramprob.go,1939.0,72.0,golang.org/x/net/icmp,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/icmp/paramprob.go,unclassified
+278,278,"	_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&termios)), 0, 0, 0)
+","
+// IsTerminal returns true if the given file descriptor is a terminal.
+func IsTerminal(fd int) bool {
+	var termios syscall.Termios
+	_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&termios)), 0, 0, 0)
+	return err == 0
+}
+
+// MakeRaw put the terminal connected to the given file descriptor into raw
+// mode and returns the previous state of the terminal so that it can be
+",34.0,50.0,889.0,uintptr,util.go,4343.0,123.0,golang.org/x/crypto/ssh/terminal,golang.org/x/crypto,v0.0.0-20170930174604-9419663f5a44,apex/apex,golang.org/x/crypto/ssh/terminal/util.go,unclassified
+279,279,"	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&oldState.termios)), 0, 0, 0); err != 0 {
+","// mode and returns the previous state of the terminal so that it can be
+// restored.
+func MakeRaw(fd int) (*State, error) {
+	var oldState State
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&oldState.termios)), 0, 0, 0); err != 0 {
+		return nil, err
+	}
+
+	newState := oldState.termios
+	// This attempts to replicate the behaviour documented for cfmakeraw in
+",43.0,53.0,1255.0,uintptr,util.go,4343.0,123.0,golang.org/x/crypto/ssh/terminal,golang.org/x/crypto,v0.0.0-20170930174604-9419663f5a44,apex/apex,golang.org/x/crypto/ssh/terminal/util.go,unclassified
+280,280,"	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&newState)), 0, 0, 0); err != 0 {
+","	newState.Cflag &^= syscall.CSIZE | syscall.PARENB
+	newState.Cflag |= syscall.CS8
+	newState.Cc[unix.VMIN] = 1
+	newState.Cc[unix.VTIME] = 0
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&newState)), 0, 0, 0); err != 0 {
+		return nil, err
+	}
+
+	return &oldState, nil
+}
+",57.0,53.0,1978.0,uintptr,util.go,4343.0,123.0,golang.org/x/crypto/ssh/terminal,golang.org/x/crypto,v0.0.0-20170930174604-9419663f5a44,apex/apex,golang.org/x/crypto/ssh/terminal/util.go,unclassified
+281,281,"	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&state.termios)), 0, 0, 0); err != 0 {
+","
+// Restore restores the terminal connected to the given file descriptor to a
+// previous state.
+func Restore(fd int, state *State) error {
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&state.termios)), 0, 0, 0); err != 0 {
+		return err
+	}
+	return nil
+}
+
+",78.0,53.0,2679.0,uintptr,util.go,4343.0,123.0,golang.org/x/crypto/ssh/terminal,golang.org/x/crypto,v0.0.0-20170930174604-9419663f5a44,apex/apex,golang.org/x/crypto/ssh/terminal/util.go,unclassified
+282,282,"	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(&dimensions)), 0, 0, 0); err != 0 {
+","// GetSize returns the dimensions of the given terminal.
+func GetSize(fd int) (width, height int, err error) {
+	var dimensions [4]uint16
+
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(&dimensions)), 0, 0, 0); err != 0 {
+		return -1, -1, err
+	}
+	return int(dimensions[1]), int(dimensions[0]), nil
+}
+
+",88.0,53.0,2995.0,uintptr,util.go,4343.0,123.0,golang.org/x/crypto/ssh/terminal,golang.org/x/crypto,v0.0.0-20170930174604-9419663f5a44,apex/apex,golang.org/x/crypto/ssh/terminal/util.go,unclassified
+283,283,"	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&oldState)), 0, 0, 0); err != 0 {
+","// is commonly used for inputting passwords and other sensitive data. The slice
+// returned does not include the \n.
+func ReadPassword(fd int) ([]byte, error) {
+	var oldState syscall.Termios
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&oldState)), 0, 0, 0); err != 0 {
+		return nil, err
+	}
+
+	newState := oldState
+	newState.Lflag &^= syscall.ECHO
+",106.0,53.0,3695.0,uintptr,util.go,4343.0,123.0,golang.org/x/crypto/ssh/terminal,golang.org/x/crypto,v0.0.0-20170930174604-9419663f5a44,apex/apex,golang.org/x/crypto/ssh/terminal/util.go,unclassified
+284,284,"		syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&oldState)), 0, 0, 0)
+","		return nil, err
+	}
+
+	defer func() {
+		syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&oldState)), 0, 0, 0)
+	}()
+
+	return readPasswordLine(passwordReader(fd))
+}
+",119.0,38.0,4175.0,uintptr,util.go,4343.0,123.0,golang.org/x/crypto/ssh/terminal,golang.org/x/crypto,v0.0.0-20170930174604-9419663f5a44,apex/apex,golang.org/x/crypto/ssh/terminal/util.go,unclassified
+285,285,"//	type structPointer struct { p unsafe.Pointer }
+","// some pointer type for the garbage collector. We use these
+// funcs with clunky names as our poor approximation to methods.
+//
+// An alternative would be
+//	type structPointer struct { p unsafe.Pointer }
+// but that does not registerize as well.
+
+// A structPointer is a pointer to a struct.
+type structPointer unsafe.Pointer
+
+",49.0,33.0,2134.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+286,286,"type structPointer unsafe.Pointer
+","//	type structPointer struct { p unsafe.Pointer }
+// but that does not registerize as well.
+
+// A structPointer is a pointer to a struct.
+type structPointer unsafe.Pointer
+
+// toStructPointer returns a structPointer equivalent to the given reflect value.
+func toStructPointer(v reflect.Value) structPointer {
+	return structPointer(unsafe.Pointer(v.Pointer()))
+}
+",53.0,19.0,2272.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+287,287,"	return structPointer(unsafe.Pointer(v.Pointer()))
+","type structPointer unsafe.Pointer
+
+// toStructPointer returns a structPointer equivalent to the given reflect value.
+func toStructPointer(v reflect.Value) structPointer {
+	return structPointer(unsafe.Pointer(v.Pointer()))
+}
+
+// IsNil reports whether p is nil.
+func structPointer_IsNil(p structPointer) bool {
+	return p == nil
+",57.0,22.0,2443.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+288,288,"	return reflect.NewAt(t, unsafe.Pointer(p)).Interface()
+","
+// Interface returns the struct pointer, assumed to have element type t,
+// as an interface value.
+func structPointer_Interface(p structPointer, t reflect.Type) interface{} {
+	return reflect.NewAt(t, unsafe.Pointer(p)).Interface()
+}
+
+// A field identifies a field in a struct, accessible from a structPointer.
+// In this implementation, a field is identified by its byte offset from the start of the struct.
+type field uintptr
+",68.0,25.0,2776.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+289,289,"	return (*[]byte)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// Bytes returns the address of a []byte field in the struct.
+func structPointer_Bytes(p structPointer, f field) *[]byte {
+	return (*[]byte)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// BytesSlice returns the address of a [][]byte field in the struct.
+func structPointer_BytesSlice(p structPointer, f field) *[][]byte {
+	return (*[][]byte)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",90.0,18.0,3486.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+290,290,"	return (*[][]byte)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// BytesSlice returns the address of a [][]byte field in the struct.
+func structPointer_BytesSlice(p structPointer, f field) *[][]byte {
+	return (*[][]byte)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// Bool returns the address of a *bool field in the struct.
+func structPointer_Bool(p structPointer, f field) **bool {
+	return (**bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",95.0,20.0,3685.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+291,291,"	return (**bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// Bool returns the address of a *bool field in the struct.
+func structPointer_Bool(p structPointer, f field) **bool {
+	return (**bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// BoolVal returns the address of a bool field in the struct.
+func structPointer_BoolVal(p structPointer, f field) *bool {
+	return (*bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",100.0,17.0,3868.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+292,292,"	return (*bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// BoolVal returns the address of a bool field in the struct.
+func structPointer_BoolVal(p structPointer, f field) *bool {
+	return (*bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// BoolSlice returns the address of a []bool field in the struct.
+func structPointer_BoolSlice(p structPointer, f field) *[]bool {
+	return (*[]bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",105.0,16.0,4052.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+293,293,"	return (*[]bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// BoolSlice returns the address of a []bool field in the struct.
+func structPointer_BoolSlice(p structPointer, f field) *[]bool {
+	return (*[]bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// String returns the address of a *string field in the struct.
+func structPointer_String(p structPointer, f field) **string {
+	return (**string)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",110.0,18.0,4243.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+294,294,"	return (**string)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// String returns the address of a *string field in the struct.
+func structPointer_String(p structPointer, f field) **string {
+	return (**string)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// StringVal returns the address of a string field in the struct.
+func structPointer_StringVal(p structPointer, f field) *string {
+	return (*string)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",115.0,19.0,4432.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+295,295,"	return (*string)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// StringVal returns the address of a string field in the struct.
+func structPointer_StringVal(p structPointer, f field) *string {
+	return (*string)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// StringSlice returns the address of a []string field in the struct.
+func structPointer_StringSlice(p structPointer, f field) *[]string {
+	return (*[]string)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",120.0,18.0,4626.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+296,296,"	return (*[]string)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// StringSlice returns the address of a []string field in the struct.
+func structPointer_StringSlice(p structPointer, f field) *[]string {
+	return (*[]string)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// ExtMap returns the address of an extension map field in the struct.
+func structPointer_Extensions(p structPointer, f field) *XXX_InternalExtensions {
+	return (*XXX_InternalExtensions)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",125.0,20.0,4827.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+297,297,"	return (*XXX_InternalExtensions)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// ExtMap returns the address of an extension map field in the struct.
+func structPointer_Extensions(p structPointer, f field) *XXX_InternalExtensions {
+	return (*XXX_InternalExtensions)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+func structPointer_ExtMap(p structPointer, f field) *map[int32]Extension {
+	return (*map[int32]Extension)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+",130.0,34.0,5044.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+298,298,"	return (*map[int32]Extension)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","	return (*XXX_InternalExtensions)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+func structPointer_ExtMap(p structPointer, f field) *map[int32]Extension {
+	return (*map[int32]Extension)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// NewAt returns the reflect.Value for a pointer to a field in the struct.
+func structPointer_NewAt(p structPointer, f field, typ reflect.Type) reflect.Value {
+	return reflect.NewAt(typ, unsafe.Pointer(uintptr(p)+uintptr(f)))
+",134.0,31.0,5197.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+299,299,"	return reflect.NewAt(typ, unsafe.Pointer(uintptr(p)+uintptr(f)))
+","}
+
+// NewAt returns the reflect.Value for a pointer to a field in the struct.
+func structPointer_NewAt(p structPointer, f field, typ reflect.Type) reflect.Value {
+	return reflect.NewAt(typ, unsafe.Pointer(uintptr(p)+uintptr(f)))
+}
+
+// SetStructPointer writes a *struct field in the struct.
+func structPointer_SetStructPointer(p structPointer, f field, q structPointer) {
+	*(*structPointer)(unsafe.Pointer(uintptr(p) + uintptr(f))) = q
+",139.0,27.0,5432.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+300,300,"	*(*structPointer)(unsafe.Pointer(uintptr(p) + uintptr(f))) = q
+","}
+
+// SetStructPointer writes a *struct field in the struct.
+func structPointer_SetStructPointer(p structPointer, f field, q structPointer) {
+	*(*structPointer)(unsafe.Pointer(uintptr(p) + uintptr(f))) = q
+}
+
+// GetStructPointer reads a *struct field in the struct.
+func structPointer_GetStructPointer(p structPointer, f field) structPointer {
+	return *(*structPointer)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",144.0,19.0,5640.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+301,301,"	return *(*structPointer)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// GetStructPointer reads a *struct field in the struct.
+func structPointer_GetStructPointer(p structPointer, f field) structPointer {
+	return *(*structPointer)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// StructPointerSlice the address of a []*struct field in the struct.
+func structPointer_StructPointerSlice(p structPointer, f field) *structPointerSlice {
+	return (*structPointerSlice)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+",149.0,26.0,5842.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+302,302,"	return (*structPointerSlice)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","}
+
+// StructPointerSlice the address of a []*struct field in the struct.
+func structPointer_StructPointerSlice(p structPointer, f field) *structPointerSlice {
+	return (*structPointerSlice)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// A structPointerSlice represents a slice of pointers to structs (themselves submessages or groups).
+type structPointerSlice []structPointer
+
+",154.0,30.0,6068.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+303,303,"	return word32((**uint32)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+","}
+
+// Word32 returns the address of a *int32, *uint32, *float32, or *enum field in the struct.
+func structPointer_Word32(p structPointer, f field) word32 {
+	return word32((**uint32)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+}
+
+// A word32Val is the address of a 32-bit value field.
+type word32Val *uint32
+
+",189.0,26.0,7188.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+304,304,"	return word32Val((*uint32)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+","}
+
+// Word32Val returns the address of a *int32, *uint32, *float32, or *enum field in the struct.
+func structPointer_Word32Val(p structPointer, f field) word32Val {
+	return word32Val((*uint32)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+}
+
+// A word32Slice is a slice of 32-bit values.
+type word32Slice []uint32
+
+",207.0,28.0,7670.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+305,305,"	return (*word32Slice)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","func (v *word32Slice) Index(i int) uint32 { return (*v)[i] }
+
+// Word32Slice returns the address of a []int32, []uint32, []float32, or []enum field in the struct.
+func structPointer_Word32Slice(p structPointer, f field) *word32Slice {
+	return (*word32Slice)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+// word64 is like word32 but for 64-bit values.
+type word64 **uint64
+
+",219.0,23.0,8177.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+306,306,"	return word64((**uint64)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+","	return **p
+}
+
+func structPointer_Word64(p structPointer, f field) word64 {
+	return word64((**uint64)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+}
+
+// word64Val is like word32Val but for 64-bit values.
+type word64Val *uint64
+
+",243.0,26.0,8672.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+307,307,"	return word64Val((*uint64)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+","	return *p
+}
+
+func structPointer_Word64Val(p structPointer, f field) word64Val {
+	return word64Val((*uint64)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+}
+
+// word64Slice is like word32Slice but for 64-bit values.
+type word64Slice []uint64
+
+",258.0,28.0,9009.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+308,308,"	return (*word64Slice)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","func (v *word64Slice) Len() int           { return len(*v) }
+func (v *word64Slice) Index(i int) uint64 { return (*v)[i] }
+
+func structPointer_Word64Slice(p structPointer, f field) *word64Slice {
+	return (*word64Slice)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+",269.0,23.0,9427.0,unsafe.Pointer,pointer_unsafe.go,9493.0,270.0,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,github.com/golang/protobuf/proto/pointer_unsafe.go,unclassified
+309,309,"func (codec *timeAsInt64Codec) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","type timeAsInt64Codec struct {
+	precision time.Duration
+}
+
+func (codec *timeAsInt64Codec) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	nanoseconds := iter.ReadInt64() * codec.precision.Nanoseconds()
+	*((*time.Time)(ptr)) = time.Unix(0, nanoseconds)
+}
+
+func (codec *timeAsInt64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+",19.0,42.0,449.0,unsafe.Pointer,time_as_int64_codec.go,956.0,31.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/time_as_int64_codec.go,unclassified
+310,310,"func (codec *timeAsInt64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+","	nanoseconds := iter.ReadInt64() * codec.precision.Nanoseconds()
+	*((*time.Time)(ptr)) = time.Unix(0, nanoseconds)
+}
+
+func (codec *timeAsInt64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	ts := *((*time.Time)(ptr))
+	return ts.UnixNano() == 0
+}
+func (codec *timeAsInt64Codec) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	ts := *((*time.Time)(ptr))
+",24.0,43.0,652.0,unsafe.Pointer,time_as_int64_codec.go,956.0,31.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/time_as_int64_codec.go,unclassified
+311,311,"func (codec *timeAsInt64Codec) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+","func (codec *timeAsInt64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	ts := *((*time.Time)(ptr))
+	return ts.UnixNano() == 0
+}
+func (codec *timeAsInt64Codec) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	ts := *((*time.Time)(ptr))
+	stream.WriteInt64(ts.UnixNano() / codec.precision.Nanoseconds())
+}
+",28.0,42.0,775.0,unsafe.Pointer,time_as_int64_codec.go,956.0,31.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/time_as_int64_codec.go,unclassified
+312,312,"func (codec *binaryAsStringCodec) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","
+type binaryAsStringCodec struct {
+}
+
+func (codec *binaryAsStringCodec) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	rawBytes := iter.ReadStringAsSlice()
+	bytes := make([]byte, 0, len(rawBytes))
+	for i := 0; i < len(rawBytes); i++ {
+		b := rawBytes[i]
+		if b == '\\' {
+",138.0,45.0,2589.0,unsafe.Pointer,binary_as_string_codec.go,5046.0,238.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/binary_as_string_codec.go,unclassified
+313,313,"func (codec *binaryAsStringCodec) IsEmpty(ptr unsafe.Pointer) bool {
+","		bytes = append(bytes, b)
+	}
+	*(*[]byte)(ptr) = bytes
+}
+func (codec *binaryAsStringCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*[]byte)(ptr))) == 0
+}
+func (codec *binaryAsStringCodec) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	newBuffer := writeBytes(stream.Buffer(), *(*[]byte)(ptr))
+	stream.SetBuffer(newBuffer)
+",163.0,46.0,3251.0,unsafe.Pointer,binary_as_string_codec.go,5046.0,238.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/binary_as_string_codec.go,unclassified
+314,314,"func (codec *binaryAsStringCodec) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+","}
+func (codec *binaryAsStringCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*[]byte)(ptr))) == 0
+}
+func (codec *binaryAsStringCodec) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	newBuffer := writeBytes(stream.Buffer(), *(*[]byte)(ptr))
+	stream.SetBuffer(newBuffer)
+}
+
+func readHex(iter *jsoniter.Iterator, b1, b2 byte) byte {
+",166.0,45.0,3358.0,unsafe.Pointer,binary_as_string_codec.go,5046.0,238.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/binary_as_string_codec.go,unclassified
+315,315,"	jsoniter.RegisterTypeDecoder(""int"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","	jsoniter.RegisterExtension(&tolerateEmptyArrayExtension{})
+	jsoniter.RegisterTypeDecoder(""string"", &fuzzyStringDecoder{})
+	jsoniter.RegisterTypeDecoder(""float32"", &fuzzyFloat32Decoder{})
+	jsoniter.RegisterTypeDecoder(""float64"", &fuzzyFloat64Decoder{})
+	jsoniter.RegisterTypeDecoder(""int"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(maxInt) || val < float64(minInt) {
+				iter.ReportError(""fuzzy decode int"", ""exceed range"")
+				return
+",26.0,81.0,675.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+316,316,"	jsoniter.RegisterTypeDecoder(""uint"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","		} else {
+			*((*int)(ptr)) = iter.ReadInt()
+		}
+	}})
+	jsoniter.RegisterTypeDecoder(""uint"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(maxUint) || val < 0 {
+				iter.ReportError(""fuzzy decode uint"", ""exceed range"")
+				return
+",38.0,82.0,1055.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+317,317,"	jsoniter.RegisterTypeDecoder(""int8"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","		} else {
+			*((*uint)(ptr)) = iter.ReadUint()
+		}
+	}})
+	jsoniter.RegisterTypeDecoder(""int8"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(math.MaxInt8) || val < float64(math.MinInt8) {
+				iter.ReportError(""fuzzy decode int8"", ""exceed range"")
+				return
+",50.0,82.0,1428.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+318,318,"	jsoniter.RegisterTypeDecoder(""uint8"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","		} else {
+			*((*int8)(ptr)) = iter.ReadInt8()
+		}
+	}})
+	jsoniter.RegisterTypeDecoder(""uint8"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(math.MaxUint8) || val < 0 {
+				iter.ReportError(""fuzzy decode uint8"", ""exceed range"")
+				return
+",62.0,83.0,1826.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+319,319,"	jsoniter.RegisterTypeDecoder(""int16"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","		} else {
+			*((*uint8)(ptr)) = iter.ReadUint8()
+		}
+	}})
+	jsoniter.RegisterTypeDecoder(""int16"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(math.MaxInt16) || val < float64(math.MinInt16) {
+				iter.ReportError(""fuzzy decode int16"", ""exceed range"")
+				return
+",74.0,83.0,2211.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+320,320,"	jsoniter.RegisterTypeDecoder(""uint16"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","		} else {
+			*((*int16)(ptr)) = iter.ReadInt16()
+		}
+	}})
+	jsoniter.RegisterTypeDecoder(""uint16"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(math.MaxUint16) || val < 0 {
+				iter.ReportError(""fuzzy decode uint16"", ""exceed range"")
+				return
+",86.0,84.0,2617.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+321,321,"	jsoniter.RegisterTypeDecoder(""int32"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","		} else {
+			*((*uint16)(ptr)) = iter.ReadUint16()
+		}
+	}})
+	jsoniter.RegisterTypeDecoder(""int32"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(math.MaxInt32) || val < float64(math.MinInt32) {
+				iter.ReportError(""fuzzy decode int32"", ""exceed range"")
+				return
+",98.0,83.0,3009.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+322,322,"	jsoniter.RegisterTypeDecoder(""uint32"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","		} else {
+			*((*int32)(ptr)) = iter.ReadInt32()
+		}
+	}})
+	jsoniter.RegisterTypeDecoder(""uint32"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(math.MaxUint32) || val < 0 {
+				iter.ReportError(""fuzzy decode uint32"", ""exceed range"")
+				return
+",110.0,84.0,3415.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+323,323,"	jsoniter.RegisterTypeDecoder(""int64"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","		} else {
+			*((*uint32)(ptr)) = iter.ReadUint32()
+		}
+	}})
+	jsoniter.RegisterTypeDecoder(""int64"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(math.MaxInt64) || val < float64(math.MinInt64) {
+				iter.ReportError(""fuzzy decode int64"", ""exceed range"")
+				return
+",122.0,83.0,3807.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+324,324,"	jsoniter.RegisterTypeDecoder(""uint64"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","		} else {
+			*((*int64)(ptr)) = iter.ReadInt64()
+		}
+	}})
+	jsoniter.RegisterTypeDecoder(""uint64"", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+		if isFloat {
+			val := iter.ReadFloat64()
+			if val > float64(math.MaxUint64) || val < 0 {
+				iter.ReportError(""fuzzy decode uint64"", ""exceed range"")
+				return
+",134.0,84.0,4213.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+325,325,"func (decoder *tolerateEmptyArrayDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","type tolerateEmptyArrayDecoder struct {
+	valDecoder jsoniter.ValDecoder
+}
+
+func (decoder *tolerateEmptyArrayDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	if iter.WhatIsNext() == jsoniter.ArrayValue {
+		iter.Skip()
+		newIter := iter.Pool().BorrowIterator([]byte(""{}""))
+		defer iter.Pool().ReturnIterator(newIter)
+		decoder.valDecoder.Decode(ptr, newIter)
+",163.0,53.0,5016.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+326,326,"func (decoder *fuzzyStringDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","
+type fuzzyStringDecoder struct {
+}
+
+func (decoder *fuzzyStringDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	switch valueType {
+	case jsoniter.NumberValue:
+		var number json.Number
+		iter.ReadVal(&number)
+",177.0,46.0,5404.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+327,327,"	fun func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator)
+","	}
+}
+
+type fuzzyIntegerDecoder struct {
+	fun func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator)
+}
+
+func (decoder *fuzzyIntegerDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	var str string
+",195.0,28.0,5906.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+328,328,"func (decoder *fuzzyIntegerDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","type fuzzyIntegerDecoder struct {
+	fun func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator)
+}
+
+func (decoder *fuzzyIntegerDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	var str string
+	switch valueType {
+	case jsoniter.NumberValue:
+		var number json.Number
+",198.0,47.0,5978.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+329,329,"func (decoder *fuzzyFloat32Decoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","
+type fuzzyFloat32Decoder struct {
+}
+
+func (decoder *fuzzyFloat32Decoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	var str string
+	switch valueType {
+	case jsoniter.NumberValue:
+		*((*float32)(ptr)) = iter.ReadFloat32()
+",235.0,47.0,6848.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified
+330,330,"func (decoder *fuzzyFloat64Decoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+","
+type fuzzyFloat64Decoder struct {
+}
+
+func (decoder *fuzzyFloat64Decoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	var str string
+	switch valueType {
+	case jsoniter.NumberValue:
+		*((*float64)(ptr)) = iter.ReadFloat64()
+",267.0,47.0,7689.0,unsafe.Pointer,fuzzy_decoder.go,8492.0,294.0,github.com/json-iterator/go/extra,github.com/json-iterator/go,v1.1.8,windmilleng/tilt,github.com/json-iterator/go/extra/fuzzy_decoder.go,unclassified

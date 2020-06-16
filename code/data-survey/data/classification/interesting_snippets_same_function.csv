@@ -1,0 +1,4663 @@
+,Unnamed: 0,line_number,column,text,number_unsafe_pointer,number_unsafe_sizeof,number_unsafe_alignof,number_unsafe_offsetof,number_uintptr,number_slice_header,number_string_header,file_name,package_import_path,module_path,module_version,project_name,label
+0,78141,287.0,1.0,"func tcgetattr(fd uintptr, termios *syscall_Termios) error {
+	r, _, e := syscall.Syscall(syscall.SYS_IOCTL,
+		fd, uintptr(syscall_TCGETS), uintptr(unsafe.Pointer(termios)))
+	if r != 0 {
+		return os.NewSyscallError(""SYS_IOCTL"", e)
+	}
+	return nil
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,termbox.go,github.com/jesseduffield/termbox-go,github.com/jesseduffield/termbox-go,v0.0.0-20200130214842-1d31d1faa3c9,jesseduffield/lazygit,unclassified
+1,1771,1181.0,1.0,"func prlimit(pid int, resource int, newlimit *Rlimit, old *Rlimit) (err error) {
+	_, _, e1 := RawSyscall6(SYS_PRLIMIT64, uintptr(pid), uintptr(resource), uintptr(unsafe.Pointer(newlimit)), uintptr(unsafe.Pointer(old)), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,unclassified
+2,280840,383.0,1.0,"func (port *unixPort) getModemBitsStatus() (int, error) {
+	var status int
+	err := ioctl(port.handle, unix.TIOCMGET, uintptr(unsafe.Pointer(&status)))
+	return status, err
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,serial_unix.go,go.bug.st/serial.v1,go.bug.st/serial.v1,v0.0.0-20180827123349-5f7892a7bb45,hybridgroup/gobot,unclassified
+3,71093,1098.0,1.0,"func Lsetxattr(path string, attr string, data []byte, flags int) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(attr)
+	if err != nil {
+		return
+	}
+	var _p2 unsafe.Pointer
+	if len(data) > 0 {
+		_p2 = unsafe.Pointer(&data[0])
+	} else {
+		_p2 = unsafe.Pointer(&_zero)
+	}
+	_, _, e1 := Syscall6(SYS_LSETXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(data)), uintptr(flags), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",5.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,unclassified
+4,261884,1513.0,1.0,"func Vmsplice(fd int, iovs []Iovec, flags int) (int, error) {
+	var p unsafe.Pointer
+	if len(iovs) > 0 {
+		p = unsafe.Pointer(&iovs[0])
+	}
+
+	n, _, errno := Syscall6(SYS_VMSPLICE, uintptr(fd), uintptr(p), uintptr(len(iovs)), uintptr(flags), 0, 0)
+	if errno != 0 {
+		return 0, syscall.Errno(errno)
+	}
+
+	return int(n), nil
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190116161447-11f53e031339,cjbassi/gotop,unclassified
+5,495,167.0,1.0,"func newosproc0(stacksize uintptr, fn unsafe.Pointer) {
+	stack := sysAlloc(stacksize, &memstats.stacks_sys)
+	if stack == nil {
+		write(2, unsafe.Pointer(&failallocatestack[0]), int32(len(failallocatestack)))
+		exit(1)
+	}
+	ret := clone(cloneFlags, unsafe.Pointer(uintptr(stack)+stacksize), nil, nil, fn)
+	if ret < 0 {
+		write(2, unsafe.Pointer(&failthreadcreate[0]), int32(len(failthreadcreate)))
+		exit(1)
+	}
+}",4.0,0.0,0.0,0.0,2.0,0.0,0.0,os_linux.go,runtime,std,std,kubernetes/kubernetes,unclassified
+6,176,33.0,1.0,"func getitab(inter *interfacetype, typ *_type, canfail bool) *itab {
+	if len(inter.mhdr) == 0 {
+		throw(""internal error - misuse of itab"")
+	}
+
+	// easy case
+	if typ.tflag&tflagUncommon == 0 {
+		if canfail {
+			return nil
+		}
+		name := inter.typ.nameOff(inter.mhdr[0].name)
+		panic(&TypeAssertionError{nil, typ, &inter.typ, name.name()})
+	}
+
+	var m *itab
+
+	// First, look in the existing table to see if we can find the itab we need.
+	// This is by far the most common case, so do it without locks.
+	// Use atomic to ensure we see any previous writes done by the thread
+	// that updates the itabTable field (with atomic.Storep in itabAdd).
+	t := (*itabTableType)(atomic.Loadp(unsafe.Pointer(&itabTable)))
+	if m = t.find(inter, typ); m != nil {
+		goto finish
+	}
+
+	// Not found.  Grab the lock and try again.
+	lock(&itabLock)
+	if m = itabTable.find(inter, typ); m != nil {
+		unlock(&itabLock)
+		goto finish
+	}
+
+	// Entry doesn't exist yet. Make a new entry & add it.
+	m = (*itab)(persistentalloc(unsafe.Sizeof(itab{})+uintptr(len(inter.mhdr)-1)*sys.PtrSize, 0, &memstats.other_sys))
+	m.inter = inter
+	m._type = typ
+	// The hash is used in type switches. However, compiler statically generates itab's
+	// for all interface/type pairs used in switches (which are added to itabTable
+	// in itabsinit). The dynamically-generated itab's never participate in type switches,
+	// and thus the hash is irrelevant.
+	// Note: m.hash is _not_ the hash used for the runtime itabTable hash table.
+	m.hash = 0
+	m.init()
+	itabAdd(m)
+	unlock(&itabLock)
+finish:
+	if m.fun[0] != 0 {
+		return m
+	}
+	if canfail {
+		return nil
+	}
+	// this can only happen if the conversion
+	// was already done once using the , ok form
+	// and we have a cached negative result.
+	// The cached result doesn't record which
+	// interface function was missing, so initialize
+	// the itab again to get the missing function name.
+	panic(&TypeAssertionError{concrete: typ, asserted: &inter.typ, missingMethod: m.init()})
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,iface.go,runtime,std,std,kubernetes/kubernetes,unclassified
+7,146069,1544.0,1.0,"func PtraceSetRegs(pid int, regs *PtraceRegs) (err error) {
+	return ptrace(PTRACE_SETREGS, pid, 0, uintptr(unsafe.Pointer(regs)))
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,unclassified
+8,72939,1931.0,1.0,"func NewFileHandle(handleType int32, handle []byte) FileHandle {
+	const hdrSize = unsafe.Sizeof(fileHandle{})
+	buf := make([]byte, hdrSize+uintptr(len(handle)))
+	copy(buf[hdrSize:], handle)
+	fh := (*fileHandle)(unsafe.Pointer(&buf[0]))
+	fh.Type = handleType
+	fh.Bytes = uint32(len(handle))
+	return FileHandle{fh}
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191220142924-d4481acd189f,go-kit/kit,unclassified
+9,230733,669.0,1.0,"func prlimit(pid int, resource int, newlimit *Rlimit, old *Rlimit) (err error) {
+	_, _, e1 := RawSyscall6(SYS_PRLIMIT64, uintptr(pid), uintptr(resource), uintptr(unsafe.Pointer(newlimit)), uintptr(unsafe.Pointer(old)), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,unclassified
+10,6312,2501.0,1.0,"func utimes(path string, times *[2]Timeval) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_UTIMES, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(times)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,unclassified
+11,174695,875.0,1.0,"func (ctx *context) GetShaderSource(s Shader) string {
+	sourceLen := ctx.GetShaderi(s, SHADER_SOURCE_LENGTH)
+	if sourceLen == 0 {
+		return """"
+	}
+	buf := make([]byte, sourceLen)
+
+	ctx.enqueue(call{
+		args: fnargs{
+			fn: glfnGetShaderSource,
+			a0: s.c(),
+			a1: uintptr(sourceLen),
+		},
+		parg:     unsafe.Pointer(&buf[0]),
+		blocking: true,
+	})
+
+	return goString(buf)
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,gl.go,github.com/fyne-io/mobile/gl,github.com/fyne-io/mobile,v0.0.1,fyne-io/fyne,unclassified
+12,230127,150.0,1.0,"func (b *wbBuf) putFast(old, new uintptr) bool {
+	p := (*[2]uintptr)(unsafe.Pointer(b.next))
+	p[0] = old
+	p[1] = new
+	b.next += 2 * sys.PtrSize
+	return b.next != b.end
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,mwbbuf.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+13,187,415.0,1.0,"func mallocinit() {
+	if class_to_size[_TinySizeClass] != _TinySize {
+		throw(""bad TinySizeClass"")
+	}
+
+	testdefersizes()
+
+	if heapArenaBitmapBytes&(heapArenaBitmapBytes-1) != 0 {
+		// heapBits expects modular arithmetic on bitmap
+		// addresses to work.
+		throw(""heapArenaBitmapBytes not a power of 2"")
+	}
+
+	// Copy class sizes out for statistics table.
+	for i := range class_to_size {
+		memstats.by_size[i].size = uint32(class_to_size[i])
+	}
+
+	// Check physPageSize.
+	if physPageSize == 0 {
+		// The OS init code failed to fetch the physical page size.
+		throw(""failed to get system page size"")
+	}
+	if physPageSize > maxPhysPageSize {
+		print(""system page size ("", physPageSize, "") is larger than maximum page size ("", maxPhysPageSize, "")\n"")
+		throw(""bad system page size"")
+	}
+	if physPageSize < minPhysPageSize {
+		print(""system page size ("", physPageSize, "") is smaller than minimum page size ("", minPhysPageSize, "")\n"")
+		throw(""bad system page size"")
+	}
+	if physPageSize&(physPageSize-1) != 0 {
+		print(""system page size ("", physPageSize, "") must be a power of 2\n"")
+		throw(""bad system page size"")
+	}
+	if physHugePageSize&(physHugePageSize-1) != 0 {
+		print(""system huge page size ("", physHugePageSize, "") must be a power of 2\n"")
+		throw(""bad system huge page size"")
+	}
+	if physHugePageSize > maxPhysHugePageSize {
+		// physHugePageSize is greater than the maximum supported huge page size.
+		// Don't throw here, like in the other cases, since a system configured
+		// in this way isn't wrong, we just don't have the code to support them.
+		// Instead, silently set the huge page size to zero.
+		physHugePageSize = 0
+	}
+	if physHugePageSize != 0 {
+		// Since physHugePageSize is a power of 2, it suffices to increase
+		// physHugePageShift until 1<<physHugePageShift == physHugePageSize.
+		for 1<<physHugePageShift != physHugePageSize {
+			physHugePageShift++
+		}
+	}
+
+	// Initialize the heap.
+	mheap_.init()
+	_g_ := getg()
+	_g_.m.mcache = allocmcache()
+
+	// Create initial arena growth hints.
+	if sys.PtrSize == 8 {
+		// On a 64-bit machine, we pick the following hints
+		// because:
+		//
+		// 1. Starting from the middle of the address space
+		// makes it easier to grow out a contiguous range
+		// without running in to some other mapping.
+		//
+		// 2. This makes Go heap addresses more easily
+		// recognizable when debugging.
+		//
+		// 3. Stack scanning in gccgo is still conservative,
+		// so it's important that addresses be distinguishable
+		// from other data.
+		//
+		// Starting at 0x00c0 means that the valid memory addresses
+		// will begin 0x00c0, 0x00c1, ...
+		// In little-endian, that's c0 00, c1 00, ... None of those are valid
+		// UTF-8 sequences, and they are otherwise as far away from
+		// ff (likely a common byte) as possible. If that fails, we try other 0xXXc0
+		// addresses. An earlier attempt to use 0x11f8 caused out of memory errors
+		// on OS X during thread allocations.  0x00c0 causes conflicts with
+		// AddressSanitizer which reserves all memory up to 0x0100.
+		// These choices reduce the odds of a conservative garbage collector
+		// not collecting memory because some non-pointer block of memory
+		// had a bit pattern that matched a memory address.
+		//
+		// However, on arm64, we ignore all this advice above and slam the
+		// allocation at 0x40 << 32 because when using 4k pages with 3-level
+		// translation buffers, the user address space is limited to 39 bits
+		// On darwin/arm64, the address space is even smaller.
+		//
+		// On AIX, mmaps starts at 0x0A00000000000000 for 64-bit.
+		// processes.
+		for i := 0x7f; i >= 0; i-- {
+			var p uintptr
+			switch {
+			case GOARCH == ""arm64"" && GOOS == ""darwin"":
+				p = uintptr(i)<<40 | uintptrMask&(0x0013<<28)
+			case GOARCH == ""arm64"":
+				p = uintptr(i)<<40 | uintptrMask&(0x0040<<32)
+			case GOOS == ""aix"":
+				if i == 0 {
+					// We don't use addresses directly after 0x0A00000000000000
+					// to avoid collisions with others mmaps done by non-go programs.
+					continue
+				}
+				p = uintptr(i)<<40 | uintptrMask&(0xa0<<52)
+			case raceenabled:
+				// The TSAN runtime requires the heap
+				// to be in the range [0x00c000000000,
+				// 0x00e000000000).
+				p = uintptr(i)<<32 | uintptrMask&(0x00c0<<32)
+				if p >= uintptrMask&0x00e000000000 {
+					continue
+				}
+			default:
+				p = uintptr(i)<<40 | uintptrMask&(0x00c0<<32)
+			}
+			hint := (*arenaHint)(mheap_.arenaHintAlloc.alloc())
+			hint.addr = p
+			hint.next, mheap_.arenaHints = mheap_.arenaHints, hint
+		}
+	} else {
+		// On a 32-bit machine, we're much more concerned
+		// about keeping the usable heap contiguous.
+		// Hence:
+		//
+		// 1. We reserve space for all heapArenas up front so
+		// they don't get interleaved with the heap. They're
+		// ~258MB, so this isn't too bad. (We could reserve a
+		// smaller amount of space up front if this is a
+		// problem.)
+		//
+		// 2. We hint the heap to start right above the end of
+		// the binary so we have the best chance of keeping it
+		// contiguous.
+		//
+		// 3. We try to stake out a reasonably large initial
+		// heap reservation.
+
+		const arenaMetaSize = (1 << arenaBits) * unsafe.Sizeof(heapArena{})
+		meta := uintptr(sysReserve(nil, arenaMetaSize))
+		if meta != 0 {
+			mheap_.heapArenaAlloc.init(meta, arenaMetaSize)
+		}
+
+		// We want to start the arena low, but if we're linked
+		// against C code, it's possible global constructors
+		// have called malloc and adjusted the process' brk.
+		// Query the brk so we can avoid trying to map the
+		// region over it (which will cause the kernel to put
+		// the region somewhere else, likely at a high
+		// address).
+		procBrk := sbrk0()
+
+		// If we ask for the end of the data segment but the
+		// operating system requires a little more space
+		// before we can start allocating, it will give out a
+		// slightly higher pointer. Except QEMU, which is
+		// buggy, as usual: it won't adjust the pointer
+		// upward. So adjust it upward a little bit ourselves:
+		// 1/4 MB to get away from the running binary image.
+		p := firstmoduledata.end
+		if p < procBrk {
+			p = procBrk
+		}
+		if mheap_.heapArenaAlloc.next <= p && p < mheap_.heapArenaAlloc.end {
+			p = mheap_.heapArenaAlloc.end
+		}
+		p = alignUp(p+(256<<10), heapArenaBytes)
+		// Because we're worried about fragmentation on
+		// 32-bit, we try to make a large initial reservation.
+		arenaSizes := []uintptr{
+			512 << 20,
+			256 << 20,
+			128 << 20,
+		}
+		for _, arenaSize := range arenaSizes {
+			a, size := sysReserveAligned(unsafe.Pointer(p), arenaSize, heapArenaBytes)
+			if a != nil {
+				mheap_.arena.init(uintptr(a), size)
+				p = uintptr(a) + size // For hint below
+				break
+			}
+		}
+		hint := (*arenaHint)(mheap_.arenaHintAlloc.alloc())
+		hint.addr = p
+		hint.next, mheap_.arenaHints = mheap_.arenaHints, hint
+	}
+}",1.0,0.0,0.0,0.0,10.0,0.0,0.0,malloc.go,runtime,std,std,kubernetes/kubernetes,unclassified
+14,9782,2258.0,1.0,"func Truncate(path string, length int64) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_TRUNCATE, uintptr(unsafe.Pointer(_p0)), uintptr(length), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200122134326-e047566fdf82,fatedier/frp,unclassified
+15,596849,450.0,1.0,"func (e encoder) encodeMapStringRawMessage(b []byte, p unsafe.Pointer) ([]byte, error) {
+	m := *(*map[string]RawMessage)(p)
+	if m == nil {
+		return append(b, ""null""...), nil
+	}
+
+	if (e.flags & SortMapKeys) == 0 {
+		// Optimized code path when the program does not need the map keys to be
+		// sorted.
+		b = append(b, '{')
+
+		if len(m) != 0 {
+			var err error
+			var i = 0
+
+			for k, v := range m {
+				if i != 0 {
+					b = append(b, ',')
+				}
+
+				b, _ = e.encodeString(b, unsafe.Pointer(&k))
+				b = append(b, ':')
+
+				b, err = e.encodeRawMessage(b, unsafe.Pointer(&v))
+				if err != nil {
+					break
+				}
+
+				i++
+			}
+		}
+
+		b = append(b, '}')
+		return b, nil
+	}
+
+	s := mapslicePool.Get().(*mapslice)
+	if cap(s.elements) < len(m) {
+		s.elements = make([]element, 0, align(10, uintptr(len(m))))
+	}
+	for key, raw := range m {
+		s.elements = append(s.elements, element{key: key, raw: raw})
+	}
+	sort.Sort(s)
+
+	var start = len(b)
+	var err error
+	b = append(b, '{')
+
+	for i, elem := range s.elements {
+		if i != 0 {
+			b = append(b, ',')
+		}
+
+		b, _ = e.encodeString(b, unsafe.Pointer(&elem.key))
+		b = append(b, ':')
+
+		b, err = e.encodeRawMessage(b, unsafe.Pointer(&elem.raw))
+		if err != nil {
+			break
+		}
+	}
+
+	for i := range s.elements {
+		s.elements[i] = element{}
+	}
+
+	s.elements = s.elements[:0]
+	mapslicePool.Put(s)
+
+	if err != nil {
+		return b[:start], err
+	}
+
+	b = append(b, '}')
+	return b, nil
+}",5.0,0.0,0.0,0.0,1.0,0.0,0.0,encode.go,github.com/segmentio/encoding/json,github.com/segmentio/encoding,v0.1.10,go-pg/pg,unclassified
+16,491613,2729.0,1.0,"func VethPeerIndex(link *Veth) (int, error) {
+	fd, err := getSocketUDP()
+	if err != nil {
+		return -1, err
+	}
+	defer syscall.Close(fd)
+
+	ifreq, sSet := newIocltStringSetReq(link.Name)
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf(""SIOCETHTOOL request for %q failed, errno=%v"", link.Attrs().Name, errno)
+	}
+
+	gstrings := &ethtoolGstrings{
+		cmd:       ETHTOOL_GSTRINGS,
+		stringSet: ETH_SS_STATS,
+		length:    sSet.data[0],
+	}
+	ifreq.Data = uintptr(unsafe.Pointer(gstrings))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf(""SIOCETHTOOL request for %q failed, errno=%v"", link.Attrs().Name, errno)
+	}
+
+	stats := &ethtoolStats{
+		cmd:    ETHTOOL_GSTATS,
+		nStats: gstrings.length,
+	}
+	ifreq.Data = uintptr(unsafe.Pointer(stats))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf(""SIOCETHTOOL request for %q failed, errno=%v"", link.Attrs().Name, errno)
+	}
+	return int(stats.data[0]), nil
+}",5.0,0.0,0.0,0.0,8.0,0.0,0.0,link_linux.go,github.com/vishvananda/netlink,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,unclassified
+17,658,825.0,1.0,"func copystack(gp *g, newsize uintptr) {
+	if gp.syscallsp != 0 {
+		throw(""stack growth not allowed in system call"")
+	}
+	old := gp.stack
+	if old.lo == 0 {
+		throw(""nil stackbase"")
+	}
+	used := old.hi - gp.sched.sp
+
+	// allocate new stack
+	new := stackalloc(uint32(newsize))
+	if stackPoisonCopy != 0 {
+		fillstack(new, 0xfd)
+	}
+	if stackDebug >= 1 {
+		print(""copystack gp="", gp, "" ["", hex(old.lo), "" "", hex(old.hi-used), "" "", hex(old.hi), ""]"", "" -> ["", hex(new.lo), "" "", hex(new.hi-used), "" "", hex(new.hi), ""]/"", newsize, ""\n"")
+	}
+
+	// Compute adjustment.
+	var adjinfo adjustinfo
+	adjinfo.old = old
+	adjinfo.delta = new.hi - old.hi
+
+	// Adjust sudogs, synchronizing with channel ops if necessary.
+	ncopy := used
+	if !gp.activeStackChans {
+		adjustsudogs(gp, &adjinfo)
+	} else {
+		// sudogs may be pointing in to the stack and gp has
+		// released channel locks, so other goroutines could
+		// be writing to gp's stack. Find the highest such
+		// pointer so we can handle everything there and below
+		// carefully. (This shouldn't be far from the bottom
+		// of the stack, so there's little cost in handling
+		// everything below it carefully.)
+		adjinfo.sghi = findsghi(gp, old)
+
+		// Synchronize with channel ops and copy the part of
+		// the stack they may interact with.
+		ncopy -= syncadjustsudogs(gp, used, &adjinfo)
+	}
+
+	// Copy the stack (or the rest of it) to the new location
+	memmove(unsafe.Pointer(new.hi-ncopy), unsafe.Pointer(old.hi-ncopy), ncopy)
+
+	// Adjust remaining structures that have pointers into stacks.
+	// We have to do most of these before we traceback the new
+	// stack because gentraceback uses them.
+	adjustctxt(gp, &adjinfo)
+	adjustdefers(gp, &adjinfo)
+	adjustpanics(gp, &adjinfo)
+	if adjinfo.sghi != 0 {
+		adjinfo.sghi += adjinfo.delta
+	}
+
+	// Swap out old stack for new one
+	gp.stack = new
+	gp.stackguard0 = new.lo + _StackGuard // NOTE: might clobber a preempt request
+	gp.sched.sp = new.hi - used
+	gp.stktopsp += adjinfo.delta
+
+	// Adjust pointers in the new stack.
+	gentraceback(^uintptr(0), ^uintptr(0), 0, gp, 0, nil, 0x7fffffff, adjustframe, noescape(unsafe.Pointer(&adjinfo)), 0)
+
+	// free old stack
+	if stackPoisonCopy != 0 {
+		fillstack(old, 0xfc)
+	}
+	stackfree(old)
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,stack.go,runtime,std,std,kubernetes/kubernetes,unclassified
+18,772117,531.0,1.0,"func (i *blockIter) SeekLT(key []byte) (*InternalKey, []byte) {
+	i.clearCache()
+
+	ikey := base.MakeSearchKey(key)
+
+	// Find the index of the smallest restart point whose key is >= the key
+	// sought; index will be numRestarts if there is no such restart point.
+	i.offset = 0
+	var index int32
+
+	{
+		// NB: manually inlined sort.Search is ~5% faster.
+		//
+		// Define f(-1) == false and f(n) == true.
+		// Invariant: f(index-1) == false, f(upper) == true.
+		upper := i.numRestarts
+		for index < upper {
+			h := int32(uint(index+upper) >> 1) // avoid overflow when computing h
+			// index ≤ h < upper
+			offset := int32(binary.LittleEndian.Uint32(i.data[i.restarts+4*h:]))
+			// For a restart point, there are 0 bytes shared with the previous key.
+			// The varint encoding of 0 occupies 1 byte.
+			ptr := unsafe.Pointer(uintptr(i.ptr) + uintptr(offset+1))
+
+			// Decode the key at that restart point, and compare it to the key
+			// sought. See the comment in readEntry for why we manually inline the
+			// varint decoding.
+			var v1 uint32
+			src := (*[5]uint8)(ptr)
+			if a := (*src)[0]; a < 128 {
+				v1 = uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 1)
+			} else if a, b := a&0x7f, (*src)[1]; b < 128 {
+				v1 = uint32(b)<<7 | uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 2)
+			} else if b, c := b&0x7f, (*src)[2]; c < 128 {
+				v1 = uint32(c)<<14 | uint32(b)<<7 | uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 3)
+			} else if c, d := c&0x7f, (*src)[3]; d < 128 {
+				v1 = uint32(d)<<21 | uint32(c)<<14 | uint32(b)<<7 | uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 4)
+			} else {
+				d, e := d&0x7f, (*src)[4]
+				v1 = uint32(e)<<28 | uint32(d)<<21 | uint32(c)<<14 | uint32(b)<<7 | uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 5)
+			}
+
+			if src := (*[5]uint8)(ptr); (*src)[0] < 128 {
+				ptr = unsafe.Pointer(uintptr(ptr) + 1)
+			} else if (*src)[1] < 128 {
+				ptr = unsafe.Pointer(uintptr(ptr) + 2)
+			} else if (*src)[2] < 128 {
+				ptr = unsafe.Pointer(uintptr(ptr) + 3)
+			} else if (*src)[3] < 128 {
+				ptr = unsafe.Pointer(uintptr(ptr) + 4)
+			} else {
+				ptr = unsafe.Pointer(uintptr(ptr) + 5)
+			}
+
+			// Manually inlining base.DecodeInternalKey provides a 5-10% speedup on
+			// BlockIter benchmarks.
+			s := getBytes(ptr, int(v1))
+			var k InternalKey
+			if n := len(s) - 8; n >= 0 {
+				k.Trailer = binary.LittleEndian.Uint64(s[n:])
+				k.UserKey = s[:n:n]
+				// NB: We can't have duplicate keys if the globalSeqNum != 0, so we
+				// leave the seqnum on this key as 0 as it won't affect our search
+				// since ikey has the maximum seqnum.
+			} else {
+				k.Trailer = uint64(InternalKeyKindInvalid)
+			}
+
+			if base.InternalCompare(i.cmp, ikey, k) > 0 {
+				index = h + 1 // preserves f(i-1) == false
+			} else {
+				upper = h // preserves f(j) == true
+			}
+		}
+		// index == upper, f(index-1) == false, and f(upper) (= f(index)) == true
+		// => answer is index.
+	}
+
+	// Since keys are strictly increasing, if index > 0 then the restart point at
+	// index-1 will be the largest whose key is < the key sought.
+	targetOffset := i.restarts
+	if index > 0 {
+		i.offset = int32(binary.LittleEndian.Uint32(i.data[i.restarts+4*(index-1):]))
+		if index < i.numRestarts {
+			targetOffset = int32(binary.LittleEndian.Uint32(i.data[i.restarts+4*(index):]))
+		}
+	} else if index == 0 {
+		// If index == 0 then all keys in this block are larger than the key
+		// sought.
+		i.offset = -1
+		i.nextOffset = 0
+		return nil, nil
+	}
+
+	// Iterate from that restart point to somewhere >= the key sought, then back
+	// up to the previous entry. The expectation is that we'll be performing
+	// reverse iteration, so we cache the entries as we advance forward.
+	i.nextOffset = i.offset
+
+	for {
+		i.offset = i.nextOffset
+		i.readEntry()
+		i.decodeInternalKey(i.key)
+
+		if i.cmp(i.ikey.UserKey, ikey.UserKey) >= 0 {
+			// The current key is greater than or equal to our search key. Back up to
+			// the previous key which was less than our search key. Note that his for
+			// loop will execute at least once with this if-block not being true, so
+			// the key we are backing up to is the last one this loop cached.
+			i.Prev()
+			return &i.ikey, i.val
+		}
+
+		if i.nextOffset >= targetOffset {
+			// We've reached the end of the current restart block. Return the current
+			// key. When the restart interval is 1, the first iteration of the for
+			// loop will bring us here. In that case ikey is backed by the block so
+			// we get the desired key stability guarantee for the lifetime of the
+			// blockIter.
+			break
+		}
+
+		i.cacheEntry()
+	}
+
+	if !i.Valid() {
+		return nil, nil
+	}
+	return &i.ikey, i.val
+}",11.0,0.0,0.0,0.0,12.0,0.0,0.0,block.go,github.com/cockroachdb/pebble/sstable,github.com/cockroachdb/pebble,v0.0.0-20200219202912-046831eaec09,lni/dragonboat,unclassified
+19,1769,2264.0,1.0,"func getpeername(fd int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
+	_, _, e1 := RawSyscall(SYS_GETPEERNAME, uintptr(fd), uintptr(unsafe.Pointer(rsa)), uintptr(unsafe.Pointer(addrlen)))
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,unclassified
+20,208070,1946.0,1.0,"func connect(s int, addr unsafe.Pointer, addrlen _Socklen) (err error) {
+	_, _, e1 := Syscall(SYS_CONNECT, uintptr(s), uintptr(addr), uintptr(addrlen))
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,unclassified
+21,596804,319.0,1.0,"func constructSliceDecodeFunc(size uintptr, t reflect.Type, decode decodeFunc) decodeFunc {
+	return func(d decoder, b []byte, p unsafe.Pointer) ([]byte, error) {
+		return d.decodeSlice(b, p, size, t, decode)
+	}
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,codec.go,github.com/segmentio/encoding/json,github.com/segmentio/encoding,v0.1.10,go-pg/pg,unclassified
+22,201120,1788.0,1.0,"func Getrlimit(resource int, rlim *Rlimit) (err error) {
+	_, _, e1 := RawSyscall(SYS_GETRLIMIT, uintptr(resource), uintptr(unsafe.Pointer(rlim)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,unclassified
+23,6277,1434.0,1.0,"func Statx(dirfd int, path string, flags int, mask int, stat *Statx_t) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall6(SYS_STATX, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(flags), uintptr(mask), uintptr(unsafe.Pointer(stat)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,unclassified
+24,229582,2357.0,1.0,"func StructOf(fields []StructField) Type {
+	var (
+		hash       = fnv1(0, []byte(""struct {"")...)
+		size       uintptr
+		typalign   uint8
+		comparable = true
+		methods    []method
+
+		fs   = make([]structField, len(fields))
+		repr = make([]byte, 0, 64)
+		fset = map[string]struct{}{} // fields' names
+
+		hasGCProg = false // records whether a struct-field type has a GCProg
+	)
+
+	lastzero := uintptr(0)
+	repr = append(repr, ""struct {""...)
+	pkgpath := """"
+	for i, field := range fields {
+		if field.Name == """" {
+			panic(""reflect.StructOf: field "" + strconv.Itoa(i) + "" has no name"")
+		}
+		if !isValidFieldName(field.Name) {
+			panic(""reflect.StructOf: field "" + strconv.Itoa(i) + "" has invalid name"")
+		}
+		if field.Type == nil {
+			panic(""reflect.StructOf: field "" + strconv.Itoa(i) + "" has no type"")
+		}
+		f, fpkgpath := runtimeStructField(field)
+		ft := f.typ
+		if ft.kind&kindGCProg != 0 {
+			hasGCProg = true
+		}
+		if fpkgpath != """" {
+			if pkgpath == """" {
+				pkgpath = fpkgpath
+			} else if pkgpath != fpkgpath {
+				panic(""reflect.Struct: fields with different PkgPath "" + pkgpath + "" and "" + fpkgpath)
+			}
+		}
+
+		// Update string and hash
+		name := f.name.name()
+		hash = fnv1(hash, []byte(name)...)
+		repr = append(repr, ("" "" + name)...)
+		if f.embedded() {
+			// Embedded field
+			if f.typ.Kind() == Ptr {
+				// Embedded ** and *interface{} are illegal
+				elem := ft.Elem()
+				if k := elem.Kind(); k == Ptr || k == Interface {
+					panic(""reflect.StructOf: illegal embedded field type "" + ft.String())
+				}
+			}
+
+			switch f.typ.Kind() {
+			case Interface:
+				ift := (*interfaceType)(unsafe.Pointer(ft))
+				for im, m := range ift.methods {
+					if ift.nameOff(m.name).pkgPath() != """" {
+						// TODO(sbinet).  Issue 15924.
+						panic(""reflect: embedded interface with unexported method(s) not implemented"")
+					}
+
+					var (
+						mtyp    = ift.typeOff(m.typ)
+						ifield  = i
+						imethod = im
+						ifn     Value
+						tfn     Value
+					)
+
+					if ft.kind&kindDirectIface != 0 {
+						tfn = MakeFunc(mtyp, func(in []Value) []Value {
+							var args []Value
+							var recv = in[0]
+							if len(in) > 1 {
+								args = in[1:]
+							}
+							return recv.Field(ifield).Method(imethod).Call(args)
+						})
+						ifn = MakeFunc(mtyp, func(in []Value) []Value {
+							var args []Value
+							var recv = in[0]
+							if len(in) > 1 {
+								args = in[1:]
+							}
+							return recv.Field(ifield).Method(imethod).Call(args)
+						})
+					} else {
+						tfn = MakeFunc(mtyp, func(in []Value) []Value {
+							var args []Value
+							var recv = in[0]
+							if len(in) > 1 {
+								args = in[1:]
+							}
+							return recv.Field(ifield).Method(imethod).Call(args)
+						})
+						ifn = MakeFunc(mtyp, func(in []Value) []Value {
+							var args []Value
+							var recv = Indirect(in[0])
+							if len(in) > 1 {
+								args = in[1:]
+							}
+							return recv.Field(ifield).Method(imethod).Call(args)
+						})
+					}
+
+					methods = append(methods, method{
+						name: resolveReflectName(ift.nameOff(m.name)),
+						mtyp: resolveReflectType(mtyp),
+						ifn:  resolveReflectText(unsafe.Pointer(&ifn)),
+						tfn:  resolveReflectText(unsafe.Pointer(&tfn)),
+					})
+				}
+			case Ptr:
+				ptr := (*ptrType)(unsafe.Pointer(ft))
+				if unt := ptr.uncommon(); unt != nil {
+					if i > 0 && unt.mcount > 0 {
+						// Issue 15924.
+						panic(""reflect: embedded type with methods not implemented if type is not first field"")
+					}
+					if len(fields) > 1 {
+						panic(""reflect: embedded type with methods not implemented if there is more than one field"")
+					}
+					for _, m := range unt.methods() {
+						mname := ptr.nameOff(m.name)
+						if mname.pkgPath() != """" {
+							// TODO(sbinet).
+							// Issue 15924.
+							panic(""reflect: embedded interface with unexported method(s) not implemented"")
+						}
+						methods = append(methods, method{
+							name: resolveReflectName(mname),
+							mtyp: resolveReflectType(ptr.typeOff(m.mtyp)),
+							ifn:  resolveReflectText(ptr.textOff(m.ifn)),
+							tfn:  resolveReflectText(ptr.textOff(m.tfn)),
+						})
+					}
+				}
+				if unt := ptr.elem.uncommon(); unt != nil {
+					for _, m := range unt.methods() {
+						mname := ptr.nameOff(m.name)
+						if mname.pkgPath() != """" {
+							// TODO(sbinet)
+							// Issue 15924.
+							panic(""reflect: embedded interface with unexported method(s) not implemented"")
+						}
+						methods = append(methods, method{
+							name: resolveReflectName(mname),
+							mtyp: resolveReflectType(ptr.elem.typeOff(m.mtyp)),
+							ifn:  resolveReflectText(ptr.elem.textOff(m.ifn)),
+							tfn:  resolveReflectText(ptr.elem.textOff(m.tfn)),
+						})
+					}
+				}
+			default:
+				if unt := ft.uncommon(); unt != nil {
+					if i > 0 && unt.mcount > 0 {
+						// Issue 15924.
+						panic(""reflect: embedded type with methods not implemented if type is not first field"")
+					}
+					if len(fields) > 1 && ft.kind&kindDirectIface != 0 {
+						panic(""reflect: embedded type with methods not implemented for non-pointer type"")
+					}
+					for _, m := range unt.methods() {
+						mname := ft.nameOff(m.name)
+						if mname.pkgPath() != """" {
+							// TODO(sbinet)
+							// Issue 15924.
+							panic(""reflect: embedded interface with unexported method(s) not implemented"")
+						}
+						methods = append(methods, method{
+							name: resolveReflectName(mname),
+							mtyp: resolveReflectType(ft.typeOff(m.mtyp)),
+							ifn:  resolveReflectText(ft.textOff(m.ifn)),
+							tfn:  resolveReflectText(ft.textOff(m.tfn)),
+						})
+
+					}
+				}
+			}
+		}
+		if _, dup := fset[name]; dup {
+			panic(""reflect.StructOf: duplicate field "" + name)
+		}
+		fset[name] = struct{}{}
+
+		hash = fnv1(hash, byte(ft.hash>>24), byte(ft.hash>>16), byte(ft.hash>>8), byte(ft.hash))
+
+		repr = append(repr, ("" "" + ft.String())...)
+		if f.name.tagLen() > 0 {
+			hash = fnv1(hash, []byte(f.name.tag())...)
+			repr = append(repr, ("" "" + strconv.Quote(f.name.tag()))...)
+		}
+		if i < len(fields)-1 {
+			repr = append(repr, ';')
+		}
+
+		comparable = comparable && (ft.equal != nil)
+
+		offset := align(size, uintptr(ft.align))
+		if ft.align > typalign {
+			typalign = ft.align
+		}
+		size = offset + ft.size
+		f.offsetEmbed |= offset << 1
+
+		if ft.size == 0 {
+			lastzero = size
+		}
+
+		fs[i] = f
+	}
+
+	if size > 0 && lastzero == size {
+		// This is a non-zero sized struct that ends in a
+		// zero-sized field. We add an extra byte of padding,
+		// to ensure that taking the address of the final
+		// zero-sized field can't manufacture a pointer to the
+		// next object in the heap. See issue 9401.
+		size++
+	}
+
+	var typ *structType
+	var ut *uncommonType
+
+	if len(methods) == 0 {
+		t := new(structTypeUncommon)
+		typ = &t.structType
+		ut = &t.u
+	} else {
+		// A *rtype representing a struct is followed directly in memory by an
+		// array of method objects representing the methods attached to the
+		// struct. To get the same layout for a run time generated type, we
+		// need an array directly following the uncommonType memory.
+		// A similar strategy is used for funcTypeFixed4, ...funcTypeFixedN.
+		tt := New(StructOf([]StructField{
+			{Name: ""S"", Type: TypeOf(structType{})},
+			{Name: ""U"", Type: TypeOf(uncommonType{})},
+			{Name: ""M"", Type: ArrayOf(len(methods), TypeOf(methods[0]))},
+		}))
+
+		typ = (*structType)(unsafe.Pointer(tt.Elem().Field(0).UnsafeAddr()))
+		ut = (*uncommonType)(unsafe.Pointer(tt.Elem().Field(1).UnsafeAddr()))
+
+		copy(tt.Elem().Field(2).Slice(0, len(methods)).Interface().([]method), methods)
+	}
+	// TODO(sbinet): Once we allow embedding multiple types,
+	// methods will need to be sorted like the compiler does.
+	// TODO(sbinet): Once we allow non-exported methods, we will
+	// need to compute xcount as the number of exported methods.
+	ut.mcount = uint16(len(methods))
+	ut.xcount = ut.mcount
+	ut.moff = uint32(unsafe.Sizeof(uncommonType{}))
+
+	if len(fs) > 0 {
+		repr = append(repr, ' ')
+	}
+	repr = append(repr, '}')
+	hash = fnv1(hash, '}')
+	str := string(repr)
+
+	// Round the size up to be a multiple of the alignment.
+	size = align(size, uintptr(typalign))
+
+	// Make the struct type.
+	var istruct interface{} = struct{}{}
+	prototype := *(**structType)(unsafe.Pointer(&istruct))
+	*typ = *prototype
+	typ.fields = fs
+	if pkgpath != """" {
+		typ.pkgPath = newName(pkgpath, """", false)
+	}
+
+	// Look in cache.
+	if ts, ok := structLookupCache.m.Load(hash); ok {
+		for _, st := range ts.([]Type) {
+			t := st.common()
+			if haveIdenticalUnderlyingType(&typ.rtype, t, true) {
+				return t
+			}
+		}
+	}
+
+	// Not in cache, lock and retry.
+	structLookupCache.Lock()
+	defer structLookupCache.Unlock()
+	if ts, ok := structLookupCache.m.Load(hash); ok {
+		for _, st := range ts.([]Type) {
+			t := st.common()
+			if haveIdenticalUnderlyingType(&typ.rtype, t, true) {
+				return t
+			}
+		}
+	}
+
+	addToCache := func(t Type) Type {
+		var ts []Type
+		if ti, ok := structLookupCache.m.Load(hash); ok {
+			ts = ti.([]Type)
+		}
+		structLookupCache.m.Store(hash, append(ts, t))
+		return t
+	}
+
+	// Look in known types.
+	for _, t := range typesByString(str) {
+		if haveIdenticalUnderlyingType(&typ.rtype, t, true) {
+			// even if 't' wasn't a structType with methods, we should be ok
+			// as the 'u uncommonType' field won't be accessed except when
+			// tflag&tflagUncommon is set.
+			return addToCache(t)
+		}
+	}
+
+	typ.str = resolveReflectName(newName(str, """", false))
+	typ.tflag = 0 // TODO: set tflagRegularMemory
+	typ.hash = hash
+	typ.size = size
+	typ.ptrdata = typeptrdata(typ.common())
+	typ.align = typalign
+	typ.fieldAlign = typalign
+	typ.ptrToThis = 0
+	if len(methods) > 0 {
+		typ.tflag |= tflagUncommon
+	}
+
+	if hasGCProg {
+		lastPtrField := 0
+		for i, ft := range fs {
+			if ft.typ.pointers() {
+				lastPtrField = i
+			}
+		}
+		prog := []byte{0, 0, 0, 0} // will be length of prog
+		var off uintptr
+		for i, ft := range fs {
+			if i > lastPtrField {
+				// gcprog should not include anything for any field after
+				// the last field that contains pointer data
+				break
+			}
+			if !ft.typ.pointers() {
+				// Ignore pointerless fields.
+				continue
+			}
+			// Pad to start of this field with zeros.
+			if ft.offset() > off {
+				n := (ft.offset() - off) / ptrSize
+				prog = append(prog, 0x01, 0x00) // emit a 0 bit
+				if n > 1 {
+					prog = append(prog, 0x81)      // repeat previous bit
+					prog = appendVarint(prog, n-1) // n-1 times
+				}
+				off = ft.offset()
+			}
+
+			prog = appendGCProg(prog, ft.typ)
+			off += ft.typ.ptrdata
+		}
+		prog = append(prog, 0)
+		*(*uint32)(unsafe.Pointer(&prog[0])) = uint32(len(prog) - 4)
+		typ.kind |= kindGCProg
+		typ.gcdata = &prog[0]
+	} else {
+		typ.kind &^= kindGCProg
+		bv := new(bitVector)
+		addTypeBits(bv, 0, typ.common())
+		if len(bv.data) > 0 {
+			typ.gcdata = &bv.data[0]
+		}
+	}
+	typ.equal = nil
+	if comparable {
+		typ.equal = func(p, q unsafe.Pointer) bool {
+			for _, ft := range typ.fields {
+				pi := add(p, ft.offset(), ""&x.field safe"")
+				qi := add(q, ft.offset(), ""&x.field safe"")
+				if !ft.typ.equal(pi, qi) {
+					return false
+				}
+			}
+			return true
+		}
+	}
+
+	switch {
+	case len(fs) == 1 && !ifaceIndir(fs[0].typ):
+		// structs of 1 direct iface type can be direct
+		typ.kind |= kindDirectIface
+	default:
+		typ.kind &^= kindDirectIface
+	}
+
+	return addToCache(&typ.rtype)
+}",9.0,0.0,0.0,0.0,5.0,0.0,0.0,type.go,_/root/download/go/src/reflect,std,std,json-iterator/go,unclassified
+25,379007,2948.0,1.0,"func VethPeerIndex(link *Veth) (int, error) {
+	fd, err := getSocketUDP()
+	if err != nil {
+		return -1, err
+	}
+	defer syscall.Close(fd)
+
+	ifreq, sSet := newIocltStringSetReq(link.Name)
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf(""SIOCETHTOOL request for %q failed, errno=%v"", link.Attrs().Name, errno)
+	}
+
+	stats := ethtoolStats{
+		cmd:    ETHTOOL_GSTATS,
+		nStats: sSet.data[0],
+	}
+
+	buffer, err := vethStatsSerialize(stats)
+	if err != nil {
+		return -1, err
+	}
+
+	ifreq.Data = uintptr(unsafe.Pointer(&buffer[0]))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf(""SIOCETHTOOL request for %q failed, errno=%v"", link.Attrs().Name, errno)
+	}
+
+	vstats, err := vethStatsDeserialize(buffer)
+	if err != nil {
+		return -1, err
+	}
+
+	return int(vstats.Peer), nil
+}",3.0,0.0,0.0,0.0,5.0,0.0,0.0,link_linux.go,github.com/vishvananda/netlink,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,unclassified
+26,45421,104.0,1.0,"func structPointer_BoolVal(p structPointer, f field) *bool {
+	return (*bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,unclassified
+27,694479,266.0,1.0,"func (a array) Zero() {
+	if a.t.Kind() == reflect.String {
+		ss := a.Strings()
+		for i := range ss {
+			ss[i] = """"
+		}
+		return
+	}
+	if !isParameterizedKind(a.t.Kind()) {
+		ba := a.byteSlice()
+		for i := range ba {
+			ba[i] = 0
+		}
+		return
+	}
+	ptr := uintptr(a.Ptr)
+	for i := 0; i < a.L; i++ {
+		want := ptr + uintptr(i)*a.t.Size()
+		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+		val = reflect.Indirect(val)
+		val.Set(reflect.Zero(a.t))
+	}
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,array.go,gorgonia.org/tensor,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,unclassified
+28,520388,2063.0,1.0,"func setgroups(n int, list *_Gid_t) (err error) {
+	_, _, e1 := RawSyscall(SYS_SETGROUPS, uintptr(n), uintptr(unsafe.Pointer(list)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,unclassified
+29,49338,1512.0,1.0,"func write(fd int, p []byte) (n int, err error) {
+	var _p0 unsafe.Pointer
+	if len(p) > 0 {
+		_p0 = unsafe.Pointer(&p[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall(SYS_WRITE, uintptr(fd), uintptr(_p0), uintptr(len(p)))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190531175056-4c3a928424d2,github/hub,unclassified
+30,73052,2282.0,1.0,"func Ustat(dev int, ubuf *Ustat_t) (err error) {
+	_, _, e1 := Syscall(SYS_USTAT, uintptr(dev), uintptr(unsafe.Pointer(ubuf)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191220142924-d4481acd189f,go-kit/kit,unclassified
+31,3324,25.0,1.0,"func recvmsg(s uintptr, h *msghdr, flags int) (int, error) {
+	n, _, errno := syscall.Syscall(syscall.SYS_RECVMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+	return int(n), errnoErr(errno)
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,sys_unix.go,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,unclassified
+32,615,834.0,1.0,"func extendRandom(r []byte, n int) {
+	if n < 0 {
+		n = 0
+	}
+	for n < len(r) {
+		// Extend random bits using hash function & time seed
+		w := n
+		if w > 16 {
+			w = 16
+		}
+		h := memhash(unsafe.Pointer(&r[n-w]), uintptr(nanotime()), uintptr(w))
+		for i := 0; i < sys.PtrSize && n < len(r); i++ {
+			r[n] = byte(h)
+			n++
+			h >>= 8
+		}
+	}
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,runtime2.go,runtime,std,std,kubernetes/kubernetes,unclassified
+33,230797,1489.0,1.0,"func getgroups(n int, list *_Gid_t) (nn int, err error) {
+	r0, _, e1 := RawSyscall(SYS_GETGROUPS, uintptr(n), uintptr(unsafe.Pointer(list)), 0)
+	nn = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,unclassified
+34,230046,468.0,1.0,"func recordspan(vh unsafe.Pointer, p unsafe.Pointer) {
+	h := (*mheap)(vh)
+	s := (*mspan)(p)
+	if len(h.allspans) >= cap(h.allspans) {
+		n := 64 * 1024 / sys.PtrSize
+		if n < cap(h.allspans)*3/2 {
+			n = cap(h.allspans) * 3 / 2
+		}
+		var new []*mspan
+		sp := (*slice)(unsafe.Pointer(&new))
+		sp.array = sysAlloc(uintptr(n)*sys.PtrSize, &memstats.other_sys)
+		if sp.array == nil {
+			throw(""runtime: cannot allocate memory"")
+		}
+		sp.len = len(h.allspans)
+		sp.cap = n
+		if len(h.allspans) > 0 {
+			copy(new, h.allspans)
+		}
+		oldAllspans := h.allspans
+		*(*notInHeapSlice)(unsafe.Pointer(&h.allspans)) = *(*notInHeapSlice)(unsafe.Pointer(&new))
+		if len(oldAllspans) != 0 {
+			sysFree(unsafe.Pointer(&oldAllspans[0]), uintptr(cap(oldAllspans))*unsafe.Sizeof(oldAllspans[0]), &memstats.other_sys)
+		}
+	}
+	h.allspans = h.allspans[:len(h.allspans)+1]
+	h.allspans[len(h.allspans)-1] = s
+}",6.0,0.0,0.0,0.0,2.0,0.0,0.0,mheap.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+35,358839,68.0,1.0,"func fastXORWords(dst, a, b []byte) {
+	dw := *(*[]uintptr)(unsafe.Pointer(&dst))
+	aw := *(*[]uintptr)(unsafe.Pointer(&a))
+	bw := *(*[]uintptr)(unsafe.Pointer(&b))
+	n := len(b) / wordSize
+	for i := 0; i < n; i++ {
+		dw[i] = aw[i] ^ bw[i]
+	}
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,xor.go,github.com/lucas-clemente/aes12,github.com/lucas-clemente/aes12,v0.0.0-20171027163421-cd47fb39b79f,ginuerzh/gost,unclassified
+36,94712,87.0,1.0,"func madvise(b []byte, advice int) (err error) {
+	_, _, e1 := syscall.Syscall(syscall.SYS_MADVISE, uintptr(unsafe.Pointer(&b[0])), uintptr(len(b)), uintptr(advice))
+	if e1 != 0 {
+		err = e1
+	}
+	return
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,bolt_unix.go,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.3,cayleygraph/cayley,unclassified
+37,260174,133.0,1.0,"func structPointer_ExtMap(p structPointer, f field) *map[int32]Extension {
+	return (*map[int32]Extension)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,unclassified
+38,338,1468.0,1.0,"func gcDumpObject(label string, obj, off uintptr) {
+	s := spanOf(obj)
+	print(label, ""="", hex(obj))
+	if s == nil {
+		print("" s=nil\n"")
+		return
+	}
+	print("" s.base()="", hex(s.base()), "" s.limit="", hex(s.limit), "" s.spanclass="", s.spanclass, "" s.elemsize="", s.elemsize, "" s.state="")
+	if state := s.state.get(); 0 <= state && int(state) < len(mSpanStateNames) {
+		print(mSpanStateNames[state], ""\n"")
+	} else {
+		print(""unknown("", state, "")\n"")
+	}
+
+	skipped := false
+	size := s.elemsize
+	if s.state.get() == mSpanManual && size == 0 {
+		// We're printing something from a stack frame. We
+		// don't know how big it is, so just show up to an
+		// including off.
+		size = off + sys.PtrSize
+	}
+	for i := uintptr(0); i < size; i += sys.PtrSize {
+		// For big objects, just print the beginning (because
+		// that usually hints at the object's type) and the
+		// fields around off.
+		if !(i < 128*sys.PtrSize || off-16*sys.PtrSize < i && i < off+16*sys.PtrSize) {
+			skipped = true
+			continue
+		}
+		if skipped {
+			print("" ...\n"")
+			skipped = false
+		}
+		print("" *("", label, ""+"", i, "") = "", hex(*(*uintptr)(unsafe.Pointer(obj + i))))
+		if i == off {
+			print("" <=="")
+		}
+		print(""\n"")
+	}
+	if skipped {
+		print("" ...\n"")
+	}
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,mgcmark.go,runtime,std,std,kubernetes/kubernetes,unclassified
+39,20188,1265.0,1.0,"func RequestKey(keyType string, description string, callback string, destRingid int) (id int, err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(keyType)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(description)
+	if err != nil {
+		return
+	}
+	var _p2 *byte
+	_p2, err = BytePtrFromString(callback)
+	if err != nil {
+		return
+	}
+	r0, _, e1 := Syscall6(SYS_REQUEST_KEY, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(unsafe.Pointer(_p2)), uintptr(destRingid), 0, 0)
+	id = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200302150141-5c8b2ff67527,prometheus/prometheus,unclassified
+40,73113,1781.0,1.0,"func Msync(b []byte, flags int) (err error) {
+	var _p0 unsafe.Pointer
+	if len(b) > 0 {
+		_p0 = unsafe.Pointer(&b[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	_, _, e1 := Syscall(SYS_MSYNC, uintptr(_p0), uintptr(len(b)), uintptr(flags))
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191220142924-d4481acd189f,go-kit/kit,unclassified
+41,260181,153.0,1.0,"func structPointer_StructPointerSlice(p structPointer, f field) *structPointerSlice {
+	return (*structPointerSlice)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,unclassified
+42,520345,1203.0,1.0,"func Sethostname(p []byte) (err error) {
+	var _p0 unsafe.Pointer
+	if len(p) > 0 {
+		_p0 = unsafe.Pointer(&p[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	_, _, e1 := Syscall(SYS_SETHOSTNAME, uintptr(_p0), uintptr(len(p)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,unclassified
+43,1245,12.0,1.0,"func faccessat(dirfd int, path string, mode uint32) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_FACCESSAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(mode))
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,unclassified
+44,6207,672.0,1.0,"func Fgetxattr(fd int, attr string, dest []byte) (sz int, err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(attr)
+	if err != nil {
+		return
+	}
+	var _p1 unsafe.Pointer
+	if len(dest) > 0 {
+		_p1 = unsafe.Pointer(&dest[0])
+	} else {
+		_p1 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall6(SYS_FGETXATTR, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(_p1), uintptr(len(dest)), 0, 0)
+	sz = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",4.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,unclassified
+45,110188,2320.0,1.0,"func VethPeerIndex(link *Veth) (int, error) {
+	fd, err := getSocketUDP()
+	if err != nil {
+		return -1, err
+	}
+	defer syscall.Close(fd)
+
+	ifreq, sSet := newIocltStringSetReq(link.Name)
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf(""SIOCETHTOOL request for %q failed, errno=%v"", link.Attrs().Name, errno)
+	}
+
+	gstrings := &ethtoolGstrings{
+		cmd:       ETHTOOL_GSTRINGS,
+		stringSet: ETH_SS_STATS,
+		length:    sSet.data[0],
+	}
+	ifreq.Data = uintptr(unsafe.Pointer(gstrings))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf(""SIOCETHTOOL request for %q failed, errno=%v"", link.Attrs().Name, errno)
+	}
+
+	stats := &ethtoolStats{
+		cmd:    ETHTOOL_GSTATS,
+		nStats: gstrings.length,
+	}
+	ifreq.Data = uintptr(unsafe.Pointer(stats))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf(""SIOCETHTOOL request for %q failed, errno=%v"", link.Attrs().Name, errno)
+	}
+	return int(stats.data[0]), nil
+}",5.0,0.0,0.0,0.0,8.0,0.0,0.0,link_linux.go,github.com/vishvananda/netlink,github.com/vishvananda/netlink,v1.0.0,rancher/k3s,unclassified
+46,229779,682.0,1.0,"func printDebugLog() {
+	if !dlogEnabled {
+		return
+	}
+
+	// This function should not panic or throw since it is used in
+	// the fatal panic path and this may deadlock.
+
+	printlock()
+
+	// Get the list of all debug logs.
+	allp := (*uintptr)(unsafe.Pointer(&allDloggers))
+	all := (*dlogger)(unsafe.Pointer(atomic.Loaduintptr(allp)))
+
+	// Count the logs.
+	n := 0
+	for l := all; l != nil; l = l.allLink {
+		n++
+	}
+	if n == 0 {
+		printunlock()
+		return
+	}
+
+	// Prepare read state for all logs.
+	type readState struct {
+		debugLogReader
+		first    bool
+		lost     uint64
+		nextTick uint64
+	}
+	state1 := sysAlloc(unsafe.Sizeof(readState{})*uintptr(n), nil)
+	if state1 == nil {
+		println(""failed to allocate read state for"", n, ""logs"")
+		printunlock()
+		return
+	}
+	state := (*[1 << 20]readState)(state1)[:n]
+	{
+		l := all
+		for i := range state {
+			s := &state[i]
+			s.debugLogReader = l.w.r
+			s.first = true
+			s.lost = l.w.r.begin
+			s.nextTick = s.peek()
+			l = l.allLink
+		}
+	}
+
+	// Print records.
+	for {
+		// Find the next record.
+		var best struct {
+			tick uint64
+			i    int
+		}
+		best.tick = ^uint64(0)
+		for i := range state {
+			if state[i].nextTick < best.tick {
+				best.tick = state[i].nextTick
+				best.i = i
+			}
+		}
+		if best.tick == ^uint64(0) {
+			break
+		}
+
+		// Print record.
+		s := &state[best.i]
+		if s.first {
+			print("">> begin log "", best.i)
+			if s.lost != 0 {
+				print(""; lost first "", s.lost>>10, ""KB"")
+			}
+			print("" <<\n"")
+			s.first = false
+		}
+
+		end, _, nano, p := s.header()
+		oldEnd := s.end
+		s.end = end
+
+		print(""["")
+		var tmpbuf [21]byte
+		pnano := int64(nano) - runtimeInitTime
+		if pnano < 0 {
+			// Logged before runtimeInitTime was set.
+			pnano = 0
+		}
+		print(string(itoaDiv(tmpbuf[:], uint64(pnano), 9)))
+		print("" P "", p, ""] "")
+
+		for i := 0; s.begin < s.end; i++ {
+			if i > 0 {
+				print("" "")
+			}
+			if !s.printVal() {
+				// Abort this P log.
+				print(""<aborting P log>"")
+				end = oldEnd
+				break
+			}
+		}
+		println()
+
+		// Move on to the next record.
+		s.begin = end
+		s.end = oldEnd
+		s.nextTick = s.peek()
+	}
+
+	printunlock()
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,debuglog.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+47,335,1291.0,1.0,"func scanConservative(b, n uintptr, ptrmask *uint8, gcw *gcWork, state *stackScanState) {
+	if debugScanConservative {
+		printlock()
+		print(""conservatively scanning ["", hex(b), "","", hex(b+n), "")\n"")
+		hexdumpWords(b, b+n, func(p uintptr) byte {
+			if ptrmask != nil {
+				word := (p - b) / sys.PtrSize
+				bits := *addb(ptrmask, word/8)
+				if (bits>>(word%8))&1 == 0 {
+					return '$'
+				}
+			}
+
+			val := *(*uintptr)(unsafe.Pointer(p))
+			if state != nil && state.stack.lo <= val && val < state.stack.hi {
+				return '@'
+			}
+
+			span := spanOfHeap(val)
+			if span == nil {
+				return ' '
+			}
+			idx := span.objIndex(val)
+			if span.isFree(idx) {
+				return ' '
+			}
+			return '*'
+		})
+		printunlock()
+	}
+
+	for i := uintptr(0); i < n; i += sys.PtrSize {
+		if ptrmask != nil {
+			word := i / sys.PtrSize
+			bits := *addb(ptrmask, word/8)
+			if bits == 0 {
+				// Skip 8 words (the loop increment will do the 8th)
+				//
+				// This must be the first time we've
+				// seen this word of ptrmask, so i
+				// must be 8-word-aligned, but check
+				// our reasoning just in case.
+				if i%(sys.PtrSize*8) != 0 {
+					throw(""misaligned mask"")
+				}
+				i += sys.PtrSize*8 - sys.PtrSize
+				continue
+			}
+			if (bits>>(word%8))&1 == 0 {
+				continue
+			}
+		}
+
+		val := *(*uintptr)(unsafe.Pointer(b + i))
+
+		// Check if val points into the stack.
+		if state != nil && state.stack.lo <= val && val < state.stack.hi {
+			// val may point to a stack object. This
+			// object may be dead from last cycle and
+			// hence may contain pointers to unallocated
+			// objects, but unlike heap objects we can't
+			// tell if it's already dead. Hence, if all
+			// pointers to this object are from
+			// conservative scanning, we have to scan it
+			// defensively, too.
+			state.putPtr(val, true)
+			continue
+		}
+
+		// Check if val points to a heap span.
+		span := spanOfHeap(val)
+		if span == nil {
+			continue
+		}
+
+		// Check if val points to an allocated object.
+		idx := span.objIndex(val)
+		if span.isFree(idx) {
+			continue
+		}
+
+		// val points to an allocated object. Mark it.
+		obj := span.base() + idx*span.elemsize
+		greyobject(obj, b, i, span, gcw, idx)
+	}
+}",2.0,0.0,0.0,0.0,5.0,0.0,0.0,mgcmark.go,runtime,std,std,kubernetes/kubernetes,unclassified
+48,174645,1383.0,1.0,"func (ctx *context) Uniform1iv(dst Uniform, src []int32) {
+	ctx.enqueue(call{
+		args: fnargs{
+			fn: glfnUniform1iv,
+			a0: dst.c(),
+			a1: uintptr(len(src)),
+		},
+		parg:     unsafe.Pointer(&src[0]),
+		blocking: true,
+	})
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,gl.go,github.com/fyne-io/mobile/gl,github.com/fyne-io/mobile,v0.0.1,fyne-io/fyne,unclassified
+49,608188,117.0,1.0,"func fastORBytes(dst, a, b []byte) int {
+	n := len(a)
+	if len(b) < n {
+		n = len(b)
+	}
+	w := n / wordSize
+	if w > 0 {
+		dw := *(*[]uintptr)(unsafe.Pointer(&dst))
+		aw := *(*[]uintptr)(unsafe.Pointer(&a))
+		bw := *(*[]uintptr)(unsafe.Pointer(&b))
+		for i := 0; i < w; i++ {
+			dw[i] = aw[i] | bw[i]
+		}
+	}
+	for i := n - n%wordSize; i < n; i++ {
+		dst[i] = a[i] | b[i]
+	}
+	return n
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,bitutil.go,_/root/download/quorum/common/bitutil,std,std,jpmorganchase/quorum,unclassified
+50,230388,34.0,1.0,"func madvise(addr unsafe.Pointer, n uintptr, flags int32) int32",1.0,0.0,0.0,0.0,1.0,0.0,0.0,stubs2.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+51,201158,420.0,1.0,"func ClockGetres(clockid int32, res *Timespec) (err error) {
+	_, _, e1 := Syscall(SYS_CLOCK_GETRES, uintptr(clockid), uintptr(unsafe.Pointer(res)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,unclassified
+52,520304,2124.0,1.0,"func getsockname(fd int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
+	_, _, e1 := RawSyscall(SYS_GETSOCKNAME, uintptr(fd), uintptr(unsafe.Pointer(rsa)), uintptr(unsafe.Pointer(addrlen)))
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,unclassified
+53,110271,100.0,1.0,"func SetSize(fd int, width int, height int) (err error) {
+	var dimensions [4]uint16
+	dimensions[0] = uint16(height)
+	dimensions[1] = uint16(width)
+
+	if _, _, err := unix.Syscall6(unix.SYS_IOCTL, uintptr(fd), uintptr(unix.TIOCSWINSZ), uintptr(unsafe.Pointer(&dimensions)), 0, 0, 0); err != 0 {
+		return err
+	}
+	return nil
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,util_linux.go,github.com/lxc/lxd/shared,github.com/lxc/lxd,v0.0.0-20191108214106-60ea15630455,rancher/k3s,unclassified
+54,596780,251.0,1.0,"func constructArrayDecodeFunc(size uintptr, t reflect.Type, decode decodeFunc) decodeFunc {
+	n := t.Len()
+	return func(d decoder, b []byte, p unsafe.Pointer) ([]byte, error) {
+		return d.decodeArray(b, p, n, size, t, decode)
+	}
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,codec.go,github.com/segmentio/encoding/json,github.com/segmentio/encoding,v0.1.10,go-pg/pg,unclassified
+55,230103,181.0,1.0,"func (b *bucket) stk() []uintptr {
+	stk := (*[maxStack]uintptr)(add(unsafe.Pointer(b), unsafe.Sizeof(*b)))
+	return stk[:b.nstk:b.nstk]
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,mprof.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+56,3,18.0,1.0,"func abigen_runtime_memequal(a, b unsafe.Pointer, size uintptr) bool",1.0,0.0,0.0,0.0,1.0,0.0,0.0,equal_native.go,internal/bytealg,std,std,kubernetes/kubernetes,unclassified
+57,25831,1915.0,1.0,"func Vmsplice(fd int, iovs []Iovec, flags int) (int, error) {
+	var p unsafe.Pointer
+	if len(iovs) > 0 {
+		p = unsafe.Pointer(&iovs[0])
+	}
+
+	n, _, errno := Syscall6(SYS_VMSPLICE, uintptr(fd), uintptr(p), uintptr(len(iovs)), uintptr(flags), 0, 0)
+	if errno != 0 {
+		return 0, syscall.Errno(errno)
+	}
+
+	return int(n), nil
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200413165638-669c56c373c4,caddyserver/caddy,unclassified
+58,439,187.0,1.0,"func (b *bucket) mp() *memRecord {
+	if b.typ != memProfile {
+		throw(""bad use of bucket.mp"")
+	}
+	data := add(unsafe.Pointer(b), unsafe.Sizeof(*b)+b.nstk*unsafe.Sizeof(uintptr(0)))
+	return (*memRecord)(data)
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,mprof.go,runtime,std,std,kubernetes/kubernetes,unclassified
+59,534,359.0,1.0,"func isAsyncSafePoint(gp *g, pc, sp, lr uintptr) bool {
+	mp := gp.m
+
+	// Only user Gs can have safe-points. We check this first
+	// because it's extremely common that we'll catch mp in the
+	// scheduler processing this G preemption.
+	if mp.curg != gp {
+		return false
+	}
+
+	// Check M state.
+	if mp.p == 0 || !canPreemptM(mp) {
+		return false
+	}
+
+	// Check stack space.
+	if sp < gp.stack.lo || sp-gp.stack.lo < asyncPreemptStack {
+		return false
+	}
+
+	// Check if PC is an unsafe-point.
+	f := findfunc(pc)
+	if !f.valid() {
+		// Not Go code.
+		return false
+	}
+	if (GOARCH == ""mips"" || GOARCH == ""mipsle"" || GOARCH == ""mips64"" || GOARCH == ""mips64le"") && lr == pc+8 && funcspdelta(f, pc, nil) == 0 {
+		// We probably stopped at a half-executed CALL instruction,
+		// where the LR is updated but the PC has not. If we preempt
+		// here we'll see a seemingly self-recursive call, which is in
+		// fact not.
+		// This is normally ok, as we use the return address saved on
+		// stack for unwinding, not the LR value. But if this is a
+		// call to morestack, we haven't created the frame, and we'll
+		// use the LR for unwinding, which will be bad.
+		return false
+	}
+	smi := pcdatavalue(f, _PCDATA_RegMapIndex, pc, nil)
+	if smi == -2 {
+		// Unsafe-point marked by compiler. This includes
+		// atomic sequences (e.g., write barrier) and nosplit
+		// functions (except at calls).
+		return false
+	}
+	if fd := funcdata(f, _FUNCDATA_LocalsPointerMaps); fd == nil || fd == unsafe.Pointer(&no_pointers_stackmap) {
+		// This is assembly code. Don't assume it's
+		// well-formed. We identify assembly code by
+		// checking that it has either no stack map, or
+		// no_pointers_stackmap, which is the stack map
+		// for ones marked as NO_LOCAL_POINTERS.
+		//
+		// TODO: Are there cases that are safe but don't have a
+		// locals pointer map, like empty frame functions?
+		return false
+	}
+	name := funcname(f)
+	if inldata := funcdata(f, _FUNCDATA_InlTree); inldata != nil {
+		inltree := (*[1 << 20]inlinedCall)(inldata)
+		ix := pcdatavalue(f, _PCDATA_InlTreeIndex, pc, nil)
+		if ix >= 0 {
+			name = funcnameFromNameoff(f, inltree[ix].func_)
+		}
+	}
+	if hasPrefix(name, ""runtime."") ||
+		hasPrefix(name, ""runtime/internal/"") ||
+		hasPrefix(name, ""reflect."") {
+		// For now we never async preempt the runtime or
+		// anything closely tied to the runtime. Known issues
+		// include: various points in the scheduler (""don't
+		// preempt between here and here""), much of the defer
+		// implementation (untyped info on stack), bulk write
+		// barriers (write barrier check),
+		// reflect.{makeFuncStub,methodValueCall}.
+		//
+		// TODO(austin): We should improve this, or opt things
+		// in incrementally.
+		return false
+	}
+
+	return true
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,preempt.go,runtime,std,std,kubernetes/kubernetes,unclassified
+60,1158,120.0,1.0,"func unlinkat(dirfd int, path string, flags int) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_UNLINKAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(flags))
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,unclassified
+61,230308,830.0,1.0,"func copystack(gp *g, newsize uintptr) {
+	if gp.syscallsp != 0 {
+		throw(""stack growth not allowed in system call"")
+	}
+	old := gp.stack
+	if old.lo == 0 {
+		throw(""nil stackbase"")
+	}
+	used := old.hi - gp.sched.sp
+
+	// allocate new stack
+	new := stackalloc(uint32(newsize))
+	if stackPoisonCopy != 0 {
+		fillstack(new, 0xfd)
+	}
+	if stackDebug >= 1 {
+		print(""copystack gp="", gp, "" ["", hex(old.lo), "" "", hex(old.hi-used), "" "", hex(old.hi), ""]"", "" -> ["", hex(new.lo), "" "", hex(new.hi-used), "" "", hex(new.hi), ""]/"", newsize, ""\n"")
+	}
+
+	// Compute adjustment.
+	var adjinfo adjustinfo
+	adjinfo.old = old
+	adjinfo.delta = new.hi - old.hi
+
+	// Adjust sudogs, synchronizing with channel ops if necessary.
+	ncopy := used
+	if !gp.activeStackChans {
+		adjustsudogs(gp, &adjinfo)
+	} else {
+		// sudogs may be pointing in to the stack and gp has
+		// released channel locks, so other goroutines could
+		// be writing to gp's stack. Find the highest such
+		// pointer so we can handle everything there and below
+		// carefully. (This shouldn't be far from the bottom
+		// of the stack, so there's little cost in handling
+		// everything below it carefully.)
+		adjinfo.sghi = findsghi(gp, old)
+
+		// Synchronize with channel ops and copy the part of
+		// the stack they may interact with.
+		ncopy -= syncadjustsudogs(gp, used, &adjinfo)
+	}
+
+	// Copy the stack (or the rest of it) to the new location
+	memmove(unsafe.Pointer(new.hi-ncopy), unsafe.Pointer(old.hi-ncopy), ncopy)
+
+	// Adjust remaining structures that have pointers into stacks.
+	// We have to do most of these before we traceback the new
+	// stack because gentraceback uses them.
+	adjustctxt(gp, &adjinfo)
+	adjustdefers(gp, &adjinfo)
+	adjustpanics(gp, &adjinfo)
+	if adjinfo.sghi != 0 {
+		adjinfo.sghi += adjinfo.delta
+	}
+
+	// Swap out old stack for new one
+	gp.stack = new
+	gp.stackguard0 = new.lo + _StackGuard // NOTE: might clobber a preempt request
+	gp.sched.sp = new.hi - used
+	gp.stktopsp += adjinfo.delta
+
+	// Adjust pointers in the new stack.
+	gentraceback(^uintptr(0), ^uintptr(0), 0, gp, 0, nil, 0x7fffffff, adjustframe, noescape(unsafe.Pointer(&adjinfo)), 0)
+
+	// free old stack
+	if stackPoisonCopy != 0 {
+		fillstack(old, 0xfc)
+	}
+	stackfree(old)
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,stack.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+62,18548,1927.0,1.0,"func Renameat(olddirfd int, oldpath string, newdirfd int, newpath string) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(oldpath)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(newpath)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall6(SYS_RENAMEAT, uintptr(olddirfd), uintptr(unsafe.Pointer(_p0)), uintptr(newdirfd), uintptr(unsafe.Pointer(_p1)), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,unclassified
+63,229449,14.0,1.0,"func Unlinkat(dirfd int, path string, flags int) error {
+	var p *byte
+	p, err := syscall.BytePtrFromString(path)
+	if err != nil {
+		return err
+	}
+
+	_, _, errno := syscall.Syscall(unlinkatTrap, uintptr(dirfd), uintptr(unsafe.Pointer(p)), uintptr(flags))
+	if errno != 0 {
+		return errno
+	}
+
+	return nil
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,at.go,_/root/download/go/src/internal/syscall/unix,std,std,json-iterator/go,unclassified
+64,229824,96.0,1.0,"func (t *itabTableType) find(inter *interfacetype, typ *_type) *itab {
+	// Implemented using quadratic probing.
+	// Probe sequence is h(i) = h0 + i*(i+1)/2 mod 2^k.
+	// We're guaranteed to hit all table entries using this probe sequence.
+	mask := t.size - 1
+	h := itabHashFunc(inter, typ) & mask
+	for i := uintptr(1); ; i++ {
+		p := (**itab)(add(unsafe.Pointer(&t.entries), h*sys.PtrSize))
+		// Use atomic read here so if we see m != nil, we also see
+		// the initializations of the fields of m.
+		// m := *p
+		m := (*itab)(atomic.Loadp(unsafe.Pointer(p)))
+		if m == nil {
+			return nil
+		}
+		if m.inter == inter && m._type == typ {
+			return m
+		}
+		h += i
+		h &= mask
+	}
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,iface.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+65,230431,767.0,1.0,"func (tab *traceStackTable) put(pcs []uintptr) uint32 {
+	if len(pcs) == 0 {
+		return 0
+	}
+	hash := memhash(unsafe.Pointer(&pcs[0]), 0, uintptr(len(pcs))*unsafe.Sizeof(pcs[0]))
+	// First, search the hashtable w/o the mutex.
+	if id := tab.find(pcs, hash); id != 0 {
+		return id
+	}
+	// Now, double check under the mutex.
+	lock(&tab.lock)
+	if id := tab.find(pcs, hash); id != 0 {
+		unlock(&tab.lock)
+		return id
+	}
+	// Create new record.
+	tab.seq++
+	stk := tab.newStack(len(pcs))
+	stk.hash = hash
+	stk.id = tab.seq
+	stk.n = len(pcs)
+	stkpc := stk.stack()
+	for i, pc := range pcs {
+		stkpc[i] = pc
+	}
+	part := int(hash % uintptr(len(tab.tab)))
+	stk.link = tab.tab[part]
+	atomicstorep(unsafe.Pointer(&tab.tab[part]), unsafe.Pointer(stk))
+	unlock(&tab.lock)
+	return stk.id
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,trace.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+66,1239,150.0,1.0,"func Getcwd(buf []byte) (n int, err error) {
+	var _p0 unsafe.Pointer
+	if len(buf) > 0 {
+		_p0 = unsafe.Pointer(&buf[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall(SYS_GETCWD, uintptr(_p0), uintptr(len(buf)), 0)
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,unclassified
+67,694915,146.0,1.0,"func SelectI16(t *Dense, axis int) (retVal [][]int16, err error) {
+	if err := checkNativeSelectable(t, axis, Int16); err != nil {
+		return nil, err
+	}
+
+	switch t.Shape().Dims() {
+	case 0, 1:
+		retVal = make([][]int16, 1)
+		retVal[0] = t.Int16s()
+	case 2:
+		if axis == 0 {
+			return MatrixI16(t)
+		}
+		fallthrough
+	default:
+		// size := t.Shape()[axis]
+		data := t.Int16s()
+		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int16, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int16)(unsafe.Pointer(hdr)))
+			r++
+		}
+		return retVal, nil
+
+	}
+	return
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native2.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,unclassified
+68,1750,1140.0,1.0,"func Nanosleep(time *Timespec, leftover *Timespec) (err error) {
+	_, _, e1 := Syscall(SYS_NANOSLEEP, uintptr(unsafe.Pointer(time)), uintptr(unsafe.Pointer(leftover)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,unclassified
+69,1827,373.0,1.0,"func AddKey(keyType string, description string, payload []byte, ringid int) (id int, err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(keyType)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(description)
+	if err != nil {
+		return
+	}
+	var _p2 unsafe.Pointer
+	if len(payload) > 0 {
+		_p2 = unsafe.Pointer(&payload[0])
+	} else {
+		_p2 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall6(SYS_ADD_KEY, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(payload)), uintptr(ringid), 0)
+	id = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",5.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,unclassified
+70,520349,2021.0,1.0,"func accept4(s int, rsa *RawSockaddrAny, addrlen *_Socklen, flags int) (fd int, err error) {
+	r0, _, e1 := Syscall6(SYS_ACCEPT4, uintptr(s), uintptr(unsafe.Pointer(rsa)), uintptr(unsafe.Pointer(addrlen)), uintptr(flags), 0, 0)
+	fd = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,unclassified
+71,230815,1684.0,1.0,"func utimes(path string, times *[2]Timeval) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_UTIMES, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(times)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,unclassified
+72,1777,1048.0,1.0,"func Lremovexattr(path string, attr string) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(attr)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_LREMOVEXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,unclassified
+73,772116,419.0,1.0,"func (i *blockIter) SeekGE(key []byte) (*InternalKey, []byte) {
+	i.clearCache()
+
+	ikey := base.MakeSearchKey(key)
+
+	// Find the index of the smallest restart point whose key is > the key
+	// sought; index will be numRestarts if there is no such restart point.
+	i.offset = 0
+	var index int32
+
+	{
+		// NB: manually inlined sort.Seach is ~5% faster.
+		//
+		// Define f(-1) == false and f(n) == true.
+		// Invariant: f(index-1) == false, f(upper) == true.
+		upper := i.numRestarts
+		for index < upper {
+			h := int32(uint(index+upper) >> 1) // avoid overflow when computing h
+			// index ≤ h < upper
+			offset := int32(binary.LittleEndian.Uint32(i.data[i.restarts+4*h:]))
+			// For a restart point, there are 0 bytes shared with the previous key.
+			// The varint encoding of 0 occupies 1 byte.
+			ptr := unsafe.Pointer(uintptr(i.ptr) + uintptr(offset+1))
+
+			// Decode the key at that restart point, and compare it to the key
+			// sought. See the comment in readEntry for why we manually inline the
+			// varint decoding.
+			var v1 uint32
+			src := (*[5]uint8)(ptr)
+			if a := (*src)[0]; a < 128 {
+				v1 = uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 1)
+			} else if a, b := a&0x7f, (*src)[1]; b < 128 {
+				v1 = uint32(b)<<7 | uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 2)
+			} else if b, c := b&0x7f, (*src)[2]; c < 128 {
+				v1 = uint32(c)<<14 | uint32(b)<<7 | uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 3)
+			} else if c, d := c&0x7f, (*src)[3]; d < 128 {
+				v1 = uint32(d)<<21 | uint32(c)<<14 | uint32(b)<<7 | uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 4)
+			} else {
+				d, e := d&0x7f, (*src)[4]
+				v1 = uint32(e)<<28 | uint32(d)<<21 | uint32(c)<<14 | uint32(b)<<7 | uint32(a)
+				ptr = unsafe.Pointer(uintptr(ptr) + 5)
+			}
+
+			if src := (*[5]uint8)(ptr); (*src)[0] < 128 {
+				ptr = unsafe.Pointer(uintptr(ptr) + 1)
+			} else if (*src)[1] < 128 {
+				ptr = unsafe.Pointer(uintptr(ptr) + 2)
+			} else if (*src)[2] < 128 {
+				ptr = unsafe.Pointer(uintptr(ptr) + 3)
+			} else if (*src)[3] < 128 {
+				ptr = unsafe.Pointer(uintptr(ptr) + 4)
+			} else {
+				ptr = unsafe.Pointer(uintptr(ptr) + 5)
+			}
+
+			// Manually inlining base.DecodeInternalKey provides a 5-10% speedup on
+			// BlockIter benchmarks.
+			s := getBytes(ptr, int(v1))
+			var k InternalKey
+			if n := len(s) - 8; n >= 0 {
+				k.Trailer = binary.LittleEndian.Uint64(s[n:])
+				k.UserKey = s[:n:n]
+				// NB: We can't have duplicate keys if the globalSeqNum != 0, so we
+				// leave the seqnum on this key as 0 as it won't affect our search
+				// since ikey has the maximum seqnum.
+			} else {
+				k.Trailer = uint64(InternalKeyKindInvalid)
+			}
+
+			if base.InternalCompare(i.cmp, ikey, k) >= 0 {
+				index = h + 1 // preserves f(i-1) == false
+			} else {
+				upper = h // preserves f(j) == true
+			}
+		}
+		// index == upper, f(index-1) == false, and f(upper) (= f(index)) == true
+		// => answer is index.
+	}
+
+	// Since keys are strictly increasing, if index > 0 then the restart point at
+	// index-1 will be the largest whose key is <= the key sought.  If index ==
+	// 0, then all keys in this block are larger than the key sought, and offset
+	// remains at zero.
+	if index > 0 {
+		i.offset = int32(binary.LittleEndian.Uint32(i.data[i.restarts+4*(index-1):]))
+	}
+	i.readEntry()
+	i.decodeInternalKey(i.key)
+
+	// Iterate from that restart point to somewhere >= the key sought.
+	for ; i.Valid(); i.Next() {
+		if base.InternalCompare(i.cmp, i.ikey, ikey) >= 0 {
+			return &i.ikey, i.val
+		}
+	}
+
+	return nil, nil
+}",11.0,0.0,0.0,0.0,12.0,0.0,0.0,block.go,github.com/cockroachdb/pebble/sstable,github.com/cockroachdb/pebble,v0.0.0-20200219202912-046831eaec09,lni/dragonboat,unclassified
+74,18413,2376.0,1.0,"func kexecFileLoad(kernelFd int, initrdFd int, cmdlineLen int, cmdline string, flags int) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(cmdline)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall6(SYS_KEXEC_FILE_LOAD, uintptr(kernelFd), uintptr(initrdFd), uintptr(cmdlineLen), uintptr(unsafe.Pointer(_p0)), uintptr(flags), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,unclassified
+75,250,92.0,1.0,"func mapassign_fast64(t *maptype, h *hmap, key uint64) unsafe.Pointer {
+	if h == nil {
+		panic(plainError(""assignment to entry in nil map""))
+	}
+	if raceenabled {
+		callerpc := getcallerpc()
+		racewritepc(unsafe.Pointer(h), callerpc, funcPC(mapassign_fast64))
+	}
+	if h.flags&hashWriting != 0 {
+		throw(""concurrent map writes"")
+	}
+	hash := t.hasher(noescape(unsafe.Pointer(&key)), uintptr(h.hash0))
+
+	// Set hashWriting after calling t.hasher for consistency with mapassign.
+	h.flags ^= hashWriting
+
+	if h.buckets == nil {
+		h.buckets = newobject(t.bucket) // newarray(t.bucket, 1)
+	}
+
+again:
+	bucket := hash & bucketMask(h.B)
+	if h.growing() {
+		growWork_fast64(t, h, bucket)
+	}
+	b := (*bmap)(unsafe.Pointer(uintptr(h.buckets) + bucket*uintptr(t.bucketsize)))
+
+	var insertb *bmap
+	var inserti uintptr
+	var insertk unsafe.Pointer
+
+bucketloop:
+	for {
+		for i := uintptr(0); i < bucketCnt; i++ {
+			if isEmpty(b.tophash[i]) {
+				if insertb == nil {
+					insertb = b
+					inserti = i
+				}
+				if b.tophash[i] == emptyRest {
+					break bucketloop
+				}
+				continue
+			}
+			k := *((*uint64)(add(unsafe.Pointer(b), dataOffset+i*8)))
+			if k != key {
+				continue
+			}
+			insertb = b
+			inserti = i
+			goto done
+		}
+		ovf := b.overflow(t)
+		if ovf == nil {
+			break
+		}
+		b = ovf
+	}
+
+	// Did not find mapping for key. Allocate new cell & add entry.
+
+	// If we hit the max load factor or we have too many overflow buckets,
+	// and we're not already in the middle of growing, start growing.
+	if !h.growing() && (overLoadFactor(h.count+1, h.B) || tooManyOverflowBuckets(h.noverflow, h.B)) {
+		hashGrow(t, h)
+		goto again // Growing the table invalidates everything, so try again
+	}
+
+	if insertb == nil {
+		// all current buckets are full, allocate a new one.
+		insertb = h.newoverflow(t, b)
+		inserti = 0 // not necessary, but avoids needlessly spilling inserti
+	}
+	insertb.tophash[inserti&(bucketCnt-1)] = tophash(hash) // mask inserti to avoid bounds checks
+
+	insertk = add(unsafe.Pointer(insertb), dataOffset+inserti*8)
+	// store new key at insert position
+	*(*uint64)(insertk) = key
+
+	h.count++
+
+done:
+	elem := add(unsafe.Pointer(insertb), dataOffset+bucketCnt*8+inserti*uintptr(t.elemsize))
+	if h.flags&hashWriting == 0 {
+		throw(""concurrent map writes"")
+	}
+	h.flags &^= hashWriting
+	return elem
+}",8.0,0.0,0.0,0.0,6.0,0.0,0.0,map_fast64.go,runtime,std,std,kubernetes/kubernetes,unclassified
+76,73066,2460.0,1.0,"func sendmsg(s int, msg *Msghdr, flags int) (n int, err error) {
+	r0, _, e1 := Syscall(SYS_SENDMSG, uintptr(s), uintptr(unsafe.Pointer(msg)), uintptr(flags))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191220142924-d4481acd189f,go-kit/kit,unclassified
+77,328758,49.0,1.0,"func setTermios(fd uintptr, flush bool, mode *unix.Termios) error {
+	req := int64(tcsets)
+	if flush {
+		req = int64(tcsetsf)
+	}
+
+	_, _, err := unix.Syscall(unix.SYS_IOCTL, fd, uintptr(req),
+		uintptr(unsafe.Pointer(mode)))
+	if err != 0 {
+		return err
+	}
+
+	return nil
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,ioctl_unix.go,github.com/Bowery/prompt,github.com/Bowery/prompt,v0.0.0-20190916142128-fa8279994f75,rqlite/rqlite,unclassified
+78,171247,2230.0,1.0,"func socketpair(domain int, typ int, proto int, fd *[2]int32) (err error) {
+	_, _, e1 := RawSyscall6(SYS_SOCKETPAIR, uintptr(domain), uintptr(typ), uintptr(proto), uintptr(unsafe.Pointer(fd)), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191127021746-63cb32ae39b2,GoogleContainerTools/skaffold,unclassified
+79,9804,2538.0,1.0,"func poll(fds *PollFd, nfds int, timeout int) (n int, err error) {
+	r0, _, e1 := Syscall(SYS_POLL, uintptr(unsafe.Pointer(fds)), uintptr(nfds), uintptr(timeout))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200122134326-e047566fdf82,fatedier/frp,unclassified
+80,612277,113.0,1.0,"func (mmap MMap) Protect(prot ProtFlags) error {
+	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	_, _, err := syscall.Syscall(syscall.SYS_MPROTECT, uintptr(rh.Data), uintptr(rh.Len), uintptr(prot))
+	if err != 0 {
+		return err
+	}
+	return nil
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,gommap.go,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,unclassified
+81,694374,88.0,1.0,"func AsByteSlice(a *Header, t reflect.Type) []byte {
+	size := a.L * int(t.Size())
+	hdr := reflect.SliceHeader{
+		Data: uintptr(a.Ptr),
+		Len:  size,
+		Cap:  size,
+	}
+	return *(*[]byte)(unsafe.Pointer(&hdr))
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,header.go,gorgonia.org/tensor/internal/storage,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,unclassified
+82,229755,121.0,1.0,"func chanbuf(c *hchan, i uint) unsafe.Pointer {
+	return add(c.buf, uintptr(i)*uintptr(c.elemsize))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,chan.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+83,70984,1562.0,1.0,"func write(fd int, p []byte) (n int, err error) {
+	var _p0 unsafe.Pointer
+	if len(p) > 0 {
+		_p0 = unsafe.Pointer(&p[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall(SYS_WRITE, uintptr(fd), uintptr(_p0), uintptr(len(p)))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,unclassified
+84,520319,1413.0,1.0,"func write(fd int, p []byte) (n int, err error) {
+	var _p0 unsafe.Pointer
+	if len(p) > 0 {
+		_p0 = unsafe.Pointer(&p[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall(SYS_WRITE, uintptr(fd), uintptr(_p0), uintptr(len(p)))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,unclassified
+85,1150,495.0,1.0,"func Getxattr(path string, attr string, dest []byte) (sz int, err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(attr)
+	if err != nil {
+		return
+	}
+	var _p2 unsafe.Pointer
+	if len(dest) > 0 {
+		_p2 = unsafe.Pointer(&dest[0])
+	} else {
+		_p2 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall6(SYS_GETXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(dest)), 0, 0)
+	sz = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",5.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,unclassified
+86,183438,25.0,1.0,"func UnsafeCastStruct(to interface{}, b []byte) {
+	ifc := (*emptyIfc)(unsafe.Pointer(&to))
+
+	if len(b) != 0 {
+		*(*uintptr)(ifc.ptr) = uintptr(unsafe.Pointer(&b[0]))
+	} else {
+		*(*uintptr)(ifc.ptr) = 0
+	}
+}",2.0,0.0,0.0,0.0,3.0,0.0,0.0,cast.go,github.com/urso/go-bin,github.com/urso/go-bin,v0.0.0-20180220135811-781c575c9f0e,elastic/beats,unclassified
+87,1679,97.0,1.0,"func IoctlSetRTCTime(fd int, value *RTCTime) error {
+	err := ioctl(fd, RTC_SET_TIME, uintptr(unsafe.Pointer(value)))
+	runtime.KeepAlive(value)
+	return err
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,unclassified
+88,520262,773.0,1.0,"func Getxattr(path string, attr string, dest []byte) (sz int, err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(attr)
+	if err != nil {
+		return
+	}
+	var _p2 unsafe.Pointer
+	if len(dest) > 0 {
+		_p2 = unsafe.Pointer(&dest[0])
+	} else {
+		_p2 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall6(SYS_GETXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(dest)), 0, 0)
+	sz = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",5.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,unclassified
+89,207927,1334.0,1.0,"func Vmsplice(fd int, iovs []Iovec, flags int) (int, error) {
+	n, _, errno := Syscall6(
+		SYS_VMSPLICE,
+		uintptr(fd),
+		uintptr(unsafe.Pointer(&iovs[0])),
+		uintptr(len(iovs)),
+		uintptr(flags),
+		0,
+		0,
+	)
+	if errno != 0 {
+		return 0, syscall.Errno(errno)
+	}
+
+	return int(n), nil
+}",1.0,0.0,0.0,0.0,4.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,unclassified
+90,230234,27.0,1.0,"func racereadpc(addr unsafe.Pointer, callerpc, pc uintptr)                  { throw(""race"") }",1.0,0.0,0.0,0.0,1.0,0.0,0.0,race0.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+91,3390,439.0,1.0,"func (c *SCTPConn) SubscribedEvents() (int, error) {
+	param := EventSubscribe{}
+	optlen := unsafe.Sizeof(param)
+	_, _, err := getsockopt(c.fd(), SCTP_EVENTS, uintptr(unsafe.Pointer(&param)), uintptr(unsafe.Pointer(&optlen)))
+	if err != nil {
+		return 0, err
+	}
+	var flags int
+	if param.DataIO > 0 {
+		flags |= SCTP_EVENT_DATA_IO
+	}
+	if param.Association > 0 {
+		flags |= SCTP_EVENT_ASSOCIATION
+	}
+	if param.Address > 0 {
+		flags |= SCTP_EVENT_ADDRESS
+	}
+	if param.SendFailure > 0 {
+		flags |= SCTP_EVENT_SEND_FAILURE
+	}
+	if param.PeerError > 0 {
+		flags |= SCTP_EVENT_PEER_ERROR
+	}
+	if param.Shutdown > 0 {
+		flags |= SCTP_EVENT_SHUTDOWN
+	}
+	if param.PartialDelivery > 0 {
+		flags |= SCTP_EVENT_PARTIAL_DELIVERY
+	}
+	if param.AdaptationLayer > 0 {
+		flags |= SCTP_EVENT_ADAPTATION_LAYER
+	}
+	if param.Authentication > 0 {
+		flags |= SCTP_EVENT_AUTHENTICATION
+	}
+	if param.SenderDry > 0 {
+		flags |= SCTP_EVENT_SENDER_DRY
+	}
+	return flags, nil
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,sctp.go,github.com/ishidawataru/sctp,github.com/ishidawataru/sctp,v0.0.0-20190723014705-7c296d48a2b5,kubernetes/kubernetes,unclassified
+92,40806,28.0,1.0,"func alignment(block []byte, AlignSize int) int {
+	return int(uintptr(unsafe.Pointer(&block[0])) & uintptr(AlignSize-1))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,direct_io.go,github.com/ncw/directio,github.com/ncw/directio,v1.0.5,minio/minio,unclassified
+93,6205,1911.0,1.0,"func Fstat(fd int, stat *Stat_t) (err error) {
+	_, _, e1 := Syscall(SYS_FSTAT, uintptr(fd), uintptr(unsafe.Pointer(stat)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,unclassified
+94,773485,57.0,1.0,"func (al *allocator) LNumber2I(v LNumber) LValue {
+	// first check for shared preloaded numbers
+	if v >= 0 && v < preloadLimit && float64(v) == float64(int64(v)) {
+		return preloads[int(v)]
+	}
+
+	// check if we need a new alloc page
+	if cap(al.fptrs) == len(al.fptrs) {
+		al.fptrs = make([]float64, 0, al.size)
+		al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+	}
+
+	// alloc a new float, and store our value into it
+	al.fptrs = append(al.fptrs, float64(v))
+	fptr := (*float64)(unsafe.Pointer(al.fheader.Data + uintptr(len(al.fptrs)-1)*unsafe.Sizeof(_fv)))
+
+	// hack our scratch LValue to point to our allocated value
+	// this scratch lvalue is copied when this function returns meaning the scratch value can be reused
+	// on the next call
+	al.scratchValueP.word = unsafe.Pointer(fptr)
+
+	return al.scratchValue
+}",3.0,0.0,0.0,0.0,1.0,0.0,0.0,alloc.go,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20190514113301-1cd887cd7036,bosun-monitor/bosun,unclassified
+95,1787,512.0,1.0,"func DeleteModule(name string, flags int) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(name)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_DELETE_MODULE, uintptr(unsafe.Pointer(_p0)), uintptr(flags), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,unclassified
+96,230742,882.0,1.0,"func Unmount(target string, flags int) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(target)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_UMOUNT2, uintptr(unsafe.Pointer(_p0)), uintptr(flags), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,unclassified
+97,694897,704.0,1.0,"func Tensor3U32(t *Dense) (retVal [][][]uint32, err error) {
+	if err = checkNativeIterable(t, 3, Uint32); err != nil {
+		return nil, err
+	}
+
+	data := t.Uint32s()
+	shape := t.Shape()
+	strides := t.Strides()
+
+	layers := shape[0]
+	rows := shape[1]
+	cols := shape[2]
+	layerStride := strides[0]
+	rowStride := strides[1]
+	retVal = make([][][]uint32, layers)
+	for i := range retVal {
+		retVal[i] = make([][]uint32, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint32)(unsafe.Pointer(hdr))
+		}
+	}
+	return
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,unclassified
+98,753,888.0,1.0,"func funcdata(f funcInfo, i uint8) unsafe.Pointer {
+	if i < 0 || i >= f.nfuncdata {
+		return nil
+	}
+	p := add(unsafe.Pointer(&f.nfuncdata), unsafe.Sizeof(f.nfuncdata)+uintptr(f.npcdata)*4)
+	if sys.PtrSize == 8 && uintptr(p)&4 != 0 {
+		if uintptr(unsafe.Pointer(f._func))&4 != 0 {
+			println(""runtime: misaligned func"", f._func)
+		}
+		p = add(p, 4)
+	}
+	return *(*unsafe.Pointer)(add(p, uintptr(i)*sys.PtrSize))
+}",4.0,0.0,0.0,0.0,4.0,0.0,0.0,symtab.go,runtime,std,std,kubernetes/kubernetes,unclassified
+99,201126,233.0,1.0,"func keyctlSearch(cmd int, arg2 int, arg3 string, arg4 string, arg5 int) (ret int, err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(arg3)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(arg4)
+	if err != nil {
+		return
+	}
+	r0, _, e1 := Syscall6(SYS_KEYCTL, uintptr(cmd), uintptr(arg2), uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(arg5), 0)
+	ret = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,unclassified
+100,1205,477.0,1.0,"func Getrusage(who int, rusage *Rusage) (err error) {
+	_, _, e1 := RawSyscall(SYS_GETRUSAGE, uintptr(who), uintptr(unsafe.Pointer(rusage)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,unclassified
+101,230138,446.0,1.0,"func netpollunblock(pd *pollDesc, mode int32, ioready bool) *g {
+	gpp := &pd.rg
+	if mode == 'w' {
+		gpp = &pd.wg
+	}
+
+	for {
+		old := *gpp
+		if old == pdReady {
+			return nil
+		}
+		if old == 0 && !ioready {
+			// Only set pdReady for ioready. runtime_pollWait
+			// will check for timeout/cancel before waiting.
+			return nil
+		}
+		var new uintptr
+		if ioready {
+			new = pdReady
+		}
+		if atomic.Casuintptr(gpp, old, new) {
+			if old == pdWait {
+				old = 0
+			}
+			return (*g)(unsafe.Pointer(old))
+		}
+	}
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,netpoll.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+102,280510,498.0,1.0,"func (s *spiIOCTransfer) reset(w, r []byte, f physic.Frequency, bitsPerWord uint8, csInvert bool) {
+	s.tx = 0
+	s.rx = 0
+	s.length = 0
+	// w and r must be the same length.
+	if l := len(w); l != 0 {
+		s.tx = uint64(uintptr(unsafe.Pointer(&w[0])))
+		s.length = uint32(l)
+	}
+	if l := len(r); l != 0 {
+		s.rx = uint64(uintptr(unsafe.Pointer(&r[0])))
+		s.length = uint32(l)
+	}
+	s.speedHz = uint32((f + 500*physic.MilliHertz) / physic.Hertz)
+	s.delayUsecs = 0
+	s.bitsPerWord = bitsPerWord
+	if csInvert {
+		s.csChange = 1
+	} else {
+		s.csChange = 0
+	}
+	s.txNBits = 0
+	s.rxNBits = 0
+	s.pad = 0
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,spi.go,periph.io/x/periph/host/sysfs,periph.io/x/periph,v3.6.2+incompatible,hybridgroup/gobot,unclassified
+103,229797,202.0,1.0,"func dumpobj(obj unsafe.Pointer, size uintptr, bv bitvector) {
+	dumpint(tagObject)
+	dumpint(uint64(uintptr(obj)))
+	dumpmemrange(obj, size)
+	dumpfields(bv)
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,heapdump.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+104,70986,1990.0,1.0,"func Pwrite(fd int, p []byte, offset int64) (n int, err error) {
+	var _p0 unsafe.Pointer
+	if len(p) > 0 {
+		_p0 = unsafe.Pointer(&p[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall6(SYS_PWRITE64, uintptr(fd), uintptr(_p0), uintptr(len(p)), uintptr(offset), 0, 0)
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,unclassified
+105,110236,444.0,1.0,"func isWaitable(pid int) (bool, error) {
+	si := &siginfo{}
+	_, _, e := unix.Syscall6(unix.SYS_WAITID, _P_PID, uintptr(pid), uintptr(unsafe.Pointer(si)), unix.WEXITED|unix.WNOWAIT|unix.WNOHANG, 0, 0)
+	if e != 0 {
+		return false, os.NewSyscallError(""waitid"", e)
+	}
+
+	return si.si_pid != 0, nil
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,init_linux.go,github.com/opencontainers/runc/libcontainer,github.com/opencontainers/runc,v1.0.0-rc9,rancher/k3s,unclassified
+106,229814,422.0,1.0,"func dumproots() {
+	// TODO(mwhudson): dump datamask etc from all objects
+	// data segment
+	dumpint(tagData)
+	dumpint(uint64(firstmoduledata.data))
+	dumpmemrange(unsafe.Pointer(firstmoduledata.data), firstmoduledata.edata-firstmoduledata.data)
+	dumpfields(firstmoduledata.gcdatamask)
+
+	// bss segment
+	dumpint(tagBSS)
+	dumpint(uint64(firstmoduledata.bss))
+	dumpmemrange(unsafe.Pointer(firstmoduledata.bss), firstmoduledata.ebss-firstmoduledata.bss)
+	dumpfields(firstmoduledata.gcbssmask)
+
+	// mspan.types
+	for _, s := range mheap_.allspans {
+		if s.state.get() == mSpanInUse {
+			// Finalizers
+			for sp := s.specials; sp != nil; sp = sp.next {
+				if sp.kind != _KindSpecialFinalizer {
+					continue
+				}
+				spf := (*specialfinalizer)(unsafe.Pointer(sp))
+				p := unsafe.Pointer(s.base() + uintptr(spf.special.offset))
+				dumpfinalizer(p, spf.fn, spf.fint, spf.ot)
+			}
+		}
+	}
+
+	// Finalizer queue
+	iterate_finq(finq_callback)
+}",4.0,0.0,0.0,0.0,1.0,0.0,0.0,heapdump.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+107,70940,1155.0,1.0,"func Mknodat(dirfd int, path string, mode uint32, dev int) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall6(SYS_MKNODAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(mode), uintptr(dev), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,unclassified
+108,171259,1791.0,1.0,"func Fstatfs(fd int, buf *Statfs_t) (err error) {
+	_, _, e1 := Syscall(SYS_FSTATFS, uintptr(fd), uintptr(unsafe.Pointer(buf)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191127021746-63cb32ae39b2,GoogleContainerTools/skaffold,unclassified
+109,652712,14.0,1.0,"func getsockopt(s uintptr, level, name int, b []byte) (int, error) {
+	l := uint32(len(b))
+	_, _, errno := syscall.Syscall6(syscall.SYS_GETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&l)), 0)
+	return int(l), errnoErr(errno)
+}",2.0,0.0,0.0,0.0,5.0,0.0,0.0,sys_unix.go,github.com/anacrolix/mmsg/socket,github.com/anacrolix/mmsg,v1.0.0,anacrolix/torrent,unclassified
+110,229675,312.0,1.0,"func stringHash(s string, seed uintptr) uintptr {
+	return strhash(noescape(unsafe.Pointer(&s)), seed)
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,alg.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+111,567394,54.0,1.0,"func (p *page) meta() *meta {
+	return (*meta)(unsafe.Pointer(uintptr(unsafe.Pointer(p)) + pageHeaderSize))
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,page.go,_/root/download/7days-golang/gee-bolt/day1-pages,std,std,geektutu/7days-golang,unclassified
+112,3243,323.0,1.0,"func bpfGetObjectInfoByFD(fd *bpfFD, info unsafe.Pointer, size uintptr) error {
+	value, err := fd.value()
+	if err != nil {
+		return err
+	}
+
+	// available from 4.13
+	attr := bpfObjGetInfoByFDAttr{
+		fd:      value,
+		infoLen: uint32(size),
+		info:    newPtr(info),
+	}
+	_, err = bpfCall(_ObjGetInfoByFD, unsafe.Pointer(&attr), unsafe.Sizeof(attr))
+	return errors.Wrapf(err, ""fd %d"", value)
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,syscalls.go,github.com/cilium/ebpf,github.com/cilium/ebpf,v0.0.0-20191113100448-d9fb101ca1fb,kubernetes/kubernetes,unclassified
+113,20215,1136.0,1.0,"func Nanosleep(time *Timespec, leftover *Timespec) (err error) {
+	_, _, e1 := Syscall(SYS_NANOSLEEP, uintptr(unsafe.Pointer(time)), uintptr(unsafe.Pointer(leftover)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200302150141-5c8b2ff67527,prometheus/prometheus,unclassified
+114,164,512.0,1.0,"func iterate_itabs(fn func(*itab)) {
+	// Note: only runs during stop the world or with itabLock held,
+	// so no other locks/atomics needed.
+	t := itabTable
+	for i := uintptr(0); i < t.size; i++ {
+		m := *(**itab)(add(unsafe.Pointer(&t.entries), i*sys.PtrSize))
+		if m != nil {
+			fn(m)
+		}
+	}
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,iface.go,runtime,std,std,kubernetes/kubernetes,unclassified
+115,229414,654.0,1.0,"func add(p unsafe.Pointer, x uintptr, whySafe string) unsafe.Pointer {
+	return unsafe.Pointer(uintptr(p) + x)
+}",3.0,0.0,0.0,0.0,2.0,0.0,0.0,type.go,_/root/download/go/src/internal/reflectlite,std,std,json-iterator/go,unclassified
+116,377204,48.0,1.0,"func OpenTun(name string) (*os.File, string, error) {
+	tun, err := os.OpenFile(tunDevice, os.O_RDWR, 0)
+	if err != nil {
+		return nil, """", err
+	}
+
+	var ifr ifreqFlags
+	copy(ifr.IfrnName[:len(ifr.IfrnName)-1], []byte(name+""\000""))
+	ifr.IfruFlags = syscall.IFF_TUN | syscall.IFF_NO_PI
+
+	err = ioctl(int(tun.Fd()), syscall.TUNSETIFF, uintptr(unsafe.Pointer(&ifr)))
+	if err != nil {
+		return nil, """", err
+	}
+
+	ifname := fromZeroTerm(ifr.IfrnName[:ifnameSize])
+	return tun, ifname, nil
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,tun.go,_/root/download/flannel/pkg/ip,std,std,coreos/flannel,unclassified
+117,6209,979.0,1.0,"func Klogctl(typ int, buf []byte) (n int, err error) {
+	var _p0 unsafe.Pointer
+	if len(buf) > 0 {
+		_p0 = unsafe.Pointer(&buf[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall(SYS_SYSLOG, uintptr(typ), uintptr(_p0), uintptr(len(buf)))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,unclassified
+118,73094,1853.0,1.0,"func openByHandleAt(mountFD int, fh *fileHandle, flags int) (fd int, err error) {
+	r0, _, e1 := Syscall(SYS_OPEN_BY_HANDLE_AT, uintptr(mountFD), uintptr(unsafe.Pointer(fh)), uintptr(flags))
+	fd = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191220142924-d4481acd189f,go-kit/kit,unclassified
+119,73147,1723.0,1.0,"func Madvise(b []byte, advice int) (err error) {
+	var _p0 unsafe.Pointer
+	if len(b) > 0 {
+		_p0 = unsafe.Pointer(&b[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	_, _, e1 := Syscall(SYS_MADVISE, uintptr(_p0), uintptr(len(b)), uintptr(advice))
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191220142924-d4481acd189f,go-kit/kit,unclassified
+120,49280,1477.0,1.0,"func Uname(buf *Utsname) (err error) {
+	_, _, e1 := RawSyscall(SYS_UNAME, uintptr(unsafe.Pointer(buf)), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190531175056-4c3a928424d2,github/hub,unclassified
+121,230297,1154.0,1.0,"func setGsignalStack(st *stackt, old *gsignalStack) {
+	g := getg()
+	if old != nil {
+		old.stack = g.m.gsignal.stack
+		old.stackguard0 = g.m.gsignal.stackguard0
+		old.stackguard1 = g.m.gsignal.stackguard1
+		old.stktopsp = g.m.gsignal.stktopsp
+	}
+	stsp := uintptr(unsafe.Pointer(st.ss_sp))
+	g.m.gsignal.stack.lo = stsp
+	g.m.gsignal.stack.hi = stsp + st.ss_size
+	g.m.gsignal.stackguard0 = stsp + _StackGuard
+	g.m.gsignal.stackguard1 = stsp + _StackGuard
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,signal_unix.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+122,18554,2049.0,1.0,"func Splice(rfd int, roff *int64, wfd int, woff *int64, len int, flags int) (n int64, err error) {
+	r0, _, e1 := Syscall6(SYS_SPLICE, uintptr(rfd), uintptr(unsafe.Pointer(roff)), uintptr(wfd), uintptr(unsafe.Pointer(woff)), uintptr(len), uintptr(flags))
+	n = int64(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,6.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,unclassified
+123,229914,202.0,1.0,"func mapassign_faststr(t *maptype, h *hmap, s string) unsafe.Pointer {
+	if h == nil {
+		panic(plainError(""assignment to entry in nil map""))
+	}
+	if raceenabled {
+		callerpc := getcallerpc()
+		racewritepc(unsafe.Pointer(h), callerpc, funcPC(mapassign_faststr))
+	}
+	if h.flags&hashWriting != 0 {
+		throw(""concurrent map writes"")
+	}
+	key := stringStructOf(&s)
+	hash := t.hasher(noescape(unsafe.Pointer(&s)), uintptr(h.hash0))
+
+	// Set hashWriting after calling t.hasher for consistency with mapassign.
+	h.flags ^= hashWriting
+
+	if h.buckets == nil {
+		h.buckets = newobject(t.bucket) // newarray(t.bucket, 1)
+	}
+
+again:
+	bucket := hash & bucketMask(h.B)
+	if h.growing() {
+		growWork_faststr(t, h, bucket)
+	}
+	b := (*bmap)(unsafe.Pointer(uintptr(h.buckets) + bucket*uintptr(t.bucketsize)))
+	top := tophash(hash)
+
+	var insertb *bmap
+	var inserti uintptr
+	var insertk unsafe.Pointer
+
+bucketloop:
+	for {
+		for i := uintptr(0); i < bucketCnt; i++ {
+			if b.tophash[i] != top {
+				if isEmpty(b.tophash[i]) && insertb == nil {
+					insertb = b
+					inserti = i
+				}
+				if b.tophash[i] == emptyRest {
+					break bucketloop
+				}
+				continue
+			}
+			k := (*stringStruct)(add(unsafe.Pointer(b), dataOffset+i*2*sys.PtrSize))
+			if k.len != key.len {
+				continue
+			}
+			if k.str != key.str && !memequal(k.str, key.str, uintptr(key.len)) {
+				continue
+			}
+			// already have a mapping for key. Update it.
+			inserti = i
+			insertb = b
+			goto done
+		}
+		ovf := b.overflow(t)
+		if ovf == nil {
+			break
+		}
+		b = ovf
+	}
+
+	// Did not find mapping for key. Allocate new cell & add entry.
+
+	// If we hit the max load factor or we have too many overflow buckets,
+	// and we're not already in the middle of growing, start growing.
+	if !h.growing() && (overLoadFactor(h.count+1, h.B) || tooManyOverflowBuckets(h.noverflow, h.B)) {
+		hashGrow(t, h)
+		goto again // Growing the table invalidates everything, so try again
+	}
+
+	if insertb == nil {
+		// all current buckets are full, allocate a new one.
+		insertb = h.newoverflow(t, b)
+		inserti = 0 // not necessary, but avoids needlessly spilling inserti
+	}
+	insertb.tophash[inserti&(bucketCnt-1)] = top // mask inserti to avoid bounds checks
+
+	insertk = add(unsafe.Pointer(insertb), dataOffset+inserti*2*sys.PtrSize)
+	// store new key at insert position
+	*((*stringStruct)(insertk)) = *key
+	h.count++
+
+done:
+	elem := add(unsafe.Pointer(insertb), dataOffset+bucketCnt*2*sys.PtrSize+inserti*uintptr(t.elemsize))
+	if h.flags&hashWriting == 0 {
+		throw(""concurrent map writes"")
+	}
+	h.flags &^= hashWriting
+	return elem
+}",8.0,0.0,0.0,0.0,7.0,0.0,0.0,map_faststr.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+124,45437,101.0,1.0,"func structPointer_Add(p structPointer, size field) structPointer {
+	return structPointer(unsafe.Pointer(uintptr(p) + uintptr(size)))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe_gogo.go,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,unclassified
+125,481,27.0,1.0,"func netpollinit() {
+	epfd = epollcreate1(_EPOLL_CLOEXEC)
+	if epfd < 0 {
+		epfd = epollcreate(1024)
+		if epfd < 0 {
+			println(""runtime: epollcreate failed with"", -epfd)
+			throw(""runtime: netpollinit failed"")
+		}
+		closeonexec(epfd)
+	}
+	r, w, errno := nonblockingPipe()
+	if errno != 0 {
+		println(""runtime: pipe failed with"", -errno)
+		throw(""runtime: pipe failed"")
+	}
+	ev := epollevent{
+		events: _EPOLLIN,
+	}
+	*(**uintptr)(unsafe.Pointer(&ev.data)) = &netpollBreakRd
+	errno = epollctl(epfd, _EPOLL_CTL_ADD, r, &ev)
+	if errno != 0 {
+		println(""runtime: epollctl failed with"", -errno)
+		throw(""runtime: epollctl failed"")
+	}
+	netpollBreakRd = uintptr(r)
+	netpollBreakWr = uintptr(w)
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,netpoll_epoll.go,runtime,std,std,kubernetes/kubernetes,unclassified
+126,1142,203.0,1.0,"func mount(source string, target string, fstype string, flags uintptr, data *byte) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(source)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(target)
+	if err != nil {
+		return
+	}
+	var _p2 *byte
+	_p2, err = BytePtrFromString(fstype)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall6(SYS_MOUNT, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(unsafe.Pointer(_p2)), uintptr(flags), uintptr(unsafe.Pointer(data)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",4.0,0.0,0.0,0.0,6.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,unclassified
+127,192051,114.0,1.0,"func (e *Ethtool) CmdGet(ecmd *EthtoolCmd, intf string) (uint32, error) {
+	ecmd.Cmd = ETHTOOL_GSET
+
+	var name [IFNAMSIZ]byte
+	copy(name[:], []byte(intf))
+
+	ifr := ifreq{
+		ifr_name: name,
+		ifr_data: uintptr(unsafe.Pointer(ecmd)),
+	}
+
+	_, _, ep := unix.Syscall(unix.SYS_IOCTL, uintptr(e.fd),
+		SIOCETHTOOL, uintptr(unsafe.Pointer(&ifr)))
+	if ep != 0 {
+		return 0, ep
+	}
+
+	var speedval uint32 = (uint32(ecmd.Speed_hi) << 16) |
+		(uint32(ecmd.Speed) & 0xffff)
+	if speedval == math.MaxUint16 {
+		speedval = math.MaxUint32
+	}
+
+	return speedval, nil
+}",2.0,0.0,0.0,0.0,3.0,0.0,0.0,ethtool_cmd.go,github.com/safchain/ethtool,github.com/safchain/ethtool,v0.0.0-20200218184317-f459e2d13664,influxdata/telegraf,unclassified
+128,146237,113.0,1.0,"func Readlinkat(dirfd int, path string, buf []byte) (n int, err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	var _p1 unsafe.Pointer
+	if len(buf) > 0 {
+		_p1 = unsafe.Pointer(&buf[0])
+	} else {
+		_p1 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall6(SYS_READLINKAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(_p1), uintptr(len(buf)), 0, 0)
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",4.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,unclassified
+129,3277,17.0,1.0,"func tcset(fd uintptr, p *Termios) syscall.Errno {
+	_, _, err := unix.Syscall(unix.SYS_IOCTL, fd, setTermios, uintptr(unsafe.Pointer(p)))
+	return err
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,tc.go,github.com/docker/docker/pkg/term,github.com/docker/docker,v1.4.2-0.20200309214505-aa6a9891b09c,kubernetes/kubernetes,unclassified
+130,230119,658.0,1.0,"func mSysStatInc(sysStat *uint64, n uintptr) {
+	if sysStat == nil {
+		return
+	}
+	if sys.BigEndian {
+		atomic.Xadd64(sysStat, int64(n))
+		return
+	}
+	if val := atomic.Xadduintptr((*uintptr)(unsafe.Pointer(sysStat)), n); val < n {
+		print(""runtime: stat overflow: val "", val, "", n "", n, ""\n"")
+		exit(2)
+	}
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,mstats.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+131,1062,69.0,1.0,"func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr *ProcAttr, sys *SysProcAttr, pipe int) (pid int, err Errno) {
+	// Set up and fork. This returns immediately in the parent or
+	// if there's an error.
+	r1, err1, p, locked := forkAndExecInChild1(argv0, argv, envv, chroot, dir, attr, sys, pipe)
+	if locked {
+		runtime_AfterFork()
+	}
+	if err1 != 0 {
+		return 0, err1
+	}
+
+	// parent; return PID
+	pid = int(r1)
+
+	if sys.UidMappings != nil || sys.GidMappings != nil {
+		Close(p[0])
+		var err2 Errno
+		// uid/gid mappings will be written after fork and unshare(2) for user
+		// namespaces.
+		if sys.Unshareflags&CLONE_NEWUSER == 0 {
+			if err := writeUidGidMappings(pid, sys); err != nil {
+				err2 = err.(Errno)
+			}
+		}
+		RawSyscall(SYS_WRITE, uintptr(p[1]), uintptr(unsafe.Pointer(&err2)), unsafe.Sizeof(err2))
+		Close(p[1])
+	}
+
+	return pid, 0
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,exec_linux.go,syscall,std,std,kubernetes/kubernetes,unclassified
+132,772126,98.0,1.0,"func (i *rawBlockIter) cacheEntry() {
+	var valStart int32
+	valSize := int32(len(i.val))
+	if valSize > 0 {
+		valStart = int32(uintptr(unsafe.Pointer(&i.val[0])) - uintptr(i.ptr))
+	}
+
+	i.cached = append(i.cached, blockEntry{
+		offset:   i.offset,
+		keyStart: int32(len(i.cachedBuf)),
+		keyEnd:   int32(len(i.cachedBuf) + len(i.key)),
+		valStart: valStart,
+		valSize:  valSize,
+	})
+	i.cachedBuf = append(i.cachedBuf, i.key...)
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,raw_block.go,github.com/cockroachdb/pebble/sstable,github.com/cockroachdb/pebble,v0.0.0-20200219202912-046831eaec09,lni/dragonboat,unclassified
+133,208062,203.0,1.0,"func wait4(pid int, wstatus *_C_int, options int, rusage *Rusage) (wpid int, err error) {
+	r0, _, e1 := Syscall6(SYS_WAIT4, uintptr(pid), uintptr(unsafe.Pointer(wstatus)), uintptr(options), uintptr(unsafe.Pointer(rusage)), 0, 0)
+	wpid = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,unclassified
+134,694920,108.0,1.0,"func SelectI8(t *Dense, axis int) (retVal [][]int8, err error) {
+	if err := checkNativeSelectable(t, axis, Int8); err != nil {
+		return nil, err
+	}
+
+	switch t.Shape().Dims() {
+	case 0, 1:
+		retVal = make([][]int8, 1)
+		retVal[0] = t.Int8s()
+	case 2:
+		if axis == 0 {
+			return MatrixI8(t)
+		}
+		fallthrough
+	default:
+		// size := t.Shape()[axis]
+		data := t.Int8s()
+		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int8, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int8)(unsafe.Pointer(hdr)))
+			r++
+		}
+		return retVal, nil
+
+	}
+	return
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native2.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,unclassified
+135,171139,1953.0,1.0,"func Renameat(olddirfd int, oldpath string, newdirfd int, newpath string) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(oldpath)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(newpath)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall6(SYS_RENAMEAT, uintptr(olddirfd), uintptr(unsafe.Pointer(_p0)), uintptr(newdirfd), uintptr(unsafe.Pointer(_p1)), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191127021746-63cb32ae39b2,GoogleContainerTools/skaffold,unclassified
+136,201216,440.0,1.0,"func ClockNanosleep(clockid int32, flags int, request *Timespec, remain *Timespec) (err error) {
+	_, _, e1 := Syscall6(SYS_CLOCK_NANOSLEEP, uintptr(clockid), uintptr(flags), uintptr(unsafe.Pointer(request)), uintptr(unsafe.Pointer(remain)), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,unclassified
+137,70996,1078.0,1.0,"func Lremovexattr(path string, attr string) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(attr)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_LREMOVEXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,unclassified
+138,694902,354.0,1.0,"func Tensor3I32(t *Dense) (retVal [][][]int32, err error) {
+	if err = checkNativeIterable(t, 3, Int32); err != nil {
+		return nil, err
+	}
+
+	data := t.Int32s()
+	shape := t.Shape()
+	strides := t.Strides()
+
+	layers := shape[0]
+	rows := shape[1]
+	cols := shape[2]
+	layerStride := strides[0]
+	rowStride := strides[1]
+	retVal = make([][][]int32, layers)
+	for i := range retVal {
+		retVal[i] = make([][]int32, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int32)(unsafe.Pointer(hdr))
+		}
+	}
+	return
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,unclassified
+139,201215,89.0,1.0,"func Readlinkat(dirfd int, path string, buf []byte) (n int, err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	var _p1 unsafe.Pointer
+	if len(buf) > 0 {
+		_p1 = unsafe.Pointer(&buf[0])
+	} else {
+		_p1 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall6(SYS_READLINKAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(_p1), uintptr(len(buf)), 0, 0)
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",4.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,unclassified
+140,230152,195.0,1.0,"func mincore(addr unsafe.Pointer, n uintptr, dst *byte) int32",1.0,0.0,0.0,0.0,1.0,0.0,0.0,os_linux.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+141,260170,94.0,1.0,"func structPointer_BytesSlice(p structPointer, f field) *[][]byte {
+	return (*[][]byte)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,unclassified
+142,393,860.0,1.0,"func (h *mheap) alloc(npages uintptr, spanclass spanClass, needzero bool) *mspan {
+	// Don't do any operations that lock the heap on the G stack.
+	// It might trigger stack growth, and the stack growth code needs
+	// to be able to allocate heap.
+	var s *mspan
+	systemstack(func() {
+		// To prevent excessive heap growth, before allocating n pages
+		// we need to sweep and reclaim at least n pages.
+		if h.sweepdone == 0 {
+			h.reclaim(npages)
+		}
+		s = h.allocSpan(npages, false, spanclass, &memstats.heap_inuse)
+	})
+
+	if s != nil {
+		if needzero && s.needzero != 0 {
+			memclrNoHeapPointers(unsafe.Pointer(s.base()), s.npages<<_PageShift)
+		}
+		s.needzero = 0
+	}
+	return s
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,mheap.go,runtime,std,std,kubernetes/kubernetes,unclassified
+143,2949,23.0,1.0,"func offsetComplex(a, b []complex128) int {
+	if &a[0] == &b[0] {
+		return 0
+	}
+	// This expression must be atomic with respect to GC moves.
+	// At this stage this is true, because the GC does not
+	// move. See https://golang.org/issue/12445.
+	return int(uintptr(unsafe.Pointer(&b[0]))-uintptr(unsafe.Pointer(&a[0]))) / int(unsafe.Sizeof(complex128(0)))
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,offset.go,gonum.org/v1/gonum/mat,gonum.org/v1/gonum,v0.6.2,kubernetes/kubernetes,unclassified
+144,104,24.0,1.0,"func checkptrArithmetic(p unsafe.Pointer, originals []unsafe.Pointer) {
+	if 0 < uintptr(p) && uintptr(p) < minLegalPointer {
+		throw(""checkptr: unsafe pointer arithmetic"")
+	}
+
+	// Check that if the computed pointer p points into a heap
+	// object, then one of the original pointers must have pointed
+	// into the same object.
+	base := checkptrBase(p)
+	if base == 0 {
+		return
+	}
+
+	for _, original := range originals {
+		if base == checkptrBase(original) {
+			return
+		}
+	}
+
+	throw(""checkptr: unsafe pointer arithmetic"")
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,checkptr.go,runtime,std,std,kubernetes/kubernetes,unclassified
+145,71107,894.0,1.0,"func Getxattr(path string, attr string, dest []byte) (sz int, err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(attr)
+	if err != nil {
+		return
+	}
+	var _p2 unsafe.Pointer
+	if len(dest) > 0 {
+		_p2 = unsafe.Pointer(&dest[0])
+	} else {
+		_p2 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall6(SYS_GETXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(dest)), 0, 0)
+	sz = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",5.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,unclassified
+146,239,364.0,1.0,"func evacuate_fast32(t *maptype, h *hmap, oldbucket uintptr) {
+	b := (*bmap)(add(h.oldbuckets, oldbucket*uintptr(t.bucketsize)))
+	newbit := h.noldbuckets()
+	if !evacuated(b) {
+		// TODO: reuse overflow buckets instead of using new ones, if there
+		// is no iterator using the old buckets.  (If !oldIterator.)
+
+		// xy contains the x and y (low and high) evacuation destinations.
+		var xy [2]evacDst
+		x := &xy[0]
+		x.b = (*bmap)(add(h.buckets, oldbucket*uintptr(t.bucketsize)))
+		x.k = add(unsafe.Pointer(x.b), dataOffset)
+		x.e = add(x.k, bucketCnt*4)
+
+		if !h.sameSizeGrow() {
+			// Only calculate y pointers if we're growing bigger.
+			// Otherwise GC can see bad pointers.
+			y := &xy[1]
+			y.b = (*bmap)(add(h.buckets, (oldbucket+newbit)*uintptr(t.bucketsize)))
+			y.k = add(unsafe.Pointer(y.b), dataOffset)
+			y.e = add(y.k, bucketCnt*4)
+		}
+
+		for ; b != nil; b = b.overflow(t) {
+			k := add(unsafe.Pointer(b), dataOffset)
+			e := add(k, bucketCnt*4)
+			for i := 0; i < bucketCnt; i, k, e = i+1, add(k, 4), add(e, uintptr(t.elemsize)) {
+				top := b.tophash[i]
+				if isEmpty(top) {
+					b.tophash[i] = evacuatedEmpty
+					continue
+				}
+				if top < minTopHash {
+					throw(""bad map state"")
+				}
+				var useY uint8
+				if !h.sameSizeGrow() {
+					// Compute hash to make our evacuation decision (whether we need
+					// to send this key/elem to bucket x or bucket y).
+					hash := t.hasher(k, uintptr(h.hash0))
+					if hash&newbit != 0 {
+						useY = 1
+					}
+				}
+
+				b.tophash[i] = evacuatedX + useY // evacuatedX + 1 == evacuatedY, enforced in makemap
+				dst := &xy[useY]                 // evacuation destination
+
+				if dst.i == bucketCnt {
+					dst.b = h.newoverflow(t, dst.b)
+					dst.i = 0
+					dst.k = add(unsafe.Pointer(dst.b), dataOffset)
+					dst.e = add(dst.k, bucketCnt*4)
+				}
+				dst.b.tophash[dst.i&(bucketCnt-1)] = top // mask dst.i as an optimization, to avoid a bounds check
+
+				// Copy key.
+				if sys.PtrSize == 4 && t.key.ptrdata != 0 && writeBarrier.enabled {
+					// Write with a write barrier.
+					*(*unsafe.Pointer)(dst.k) = *(*unsafe.Pointer)(k)
+				} else {
+					*(*uint32)(dst.k) = *(*uint32)(k)
+				}
+
+				typedmemmove(t.elem, dst.e, e)
+				dst.i++
+				// These updates might push these pointers past the end of the
+				// key or elem arrays.  That's ok, as we have the overflow pointer
+				// at the end of the bucket to protect against pointing past the
+				// end of the bucket.
+				dst.k = add(dst.k, 4)
+				dst.e = add(dst.e, uintptr(t.elemsize))
+			}
+		}
+		// Unlink the overflow buckets & clear key/elem to help GC.
+		if h.flags&oldIterator == 0 && t.bucket.ptrdata != 0 {
+			b := add(h.oldbuckets, oldbucket*uintptr(t.bucketsize))
+			// Preserve b.tophash because the evacuation
+			// state is maintained there.
+			ptr := add(b, dataOffset)
+			n := uintptr(t.bucketsize) - dataOffset
+			memclrHasPointers(ptr, n)
+		}
+	}
+
+	if oldbucket == h.nevacuate {
+		advanceEvacuationMark(h, t, newbit)
+	}
+}",6.0,0.0,0.0,0.0,9.0,0.0,0.0,map_fast32.go,runtime,std,std,kubernetes/kubernetes,unclassified
+147,18345,1580.0,1.0,"func Vmsplice(fd int, iovs []Iovec, flags int) (int, error) {
+	var p unsafe.Pointer
+	if len(iovs) > 0 {
+		p = unsafe.Pointer(&iovs[0])
+	}
+
+	n, _, errno := Syscall6(SYS_VMSPLICE, uintptr(fd), uintptr(p), uintptr(len(iovs)), uintptr(flags), 0, 0)
+	if errno != 0 {
+		return 0, syscall.Errno(errno)
+	}
+
+	return int(n), nil
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,unclassified
+148,229993,299.0,1.0,"func markrootSpans(gcw *gcWork, shard int) {
+	// Objects with finalizers have two GC-related invariants:
+	//
+	// 1) Everything reachable from the object must be marked.
+	// This ensures that when we pass the object to its finalizer,
+	// everything the finalizer can reach will be retained.
+	//
+	// 2) Finalizer specials (which are not in the garbage
+	// collected heap) are roots. In practice, this means the fn
+	// field must be scanned.
+	//
+	// TODO(austin): There are several ideas for making this more
+	// efficient in issue #11485.
+
+	sg := mheap_.sweepgen
+	spans := mheap_.sweepSpans[mheap_.sweepgen/2%2].block(shard)
+	// Note that work.spans may not include spans that were
+	// allocated between entering the scan phase and now. We may
+	// also race with spans being added into sweepSpans when they're
+	// just created, and as a result we may see nil pointers in the
+	// spans slice. This is okay because any objects with finalizers
+	// in those spans must have been allocated and given finalizers
+	// after we entered the scan phase, so addfinalizer will have
+	// ensured the above invariants for them.
+	for i := 0; i < len(spans); i++ {
+		// sweepBuf.block requires that we read pointers from the block atomically.
+		// It also requires that we ignore nil pointers.
+		s := (*mspan)(atomic.Loadp(unsafe.Pointer(&spans[i])))
+
+		// This is racing with spans being initialized, so
+		// check the state carefully.
+		if s == nil || s.state.get() != mSpanInUse {
+			continue
+		}
+		// Check that this span was swept (it may be cached or uncached).
+		if !useCheckmark && !(s.sweepgen == sg || s.sweepgen == sg+3) {
+			// sweepgen was updated (+2) during non-checkmark GC pass
+			print(""sweep "", s.sweepgen, "" "", sg, ""\n"")
+			throw(""gc: unswept span"")
+		}
+
+		// Speculatively check if there are any specials
+		// without acquiring the span lock. This may race with
+		// adding the first special to a span, but in that
+		// case addfinalizer will observe that the GC is
+		// active (which is globally synchronized) and ensure
+		// the above invariants. We may also ensure the
+		// invariants, but it's okay to scan an object twice.
+		if s.specials == nil {
+			continue
+		}
+
+		// Lock the specials to prevent a special from being
+		// removed from the list while we're traversing it.
+		lock(&s.speciallock)
+
+		for sp := s.specials; sp != nil; sp = sp.next {
+			if sp.kind != _KindSpecialFinalizer {
+				continue
+			}
+			// don't mark finalized object, but scan it so we
+			// retain everything it points to.
+			spf := (*specialfinalizer)(unsafe.Pointer(sp))
+			// A finalizer can be set for an inner byte of an object, find object beginning.
+			p := s.base() + uintptr(spf.special.offset)/s.elemsize*s.elemsize
+
+			// Mark everything that can be reached from
+			// the object (but *not* the object itself or
+			// we'll never collect it).
+			scanobject(p, gcw)
+
+			// The special itself is a root.
+			scanblock(uintptr(unsafe.Pointer(&spf.fn)), sys.PtrSize, &oneptrmask[0], gcw, nil)
+		}
+
+		unlock(&s.speciallock)
+	}
+}",3.0,0.0,0.0,0.0,2.0,0.0,0.0,mgcmark.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+149,694882,284.0,1.0,"func Tensor3I16(t *Dense) (retVal [][][]int16, err error) {
+	if err = checkNativeIterable(t, 3, Int16); err != nil {
+		return nil, err
+	}
+
+	data := t.Int16s()
+	shape := t.Shape()
+	strides := t.Strides()
+
+	layers := shape[0]
+	rows := shape[1]
+	cols := shape[2]
+	layerStride := strides[0]
+	rowStride := strides[1]
+	retVal = make([][][]int16, layers)
+	for i := range retVal {
+		retVal[i] = make([][]int16, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int16)(unsafe.Pointer(hdr))
+		}
+	}
+	return
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,unclassified
+150,146175,1137.0,1.0,"func Mknodat(dirfd int, path string, mode uint32, dev int) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall6(SYS_MKNODAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(mode), uintptr(dev), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,unclassified
+151,146177,1533.0,1.0,"func write(fd int, p []byte) (n int, err error) {
+	var _p0 unsafe.Pointer
+	if len(p) > 0 {
+		_p0 = unsafe.Pointer(&p[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall(SYS_WRITE, uintptr(fd), uintptr(_p0), uintptr(len(p)))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,unclassified
+152,136064,90.0,1.0,"func NewWithBoolset(bs *[]byte, locs uint64) (bloomfilter Bloom) {
+	bloomfilter = New(float64(len(*bs)<<3), float64(locs))
+	for i, b := range *bs {
+		*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&bloomfilter.bitset[0])) + uintptr(i))) = b
+	}
+	return bloomfilter
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,bbloom.go,github.com/AndreasBriese/bbloom,github.com/AndreasBriese/bbloom,v0.0.0-20190825152654-46b345b51c96,jaegertracing/jaeger,unclassified
+153,359188,35.0,1.0,"func Lgetxattr(path string, attr string) ([]byte, error) {
+	var sz int
+	pathBytes, err := syscall.BytePtrFromString(path)
+	if err != nil {
+		return nil, err
+	}
+	attrBytes, err := syscall.BytePtrFromString(attr)
+	if err != nil {
+		return nil, err
+	}
+
+	// Start with a 128 length byte array
+	sz = 128
+	dest := make([]byte, sz)
+	destBytes := unsafe.Pointer(&dest[0])
+	_sz, _, errno := syscall.Syscall6(syscall.SYS_LGETXATTR, uintptr(unsafe.Pointer(pathBytes)), uintptr(unsafe.Pointer(attrBytes)), uintptr(destBytes), uintptr(len(dest)), 0, 0)
+
+	switch {
+	case errno == syscall.ENODATA:
+		return nil, errno
+	case errno == syscall.ENOTSUP:
+		return nil, errno
+	case errno == syscall.ERANGE:
+		// 128 byte array might just not be good enough,
+		// A dummy buffer is used ``uintptr(0)`` to get real size
+		// of the xattrs on disk
+		_sz, _, errno = syscall.Syscall6(syscall.SYS_LGETXATTR, uintptr(unsafe.Pointer(pathBytes)), uintptr(unsafe.Pointer(attrBytes)), uintptr(unsafe.Pointer(nil)), uintptr(0), 0, 0)
+		sz = int(_sz)
+		if sz < 0 {
+			return nil, errno
+		}
+		dest = make([]byte, sz)
+		destBytes := unsafe.Pointer(&dest[0])
+		_sz, _, errno = syscall.Syscall6(syscall.SYS_LGETXATTR, uintptr(unsafe.Pointer(pathBytes)), uintptr(unsafe.Pointer(attrBytes)), uintptr(destBytes), uintptr(len(dest)), 0, 0)
+		if errno != 0 {
+			return nil, errno
+		}
+	case errno != 0:
+		return nil, errno
+	}
+	sz = int(_sz)
+	return dest[:sz], nil
+}",9.0,0.0,0.0,0.0,12.0,0.0,0.0,xattrs_linux.go,github.com/docker/libcontainer/system,github.com/docker/libcontainer,v2.2.1+incompatible,ginuerzh/gost,unclassified
+154,201023,1322.0,1.0,"func PtraceSetRegs(pid int, regs *PtraceRegs) (err error) {
+	return ptrace(PTRACE_SETREGS, pid, 0, uintptr(unsafe.Pointer(regs)))
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,unclassified
+155,201080,116.0,1.0,"func (m *mmapper) Munmap(data []byte) (err error) {
+	if len(data) == 0 || len(data) != cap(data) {
+		return EINVAL
+	}
+
+	// Find the base of the mapping.
+	p := &data[cap(data)-1]
+	m.Lock()
+	defer m.Unlock()
+	b := m.active[p]
+	if b == nil || &b[0] != &data[0] {
+		return EINVAL
+	}
+
+	// Unmap the memory and update m.
+	if errno := m.munmap(uintptr(unsafe.Pointer(&b[0])), uintptr(len(b))); errno != nil {
+		return errno
+	}
+	delete(m.active, p)
+	return nil
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,syscall_unix.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,unclassified
+156,18533,2278.0,1.0,"func sendmsg(s int, msg *Msghdr, flags int) (n int, err error) {
+	r0, _, e1 := Syscall(SYS_SENDMSG, uintptr(s), uintptr(unsafe.Pointer(msg)), uintptr(flags))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,unclassified
+157,20230,463.0,1.0,"func Chroot(path string) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_CHROOT, uintptr(unsafe.Pointer(_p0)), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200302150141-5c8b2ff67527,prometheus/prometheus,unclassified
+158,18350,1376.0,1.0,"func PtraceSetRegs(pid int, regs *PtraceRegs) (err error) {
+	return ptrace(PTRACE_SETREGS, pid, 0, uintptr(unsafe.Pointer(regs)))
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,unclassified
+159,16658,99.0,1.0,"func (f *freelist) copyallunsafe(dstptr unsafe.Pointer) { // dstptr is []pgid data pointer
+	m := make(pgids, 0, f.pending_count())
+	for _, txp := range f.pending {
+		m = append(m, txp.ids...)
+	}
+	sort.Sort(m)
+	fpgids := f.getFreePageIDs()
+	sz := len(fpgids) + len(m)
+	dst := *(*[]pgid)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(dstptr),
+		Len:  sz,
+		Cap:  sz,
+	}))
+	mergepgids(dst, fpgids, m)
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,freelist.go,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,unclassified
+160,45416,133.0,1.0,"func structPointer_ExtMap(p structPointer, f field) *map[int32]Extension {
+	return (*map[int32]Extension)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,unclassified
+161,45425,129.0,1.0,"func structPointer_Extensions(p structPointer, f field) *XXX_InternalExtensions {
+	return (*XXX_InternalExtensions)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,unclassified
+162,146168,1650.0,1.0,"func preadv2(fd int, iovs []Iovec, offs_l uintptr, offs_h uintptr, flags int) (n int, err error) {
+	var _p0 unsafe.Pointer
+	if len(iovs) > 0 {
+		_p0 = unsafe.Pointer(&iovs[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall6(SYS_PREADV2, uintptr(fd), uintptr(_p0), uintptr(len(iovs)), uintptr(offs_l), uintptr(offs_h), uintptr(flags))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,8.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,unclassified
+163,234995,64.0,1.0,"func unlockEcho() (err error) {
+	fd := tty.Fd()
+	if _, _, e := syscall.Syscall6(sysIoctl, fd, ioctlWriteTermios, uintptr(unsafe.Pointer(&oldState)), 0, 0, 0); e != 0 {
+		err = fmt.Errorf(""Can't set terminal settings"")
+	}
+	return
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,term_x.go,gopkg.in/cheggaaa/pb.v2/termutil,gopkg.in/cheggaaa/pb.v2,v2.0.7,future-architect/vuls,unclassified
+164,54612,26.0,1.0,"func memory_memset_avx2(buf []byte, c byte) {
+	if len(buf) == 0 {
+		return
+	}
+
+	var (
+		p1 = unsafe.Pointer(&buf[0])
+		p2 = unsafe.Pointer(uintptr(len(buf)))
+		p3 = unsafe.Pointer(uintptr(c))
+	)
+	if len(buf) > 2000 || isMultipleOfPowerOf2(len(buf), 256) {
+		_memset_avx2(p1, p2, p3)
+	} else {
+		_memset_sse4(p1, p2, p3)
+	}
+}",3.0,0.0,0.0,0.0,2.0,0.0,0.0,memory_avx2_amd64.go,github.com/apache/arrow/go/arrow/memory,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,unclassified
+165,174653,631.0,1.0,"func (ctx *context) GetActiveAttrib(p Program, index uint32) (name string, size int, ty Enum) {
+	bufSize := ctx.GetProgrami(p, ACTIVE_ATTRIBUTE_MAX_LENGTH)
+	buf := make([]byte, bufSize)
+	var cType int
+
+	cSize := ctx.enqueue(call{
+		args: fnargs{
+			fn: glfnGetActiveAttrib,
+			a0: p.c(),
+			a1: uintptr(index),
+			a2: uintptr(bufSize),
+			a3: uintptr(unsafe.Pointer(&cType)), // TODO(crawshaw): not safe for a moving collector
+		},
+		parg:     unsafe.Pointer(&buf[0]),
+		blocking: true,
+	})
+
+	return goString(buf), int(cSize), Enum(cType)
+}",2.0,0.0,0.0,0.0,3.0,0.0,0.0,gl.go,github.com/fyne-io/mobile/gl,github.com/fyne-io/mobile,v0.0.1,fyne-io/fyne,unclassified
+166,230161,274.0,1.0,"func getHugePageSize() uintptr {
+	var numbuf [20]byte
+	fd := open(&sysTHPSizePath[0], 0 /* O_RDONLY */, 0)
+	if fd < 0 {
+		return 0
+	}
+	ptr := noescape(unsafe.Pointer(&numbuf[0]))
+	n := read(fd, ptr, int32(len(numbuf)))
+	closefd(fd)
+	if n <= 0 {
+		return 0
+	}
+	n-- // remove trailing newline
+	v, ok := atoi(slicebytetostringtmp((*byte)(ptr), int(n)))
+	if !ok || v < 0 {
+		v = 0
+	}
+	if v&(v-1) != 0 {
+		// v is not a power of 2
+		return 0
+	}
+	return uintptr(v)
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,os_linux.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+167,153,521.0,1.0,"func itab_callback(tab *itab) {
+	t := tab._type
+	dumptype(t)
+	dumpint(tagItab)
+	dumpint(uint64(uintptr(unsafe.Pointer(tab))))
+	dumpint(uint64(uintptr(unsafe.Pointer(t))))
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,heapdump.go,runtime,std,std,kubernetes/kubernetes,unclassified
+168,70,20.0,1.0,"func sigaction(sig uint32, new, old *sigactiont) {
+	// The runtime package is explicitly blacklisted from sanitizer
+	// instrumentation in racewalk.go, but we might be calling into instrumented C
+	// functions here — so we need the pointer parameters to be properly marked.
+	//
+	// Mark the input as having been written before the call and the output as
+	// read after.
+	if msanenabled && new != nil {
+		msanwrite(unsafe.Pointer(new), unsafe.Sizeof(*new))
+	}
+
+	if _cgo_sigaction == nil || inForkedChild {
+		sysSigaction(sig, new, old)
+	} else {
+		// We need to call _cgo_sigaction, which means we need a big enough stack
+		// for C.  To complicate matters, we may be in libpreinit (before the
+		// runtime has been initialized) or in an asynchronous signal handler (with
+		// the current thread in transition between goroutines, or with the g0
+		// system stack already in use).
+
+		var ret int32
+
+		var g *g
+		if mainStarted {
+			g = getg()
+		}
+		sp := uintptr(unsafe.Pointer(&sig))
+		switch {
+		case g == nil:
+			// No g: we're on a C stack or a signal stack.
+			ret = callCgoSigaction(uintptr(sig), new, old)
+		case sp < g.stack.lo || sp >= g.stack.hi:
+			// We're no longer on g's stack, so we must be handling a signal.  It's
+			// possible that we interrupted the thread during a transition between g
+			// and g0, so we should stay on the current stack to avoid corrupting g0.
+			ret = callCgoSigaction(uintptr(sig), new, old)
+		default:
+			// We're running on g's stack, so either we're not in a signal handler or
+			// the signal handler has set the correct g.  If we're on gsignal or g0,
+			// systemstack will make the call directly; otherwise, it will switch to
+			// g0 to ensure we have enough room to call a libc function.
+			//
+			// The function literal that we pass to systemstack is not nosplit, but
+			// that's ok: we'll be running on a fresh, clean system stack so the stack
+			// check will always succeed anyway.
+			systemstack(func() {
+				ret = callCgoSigaction(uintptr(sig), new, old)
+			})
+		}
+
+		const EINVAL = 22
+		if ret == EINVAL {
+			// libc reserves certain signals — normally 32-33 — for pthreads, and
+			// returns EINVAL for sigaction calls on those signals.  If we get EINVAL,
+			// fall back to making the syscall directly.
+			sysSigaction(sig, new, old)
+		}
+	}
+
+	if msanenabled && old != nil {
+		msanread(unsafe.Pointer(old), unsafe.Sizeof(*old))
+	}
+}",3.0,0.0,0.0,0.0,4.0,0.0,0.0,cgo_sigaction.go,runtime,std,std,kubernetes/kubernetes,unclassified
+169,229730,639.0,1.0,"func cgoIsGoPointer(p unsafe.Pointer) bool {
+	if p == nil {
+		return false
+	}
+
+	if inHeapOrStack(uintptr(p)) {
+		return true
+	}
+
+	for _, datap := range activeModules() {
+		if cgoInRange(p, datap.data, datap.edata) || cgoInRange(p, datap.bss, datap.ebss) {
+			return true
+		}
+	}
+
+	return false
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,cgocall.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+170,230002,414.0,1.0,"func (s *pageAlloc) scavengeOne(max uintptr, locked bool) uintptr {
+	// Calculate the maximum number of pages to scavenge.
+	//
+	// This should be alignUp(max, pageSize) / pageSize but max can and will
+	// be ^uintptr(0), so we need to be very careful not to overflow here.
+	// Rather than use alignUp, calculate the number of pages rounded down
+	// first, then add back one if necessary.
+	maxPages := max / pageSize
+	if max%pageSize != 0 {
+		maxPages++
+	}
+
+	// Calculate the minimum number of pages we can scavenge.
+	//
+	// Because we can only scavenge whole physical pages, we must
+	// ensure that we scavenge at least minPages each time, aligned
+	// to minPages*pageSize.
+	minPages := physPageSize / pageSize
+	if minPages < 1 {
+		minPages = 1
+	}
+
+	// Helpers for locking and unlocking only if locked == false.
+	lockHeap := func() {
+		if !locked {
+			lock(s.mheapLock)
+		}
+	}
+	unlockHeap := func() {
+		if !locked {
+			unlock(s.mheapLock)
+		}
+	}
+
+	lockHeap()
+	ci := chunkIndex(s.scavAddr)
+	if ci < s.start {
+		unlockHeap()
+		return 0
+	}
+
+	// Check the chunk containing the scav addr, starting at the addr
+	// and see if there are any free and unscavenged pages.
+	//
+	// Only check this if s.scavAddr is covered by any address range
+	// in s.inUse, so that we know our check of the summary is safe.
+	if s.inUse.contains(s.scavAddr) && s.summary[len(s.summary)-1][ci].max() >= uint(minPages) {
+		// We only bother looking for a candidate if there at least
+		// minPages free pages at all. It's important that we only
+		// continue if the summary says we can because that's how
+		// we can tell if parts of the address space are unused.
+		// See the comment on s.chunks in mpagealloc.go.
+		base, npages := s.chunkOf(ci).findScavengeCandidate(chunkPageIndex(s.scavAddr), minPages, maxPages)
+
+		// If we found something, scavenge it and return!
+		if npages != 0 {
+			s.scavengeRangeLocked(ci, base, npages)
+			unlockHeap()
+			return uintptr(npages) * pageSize
+		}
+	}
+
+	// getInUseRange returns the highest range in the
+	// intersection of [0, addr] and s.inUse.
+	//
+	// s.mheapLock must be held.
+	getInUseRange := func(addr uintptr) addrRange {
+		top := s.inUse.findSucc(addr)
+		if top == 0 {
+			return addrRange{}
+		}
+		r := s.inUse.ranges[top-1]
+		// addr is inclusive, so treat it as such when
+		// updating the limit, which is exclusive.
+		if r.limit > addr+1 {
+			r.limit = addr + 1
+		}
+		return r
+	}
+
+	// Slow path: iterate optimistically over the in-use address space
+	// looking for any free and unscavenged page. If we think we see something,
+	// lock and verify it!
+	//
+	// We iterate over the address space by taking ranges from inUse.
+newRange:
+	for {
+		r := getInUseRange(s.scavAddr)
+		if r.size() == 0 {
+			break
+		}
+		unlockHeap()
+
+		// Iterate over all of the chunks described by r.
+		// Note that r.limit is the exclusive upper bound, but what
+		// we want is the top chunk instead, inclusive, so subtract 1.
+		bot, top := chunkIndex(r.base), chunkIndex(r.limit-1)
+		for i := top; i >= bot; i-- {
+			// If this chunk is totally in-use or has no unscavenged pages, don't bother
+			// doing a  more sophisticated check.
+			//
+			// Note we're accessing the summary and the chunks without a lock, but
+			// that's fine. We're being optimistic anyway.
+
+			// Check quickly if there are enough free pages at all.
+			if s.summary[len(s.summary)-1][i].max() < uint(minPages) {
+				continue
+			}
+
+			// Run over the chunk looking harder for a candidate. Again, we could
+			// race with a lot of different pieces of code, but we're just being
+			// optimistic. Make sure we load the l2 pointer atomically though, to
+			// avoid races with heap growth. It may or may not be possible to also
+			// see a nil pointer in this case if we do race with heap growth, but
+			// just defensively ignore the nils. This operation is optimistic anyway.
+			l2 := (*[1 << pallocChunksL2Bits]pallocData)(atomic.Loadp(unsafe.Pointer(&s.chunks[i.l1()])))
+			if l2 == nil || !l2[i.l2()].hasScavengeCandidate(minPages) {
+				continue
+			}
+
+			// We found a candidate, so let's lock and verify it.
+			lockHeap()
+
+			// Find, verify, and scavenge if we can.
+			chunk := s.chunkOf(i)
+			base, npages := chunk.findScavengeCandidate(pallocChunkPages-1, minPages, maxPages)
+			if npages > 0 {
+				// We found memory to scavenge! Mark the bits and report that up.
+				// scavengeRangeLocked will update scavAddr for us, also.
+				s.scavengeRangeLocked(i, base, npages)
+				unlockHeap()
+				return uintptr(npages) * pageSize
+			}
+
+			// We were fooled, let's take this opportunity to move the scavAddr
+			// all the way down to where we searched as scavenged for future calls
+			// and keep iterating. Then, go get a new range.
+			s.scavAddr = chunkBase(i-1) + pallocChunkPages*pageSize - 1
+			continue newRange
+		}
+		lockHeap()
+
+		// Move the scavenger down the heap, past everything we just searched.
+		// Since we don't check if scavAddr moved while twe let go of the heap lock,
+		// it's possible that it moved down and we're moving it up here. This
+		// raciness could result in us searching parts of the heap unnecessarily.
+		// TODO(mknyszek): Remove this racy behavior through explicit address
+		// space reservations, which are difficult to do with just scavAddr.
+		s.scavAddr = r.base - 1
+	}
+	// We reached the end of the in-use address space and couldn't find anything,
+	// so signal that there's nothing left to scavenge.
+	s.scavAddr = minScavAddr
+	unlockHeap()
+
+	return 0
+}",1.0,0.0,0.0,0.0,5.0,0.0,0.0,mgcscavenge.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+171,424103,100.0,1.0,"func ReadPassword(fd int) ([]byte, error) {
+	var oldState syscall.Termios
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&oldState)), 0, 0, 0); err != 0 {
+		return nil, err
+	}
+
+	newState := oldState
+	newState.Lflag &^= syscall.ECHO
+	newState.Lflag |= syscall.ICANON | syscall.ISIG
+	newState.Iflag |= syscall.ICRNL
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&newState)), 0, 0, 0); err != 0 {
+		return nil, err
+	}
+
+	defer func() {
+		syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&oldState)), 0, 0, 0)
+	}()
+
+	return readPasswordLine(passwordReader(fd))
+}",3.0,0.0,0.0,0.0,6.0,0.0,0.0,util.go,github.com/vito/go-interact/interact/terminal,github.com/vito/go-interact,v0.0.0-20171111012221-fa338ed9e9ec,concourse/concourse,unclassified
+172,20144,887.0,1.0,"func InitModule(moduleImage []byte, params string) (err error) {
+	var _p0 unsafe.Pointer
+	if len(moduleImage) > 0 {
+		_p0 = unsafe.Pointer(&moduleImage[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(params)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_INIT_MODULE, uintptr(_p0), uintptr(len(moduleImage)), uintptr(unsafe.Pointer(_p1)))
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",4.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200302150141-5c8b2ff67527,prometheus/prometheus,unclassified
+173,45424,109.0,1.0,"func structPointer_BoolSlice(p structPointer, f field) *[]bool {
+	return (*[]bool)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,unclassified
+174,230826,907.0,1.0,"func write(fd int, p []byte) (n int, err error) {
+	var _p0 unsafe.Pointer
+	if len(p) > 0 {
+		_p0 = unsafe.Pointer(&p[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	r0, _, e1 := Syscall(SYS_WRITE, uintptr(fd), uintptr(_p0), uintptr(len(p)))
+	n = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,unclassified
+175,6316,2526.0,1.0,"func pipe2(p *[2]_C_int, flags int) (err error) {
+	_, _, e1 := RawSyscall(SYS_PIPE2, uintptr(unsafe.Pointer(p)), uintptr(flags), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,unclassified
+176,18321,98.0,1.0,"func IoctlSetRTCTime(fd int, value *RTCTime) error {
+	err := ioctl(fd, RTC_SET_TIME, uintptr(unsafe.Pointer(value)))
+	runtime.KeepAlive(value)
+	return err
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,unclassified
+177,503,444.0,1.0,"func setSignalstackSP(s *stackt, sp uintptr) {
+	*(*uintptr)(unsafe.Pointer(&s.ss_sp)) = sp
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,os_linux.go,runtime,std,std,kubernetes/kubernetes,unclassified
+178,18492,1130.0,1.0,"func PerfEventOpen(attr *PerfEventAttr, pid int, cpu int, groupFd int, flags int) (fd int, err error) {
+	r0, _, e1 := Syscall6(SYS_PERF_EVENT_OPEN, uintptr(unsafe.Pointer(attr)), uintptr(pid), uintptr(cpu), uintptr(groupFd), uintptr(flags), 0)
+	fd = int(r0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,unclassified
+179,1238,1474.0,1.0,"func fstatat(fd int, path string, stat *Stat_t, flags int) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall6(SYS_NEWFSTATAT, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(stat)), uintptr(flags), 0, 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,unclassified
+180,317,77.0,1.0,"func queuefinalizer(p unsafe.Pointer, fn *funcval, nret uintptr, fint *_type, ot *ptrtype) {
+	if gcphase != _GCoff {
+		// Currently we assume that the finalizer queue won't
+		// grow during marking so we don't have to rescan it
+		// during mark termination. If we ever need to lift
+		// this assumption, we can do it by adding the
+		// necessary barriers to queuefinalizer (which it may
+		// have automatically).
+		throw(""queuefinalizer during GC"")
+	}
+
+	lock(&finlock)
+	if finq == nil || finq.cnt == uint32(len(finq.fin)) {
+		if finc == nil {
+			finc = (*finblock)(persistentalloc(_FinBlockSize, 0, &memstats.gc_sys))
+			finc.alllink = allfin
+			allfin = finc
+			if finptrmask[0] == 0 {
+				// Build pointer mask for Finalizer array in block.
+				// Check assumptions made in finalizer1 array above.
+				if (unsafe.Sizeof(finalizer{}) != 5*sys.PtrSize ||
+					unsafe.Offsetof(finalizer{}.fn) != 0 ||
+					unsafe.Offsetof(finalizer{}.arg) != sys.PtrSize ||
+					unsafe.Offsetof(finalizer{}.nret) != 2*sys.PtrSize ||
+					unsafe.Offsetof(finalizer{}.fint) != 3*sys.PtrSize ||
+					unsafe.Offsetof(finalizer{}.ot) != 4*sys.PtrSize) {
+					throw(""finalizer out of sync"")
+				}
+				for i := range finptrmask {
+					finptrmask[i] = finalizer1[i%len(finalizer1)]
+				}
+			}
+		}
+		block := finc
+		finc = block.next
+		block.next = finq
+		finq = block
+	}
+	f := &finq.fin[finq.cnt]
+	atomic.Xadd(&finq.cnt, +1) // Sync with markroots
+	f.fn = fn
+	f.nret = nret
+	f.fint = fint
+	f.ot = ot
+	f.arg = p
+	fingwake = true
+	unlock(&finlock)
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,mfinal.go,runtime,std,std,kubernetes/kubernetes,unclassified
+181,268,676.0,1.0,"func bulkBarrierPreWriteSrcOnly(dst, src, size uintptr) {
+	if (dst|src|size)&(sys.PtrSize-1) != 0 {
+		throw(""bulkBarrierPreWrite: unaligned arguments"")
+	}
+	if !writeBarrier.needed {
+		return
+	}
+	buf := &getg().m.p.ptr().wbBuf
+	h := heapBitsForAddr(dst)
+	for i := uintptr(0); i < size; i += sys.PtrSize {
+		if h.isPointer() {
+			srcx := (*uintptr)(unsafe.Pointer(src + i))
+			if !buf.putFast(0, *srcx) {
+				wbBufFlush(nil, 0)
+			}
+		}
+		h = h.next()
+	}
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,mbitmap.go,runtime,std,std,kubernetes/kubernetes,unclassified
+182,694909,526.0,1.0,"func SelectC64(t *Dense, axis int) (retVal [][]complex64, err error) {
+	if err := checkNativeSelectable(t, axis, Complex64); err != nil {
+		return nil, err
+	}
+
+	switch t.Shape().Dims() {
+	case 0, 1:
+		retVal = make([][]complex64, 1)
+		retVal[0] = t.Complex64s()
+	case 2:
+		if axis == 0 {
+			return MatrixC64(t)
+		}
+		fallthrough
+	default:
+		// size := t.Shape()[axis]
+		data := t.Complex64s()
+		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]complex64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]complex64)(unsafe.Pointer(hdr)))
+			r++
+		}
+		return retVal, nil
+
+	}
+	return
+}",2.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native2.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,unclassified
+183,694483,126.0,1.0,"func (a *array) Memset(x interface{}) error {
+	switch a.t {
+	case Bool:
+		if xv, ok := x.(bool); ok {
+			data := a.Bools()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Int:
+		if xv, ok := x.(int); ok {
+			data := a.Ints()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Int8:
+		if xv, ok := x.(int8); ok {
+			data := a.Int8s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Int16:
+		if xv, ok := x.(int16); ok {
+			data := a.Int16s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Int32:
+		if xv, ok := x.(int32); ok {
+			data := a.Int32s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Int64:
+		if xv, ok := x.(int64); ok {
+			data := a.Int64s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Uint:
+		if xv, ok := x.(uint); ok {
+			data := a.Uints()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Uint8:
+		if xv, ok := x.(uint8); ok {
+			data := a.Uint8s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Uint16:
+		if xv, ok := x.(uint16); ok {
+			data := a.Uint16s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Uint32:
+		if xv, ok := x.(uint32); ok {
+			data := a.Uint32s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Uint64:
+		if xv, ok := x.(uint64); ok {
+			data := a.Uint64s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Uintptr:
+		if xv, ok := x.(uintptr); ok {
+			data := a.Uintptrs()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Float32:
+		if xv, ok := x.(float32); ok {
+			data := a.Float32s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Float64:
+		if xv, ok := x.(float64); ok {
+			data := a.Float64s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Complex64:
+		if xv, ok := x.(complex64); ok {
+			data := a.Complex64s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Complex128:
+		if xv, ok := x.(complex128); ok {
+			data := a.Complex128s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case String:
+		if xv, ok := x.(string); ok {
+			data := a.Strings()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case UnsafePointer:
+		if xv, ok := x.(unsafe.Pointer); ok {
+			data := a.UnsafePointers()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	}
+
+	xv := reflect.ValueOf(x)
+	ptr := uintptr(a.Ptr)
+	for i := 0; i < a.L; i++ {
+		want := ptr + uintptr(i)*a.t.Size()
+		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+		val = reflect.Indirect(val)
+		val.Set(xv)
+	}
+	return nil
+}",2.0,0.0,0.0,0.0,3.0,0.0,0.0,array_getset.go,gorgonia.org/tensor,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,unclassified
+184,207939,1128.0,1.0,"func PtraceGetRegs(pid int, regsout *PtraceRegs) (err error) {
+	return ptrace(PTRACE_GETREGS, pid, 0, uintptr(unsafe.Pointer(regsout)))
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,unclassified
+185,359204,13.0,1.0,"func maskBytes(key [4]byte, pos int, b []byte) int {
+	// Mask one byte at a time for small buffers.
+	if len(b) < 2*wordSize {
+		for i := range b {
+			b[i] ^= key[pos&3]
+			pos++
+		}
+		return pos & 3
+	}
+
+	// Mask one byte at a time to word boundary.
+	if n := int(uintptr(unsafe.Pointer(&b[0]))) % wordSize; n != 0 {
+		n = wordSize - n
+		for i := range b[:n] {
+			b[i] ^= key[pos&3]
+			pos++
+		}
+		b = b[n:]
+	}
+
+	// Create aligned word size key.
+	var k [wordSize]byte
+	for i := range k {
+		k[i] = key[(pos+i)&3]
+	}
+	kw := *(*uintptr)(unsafe.Pointer(&k))
+
+	// Mask one word at a time.
+	n := (len(b) / wordSize) * wordSize
+	for i := 0; i < n; i += wordSize {
+		*(*uintptr)(unsafe.Pointer(uintptr(unsafe.Pointer(&b[0])) + uintptr(i))) ^= kw
+	}
+
+	// Mask one byte at a time for remaining bytes.
+	b = b[n:]
+	for i := range b {
+		b[i] ^= key[pos&3]
+		pos++
+	}
+
+	return pos & 3
+}",4.0,0.0,0.0,0.0,5.0,0.0,0.0,mask.go,gopkg.in/gorilla/websocket.v1,gopkg.in/gorilla/websocket.v1,v1.4.0,ginuerzh/gost,unclassified
+186,1749,1068.0,1.0,"func Lsetxattr(path string, attr string, data []byte, flags int) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	var _p1 *byte
+	_p1, err = BytePtrFromString(attr)
+	if err != nil {
+		return
+	}
+	var _p2 unsafe.Pointer
+	if len(data) > 0 {
+		_p2 = unsafe.Pointer(&data[0])
+	} else {
+		_p2 = unsafe.Pointer(&_zero)
+	}
+	_, _, e1 := Syscall6(SYS_LSETXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(data)), uintptr(flags), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",5.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,unclassified
+187,71526,56.0,1.0,"func Prlimit(pid, resource int, limit syscall.Rlimit) error {
+	_, _, err := syscall.RawSyscall6(syscall.SYS_PRLIMIT64, uintptr(pid), uintptr(resource), uintptr(unsafe.Pointer(&limit)), uintptr(unsafe.Pointer(&limit)), 0, 0)
+	if err != 0 {
+		return err
+	}
+	return nil
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,linux.go,github.com/opencontainers/runc/libcontainer/system,github.com/opencontainers/runc,v0.1.1,helm/helm,unclassified
+188,18513,1599.0,1.0,"func Mlock(b []byte) (err error) {
+	var _p0 unsafe.Pointer
+	if len(b) > 0 {
+		_p0 = unsafe.Pointer(&b[0])
+	} else {
+		_p0 = unsafe.Pointer(&_zero)
+	}
+	_, _, e1 := Syscall(SYS_MLOCK, uintptr(_p0), uintptr(len(b)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",3.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,unclassified
+189,229720,47.0,1.0,"func munmap(addr unsafe.Pointer, n uintptr) {
+	if _cgo_munmap != nil {
+		systemstack(func() { callCgoMunmap(addr, n) })
+		return
+	}
+	sysMunmap(addr, n)
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,cgo_mmap.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+190,623,79.0,1.0,"func (c *sigctxt) pushCall(targetPC uintptr) {
+	// Make it look like the signaled instruction called target.
+	pc := uintptr(c.rip())
+	sp := uintptr(c.rsp())
+	sp -= sys.PtrSize
+	*(*uintptr)(unsafe.Pointer(sp)) = pc
+	c.set_rsp(uint64(sp))
+	c.set_rip(uint64(targetPC))
+}",1.0,0.0,0.0,0.0,4.0,0.0,0.0,signal_amd64.go,runtime,std,std,kubernetes/kubernetes,unclassified
+191,1072,50.0,1.0,"func SetLsfPromisc(name string, m bool) error {
+	s, e := cloexecSocket(AF_INET, SOCK_DGRAM, 0)
+	if e != nil {
+		return e
+	}
+	defer Close(s)
+	var ifl iflags
+	copy(ifl.name[:], []byte(name))
+	_, _, ep := Syscall(SYS_IOCTL, uintptr(s), SIOCGIFFLAGS, uintptr(unsafe.Pointer(&ifl)))
+	if ep != 0 {
+		return Errno(ep)
+	}
+	if m {
+		ifl.flags |= uint16(IFF_PROMISC)
+	} else {
+		ifl.flags &^= uint16(IFF_PROMISC)
+	}
+	_, _, ep = Syscall(SYS_IOCTL, uintptr(s), SIOCSIFFLAGS, uintptr(unsafe.Pointer(&ifl)))
+	if ep != 0 {
+		return Errno(ep)
+	}
+	return nil
+}",2.0,0.0,0.0,0.0,4.0,0.0,0.0,lsf_linux.go,syscall,std,std,kubernetes/kubernetes,unclassified
+192,794,1321.0,1.0,"func cgoContextPCs(ctxt uintptr, buf []uintptr) {
+	if cgoTraceback == nil {
+		return
+	}
+	call := cgocall
+	if panicking > 0 || getg().m.curg != getg() {
+		// We do not want to call into the scheduler when panicking
+		// or when on the system stack.
+		call = asmcgocall
+	}
+	arg := cgoTracebackArg{
+		context: ctxt,
+		buf:     (*uintptr)(noescape(unsafe.Pointer(&buf[0]))),
+		max:     uintptr(len(buf)),
+	}
+	if msanenabled {
+		msanwrite(unsafe.Pointer(&arg), unsafe.Sizeof(arg))
+	}
+	call(cgoTraceback, noescape(unsafe.Pointer(&arg)))
+}",3.0,0.0,0.0,0.0,4.0,0.0,0.0,traceback.go,runtime,std,std,kubernetes/kubernetes,unclassified
+193,229527,95.0,1.0,"func makeMethodValue(op string, v Value) Value {
+	if v.flag&flagMethod == 0 {
+		panic(""reflect: internal error: invalid use of makeMethodValue"")
+	}
+
+	// Ignoring the flagMethod bit, v describes the receiver, not the method type.
+	fl := v.flag & (flagRO | flagAddr | flagIndir)
+	fl |= flag(v.typ.Kind())
+	rcvr := Value{v.typ, v.ptr, fl}
+
+	// v.Type returns the actual type of the method value.
+	ftyp := (*funcType)(unsafe.Pointer(v.Type().(*rtype)))
+
+	// Indirect Go func value (dummy) to obtain
+	// actual code address. (A Go func value is a pointer
+	// to a C function pointer. https://golang.org/s/go11func.)
+	dummy := methodValueCall
+	code := **(**uintptr)(unsafe.Pointer(&dummy))
+
+	// methodValue contains a stack map for use by the runtime
+	_, argLen, _, stack, _ := funcLayout(ftyp, nil)
+
+	fv := &methodValue{
+		fn:     code,
+		stack:  stack,
+		argLen: argLen,
+		method: int(v.flag) >> flagMethodShift,
+		rcvr:   rcvr,
+	}
+
+	// Cause panic if method is not appropriate.
+	// The panic would still happen during the call if we omit this,
+	// but we want Interface() and other operations to fail early.
+	methodReceiver(op, fv.rcvr, fv.method)
+
+	return Value{&ftyp.rtype, unsafe.Pointer(fv), v.flag&flagRO | flag(Func)}
+}",3.0,0.0,0.0,0.0,1.0,0.0,0.0,makefunc.go,_/root/download/go/src/reflect,std,std,json-iterator/go,unclassified
+194,207963,91.0,1.0,"func (m *mmapper) Munmap(data []byte) (err error) {
+	if len(data) == 0 || len(data) != cap(data) {
+		return EINVAL
+	}
+
+	// Find the base of the mapping.
+	p := &data[cap(data)-1]
+	m.Lock()
+	defer m.Unlock()
+	b := m.active[p]
+	if b == nil || &b[0] != &data[0] {
+		return EINVAL
+	}
+
+	// Unmap the memory and update m.
+	if errno := m.munmap(uintptr(unsafe.Pointer(&b[0])), uintptr(len(b))); errno != nil {
+		return errno
+	}
+	delete(m.active, p)
+	return nil
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,syscall_unix.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,unclassified
+195,6210,2190.0,1.0,"func Setrlimit(resource int, rlim *Rlimit) (err error) {
+	_, _, e1 := RawSyscall(SYS_SETRLIMIT, uintptr(resource), uintptr(unsafe.Pointer(rlim)), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,unclassified
+196,229735,660.0,1.0,"func cgoInRange(p unsafe.Pointer, start, end uintptr) bool {
+	return start <= uintptr(p) && uintptr(p) < end
+}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,cgocall.go,_/root/download/go/src/runtime,std,std,json-iterator/go,unclassified
+197,83,66.0,1.0,"func cgoCheckMemmove(typ *_type, dst, src unsafe.Pointer, off, size uintptr) {
+	if typ.ptrdata == 0 {
+		return
+	}
+	if !cgoIsGoPointer(src) {
+		return
+	}
+	if cgoIsGoPointer(dst) {
+		return
+	}
+	cgoCheckTypedBlock(typ, src, off, size)
+}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,cgocheck.go,runtime,std,std,kubernetes/kubernetes,unclassified
+198,73168,2482.0,1.0,"func futimesat(dirfd int, path string, times *[2]Timeval) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_FUTIMESAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(times)))
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}",2.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191220142924-d4481acd189f,go-kit/kit,unclassified
+199,1012,1990.0,1.0,"func arrayAt(p unsafe.Pointer, i int, eltSize uintptr, whySafe string) unsafe.Pointer {
+	return add(p, uintptr(i)*eltSize, ""i < len"")
+}",2.0,0.0,0.0,0.0,2.0,0.0,0.0,value.go,reflect,std,std,kubernetes/kubernetes,unclassified

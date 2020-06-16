@@ -1,0 +1,1344 @@
+Unnamed: 0,Unnamed: 0.1,Unnamed: 0.1.1,text,context,line_number,column,absolute_offset,match_type,file_name,file_loc,file_byte_size,package_import_path,module_path,module_version,project_name,file_copy_path,label
+3,3,3,"	sliceHeader := &reflect.SliceHeader{
+","}
+
+func UnsafeCastString(str string) []byte {
+	stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&str))
+	sliceHeader := &reflect.SliceHeader{
+		Data: stringHeader.Data,
+		Cap: stringHeader.Len,
+		Len: stringHeader.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(sliceHeader))
+",292.0,17.0,7104.0,reflect.SliceHeader,reflect2.go,7272.0,298.0,github.com/modern-go/reflect2,github.com/modern-go/reflect2,v1.0.1,kubernetes/kubernetes,github.com/modern-go/reflect2/reflect2.go,unclassified
+4,4,4,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+","// Warning: the string returned by the function should be used with care, as the whole input data
+// chunk may be either blocked from being freed by GC because of a single string or the buffer.Data
+// may be garbage-collected even when the string exists.
+func bytesToStr(data []byte) string {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+	shdr := reflect.StringHeader{Data: h.Data, Len: h.Len}
+	return *(*string)(unsafe.Pointer(&shdr))
+}
+",21.0,8.0,616.0,reflect.SliceHeader,bytestostr.go,768.0,24.0,github.com/mailru/easyjson/jlexer,github.com/mailru/easyjson,v0.7.0,kubernetes/kubernetes,github.com/mailru/easyjson/jlexer/bytestostr.go,unclassified
+7,7,7,"		sh := &reflect.SliceHeader{
+","
+func unmarshalBytes(data interface{}, buf []byte) error {
+	switch value := data.(type) {
+	case unsafe.Pointer:
+		sh := &reflect.SliceHeader{
+			Data: uintptr(value),
+			Len:  len(buf),
+			Cap:  len(buf),
+		}
+
+",67.0,9.0,1400.0,reflect.SliceHeader,marshalers.go,4755.0,192.0,github.com/cilium/ebpf,github.com/cilium/ebpf,v0.0.0-20191113100448-d9fb101ca1fb,kubernetes/kubernetes,github.com/cilium/ebpf/marshalers.go,unclassified
+8,8,8,"	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+","
+// StringToReadOnlyBytes returns bytes converted from given string.
+func StringToReadOnlyBytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+}
+",18.0,7.0,396.0,reflect.SliceHeader,util_unsafe.go,506.0,20.0,github.com/yuin/goldmark/util,github.com/yuin/goldmark,v1.1.28,gohugoio/hugo,github.com/yuin/goldmark/util/util_unsafe.go,unclassified
+11,11,11,"		Data: ((*reflect.SliceHeader)(unsafe.Pointer(&slice))).Data,
+","
+func strslice(slice []byte) string {
+	var str string
+	*(*reflect.StringHeader)(unsafe.Pointer(&str)) = reflect.StringHeader{
+		Data: ((*reflect.SliceHeader)(unsafe.Pointer(&slice))).Data,
+		Len:  len(slice),
+	}
+	return str
+}
+",68.0,11.0,1576.0,reflect.SliceHeader,murmur.go,1676.0,72.0,github.com/spaolacci/murmur3,github.com/spaolacci/murmur3,v1.1.0,syncthing/syncthing,github.com/spaolacci/murmur3/murmur.go,unclassified
+12,12,12,"	dst := *(*[]pgid)(unsafe.Pointer(&reflect.SliceHeader{
+","	}
+	sort.Sort(m)
+	fpgids := f.getFreePageIDs()
+	sz := len(fpgids) + len(m)
+	dst := *(*[]pgid)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(dstptr),
+		Len:  sz,
+		Cap:  sz,
+	}))
+	mergepgids(dst, fpgids, m)
+",107.0,35.0,3719.0,reflect.SliceHeader,freelist.go,11854.0,413.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/freelist.go,unclassified
+13,13,13,"		ids := *(*[]pgid)(unsafe.Pointer(&reflect.SliceHeader{
+","	// Copy the list of page ids from the freelist.
+	if count == 0 {
+		f.ids = nil
+	} else {
+		ids := *(*[]pgid)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p) + idx*unsafe.Sizeof(pgid(0)),
+			Len:  int(count),
+			Cap:  int(count),
+		}))
+
+",297.0,36.0,8699.0,reflect.SliceHeader,freelist.go,11854.0,413.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/freelist.go,unclassified
+14,14,14,"	return *(*[]leafPageElement)(unsafe.Pointer(&reflect.SliceHeader{
+","func (p *page) leafPageElements() []leafPageElement {
+	if p.count == 0 {
+		return nil
+	}
+	return *(*[]leafPageElement)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p),
+		Len:  int(p.count),
+		Cap:  int(p.count),
+	}))
+}
+",68.0,46.0,1502.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,unclassified
+15,15,15,"	return *(*[]branchPageElement)(unsafe.Pointer(&reflect.SliceHeader{
+","func (p *page) branchPageElements() []branchPageElement {
+	if p.count == 0 {
+		return nil
+	}
+	return *(*[]branchPageElement)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p),
+		Len:  int(p.count),
+		Cap:  int(p.count),
+	}))
+}
+",86.0,48.0,2112.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,unclassified
+16,16,16,"	buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+// dump writes n bytes of the page to STDERR as hex output.
+func (p *page) hexdump(n int) {
+	buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(p)),
+		Len:  n,
+		Cap:  n,
+	}))
+	fmt.Fprintf(os.Stderr, ""%x\n"", buf)
+",95.0,35.0,2381.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,unclassified
+17,17,17,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+// key returns a byte slice of the node key.
+func (n *branchPageElement) key() []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(n)) + uintptr(n.pos),
+		Len:  int(n.ksize),
+		Cap:  int(n.ksize),
+	}))
+}
+",118.0,35.0,2961.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,unclassified
+18,18,18,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+// key returns a byte slice of the node key.
+func (n *leafPageElement) key() []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(n)) + uintptr(n.pos),
+		Len:  int(n.ksize),
+		Cap:  int(n.ksize),
+	}))
+}
+",135.0,35.0,3350.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,unclassified
+19,19,19,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+// value returns a byte slice of the node value.
+func (n *leafPageElement) value() []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(n)) + uintptr(n.pos) + uintptr(n.ksize),
+		Len:  int(n.vsize),
+		Cap:  int(n.vsize),
+	}))
+}
+",144.0,35.0,3603.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,unclassified
+20,20,20,"		b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","		// Create a slice to write into of needed size and advance
+		// byte pointer for next iteration.
+		klen, vlen := len(item.key), len(item.value)
+		sz := klen + vlen
+		b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: bp,
+			Len:  sz,
+			Cap:  sz,
+		}))
+		bp += uintptr(sz)
+",234.0,34.0,6139.0,reflect.SliceHeader,node.go,16185.0,607.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/node.go,unclassified
+21,21,21,"			buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","				sz = maxAllocSize - 1
+			}
+
+			// Write chunk to disk.
+			buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+				Data: ptr,
+				Len:  sz,
+				Cap:  sz,
+			}))
+			if _, err := tx.db.ops.writeAt(buf, offset); err != nil {
+",540.0,37.0,14807.0,reflect.SliceHeader,tx.go,19979.0,735.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/tx.go,unclassified
+22,22,22,"		buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","		if int(p.overflow) != 0 {
+			continue
+		}
+
+		buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(p)),
+			Len:  tx.db.pageSize,
+			Cap:  tx.db.pageSize,
+		}))
+
+",579.0,36.0,15626.0,reflect.SliceHeader,tx.go,19979.0,735.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/tx.go,unclassified
+26,26,26,"	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+","//
+// It is unsafe, and is intended to prepare input to short-lived functions
+// that require strings.
+func unsafeBytesToString(in []byte) string {
+	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+	dst := reflect.StringHeader{
+		Data: src.Data,
+		Len:  src.Len,
+	}
+	s := *(*string)(unsafe.Pointer(&dst))
+",37.0,11.0,1146.0,reflect.SliceHeader,inline_strconv_parse.go,1318.0,44.0,github.com/influxdata/influxdb/models,github.com/influxdata/influxdb,v1.7.7,prometheus/prometheus,github.com/influxdata/influxdb/models/inline_strconv_parse.go,unclassified
+27,27,27,"	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	""unsafe""
+)
+
+func BytesToString(b []byte) string {
+	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	strHeader := reflect.StringHeader{bytesHeader.Data, bytesHeader.Len}
+	return *(*string)(unsafe.Pointer(&strHeader))
+}
+",11.0,18.0,111.0,reflect.SliceHeader,unsafe.go,289.0,14.0,gopkg.in/redis.v5/internal,gopkg.in/redis.v5,v5.2.9,containous/traefik,gopkg.in/redis.v5/internal/unsafe.go,unclassified
+28,28,28,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","
+// unsafe cast string as []byte
+func unsafestr(b string) []byte {
+	l := len(b)
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Len:  l,
+		Cap:  l,
+		Data: (*reflect.StringHeader)(unsafe.Pointer(&b)).Data,
+	}))
+}
+",13.0,35.0,147.0,reflect.SliceHeader,writer_unsafe.go,290.0,18.0,github.com/philhofer/fwd,github.com/philhofer/fwd,v1.0.0,containous/traefik,github.com/philhofer/fwd/writer_unsafe.go,unclassified
+29,29,29,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","// THIS SHOULD ONLY BE USED BY THE CODE GENERATOR.
+// THIS IS EVIL CODE.
+// YOU HAVE BEEN WARNED.
+func UnsafeBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Len:  len(s),
+		Cap:  len(s),
+		Data: (*(*reflect.StringHeader)(unsafe.Pointer(&s))).Data,
+	}))
+}
+",35.0,35.0,838.0,reflect.SliceHeader,unsafe.go,994.0,40.0,github.com/tinylib/msgp/msgp,github.com/tinylib/msgp,v1.0.2,containous/traefik,github.com/tinylib/msgp/msgp/unsafe.go,unclassified
+30,30,30,"	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+","//
+// It is unsafe, and is intended to prepare input to short-lived functions
+// that require strings.
+func unsafeBytesToString(in []byte) string {
+	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+	dst := reflect.StringHeader{
+		Data: src.Data,
+		Len:  src.Len,
+	}
+	s := *(*string)(unsafe.Pointer(&dst))
+",37.0,11.0,1154.0,reflect.SliceHeader,inline_strconv_parse.go,1326.0,44.0,github.com/influxdata/influxdb1-client/models,github.com/influxdata/influxdb1-client,v0.0.0-20190809212627-fc22c7df067e,containous/traefik,github.com/influxdata/influxdb1-client/models/inline_strconv_parse.go,unclassified
+35,35,35,"	b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+func (d *sqlDigester) doDigestNormalized(normalized string) (result string) {
+	hdr := *(*reflect.StringHeader)(unsafe.Pointer(&normalized))
+	b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: hdr.Data,
+		Len:  hdr.Len,
+		Cap:  hdr.Len,
+	}))
+	d.hasher.Write(b)
+",95.0,33.0,2950.0,reflect.SliceHeader,digester.go,8563.0,383.0,github.com/pingcap/parser,github.com/pingcap/parser,v0.0.0-20200413043052-ef80f4de418c,pingcap/tidb,github.com/pingcap/parser/digester.go,unclassified
+38,38,38,"		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+","		rawhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Raw))
+		strhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Str))
+		// create byte slice headers
+		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+		if strh.Data == 0 {
+			// str is nil
+			if rawh.Data == 0 {
+				// raw is nil
+				result.Raw = """"
+",24.0,10.0,724.0,reflect.SliceHeader,gjson_ngae.go,2565.0,81.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.3.5,minio/minio,github.com/tidwall/gjson/gjson_ngae.go,unclassified
+39,39,39,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","	}
+}
+
+func stringBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: (*reflect.StringHeader)(unsafe.Pointer(&s)).Data,
+		Len:  len(s),
+		Cap:  len(s),
+	}))
+}
+",72.0,35.0,2334.0,reflect.SliceHeader,gjson_ngae.go,2565.0,81.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.3.5,minio/minio,github.com/tidwall/gjson/gjson_ngae.go,unclassified
+40,40,40,"					jsonbh := reflect.SliceHeader{
+","			}
+			if inplace && sz <= len(jstr) {
+				if !stringify || !mustMarshalString(raw) {
+					jsonh := *(*reflect.StringHeader)(unsafe.Pointer(&jstr))
+					jsonbh := reflect.SliceHeader{
+						Data: jsonh.Data, Len: jsonh.Len, Cap: jsonh.Len}
+					jbytes := *(*[]byte)(unsafe.Pointer(&jsonbh))
+					if stringify {
+						jbytes[res.Index] = '""'
+						copy(jbytes[res.Index+1:], []byte(raw))
+",29.0,15.0,639.0,reflect.SliceHeader,sjson_ngae.go,5846.0,191.0,github.com/tidwall/sjson,github.com/tidwall/sjson,v1.0.4,minio/minio,github.com/tidwall/sjson/sjson_ngae.go,unclassified
+41,41,41,"	jsonbh := reflect.SliceHeader{Data: jsonh.Data, Len: jsonh.Len}
+","			opts.ReplaceInPlace = false
+		}
+	}
+	jsonh := *(*reflect.StringHeader)(unsafe.Pointer(&json))
+	jsonbh := reflect.SliceHeader{Data: jsonh.Data, Len: jsonh.Len}
+	jsonb := *(*[]byte)(unsafe.Pointer(&jsonbh))
+	res, err := SetBytesOptions(jsonb, path, value, opts)
+	return string(res), err
+}
+
+",97.0,11.0,2647.0,reflect.SliceHeader,sjson_ngae.go,5846.0,191.0,github.com/tidwall/sjson,github.com/tidwall/sjson,v1.0.4,minio/minio,github.com/tidwall/sjson/sjson_ngae.go,unclassified
+42,42,42,"	sh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// THIS SHOULD ONLY BE USED BY THE CODE GENERATOR.
+// THIS IS EVIL CODE.
+// YOU HAVE BEEN WARNED.
+func UnsafeString(b []byte) string {
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	return *(*string)(unsafe.Pointer(&reflect.StringHeader{Data: sh.Data, Len: sh.Len}))
+}
+
+// UnsafeBytes returns the string as a byte slice
+// THIS SHOULD ONLY BE USED BY THE CODE GENERATOR.
+",27.0,9.0,550.0,reflect.SliceHeader,unsafe.go,1029.0,41.0,github.com/tinylib/msgp/msgp,github.com/tinylib/msgp,v1.1.1,minio/minio,github.com/tinylib/msgp/msgp/unsafe.go,unclassified
+43,43,43,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","// THIS SHOULD ONLY BE USED BY THE CODE GENERATOR.
+// THIS IS EVIL CODE.
+// YOU HAVE BEEN WARNED.
+func UnsafeBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Len:  len(s),
+		Cap:  len(s),
+		Data: (*(*reflect.StringHeader)(unsafe.Pointer(&s))).Data,
+	}))
+}
+",36.0,35.0,873.0,reflect.SliceHeader,unsafe.go,1029.0,41.0,github.com/tinylib/msgp/msgp,github.com/tinylib/msgp,v1.1.1,minio/minio,github.com/tinylib/msgp/msgp/unsafe.go,unclassified
+45,45,45,"	*h = reflect.SliceHeader{
+","}
+
+func toSlice(dest *[]byte, ptr unsafe.Pointer, byteCount uintptr) {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(dest))
+	*h = reflect.SliceHeader{
+		Data: uintptr(ptr),
+		Len:  int(byteCount),
+		Cap:  int(byteCount),
+	}
+}
+",70.0,6.0,1392.0,reflect.SliceHeader,misc.go,2092.0,100.0,github.com/hanwen/go-fuse/v2/fuse,github.com/hanwen/go-fuse/v2,v2.0.3-0.20191108143333-152e6ac32d54,rclone/rclone,github.com/hanwen/go-fuse/v2/fuse/misc.go,unclassified
+46,46,46,"	h := &reflect.SliceHeader{
+","		log.Printf(""Too few bytes for batch forget. Got %d bytes, want %d (%d entries)"",
+			len(req.arg), wantBytes, in.Count)
+	}
+
+	h := &reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(&req.arg[0])),
+		Len:  int(in.Count),
+		Cap:  int(in.Count),
+	}
+
+",304.0,7.0,8746.0,reflect.SliceHeader,opcode.go,28131.0,804.0,github.com/hanwen/go-fuse/v2/fuse,github.com/hanwen/go-fuse/v2,v2.0.3-0.20191108143333-152e6ac32d54,rclone/rclone,github.com/hanwen/go-fuse/v2/fuse/opcode.go,unclassified
+144,144,144,"	bh := reflect.SliceHeader{
+","}
+
+func StringToBytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+",36.0,7.0,1083.0,reflect.SliceHeader,bytes_unsafe.go,1205.0,42.0,github.com/buger/jsonparser,github.com/buger/jsonparser,v0.0.0-20191004114745-ee4c978eae7e,influxdata/influxdb,github.com/buger/jsonparser/bytes_unsafe.go,unclassified
+162,162,162,"	bh := reflect.SliceHeader{
+","}
+
+func unsafeString2Bytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+",16.0,7.0,256.0,reflect.SliceHeader,unsafe.go,378.0,22.0,github.com/valyala/fasttemplate,github.com/valyala/fasttemplate,v1.1.0,labstack/echo,github.com/valyala/fasttemplate/unsafe.go,unclassified
+167,167,167,"	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+","}
+
+func unsafeFastStringToReadOnlyBytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+}
+",260.0,7.0,5119.0,reflect.SliceHeader,utils.go,5229.0,262.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20191220021717-ab39c6098bdb,zyedidia/micro,github.com/yuin/gopher-lua/utils.go,unclassified
+174,174,174,"		buf: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","		return nil
+	}
+	s := &cgoSlice{
+		ptr: p,
+		buf: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: uintptr(p), Len: n, Cap: n,
+		})),
+	}
+	runtime.SetFinalizer(s, (*cgoSlice).reclaim)
+	return s
+",38.0,34.0,670.0,reflect.SliceHeader,cgo_slice.go,1378.0,75.0,_/root/download/codis/pkg/utils/unsafe2,std,std,CodisLabs/codis,_/root/download/codis/pkg/utils/unsafe2/cgo_slice.go,unclassified
+175,175,175,"	var ptr = (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func CastString(b []byte) string {
+	if len(b) == 0 {
+		return """"
+	}
+	var ptr = (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	var h = &reflect.StringHeader{
+		Data: uintptr(ptr.Data), Len: ptr.Len,
+	}
+	return *(*string)(unsafe.Pointer(h))
+}
+",15.0,13.0,222.0,reflect.SliceHeader,string.go,392.0,20.0,_/root/download/codis/pkg/utils/unsafe2,std,std,CodisLabs/codis,_/root/download/codis/pkg/utils/unsafe2/string.go,unclassified
+177,177,177,"	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+","}
+
+func Str2Bytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+	b := *(*[]byte)(unsafe.Pointer(&bh))
+	return b
+}
+
+func Bytes2Str(b []byte) string {
+",32.0,7.0,1002.0,reflect.SliceHeader,unsafe.go,2679.0,79.0,github.com/elastic/go-structform/internal/unsafe,github.com/elastic/go-structform,v0.0.6,elastic/beats,github.com/elastic/go-structform/internal/unsafe/unsafe.go,unclassified
+178,178,178,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	return b
+}
+
+func Bytes2Str(b []byte) string {
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	sh := reflect.StringHeader{Data: bh.Data, Len: bh.Len}
+	return *((*string)(unsafe.Pointer(&sh)))
+}
+
+// IfcValuePtr extracts the underlying values pointer from an empty interface{}
+",38.0,9.0,1155.0,reflect.SliceHeader,unsafe.go,2679.0,79.0,github.com/elastic/go-structform/internal/unsafe,github.com/elastic/go-structform,v0.0.6,elastic/beats,github.com/elastic/go-structform/internal/unsafe/unsafe.go,unclassified
+185,185,185,"	sh := *((*reflect.SliceHeader)(unsafe.Pointer(&s)))
+","	return *(*string)(unsafe.Pointer(&b))
+}
+
+func unsafeBytes(s string) []byte {
+	sh := *((*reflect.SliceHeader)(unsafe.Pointer(&s)))
+	return *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Cap}))
+}
+
+func isFieldValue(v interface{}) bool {
+	_, ok := v.(diag.Field)
+",29.0,11.0,551.0,reflect.SliceHeader,util.go,885.0,43.0,github.com/urso/diag/ctxfmt,github.com/urso/diag,v0.0.0-20200210123136-21b3cc8eb797,elastic/beats,github.com/urso/diag/ctxfmt/util.go,unclassified
+186,186,186,"	return *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Cap}))
+","}
+
+func unsafeBytes(s string) []byte {
+	sh := *((*reflect.SliceHeader)(unsafe.Pointer(&s)))
+	return *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Cap}))
+}
+
+func isFieldValue(v interface{}) bool {
+	_, ok := v.(diag.Field)
+	return ok
+",30.0,37.0,604.0,reflect.SliceHeader,util.go,885.0,43.0,github.com/urso/diag/ctxfmt,github.com/urso/diag,v0.0.0-20200210123136-21b3cc8eb797,elastic/beats,github.com/urso/diag/ctxfmt/util.go,unclassified
+187,187,187,"		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+","		// safely get the string headers
+		rawhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Raw))
+		strhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Str))
+		// create byte slice headers
+		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+		if strh.Data == 0 {
+			// str is nil
+			if rawh.Data == 0 {
+				// raw is nil
+",2840.0,10.0,59160.0,reflect.SliceHeader,gjson.go,61065.0,2898.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.6.0,ory/hydra,github.com/tidwall/gjson/gjson.go,unclassified
+188,188,188,"		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+","		rawhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Raw))
+		strhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Str))
+		// create byte slice headers
+		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+		if strh.Data == 0 {
+			// str is nil
+			if rawh.Data == 0 {
+				// raw is nil
+				result.Raw = """"
+",2841.0,10.0,59224.0,reflect.SliceHeader,gjson.go,61065.0,2898.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.6.0,ory/hydra,github.com/tidwall/gjson/gjson.go,unclassified
+189,189,189,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","	}
+}
+
+func stringBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: (*reflect.StringHeader)(unsafe.Pointer(&s)).Data,
+		Len:  len(s),
+		Cap:  len(s),
+	}))
+}
+",2889.0,35.0,60834.0,reflect.SliceHeader,gjson.go,61065.0,2898.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.6.0,ory/hydra,github.com/tidwall/gjson/gjson.go,unclassified
+190,190,190,"	bh := reflect.SliceHeader{
+","// Note it may break if string and/or slice header will change
+// in the future go versions.
+func s2b(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+",389.0,7.0,7967.0,reflect.SliceHeader,bytesconv.go,9693.0,437.0,github.com/valyala/fasthttp,github.com/valyala/fasthttp,v1.2.0,kubernetes/ingress-nginx,github.com/valyala/fasthttp/bytesconv.go,unclassified
+192,192,192,"	*h = reflect.SliceHeader{
+","}
+
+func toSlice(dest *[]byte, ptr unsafe.Pointer, byteCount uintptr) {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(dest))
+	*h = reflect.SliceHeader{
+		Data: uintptr(ptr),
+		Len:  int(byteCount),
+		Cap:  int(byteCount),
+	}
+}
+",70.0,6.0,1392.0,reflect.SliceHeader,misc.go,2092.0,100.0,github.com/hanwen/go-fuse/fuse,github.com/hanwen/go-fuse,v1.0.0,attic-labs/noms,github.com/hanwen/go-fuse/fuse/misc.go,unclassified
+193,193,193,"	h := &reflect.SliceHeader{
+","		log.Printf(""Too few bytes for batch forget. Got %d bytes, want %d (%d entries)"",
+			len(req.arg), wantBytes, in.Count)
+	}
+
+	h := &reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(&req.arg[0])),
+		Len:  int(in.Count),
+		Cap:  int(in.Count),
+	}
+
+",308.0,7.0,8389.0,reflect.SliceHeader,opcode.go,25259.0,754.0,github.com/hanwen/go-fuse/fuse,github.com/hanwen/go-fuse,v1.0.0,attic-labs/noms,github.com/hanwen/go-fuse/fuse/opcode.go,unclassified
+194,194,194,"		sh := &reflect.SliceHeader{
+","
+func unmarshalBytes(data interface{}, buf []byte) error {
+	switch value := data.(type) {
+	case unsafe.Pointer:
+		sh := &reflect.SliceHeader{
+			Data: uintptr(value),
+			Len:  len(buf),
+			Cap:  len(buf),
+		}
+
+",76.0,9.0,1627.0,reflect.SliceHeader,marshalers.go,5063.0,203.0,github.com/cilium/ebpf,github.com/cilium/ebpf,v0.0.0-20200319110858-a7172c01168f,opencontainers/runc,github.com/cilium/ebpf/marshalers.go,unclassified
+195,195,195,"		data := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","			}
+		}
+	case *byte:
+		// convert the byte pointer back to a valid slice
+		data := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(v)),
+			Len:  int((^uint(0)) >> 1),
+			Cap:  int((^uint(0)) >> 1),
+		}))
+		n := binary.LittleEndian.Uint32(data[1:])
+",192.0,37.0,4443.0,reflect.SliceHeader,series.go,7968.0,350.0,github.com/tidwall/geojson/geometry,github.com/tidwall/geojson,v1.1.13,tidwall/tile38,github.com/tidwall/geojson/geometry/series.go,unclassified
+196,196,196,"	return int(xxhash.Sum64(*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","
+// hash returns a 48-bit hash for 64-bit environments, or 32-bit hash for
+// 32-bit environments.
+func (m *MapU64) hash(key uint64) int {
+	return int(xxhash.Sum64(*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(&key)), Len: 8, Cap: 8,
+	}))) >> dibBitSize)
+}
+
+// MapU64 is a map. Like map[uint64]interface{}
+",36.0,52.0,839.0,reflect.SliceHeader,u64.go,4274.0,185.0,github.com/tidwall/rhh,github.com/tidwall/rhh,v1.1.0,tidwall/tile38,github.com/tidwall/rhh/u64.go,unclassified
+205,205,205,"				Data: (*reflect.SliceHeader)(unsafe.Pointer(&key)).Data,
+","	return Sum32(
+		*(*string)((unsafe.Pointer)(
+			&reflect.StringHeader{
+				Len:  len(key),
+				Data: (*reflect.SliceHeader)(unsafe.Pointer(&key)).Data,
+			})),
+		seed...)
+
+	// return Sum32(string(key), seed...)
+}
+",45.0,12.0,1119.0,reflect.SliceHeader,murmur.go,2212.0,98.0,github.com/go-ego/murmur,github.com/go-ego/murmur,v0.0.0-20191001133222-eab2da088fb4,go-ego/riot,github.com/go-ego/murmur/murmur.go,unclassified
+206,206,206,"	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+","//
+// It is unsafe, and is intended to prepare input to short-lived functions
+// that require strings.
+func unsafeBytesToString(in []byte) string {
+	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+	dst := reflect.StringHeader{
+		Data: src.Data,
+		Len:  src.Len,
+	}
+	s := *(*string)(unsafe.Pointer(&dst))
+",31.0,11.0,925.0,reflect.SliceHeader,inline_strconv_parse.go,1097.0,38.0,github.com/influxdata/influxdb/models,github.com/influxdata/influxdb,v1.2.0,fission/fission,github.com/influxdata/influxdb/models/inline_strconv_parse.go,unclassified
+219,219,219,"	return unsafe.Pointer(&reflect.SliceHeader{
+","	return (*meta)(unsafe.Pointer(uintptr(unsafe.Pointer(p)) + pageHeaderSize))
+}
+
+func (p *page) dataPtr() unsafe.Pointer {
+	return unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(p)) + pageHeaderSize,
+		Len:  int(p.count),
+		Cap:  int(p.count),
+	})
+}
+",59.0,24.0,994.0,reflect.SliceHeader,page.go,1834.0,88.0,_/root/download/7days-golang/gee-bolt/day1-pages,std,std,geektutu/7days-golang,_/root/download/7days-golang/gee-bolt/day1-pages/page.go,unclassified
+222,222,222,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+//go:nosplit
+func stringToBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: ((*reflect.StringHeader)(unsafe.Pointer(&s))).Data,
+		Len:  len(s),
+		Cap:  len(s),
+	}))
+}
+",1006.0,35.0,27328.0,reflect.SliceHeader,codec.go,31809.0,1179.0,github.com/segmentio/encoding/json,github.com/segmentio/encoding,v0.1.10,go-pg/pg,github.com/segmentio/encoding/json/codec.go,unclassified
+235,235,235,"	sliceHeader := reflect.SliceHeader{
+","// new memory for it with the assumption that the resulting byte slice will not
+// be mutated.
+func unsafeStringToBytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	sliceHeader := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&sliceHeader))
+",33.0,16.0,1437.0,reflect.SliceHeader,unsafe.go,1837.0,46.0,go.uber.org/thriftrw/wire,go.uber.org/thriftrw,v1.20.2,uber/cadence,go.uber.org/thriftrw/wire/unsafe.go,unclassified
+238,238,238,"	var sh reflect.SliceHeader
+","}
+
+func s2b(s string) []byte {
+	strh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	var sh reflect.SliceHeader
+	sh.Data = strh.Data
+	sh.Len = strh.Len
+	sh.Cap = strh.Len
+	return *(*[]byte)(unsafe.Pointer(&sh))
+}
+",14.0,8.0,202.0,reflect.SliceHeader,util.go,524.0,30.0,github.com/valyala/fastjson,github.com/valyala/fastjson,v1.4.1,uber/cadence,github.com/valyala/fastjson/util.go,unclassified
+241,241,241,"	dstAsSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","	if dstType.Size() != srcType.Size() {
+		panic(""Type size mismatch between "" + dstType.String() + "" and "" + srcType.String())
+	}
+
+	dstAsSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: dstValue.Pointer(),
+		Len:  int(dstType.Size()),
+		Cap:  int(dstType.Size()),
+	}))
+
+",243.0,42.0,7160.0,reflect.SliceHeader,reflection.go,11252.0,373.0,github.com/trivago/tgo/treflect,github.com/trivago/tgo,v1.0.1,jenkins-x/jx,github.com/trivago/tgo/treflect/reflection.go,unclassified
+242,242,242,"	srcAsSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","		Len:  int(dstType.Size()),
+		Cap:  int(dstType.Size()),
+	}))
+
+	srcAsSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: srcPtr,
+		Len:  int(srcType.Size()),
+		Cap:  int(srcType.Size()),
+	}))
+
+",249.0,42.0,7315.0,reflect.SliceHeader,reflection.go,11252.0,373.0,github.com/trivago/tgo/treflect,github.com/trivago/tgo,v1.0.1,jenkins-x/jx,github.com/trivago/tgo/treflect/reflection.go,unclassified
+246,246,246,"	sh := &reflect.SliceHeader{
+","}
+
+//export LLVMFuzzerTestOneInput
+func LLVMFuzzerTestOneInput(data uintptr, size uint64) int {
+	sh := &reflect.SliceHeader{
+	    Data: data,
+	    Len:  int(size),
+	    Cap:  int(size),
+	}
+
+",868.0,8.0,26392.0,reflect.SliceHeader,main.go,26593.0,882.0,_/root/download/go-fuzz/go-fuzz-build,std,std,dvyukov/go-fuzz,_/root/download/go-fuzz/go-fuzz-build/main.go,unclassified
+247,247,247,"	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	""unsafe""
+)
+
+func bytesToString(b []byte) string {
+	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	strHeader := reflect.StringHeader{bytesHeader.Data, bytesHeader.Len}
+	return *(*string)(unsafe.Pointer(&strHeader))
+}
+",11.0,18.0,108.0,reflect.SliceHeader,unsafe.go,286.0,14.0,gopkg.in/redis.v3,gopkg.in/redis.v3,v3.6.4,tsuru/tsuru,gopkg.in/redis.v3/unsafe.go,unclassified
+249,249,249,"	hdr := reflect.SliceHeader{
+","}
+
+func AsByteSlice(a *Header, t reflect.Type) []byte {
+	size := a.L * int(t.Size())
+	hdr := reflect.SliceHeader{
+		Data: uintptr(a.Ptr),
+		Len:  size,
+		Cap:  size,
+	}
+	return *(*[]byte)(unsafe.Pointer(&hdr))
+",90.0,8.0,1990.0,reflect.SliceHeader,header.go,2301.0,101.0,gorgonia.org/tensor/internal/storage,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/internal/storage/header.go,unclassified
+250,250,250,"		shdr := reflect.SliceHeader{
+","		return t.Get(0)
+	}
+	if t.v == nil {
+		// build a type of []T
+		shdr := reflect.SliceHeader{
+			Data: uintptr(t.Header.Ptr),
+			Len:  t.Header.L,
+			Cap:  t.Header.C,
+		}
+		sliceT := reflect.SliceOf(t.t.Type)
+",118.0,10.0,2624.0,reflect.SliceHeader,dense.go,13429.0,625.0,gorgonia.org/tensor,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/dense.go,unclassified
+251,251,251,"		shdr := reflect.SliceHeader{
+","// Data returns the representation of a slice.
+func (a array) Data() interface{} {
+	if a.v == nil {
+		// build a type of []T
+		shdr := reflect.SliceHeader{
+			Data: uintptr(a.Header.Ptr),
+			Len:  a.Header.L,
+			Cap:  a.Header.C,
+		}
+		sliceT := reflect.SliceOf(a.t.Type)
+",251.0,10.0,5683.0,reflect.SliceHeader,array.go,13090.0,543.0,gorgonia.org/tensor,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/array.go,unclassified
+255,255,255,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]bool, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]bool)(unsafe.Pointer(hdr)))
+",53.0,11.0,1341.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+256,256,256,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int)(unsafe.Pointer(hdr)))
+",91.0,11.0,2183.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+257,257,257,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int8, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int8)(unsafe.Pointer(hdr)))
+",129.0,11.0,3034.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+258,258,258,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int16, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int16)(unsafe.Pointer(hdr)))
+",167.0,11.0,3896.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+259,259,259,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int32, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int32)(unsafe.Pointer(hdr)))
+",205.0,11.0,4759.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+260,260,260,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int64)(unsafe.Pointer(hdr)))
+",243.0,11.0,5622.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+261,261,261,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint)(unsafe.Pointer(hdr)))
+",281.0,11.0,6472.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+262,262,262,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint8, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint8)(unsafe.Pointer(hdr)))
+",319.0,11.0,7331.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+263,263,263,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint16, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint16)(unsafe.Pointer(hdr)))
+",357.0,11.0,8201.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+264,264,264,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint32, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint32)(unsafe.Pointer(hdr)))
+",395.0,11.0,9072.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+265,265,265,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint64)(unsafe.Pointer(hdr)))
+",433.0,11.0,9943.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+266,266,266,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]float32, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]float32)(unsafe.Pointer(hdr)))
+",471.0,11.0,10821.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+267,267,267,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]float64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]float64)(unsafe.Pointer(hdr)))
+",509.0,11.0,11700.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+268,268,268,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]complex64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]complex64)(unsafe.Pointer(hdr)))
+",547.0,11.0,12593.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+269,269,269,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]complex128, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]complex128)(unsafe.Pointer(hdr)))
+",585.0,11.0,13498.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+270,270,270,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]string, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]string)(unsafe.Pointer(hdr)))
+",623.0,11.0,14373.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,unclassified
+271,271,271,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]bool, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]bool)(unsafe.Pointer(hdr))
+",62.0,10.0,1606.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+272,272,272,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]bool, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]bool)(unsafe.Pointer(hdr))
+",93.0,11.0,2392.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+273,273,273,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int)(unsafe.Pointer(hdr))
+",132.0,10.0,3363.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+274,274,274,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int)(unsafe.Pointer(hdr))
+",163.0,11.0,4142.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+275,275,275,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int8, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int8)(unsafe.Pointer(hdr))
+",202.0,10.0,5126.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+276,276,276,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int8, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int8)(unsafe.Pointer(hdr))
+",233.0,11.0,5914.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+277,277,277,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int16, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int16)(unsafe.Pointer(hdr))
+",272.0,10.0,6913.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+278,278,278,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int16, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int16)(unsafe.Pointer(hdr))
+",303.0,11.0,7710.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+279,279,279,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int32, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int32)(unsafe.Pointer(hdr))
+",342.0,10.0,8710.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+280,280,280,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int32, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int32)(unsafe.Pointer(hdr))
+",373.0,11.0,9507.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+281,281,281,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int64, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int64)(unsafe.Pointer(hdr))
+",412.0,10.0,10507.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+282,282,282,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int64, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int64)(unsafe.Pointer(hdr))
+",443.0,11.0,11304.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+283,283,283,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint)(unsafe.Pointer(hdr))
+",482.0,10.0,12286.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+284,284,284,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint)(unsafe.Pointer(hdr))
+",513.0,11.0,13072.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+285,285,285,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint8, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint8)(unsafe.Pointer(hdr))
+",552.0,10.0,14067.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+286,286,286,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint8, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint8)(unsafe.Pointer(hdr))
+",583.0,11.0,14862.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+287,287,287,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint16, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint16)(unsafe.Pointer(hdr))
+",622.0,10.0,15872.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+288,288,288,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint16, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint16)(unsafe.Pointer(hdr))
+",653.0,11.0,16676.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+289,289,289,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint32, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint32)(unsafe.Pointer(hdr))
+",692.0,10.0,17687.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+290,290,290,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint32, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint32)(unsafe.Pointer(hdr))
+",723.0,11.0,18491.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+291,291,291,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint64, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint64)(unsafe.Pointer(hdr))
+",762.0,10.0,19502.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+292,292,292,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint64, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint64)(unsafe.Pointer(hdr))
+",793.0,11.0,20306.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+293,293,293,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]float32, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]float32)(unsafe.Pointer(hdr))
+",832.0,10.0,21327.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+294,294,294,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]float32, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]float32)(unsafe.Pointer(hdr))
+",863.0,11.0,22138.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+295,295,295,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]float64, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]float64)(unsafe.Pointer(hdr))
+",902.0,10.0,23160.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+296,296,296,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]float64, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]float64)(unsafe.Pointer(hdr))
+",933.0,11.0,23971.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+297,297,297,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]complex64, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]complex64)(unsafe.Pointer(hdr))
+",972.0,10.0,25013.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+298,298,298,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]complex64, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]complex64)(unsafe.Pointer(hdr))
+",1003.0,11.0,25838.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+299,299,299,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]complex128, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]complex128)(unsafe.Pointer(hdr))
+",1042.0,10.0,26896.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+300,300,300,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]complex128, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]complex128)(unsafe.Pointer(hdr))
+",1073.0,11.0,27730.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+301,301,301,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]string, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]string)(unsafe.Pointer(hdr))
+",1112.0,10.0,28745.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+302,302,302,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]string, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]string)(unsafe.Pointer(hdr))
+",1143.0,11.0,29549.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,unclassified
+308,308,308,"	sliceHeader := &reflect.SliceHeader{
+","}
+
+func UnsafeCastString(str string) []byte {
+	stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&str))
+	sliceHeader := &reflect.SliceHeader{
+		Data: stringHeader.Data,
+		Cap: stringHeader.Len,
+		Len: stringHeader.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(sliceHeader))
+",289.0,17.0,7069.0,reflect.SliceHeader,reflect2.go,7237.0,295.0,github.com/modern-go/reflect2,github.com/modern-go/reflect2,v0.0.0-20180320133207-05fbef0ca5da,googleforgames/agones,github.com/modern-go/reflect2/reflect2.go,unclassified
+313,313,313,"	tempSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","	}
+}
+
+func newMemSwap(size uintptr, baseMem, tempMem unsafe.Pointer) *memSwap {
+	tempSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(tempMem),
+		Len:  int(size),
+		Cap:  int(size),
+	}))
+	ms := &memSwap{
+",83.0,41.0,1999.0,reflect.SliceHeader,slice.go,4698.0,186.0,github.com/bradfitz/slice,github.com/bradfitz/slice,v0.0.0-20140430145140-a665b5dbaad5,bosun-monitor/bosun,github.com/bradfitz/slice/slice.go,unclassified
+314,314,314,"		imem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+","		Len:  int(size),
+		Cap:  int(size),
+	}))
+	ms := &memSwap{
+		imem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+		jmem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+		temp: tempSlice,
+		size: size,
+		base: baseMem,
+	}
+",89.0,35.0,2147.0,reflect.SliceHeader,slice.go,4698.0,186.0,github.com/bradfitz/slice,github.com/bradfitz/slice,v0.0.0-20140430145140-a665b5dbaad5,bosun-monitor/bosun,github.com/bradfitz/slice/slice.go,unclassified
+315,315,315,"		jmem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+","		Cap:  int(size),
+	}))
+	ms := &memSwap{
+		imem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+		jmem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+		temp: tempSlice,
+		size: size,
+		base: baseMem,
+	}
+	ms.ibase = (*uintptr)(unsafe.Pointer(&ms.imem))
+",90.0,35.0,2261.0,reflect.SliceHeader,slice.go,4698.0,186.0,github.com/bradfitz/slice,github.com/bradfitz/slice,v0.0.0-20140430145140-a665b5dbaad5,bosun-monitor/bosun,github.com/bradfitz/slice/slice.go,unclassified

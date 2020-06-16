@@ -1,0 +1,314 @@
+,Unnamed: 0,line_number,column,text,number_unsafe_pointer,number_unsafe_sizeof,number_unsafe_alignof,number_unsafe_offsetof,number_uintptr,number_slice_header,number_string_header,file_name,package_import_path,module_path,module_version,project_name,count,label
+0,9849,1424.0,2.0,"	r0, _, e1 := Syscall6(SYS_SIGNALFD4, uintptr(fd), uintptr(unsafe.Pointer(sigmask)), uintptr(maskSize), uintptr(flags), 0, 0)",1.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,5.0,unclassified
+1,349966,656.0,5.0,				dstx := (*uintptr)(unsafe.Pointer(dst + i)),1.0,0.0,0.0,0.0,1.0,0.0,0.0,mbitmap.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+2,28040,97.0,3.0,		data = unsafe.Pointer(uintptr(data) + 4),1.0,0.0,0.0,0.0,1.0,0.0,0.0,sockcmsg_unix.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,2.0,unclassified
+3,4994,81.0,2.0,	ifreq := &Ifreq{Data: uintptr(unsafe.Pointer(e))},1.0,0.0,0.0,0.0,1.0,0.0,0.0,ioctl_linux.go,github.com/vishvananda/netlink,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,2.0,unclassified
+4,397315,36.0,2.0,"	return int(xxhash.Sum64(*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(&key)), Len: 8, Cap: 8,
+	}))) >> dibBitSize)",2.0,0.0,0.0,0.0,1.0,0.0,0.0,u64.go,github.com/tidwall/rhh,github.com/tidwall/rhh,v1.1.0,tidwall/tile38,3.0,unclassified
+5,134708,113.0,2.0,"	_, _, errno := syscall.Syscall(
+		syscall.SYS_IOCTL,
+		lcmd.pty.Fd(),
+		syscall.TIOCSWINSZ,
+		uintptr(unsafe.Pointer(&window)),
+	)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,local_command.go,_/root/download/gotty/backend/localcommand,std,std,yudai/gotty,2.0,unclassified
+6,2022,1660.0,2.0,"	_, _, e1 := Syscall(SYS_FUTIMESAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(times)))",2.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,5.0,unclassified
+7,206236,253.0,3.0,		bloomImEx.FilterSet[i] = *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(&bl.bitset[0])) + uintptr(i))),2.0,0.0,0.0,0.0,2.0,0.0,0.0,bbloom.go,github.com/AndreasBriese/bbloom,github.com/AndreasBriese/bbloom,v0.0.0-20190825152654-46b345b51c96,jaegertracing/jaeger,4.0,unclassified
+8,429505,375.0,2.0,"	err := ioctl(port.handle, ioctlTcgetattr, uintptr(unsafe.Pointer(settings)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,serial_unix.go,go.bug.st/serial.v1,go.bug.st/serial.v1,v0.0.0-20180827123349-5f7892a7bb45,hybridgroup/gobot,2.0,unclassified
+9,28329,2091.0,2.0,"	_, _, e1 := Syscall(SYS_TRUNCATE, uintptr(unsafe.Pointer(_p0)), uintptr(length), 0)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,3.0,unclassified
+10,115,295.0,2.0,"	if len(x) > 4 && datap.etext <= uintptr(str.str) && uintptr(str.str) < datap.end {
+		// String constants are in the rodata section, which
+		// isn't recorded in moduledata. But it has to be
+		// somewhere between etext and end.
+		l.w.byte(debugLogConstString)
+		l.w.uvarint(uint64(str.len))
+		l.w.uvarint(uint64(uintptr(str.str) - datap.etext))
+	} else {
+		l.w.byte(debugLogString)
+		var b []byte
+		bb := (*slice)(unsafe.Pointer(&b))
+		bb.array = str.str
+		bb.len, bb.cap = str.len, str.len
+		if len(b) > debugLogStringLimit {
+			b = b[:debugLogStringLimit]
+		}
+		l.w.uvarint(uint64(len(b)))
+		l.w.bytes(b)
+		if len(b) != len(x) {
+			l.w.byte(debugLogStringOverflow)
+			l.w.uvarint(uint64(len(x) - len(b)))
+		}
+	}",1.0,0.0,0.0,0.0,3.0,0.0,0.0,debuglog.go,runtime,std,std,kubernetes/kubernetes,4.0,unclassified
+11,350862,82.0,2.0,"	if uintptr(*c) != uintptr(unsafe.Pointer(c)) &&
+		!atomic.CompareAndSwapUintptr((*uintptr)(c), 0, uintptr(unsafe.Pointer(c))) &&
+		uintptr(*c) != uintptr(unsafe.Pointer(c)) {
+		panic(""sync.Cond is copied"")
+	}",3.0,0.0,0.0,0.0,6.0,0.0,0.0,cond.go,_/root/download/go/src/sync,std,std,json-iterator/go,9.0,unclassified
+12,116598,37.0,3.0,"		_, _, err = syscall.Syscall(
+			syscall.SYS_IOCTL,
+			out.Fd(),
+			uintptr(syscall.TIOCGWINSZ),
+			uintptr(unsafe.Pointer(&sz)),
+		)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,gui_notwin.go,github.com/jesseduffield/gocui,github.com/jesseduffield/gocui,v0.3.1-0.20200309001002-7765949e1c8a,jesseduffield/lazygit,3.0,unclassified
+13,350969,28.0,2.0,	return unsafe.Pointer(uintptr(unsafe.Pointer(h)) + uintptr(cmsgAlignOf(SizeofCmsghdr)) + offset),2.0,0.0,0.0,0.0,2.0,0.0,0.0,sockcmsg_unix.go,_/root/download/go/src/syscall,std,std,json-iterator/go,4.0,unclassified
+14,315904,204.0,2.0,"	r0, _, e1 := Syscall6(SYS_WAIT4, uintptr(pid), uintptr(unsafe.Pointer(wstatus)), uintptr(options), uintptr(unsafe.Pointer(rusage)), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,6.0,unclassified
+15,566,72.0,4.0,"			if memequal(k.str, key.str, uintptr(key.len)) {
+				return add(unsafe.Pointer(b), dataOffset+bucketCnt*2*sys.PtrSize+keymaybe*uintptr(t.elemsize))
+			}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,map_faststr.go,runtime,std,std,kubernetes/kubernetes,3.0,unclassified
+16,1898,141.0,2.0,"	_, _, e1 := Syscall6(SYS_UTIMENSAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(times)), uintptr(flag), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,6.0,unclassified
+17,1262,871.0,2.0,"	return *(*int32)(add(unsafe.Pointer(&f.nfuncdata), unsafe.Sizeof(f.nfuncdata)+uintptr(table)*4))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,symtab.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+18,106171,2244.0,2.0,"	_, _, e1 := RawSyscall(SYS_SETGROUPS, uintptr(n), uintptr(unsafe.Pointer(list)), 0)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,3.0,unclassified
+19,349872,54.0,5.0,"				return add(unsafe.Pointer(b), dataOffset+bucketCnt*2*sys.PtrSize+i*uintptr(t.elemsize))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,map_faststr.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+20,264241,1735.0,2.0,"	ctx.enqueue(call{
+		args: fnargs{
+			fn: glfnUniformMatrix2x4fv,
+			a0: dst.c(),
+			a1: uintptr(len(src) / 8),
+		},
+		parg:     unsafe.Pointer(&src[0]),
+		blocking: true,
+	})",1.0,0.0,0.0,0.0,1.0,0.0,0.0,gl.go,github.com/fyne-io/mobile/gl,github.com/fyne-io/mobile,v0.0.1,fyne-io/fyne,2.0,unclassified
+21,350236,666.0,5.0,"	if val := atomic.Xadduintptr((*uintptr)(unsafe.Pointer(sysStat)), n); val < n {",1.0,0.0,0.0,0.0,1.0,0.0,0.0,mstats.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+22,798696,1132.0,2.0,"	_, _, e1 := Syscall6(SYS_RENAMEAT, uintptr(olddirfd), uintptr(unsafe.Pointer(_p0)), uintptr(newdirfd), uintptr(unsafe.Pointer(_p1)), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,6.0,unclassified
+23,305015,1453.0,2.0,"	_, _, e1 := RawSyscall(SYS_UNAME, uintptr(unsafe.Pointer(buf)), 0, 0)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,2.0,unclassified
+24,351149,141.0,2.0,"	_, _, e1 := Syscall6(SYS_UTIMENSAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(times)), uintptr(flag), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,6.0,unclassified
+25,2458,1560.0,2.0,"	r0, _, e1 := Syscall(SYS_READ, uintptr(fd), uintptr(unsafe.Pointer(p)), uintptr(np))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,4.0,unclassified
+26,38986,1539.0,2.0,"	return ptrace(PTRACE_SETREGS, pid, 0, uintptr(unsafe.Pointer(regs)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200413165638-669c56c373c4,caddyserver/caddy,2.0,unclassified
+27,65547,188.0,2.0,	return uintptr(unsafe.Pointer(a)) < uintptr(unsafe.Pointer(b)),2.0,0.0,0.0,0.0,2.0,0.0,0.0,inode.go,github.com/hanwen/go-fuse/v2/fs,github.com/hanwen/go-fuse/v2,v2.0.3-0.20191108143333-152e6ac32d54,rclone/rclone,4.0,unclassified
+28,290611,148.0,2.0,"	ifr := ifreq{
+		ifr_name: name,
+		ifr_data: uintptr(unsafe.Pointer(ecmd)),
+	}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,ethtool_cmd.go,github.com/safchain/ethtool,github.com/safchain/ethtool,v0.0.0-20200218184317-f459e2d13664,influxdata/telegraf,2.0,unclassified
+29,222247,92.0,2.0,"	r0, _, e1 := Syscall6(SYS_OPENAT2, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(open_how)), uintptr(size), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,6.0,unclassified
+30,351056,1082.0,2.0,"	_, _, e1 := Syscall(SYS_FSTAT, uintptr(fd), uintptr(unsafe.Pointer(stat)), 0)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,3.0,unclassified
+31,25743,44.0,3.0,		*(*uintptr)(unsafe.Pointer(uintptr(unsafe.Pointer(&b[0])) + uintptr(i))) ^= kw,2.0,0.0,0.0,0.0,3.0,0.0,0.0,mask.go,github.com/gorilla/websocket,github.com/gorilla/websocket,v0.0.0-20170926233335-4201258b820c,etcd-io/etcd,5.0,unclassified
+32,350288,560.0,3.0,"		memmove(unsafe.Pointer(&arg0), deferArgs(d), uintptr(d.siz))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,panic.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+33,798610,1452.0,2.0,"	r0, _, e1 := Syscall(SYS_WRITE, uintptr(fd), uintptr(unsafe.Pointer(p)), uintptr(np))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,4.0,unclassified
+34,351101,219.0,2.0,"	_, _, e1 := Syscall6(SYS_MOUNT, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(unsafe.Pointer(_p2)), uintptr(flags), uintptr(unsafe.Pointer(data)), 0)",4.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,9.0,unclassified
+35,349514,682.0,3.0,"		sysFree(unsafe.Pointer(&tmpbuf[0]), uintptr(len(tmpbuf)), &memstats.other_sys)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,heapdump.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+36,550659,1188.0,5.0,"	if _, _, err := syscall.Syscall(syscall.SYS_IOCTL, uintptr(s),
+		SIOC_BRDELBR, uintptr(unsafe.Pointer(nameBytePtr))); err != 0 {",1.0,0.0,0.0,0.0,2.0,0.0,0.0,netlink_linux.go,github.com/docker/libcontainer/netlink,github.com/docker/libcontainer,v2.2.1+incompatible,ginuerzh/gost,3.0,unclassified
+37,1191110,209.0,3.0,"		i.val = getBytes(unsafe.Pointer(uintptr(i.ptr)+uintptr(e.valStart)), int(e.valSize))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,raw_block.go,github.com/cockroachdb/pebble/sstable,github.com/cockroachdb/pebble,v0.0.0-20200219202912-046831eaec09,lni/dragonboat,3.0,unclassified
+38,2547,44.0,2.0,"	_, _, e1 := Syscall(SYS_FCHMODAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(mode))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,4.0,unclassified
+39,156,143.0,3.0,"		dwrite(unsafe.Pointer(&b[0]), uintptr(len(b)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,heapdump.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+40,27,51.0,2.0,"	sync_atomic_StoreUintptr((*uintptr)(unsafe.Pointer(ptr)), uintptr(new))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,atomic_pointer.go,runtime,std,std,kubernetes/kubernetes,3.0,unclassified
+41,1191105,294.0,2.0,	ptr := unsafe.Pointer(uintptr(i.ptr) + uintptr(i.offset)),1.0,0.0,0.0,0.0,2.0,0.0,0.0,block.go,github.com/cockroachdb/pebble/sstable,github.com/cockroachdb/pebble,v0.0.0-20200219202912-046831eaec09,lni/dragonboat,3.0,unclassified
+42,315978,1682.0,2.0,"	_, _, e1 := Syscall(SYS_LSTAT, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(stat)), 0)",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,4.0,unclassified
+43,350379,1541.0,2.0,	_g_.stack.hi = uintptr(noescape(unsafe.Pointer(&x))) + 1024,1.0,0.0,0.0,0.0,1.0,0.0,0.0,proc.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+44,652,727.0,5.0,				srcx := (*uintptr)(unsafe.Pointer(src + i)),1.0,0.0,0.0,0.0,1.0,0.0,0.0,mbitmap.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+45,304710,1268.0,3.0,		word := *((*uintptr)(unsafe.Pointer(&buf[0]))),1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,2.0,unclassified
+46,917702,110.0,3.0,		x = 0x20000000 | uint32(*(*uint8)(unsafe.Pointer(uintptr(p) + i))) | uint32(*(*uint16)(unsafe.Pointer(uintptr(p) + i + 1)))<<8,2.0,0.0,0.0,0.0,2.0,0.0,0.0,valid.go,github.com/segmentio/encoding/ascii,github.com/segmentio/encoding,v0.1.10,go-pg/pg,4.0,unclassified
+47,28059,120.0,2.0,"	err := ioctl(fd, req, uintptr(unsafe.Pointer(&value)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,2.0,unclassified
+48,1798,518.0,2.0,"	_, _, err1 = RawSyscall(SYS_EXECVE,
+		uintptr(unsafe.Pointer(argv0)),
+		uintptr(unsafe.Pointer(&argv[0])),
+		uintptr(unsafe.Pointer(&envv[0])))",3.0,0.0,0.0,0.0,3.0,0.0,0.0,exec_linux.go,syscall,std,std,kubernetes/kubernetes,6.0,unclassified
+49,349792,264.0,2.0,"	elem := add(unsafe.Pointer(insertb), dataOffset+bucketCnt*4+inserti*uintptr(t.elemsize))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,map_fast32.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+50,729,731.0,3.0,"		scanblock(uintptr(unsafe.Pointer(&gp.sched.ctxt)), sys.PtrSize, &oneptrmask[0], gcw, &state)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,mgcmark.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+51,704,371.0,4.0,"			scanblock(uintptr(unsafe.Pointer(&spf.fn)), sys.PtrSize, &oneptrmask[0], gcw, nil)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,mgcmark.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+52,106070,1509.0,2.0,"	r0, _, e1 := RawSyscall(SYS_TIMES, uintptr(unsafe.Pointer(tms)), 0, 0)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,2.0,unclassified
+53,166649,127.0,2.0,"	r0, _, e1 := unix.Syscall(unix.SYS_LLISTXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(_p1), uintptr(len(list)))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,util_linux.go,github.com/lxc/lxd/shared,github.com/lxc/lxd,v0.0.0-20191108214106-60ea15630455,rancher/k3s,4.0,unclassified
+54,349543,380.0,3.0,		dumpint(uint64(uintptr(unsafe.Pointer(d.link)))),1.0,0.0,0.0,0.0,1.0,0.0,0.0,heapdump.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+55,4719,17.0,2.0,	return *(*uintptr)(unsafe.Pointer(&a)) == *(*uintptr)(unsafe.Pointer(&b)),2.0,0.0,0.0,0.0,2.0,0.0,0.0,same.go,gonum.org/v1/gonum/graph/internal/set,gonum.org/v1/gonum,v0.6.2,kubernetes/kubernetes,4.0,unclassified
+56,290609,350.0,2.0,"	_, _, ep := unix.Syscall(unix.SYS_IOCTL, uintptr(e.fd), SIOCETHTOOL, uintptr(unsafe.Pointer(&ifr)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,ethtool.go,github.com/safchain/ethtool,github.com/safchain/ethtool,v0.0.0-20200218184317-f459e2d13664,influxdata/telegraf,3.0,unclassified
+57,149652,326.0,2.0,	hdr.Data = uintptr(unsafe.Pointer(&u32s[0])),1.0,0.0,0.0,0.0,1.0,0.0,0.0,y.go,github.com/dgraph-io/badger/v2/y,github.com/dgraph-io/badger/v2,v2.0.1-rc1.0.20200316175624-91c31ebe8c22,dgraph-io/dgraph,2.0,unclassified
+58,109089,2564.0,2.0,"	_, _, e1 := Syscall6(SYS_KEXEC_FILE_LOAD, uintptr(kernelFd), uintptr(initrdFd), uintptr(cmdlineLen), uintptr(unsafe.Pointer(_p0)), uintptr(flags), 0)",1.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191220142924-d4481acd189f,go-kit/kit,6.0,unclassified
+59,349753,193.0,2.0,"	hash := t.hasher(noescape(unsafe.Pointer(&key)), uintptr(h.hash0))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,map_fast32.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+60,9885,2035.0,2.0,"	_, _, e1 := Syscall(SYS_LCHOWN, uintptr(unsafe.Pointer(_p0)), uintptr(uid), uintptr(gid))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,4.0,unclassified
+61,350246,98.0,3.0,		b.end = uintptr(unsafe.Pointer(&b.buf[2*wbBufEntryPointers])),1.0,0.0,0.0,0.0,1.0,0.0,0.0,mwbbuf.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+62,67726,95.0,2.0,	return (*[][]byte)(unsafe.Pointer(uintptr(p) + uintptr(f))),1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,3.0,unclassified
+63,742093,423.0,2.0,"	return e.ioctl(intf, uintptr(unsafe.Pointer(&features)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,ethtool.go,github.com/safchain/ethtool,github.com/safchain/ethtool,v0.0.0-20190326074333-42ed695e3de8,containers/libpod,2.0,unclassified
+64,315752,1019.0,2.0,"	_, _, e1 := RawSyscall6(SYS_PRLIMIT64, uintptr(pid), uintptr(resource), uintptr(unsafe.Pointer(newlimit)), uintptr(unsafe.Pointer(old)), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,6.0,unclassified
+65,73126,1713.0,2.0,	return (*[1 << 30]byte)(unsafe.Pointer(uintptr(unsafe.Pointer(&fh.fileHandle.Type)) + 4))[:n:n],2.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190531175056-4c3a928424d2,github/hub,3.0,unclassified
+66,1092,68.0,2.0,"	if shouldPushSigpanic(gp, pc, *(*uintptr)(unsafe.Pointer(sp))) {
+		c.pushCall(funcPC(sigpanic))
+	} else {
+		// Not safe to push the call. Just clobber the frame.
+		c.set_rip(uint64(funcPC(sigpanic)))
+	}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,signal_amd64.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+67,73193,1350.0,3.0,"		err = ptrace(peekReq, pid, addr+uintptr(n), uintptr(unsafe.Pointer(&buf[0])))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190531175056-4c3a928424d2,github/hub,3.0,unclassified
+68,1071313,91.0,4.0,"			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native2.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,2.0,unclassified
+69,769570,152.0,2.0,"	_, _, _ = syscall.Syscall(syscall.SYS_IOCTL,
+		fd, uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(&sz)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,termbox.go,github.com/awesome-gocui/termbox-go,github.com/awesome-gocui/termbox-go,v0.0.0-20190427202837-c0aef3d18bcc,MichaelMure/git-bug,3.0,unclassified
+70,1757,383.0,6.0,"		if _, _, err1 := RawSyscall(SYS_CAPGET, uintptr(unsafe.Pointer(&caps.hdr)), uintptr(unsafe.Pointer(&caps.data[0])), 0); err1 != 0 {",2.0,0.0,0.0,0.0,2.0,0.0,0.0,exec_linux.go,syscall,std,std,kubernetes/kubernetes,4.0,unclassified
+71,1191089,328.0,3.0,		ptr = unsafe.Pointer(uintptr(ptr) + 1),1.0,0.0,0.0,0.0,1.0,0.0,0.0,block.go,github.com/cockroachdb/pebble/sstable,github.com/cockroachdb/pebble,v0.0.0-20200219202912-046831eaec09,lni/dragonboat,2.0,unclassified
+72,798667,1302.0,2.0,"	_, _, e1 := Syscall6(SYS_STATX, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(flags), uintptr(mask), uintptr(unsafe.Pointer(stat)), 0)",2.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,7.0,unclassified
+73,351103,640.0,2.0,"	_, _, e1 := Syscall(SYS_NANOSLEEP, uintptr(unsafe.Pointer(time)), uintptr(unsafe.Pointer(leftover)), 0)",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,4.0,unclassified
+74,350872,84.0,2.0,	ptr := uintptr((*[2]unsafe.Pointer)(unsafe.Pointer(&x))[1]),2.0,0.0,0.0,0.0,1.0,0.0,0.0,pool.go,_/root/download/go/src/sync,std,std,json-iterator/go,3.0,unclassified
+75,304790,1735.0,2.0,"	_, _, e1 := Syscall6(SYS_NEWFSTATAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(stat)), uintptr(flags), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,6.0,unclassified
+76,77,54.0,3.0,"		println(""write of Go pointer"", hex(src), ""to non-Go memory"", hex(uintptr(unsafe.Pointer(dst))))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,cgocheck.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+77,222259,735.0,2.0,"	_, _, e1 := Syscall(SYS_FREMOVEXATTR, uintptr(fd), uintptr(unsafe.Pointer(_p0)), 0)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,3.0,unclassified
+78,10022,420.0,2.0,"	r0, _, e1 := Syscall6(SYS_ADD_KEY, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(payload)), uintptr(ringid), 0)",2.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,7.0,unclassified
+79,81317,36.0,2.0,	return uintptr(unsafe.Pointer(&b[0])),1.0,0.0,0.0,0.0,1.0,0.0,0.0,util.go,github.com/apache/arrow/go/arrow/memory,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,2.0,unclassified
+80,10099,1160.0,2.0,"	_, _, e1 := Syscall(SYS_NANOSLEEP, uintptr(unsafe.Pointer(time)), uintptr(unsafe.Pointer(leftover)), 0)",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,4.0,unclassified
+81,349879,194.0,4.0,"			if k.str == key.str || memequal(k.str, key.str, uintptr(key.len)) {
+				return add(unsafe.Pointer(b), dataOffset+bucketCnt*2*sys.PtrSize+i*uintptr(t.elemsize)), true
+			}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,map_faststr.go,_/root/download/go/src/runtime,std,std,json-iterator/go,3.0,unclassified
+82,396884,134.0,2.0,	return (*map[int32]Extension)(unsafe.Pointer(uintptr(p) + uintptr(f))),1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,3.0,unclassified
+83,351,479.0,3.0,		oldb := (*bmap)(unsafe.Pointer(uintptr(c) + (hash&m)*uintptr(t.bucketsize))),1.0,0.0,0.0,0.0,2.0,0.0,0.0,map.go,runtime,std,std,kubernetes/kubernetes,3.0,unclassified
+84,2275,90.0,2.0,"	return ioctl(fd, req, uintptr(unsafe.Pointer(value)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,2.0,unclassified
+85,2070,660.0,2.0,"	_, _, e1 := Syscall(SYS_PIVOT_ROOT, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), 0)",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,4.0,unclassified
+86,15034,95.0,2.0,	aw := *(*[]uintptr)(unsafe.Pointer(&a)),1.0,0.0,0.0,0.0,1.0,0.0,0.0,nosimd.go,github.com/templexxx/xor,github.com/templexxx/xor,v0.0.0-20170926022130-0af8e873c554,fatedier/frp,2.0,unclassified
+87,2607,2224.0,2.0,"	_, _, e1 := Syscall6(SYS_GETSOCKOPT, uintptr(s), uintptr(level), uintptr(name), uintptr(val), uintptr(unsafe.Pointer(vallen)), 0)",1.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,6.0,unclassified
+88,73273,1551.0,2.0,"	r0, _, e1 := Syscall(SYS_WRITE, uintptr(fd), uintptr(unsafe.Pointer(p)), uintptr(np))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190531175056-4c3a928424d2,github/hub,4.0,unclassified
+89,15254,2347.0,2.0,"	_, _, e1 := Syscall6(SYS_GETSOCKOPT, uintptr(s), uintptr(level), uintptr(name), uintptr(val), uintptr(unsafe.Pointer(vallen)), 0)",1.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200122134326-e047566fdf82,fatedier/frp,6.0,unclassified
+90,454015,58.0,2.0,"	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), arg, uintptr(unsafe.Pointer(&result)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,main.go,_/root/download/linuxkit/pkg/host-timesync-daemon,std,std,linuxkit/linuxkit,2.0,unclassified
+91,1907,219.0,2.0,"	_, _, e1 := Syscall6(SYS_MOUNT, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(unsafe.Pointer(_p2)), uintptr(flags), uintptr(unsafe.Pointer(data)), 0)",4.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,9.0,unclassified
+92,1191098,583.0,5.0,				ptr = unsafe.Pointer(uintptr(ptr) + 3),1.0,0.0,0.0,0.0,1.0,0.0,0.0,block.go,github.com/cockroachdb/pebble/sstable,github.com/cockroachdb/pebble,v0.0.0-20200219202912-046831eaec09,lni/dragonboat,2.0,unclassified
+93,222206,1214.0,2.0,"	r0, _, e1 := Syscall6(SYS_PSELECT6, uintptr(nfd), uintptr(unsafe.Pointer(r)), uintptr(unsafe.Pointer(w)), uintptr(unsafe.Pointer(e)), uintptr(unsafe.Pointer(timeout)), uintptr(unsafe.Pointer(sigmask)))",5.0,0.0,0.0,0.0,6.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,11.0,unclassified
+94,277061,858.0,2.0,"	return &Info{uintptr(unsafe.Pointer(&db.data[0])), db.pageSize}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,db.go,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,2.0,unclassified
+95,28268,2153.0,2.0,"	r0, _, e1 := RawSyscall(SYS_GETGROUPS, uintptr(n), uintptr(unsafe.Pointer(list)), 0)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,3.0,unclassified
+96,2608,200.0,2.0,"	r0, _, e1 := Syscall6(SYS_WAIT4, uintptr(pid), uintptr(unsafe.Pointer(wstatus)), uintptr(options), uintptr(unsafe.Pointer(rusage)), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,6.0,unclassified
+97,617,323.0,3.0,		m.bytep = (*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(m.bytep)) + 1)),2.0,0.0,0.0,0.0,1.0,0.0,0.0,mbitmap.go,runtime,std,std,kubernetes/kubernetes,3.0,unclassified
+98,349072,51.0,2.0,"	_, _, errno := syscall.Syscall6(fstatatTrap, uintptr(dirfd), uintptr(unsafe.Pointer(p)), uintptr(unsafe.Pointer(stat)), uintptr(flags), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,at.go,_/root/download/go/src/internal/syscall/unix,std,std,json-iterator/go,6.0,unclassified
+99,157,378.0,4.0,			dumpint(uint64(uintptr(unsafe.Pointer(d.fn.fn)))),1.0,0.0,0.0,0.0,1.0,0.0,0.0,heapdump.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+100,106002,2254.0,2.0,"	_, _, e1 := Syscall6(SYS_GETSOCKOPT, uintptr(s), uintptr(level), uintptr(name), uintptr(val), uintptr(unsafe.Pointer(vallen)), 0)",1.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,6.0,unclassified
+101,30914,1820.0,2.0,"	_, _, e1 := RawSyscall(SYS_PIPE2, uintptr(unsafe.Pointer(p)), uintptr(flags), 0)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200302150141-5c8b2ff67527,prometheus/prometheus,3.0,unclassified
+102,349896,72.0,4.0,"			if memequal(k.str, key.str, uintptr(key.len)) {
+				return add(unsafe.Pointer(b), dataOffset+bucketCnt*2*sys.PtrSize+keymaybe*uintptr(t.elemsize))
+			}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,map_faststr.go,_/root/download/go/src/runtime,std,std,json-iterator/go,3.0,unclassified
+103,351204,806.0,2.0,"	_, _, e1 := Syscall6(SYS_SETXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(data)), uintptr(flags), 0)",2.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,7.0,unclassified
+104,582078,367.0,2.0,"	_, _, err := setsockopt(c.fd(), SCTP_INITMSG, uintptr(unsafe.Pointer(&param)), uintptr(optlen))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,sctp.go,github.com/ishidawataru/sctp,github.com/ishidawataru/sctp,v0.0.0-20180213033435-07191f837fed,cilium/cilium,3.0,unclassified
+105,1263,893.0,2.0,"	if sys.PtrSize == 8 && uintptr(p)&4 != 0 {
+		if uintptr(unsafe.Pointer(f._func))&4 != 0 {
+			println(""runtime: misaligned func"", f._func)
+		}
+		p = add(p, 4)
+	}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,symtab.go,runtime,std,std,kubernetes/kubernetes,3.0,unclassified
+106,9665,51.0,2.0,"	err := ioctl(fd, req, uintptr(unsafe.Pointer(&value)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,ioctl.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,2.0,unclassified
+107,28245,432.0,2.0,"	_, _, e1 := Syscall(SYS_CHROOT, uintptr(unsafe.Pointer(_p0)), 0, 0)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,2.0,unclassified
+108,222275,1361.0,2.0,"	_, _, e1 := RawSyscall(SYS_SETTIMEOFDAY, uintptr(unsafe.Pointer(tv)), 0, 0)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,2.0,unclassified
+109,30990,285.0,2.0,"	r0, _, e1 := Syscall6(SYS_KEYCTL, uintptr(cmd), uintptr(unsafe.Pointer(arg2)), uintptr(_p0), uintptr(len(buf)), 0, 0)",1.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200302150141-5c8b2ff67527,prometheus/prometheus,5.0,unclassified
+110,351040,68.0,2.0,"	r0, _, e1 := Syscall6(SYS_OPENAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(flags), uintptr(mode), 0, 0)",1.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,5.0,unclassified
+111,1191084,475.0,5.0,				ptr = unsafe.Pointer(uintptr(ptr) + 5),1.0,0.0,0.0,0.0,1.0,0.0,0.0,block.go,github.com/cockroachdb/pebble/sstable,github.com/cockroachdb/pebble,v0.0.0-20200219202912-046831eaec09,lni/dragonboat,2.0,unclassified
+112,2031,1542.0,2.0,"	_, _, e1 := RawSyscall6(SYS_SOCKETPAIR, uintptr(domain), uintptr(typ), uintptr(proto), uintptr(unsafe.Pointer(fd)), 0, 0)",1.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,5.0,unclassified
+113,1191066,469.0,5.0,				ptr = unsafe.Pointer(uintptr(ptr) + 2),1.0,0.0,0.0,0.0,1.0,0.0,0.0,block.go,github.com/cockroachdb/pebble/sstable,github.com/cockroachdb/pebble,v0.0.0-20200219202912-046831eaec09,lni/dragonboat,2.0,unclassified
+114,315942,553.0,2.0,"	_, _, e1 := Syscall6(SYS_FACCESSAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(mode), uintptr(flags), 0, 0)",1.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,5.0,unclassified
+115,76184,880.0,2.0,"	return &Info{uintptr(unsafe.Pointer(&db.data[0])), db.pageSize}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,db.go,github.com/etcd-io/bbolt,github.com/etcd-io/bbolt,v1.3.3,go-gitea/gitea,2.0,unclassified
+116,349940,1870.0,3.0,		totalBits = (uintptr(unsafe.Pointer(dst))-uintptr(unsafe.Pointer(dstStart)))*4 + nbits,2.0,0.0,0.0,0.0,2.0,0.0,0.0,mbitmap.go,_/root/download/go/src/runtime,std,std,json-iterator/go,4.0,unclassified
+117,560,167.0,4.0,"			if memequal(k.str, key.str, uintptr(key.len)) {
+				return add(unsafe.Pointer(b), dataOffset+bucketCnt*2*sys.PtrSize+keymaybe*uintptr(t.elemsize)), true
+			}",1.0,0.0,0.0,0.0,2.0,0.0,0.0,map_faststr.go,runtime,std,std,kubernetes/kubernetes,3.0,unclassified
+118,582074,485.0,4.0,"			a := *(*syscall.RawSockaddrInet4)(unsafe.Pointer(
+				uintptr(ptr) + size*uintptr(i)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,sctp.go,github.com/ishidawataru/sctp,github.com/ishidawataru/sctp,v0.0.0-20180213033435-07191f837fed,cilium/cilium,3.0,unclassified
+119,614,495.0,2.0,	nbitp := uintptr(unsafe.Pointer(h.bitp)) + n/4,1.0,0.0,0.0,0.0,1.0,0.0,0.0,mbitmap.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+120,315823,880.0,2.0,"	r0, _, e1 := Syscall(SYS_LISTXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(_p1), uintptr(len(dest)))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,4.0,unclassified
+121,1993,234.0,2.0,"	_, _, e1 := Syscall(SYS_ACCT, uintptr(unsafe.Pointer(_p0)), 0, 0)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,2.0,unclassified
+122,293477,34.0,2.0,"	_, _, _ = syscall.Syscall(syscall.SYS_IOCTL,
+		out.Fd(), uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(&sz)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,terminal_size.go,github.com/docker-slim/uilive,github.com/docker-slim/uilive,v0.0.2,docker-slim/docker-slim,3.0,unclassified
+123,38966,1435.0,3.0,"		err = ptrace(req, pid, addr-addr%SizeofPtr, uintptr(unsafe.Pointer(&buf[0])))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200413165638-669c56c373c4,caddyserver/caddy,2.0,unclassified
+124,2618,1697.0,2.0,"	_, _, e1 := Syscall(SYS_FACCESSAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(mode))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,4.0,unclassified
+125,30842,677.0,2.0,"	_, _, e1 := Syscall(SYS_FINIT_MODULE, uintptr(fd), uintptr(unsafe.Pointer(_p0)), uintptr(flags))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200302150141-5c8b2ff67527,prometheus/prometheus,4.0,unclassified
+126,5416,348.0,2.0,"	_, _, err := setsockopt(fd, option, uintptr(unsafe.Pointer(&buf[0])), uintptr(len(buf)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,sctp.go,github.com/ishidawataru/sctp,github.com/ishidawataru/sctp,v0.0.0-20190723014705-7c296d48a2b5,kubernetes/kubernetes,3.0,unclassified
+127,1071321,433.0,4.0,"			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native2.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,2.0,unclassified
+128,429060,415.0,2.0,"	return s.f.Ioctl(op, uintptr(unsafe.Pointer(&arg)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,spi.go,periph.io/x/periph/host/sysfs,periph.io/x/periph,v3.6.2+incompatible,hybridgroup/gobot,2.0,unclassified
+129,222127,1297.0,2.0,"	r0, _, e1 := Syscall6(SYS_REQUEST_KEY, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(unsafe.Pointer(_p2)), uintptr(destRingid), 0, 0)",3.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,7.0,unclassified
+130,81943,34.0,2.0,"	var (
+		p1  = unsafe.Pointer(&buf[0])
+		p2  = unsafe.Pointer(uintptr(len(buf)))
+		res float64
+	)",2.0,0.0,0.0,0.0,1.0,0.0,0.0,float64_sse4_amd64.go,github.com/apache/arrow/go/arrow/math,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,3.0,unclassified
+131,399503,87.0,2.0,"	err := ioctl(fd, req, uintptr(unsafe.Pointer(&value)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190116161447-11f53e031339,cjbassi/gotop,2.0,unclassified
+132,582071,304.0,2.0,"	_, _, err := getsockopt(fd, SCTP_SOCKOPT_CONNECTX3, uintptr(unsafe.Pointer(&param)), uintptr(unsafe.Pointer(&optlen)))",2.0,0.0,0.0,0.0,2.0,0.0,0.0,sctp.go,github.com/ishidawataru/sctp,github.com/ishidawataru/sctp,v0.0.0-20180213033435-07191f837fed,cilium/cilium,4.0,unclassified
+133,106574,94.0,2.0,"	_, _, errno := syscall.Syscall6(syscall.SYS_LSETXATTR, uintptr(unsafe.Pointer(pathBytes)), uintptr(unsafe.Pointer(attrBytes)), uintptr(dataBytes), uintptr(len(data)), uintptr(flags), 0)",2.0,0.0,0.0,0.0,5.0,0.0,0.0,xattrs_linux.go,github.com/opencontainers/runc/libcontainer/system,github.com/opencontainers/runc,v0.1.1,helm/helm,7.0,unclassified
+134,349750,28.0,3.0,"		hash := t.hasher(noescape(unsafe.Pointer(&key)), uintptr(h.hash0))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,map_fast32.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+135,30816,1545.0,2.0,"	r0, _, e1 := Syscall(SYS_READ, uintptr(fd), uintptr(unsafe.Pointer(p)), uintptr(np))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200302150141-5c8b2ff67527,prometheus/prometheus,4.0,unclassified
+136,1834,764.0,3.0,"		err = ptrace(peekReq, pid, addr-addr%sizeofPtr, uintptr(unsafe.Pointer(&buf[0])))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,syscall,std,std,kubernetes/kubernetes,2.0,unclassified
+137,81923,15.0,2.0,"	err := ioctl(fd, syscall.TIOCGPTN, uintptr(unsafe.Pointer(&n)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,pty_linux.go,github.com/pkg/term/termios,github.com/pkg/term,v0.0.0-20180730021639-bffc007b7fd5,influxdata/influxdb,2.0,unclassified
+138,315873,1370.0,2.0,"	r0, _, e1 := Syscall(SYS_READ, uintptr(fd), uintptr(unsafe.Pointer(p)), uintptr(np))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,4.0,unclassified
+139,942,298.0,2.0,	*(*uintptr)(unsafe.Pointer(&d._panic)) = 0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,panic.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+140,349849,85.0,5.0,"				return add(unsafe.Pointer(b), dataOffset+bucketCnt*8+i*uintptr(t.elemsize)), true",1.0,0.0,0.0,0.0,1.0,0.0,0.0,map_fast64.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+141,342,473.0,2.0,	b := (*bmap)(unsafe.Pointer(uintptr(h.buckets) + (hash&m)*uintptr(t.bucketsize))),1.0,0.0,0.0,0.0,2.0,0.0,0.0,map.go,runtime,std,std,kubernetes/kubernetes,3.0,unclassified
+142,156750,125.0,2.0,	upv := unsafe.Pointer(uintptr(unsafe.Pointer(&v)) + offsetPtr),2.0,0.0,0.0,0.0,1.0,0.0,0.0,bypass.go,github.com/davecgh/go-spew/spew,github.com/davecgh/go-spew,v1.1.0,buger/goreplay,3.0,unclassified
+143,1793,320.0,7.0,"			if fd1, _, err1 = RawSyscall6(SYS_OPENAT, uintptr(dirfd), uintptr(unsafe.Pointer(&puid[0])), uintptr(O_WRONLY), 0, 0, 0); err1 != 0 {",1.0,0.0,0.0,0.0,3.0,0.0,0.0,exec_linux.go,syscall,std,std,kubernetes/kubernetes,4.0,unclassified
+144,396892,207.0,2.0,	return word32Val((*uint32)(unsafe.Pointer(uintptr(p) + uintptr(f)))),1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/golang/protobuf/proto,github.com/golang/protobuf,v0.0.0-20170920220647-130e6b02ab05,tidwall/tile38,3.0,unclassified
+145,2509,143.0,2.0,"	_, _, e1 := Syscall(SYS_SYMLINKAT, uintptr(unsafe.Pointer(_p0)), uintptr(newdirfd), uintptr(unsafe.Pointer(_p1)))",2.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,5.0,unclassified
+146,2042,1082.0,2.0,"	_, _, e1 := Syscall(SYS_FSTAT, uintptr(fd), uintptr(unsafe.Pointer(stat)), 0)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,syscall,std,std,kubernetes/kubernetes,3.0,unclassified
+147,304914,411.0,2.0,"	_, _, e1 := Syscall(SYS_CHROOT, uintptr(unsafe.Pointer(_p0)), 0, 0)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,2.0,unclassified
+148,741797,528.0,4.0,"			a := *(*syscall.RawSockaddrInet6)(unsafe.Pointer(
+				uintptr(ptr) + size*uintptr(i)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,sctp.go,github.com/ishidawataru/sctp,github.com/ishidawataru/sctp,v0.0.0-20191218070446-00ab2ac2db07,containers/libpod,3.0,unclassified
+149,788771,23.0,2.0,"	pb := (*int16)(unsafe.Pointer(
+		uintptr(unsafe.Pointer(&x)) + unsafe.Offsetof(x.b)))",2.0,0.0,0.0,0.0,1.0,0.0,0.0,main.go,_/root/download/gopl.io/ch13/unsafeptr,std,std,adonovan/gopl.io,3.0,unclassified
+150,10024,1135.0,2.0,"	_, _, e1 := Syscall(SYS_MKDIRAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(mode))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200107144601-ef85f5a75ddf,gohugoio/hugo,4.0,unclassified
+151,2636,18.0,2.0,"	_, _, err := unix.Syscall(unix.SYS_IOCTL, fd, setTermios, uintptr(unsafe.Pointer(p)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,tc.go,github.com/moby/term,github.com/moby/term,v0.0.0-20200312100748-672ec06f55cd,kubernetes/kubernetes,2.0,unclassified
+152,4828,30.0,2.0,	return int(uintptr(unsafe.Pointer(&b[0]))-uintptr(unsafe.Pointer(&a[0]))) / int(unsafe.Sizeof(complex128(0))),2.0,0.0,0.0,0.0,2.0,0.0,0.0,offset.go,gonum.org/v1/gonum/mat,gonum.org/v1/gonum,v0.6.2,kubernetes/kubernetes,4.0,unclassified
+153,67730,144.0,2.0,	*(*structPointer)(unsafe.Pointer(uintptr(p) + uintptr(f))) = q,1.0,0.0,0.0,0.0,2.0,0.0,0.0,pointer_unsafe.go,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,3.0,unclassified
+154,2385,437.0,2.0,"	_, _, e1 := Syscall(SYS_CHDIR, uintptr(unsafe.Pointer(_p0)), 0, 0)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,2.0,unclassified
+155,357804,33.0,2.0,"	res, _, err := syscall.Syscall(sysIoctl,
+		tty.Fd(),
+		uintptr(syscall.TIOCGWINSZ),
+		uintptr(unsafe.Pointer(w)),
+	)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,term_x.go,gopkg.in/cheggaaa/pb.v2/termutil,gopkg.in/cheggaaa/pb.v2,v2.0.7,future-architect/vuls,3.0,unclassified
+156,236188,2577.0,2.0,"	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,link_linux.go,github.com/vishvananda/netlink,github.com/vishvananda/netlink,v1.0.1-0.20190318003149-adb577d4a45e,google/gvisor,3.0,unclassified
+157,42259,16.0,2.0,"	_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, fd, ioctlReadTermios, uintptr(unsafe.Pointer(&termios)), 0, 0, 0)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,isatty_linux.go,github.com/mattn/go-isatty,github.com/mattn/go-isatty,v0.0.5-0.20180830101745-3fb116b82035,ethereum/go-ethereum,2.0,unclassified
+158,222288,515.0,2.0,"	_, _, e1 := Syscall6(SYS_CLOCK_NANOSLEEP, uintptr(clockid), uintptr(flags), uintptr(unsafe.Pointer(request)), uintptr(unsafe.Pointer(remain)), 0, 0)",2.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,6.0,unclassified
+159,259312,2362.0,2.0,"	_, _, e1 := Syscall(SYS_UTIMES, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(times)), 0)",2.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191127021746-63cb32ae39b2,GoogleContainerTools/skaffold,4.0,unclassified
+160,28101,114.0,2.0,"	err := ioctl(fd, req, uintptr(unsafe.Pointer(&value)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190412213103-97732733099d,v2ray/v2ray-core,2.0,unclassified
+161,798528,2168.0,2.0,"	r0, _, e1 := Syscall(SYS_RECVMSG, uintptr(s), uintptr(unsafe.Pointer(msg)), uintptr(flags))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20180830151530-49385e6e1522,Terry-Mao/goim,4.0,unclassified
+162,741667,26.0,5.0,"	if _, _, err := syscall.Syscall(syscall.SYS_IOCTL, loopFd, LoopSetStatus64, uintptr(unsafe.Pointer(loopInfo))); err != 0 {",1.0,0.0,0.0,0.0,1.0,0.0,0.0,ioctl.go,github.com/containers/storage/pkg/loopback,github.com/containers/storage,v1.18.2,containers/libpod,2.0,unclassified
+163,290756,73.0,2.0,"	r, _, errno := syscall.Syscall(uintptr(syscall.SYS_IOCTL),
+		uintptr(fd), uintptr(syscall.TCGETS), uintptr(unsafe.Pointer(termios)))",1.0,0.0,0.0,0.0,4.0,0.0,0.0,serial_linux.go,github.com/goburrow/serial,github.com/goburrow/serial,v0.1.0,influxdata/telegraf,5.0,unclassified
+164,349546,635.0,4.0,			dumpint(uint64(uintptr(unsafe.Pointer(spp.b)))),1.0,0.0,0.0,0.0,1.0,0.0,0.0,heapdump.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+165,30805,1112.0,2.0,"	_, _, e1 := Syscall(SYS_MKDIRAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(mode))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200302150141-5c8b2ff67527,prometheus/prometheus,4.0,unclassified
+166,304703,1231.0,3.0,"		err = ptrace(req, pid, addr+uintptr(n), uintptr(unsafe.Pointer(&buf[0])))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,3.0,unclassified
+167,15457,2326.0,2.0,"	r0, _, e1 := RawSyscall(SYS_GETGROUPS, uintptr(n), uintptr(unsafe.Pointer(list)), 0)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200122134326-e047566fdf82,fatedier/frp,3.0,unclassified
+168,581548,2956.0,2.0,"	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,link_linux.go,github.com/vishvananda/netlink,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,3.0,unclassified
+169,550658,1183.0,5.0,"	if _, _, err := syscall.Syscall(syscall.SYS_IOCTL, uintptr(s),
+		syscall.SIOCSIFFLAGS, uintptr(unsafe.Pointer(&ifr))); err != 0 {",1.0,0.0,0.0,0.0,2.0,0.0,0.0,netlink_linux.go,github.com/docker/libcontainer/netlink,github.com/docker/libcontainer,v2.2.1+incompatible,ginuerzh/gost,3.0,unclassified
+170,349519,143.0,3.0,"		dwrite(unsafe.Pointer(&b[0]), uintptr(len(b)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,heapdump.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+171,1385,533.0,5.0,				t = (*_type)(unsafe.Pointer(prev.types + uintptr(tl))),1.0,0.0,0.0,0.0,1.0,0.0,0.0,type.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+172,412,45.0,5.0,"				return add(unsafe.Pointer(b), dataOffset+bucketCnt*4+i*uintptr(t.elemsize))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,map_fast32.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+173,274066,62.0,2.0,"	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, file.Fd(), uintptr(syscall.TUNSETIFF), uintptr(unsafe.Pointer(&req)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,tuntap.go,_/root/download/rkt/networking/tuntap,std,std,rkt/rkt,3.0,unclassified
+174,1071261,902.0,3.0,"		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,2.0,unclassified
+175,221964,1541.0,2.0,"	return ptrace(PTRACE_GETREGS, pid, 0, uintptr(unsafe.Pointer(regsout)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,2.0,unclassified
+176,853933,33.0,5.0,"	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL,
+		uintptr(input_fd),
+		ioctlReadTermios,
+		uintptr(unsafe.Pointer(&oldState)),
+		0, 0, 0); err != 0 {",1.0,0.0,0.0,0.0,2.0,0.0,0.0,getpass_nix.go,github.com/andrew-d/go-termutil,github.com/andrew-d/go-termutil,v0.0.0-20150726205930-009166a695a2,jpillora/chisel,3.0,unclassified
+177,106183,1068.0,2.0,"	r0, _, e1 := Syscall(SYS_LLISTXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(_p1), uintptr(len(dest)))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20191022100944-742c48ecaeb7,helm/helm,4.0,unclassified
+178,215,202.0,2.0,"	xmhdr := (*[1 << 16]method)(add(unsafe.Pointer(x), uintptr(x.moff)))[:nt:nt]",1.0,0.0,0.0,0.0,1.0,0.0,0.0,iface.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+179,5321,21.0,2.0,"	_, _, errno := syscall.Syscall6(syscall.SYS_SETSOCKOPT, s, uintptr(level), uintptr(name), uintptr(unsafe.Pointer(&b[0])), uintptr(len(b)), 0)",1.0,0.0,0.0,0.0,4.0,0.0,0.0,sys_unix.go,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,5.0,unclassified
+180,25789,86.0,2.0,"	return *(*[]branchPageElement)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p),
+		Len:  int(p.count),
+		Cap:  int(p.count),
+	}))",2.0,0.0,0.0,0.0,1.0,0.0,0.0,page.go,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,3.0,unclassified
+181,315651,84.0,3.0,		data = unsafe.Pointer(uintptr(data) + 4),1.0,0.0,0.0,0.0,1.0,0.0,0.0,sockcmsg_unix.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20171012164349-43eea11bc926,apex/apex,2.0,unclassified
+182,546341,47.0,5.0,"	if err := unix.Prctl(unix.PR_GET_CHILD_SUBREAPER, uintptr(unsafe.Pointer(&i)), 0, 0, 0); err != nil {",1.0,0.0,0.0,0.0,1.0,0.0,0.0,reaper_linux.go,_/root/download/containerd/sys,std,std,containerd/containerd,2.0,unclassified
+183,304874,975.0,2.0,"	r0, _, e1 := Syscall(SYS_LISTXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(_p1), uintptr(len(dest)))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,4.0,unclassified
+184,136,418.0,2.0,	dumpint(uint64(uintptr(unsafe.Pointer(fint)))),1.0,0.0,0.0,0.0,1.0,0.0,0.0,heapdump.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+185,304724,1319.0,2.0,"	return ptrace(PTRACE_GETREGS, pid, 0, uintptr(unsafe.Pointer(regsout)))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190215142949-d0b11bdaac8a,grpc-ecosystem/grpc-gateway,2.0,unclassified
+186,315984,88.0,5.0,"	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(&dimensions)), 0, 0, 0); err != 0 {",1.0,0.0,0.0,0.0,3.0,0.0,0.0,util.go,golang.org/x/crypto/ssh/terminal,golang.org/x/crypto,v0.0.0-20170930174604-9419663f5a44,apex/apex,4.0,unclassified
+187,222256,470.0,2.0,"	_, _, e1 := Syscall(SYS_CHDIR, uintptr(unsafe.Pointer(_p0)), 0, 0)",1.0,0.0,0.0,0.0,1.0,0.0,0.0,zsyscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200409092240-59c9f1ba88fa,hyperledger/fabric,2.0,unclassified
+188,350600,12.0,2.0,	return unsafe.Pointer(uintptr(p) + x),1.0,0.0,0.0,0.0,1.0,0.0,0.0,stubs.go,_/root/download/go/src/runtime,std,std,json-iterator/go,2.0,unclassified
+189,2179,16.0,2.0,"	return len(x) > 0 && len(y) > 0 &&
+		uintptr(unsafe.Pointer(&x[0])) <= uintptr(unsafe.Pointer(&y[len(y)-1])) &&
+		uintptr(unsafe.Pointer(&y[0])) <= uintptr(unsafe.Pointer(&x[len(x)-1]))",4.0,0.0,0.0,0.0,4.0,0.0,0.0,aliasing.go,vendor/golang.org/x/crypto/internal/subtle,std,std,kubernetes/kubernetes,8.0,unclassified
+190,351041,599.0,2.0,"	r0, _, e1 := Syscall(SYS_LISTXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(_p1), uintptr(len(dest)))",1.0,0.0,0.0,0.0,3.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,4.0,unclassified
+191,351164,327.0,2.0,"	_, _, e1 := RawSyscall6(SYS_EPOLL_CTL, uintptr(epfd), uintptr(op), uintptr(fd), uintptr(unsafe.Pointer(event)), 0, 0)",1.0,0.0,0.0,0.0,4.0,0.0,0.0,zsyscall_linux_amd64.go,_/root/download/go/src/syscall,std,std,json-iterator/go,5.0,unclassified
+192,650949,115.0,3.0,"		syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&oldState)), 0, 0, 0)",1.0,0.0,0.0,0.0,2.0,0.0,0.0,util.go,github.com/vito/go-interact/interact/terminal,github.com/vito/go-interact,v0.0.0-20171111012221-fa338ed9e9ec,concourse/concourse,3.0,unclassified
+193,480,103.0,2.0,"	hash := t.hasher(noescape(unsafe.Pointer(&key)), uintptr(h.hash0))",1.0,0.0,0.0,0.0,1.0,0.0,0.0,map_fast64.go,runtime,std,std,kubernetes/kubernetes,2.0,unclassified
+194,1071291,513.0,4.0,"			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}",1.0,0.0,0.0,0.0,1.0,0.0,0.0,iterator_native.go,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,2.0,unclassified
+195,350913,340.0,4.0,"			_, _, err1 = RawSyscall6(SYS_MOUNT, uintptr(unsafe.Pointer(&none[0])), uintptr(unsafe.Pointer(&slash[0])), 0, MS_REC|MS_PRIVATE, 0, 0)",2.0,0.0,0.0,0.0,2.0,0.0,0.0,exec_linux.go,_/root/download/go/src/syscall,std,std,json-iterator/go,4.0,unclassified
+196,567700,2562.0,2.0,"	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,link_linux.go,github.com/vishvananda/netlink,github.com/vishvananda/netlink,v1.0.1-0.20190522153524-00009fb8606a,slackhq/nebula,3.0,unclassified
+197,2412,74.0,2.0,"	_, _, e1 := Syscall6(SYS_LINKAT, uintptr(olddirfd), uintptr(unsafe.Pointer(_p0)), uintptr(newdirfd), uintptr(unsafe.Pointer(_p1)), uintptr(flags), 0)",2.0,0.0,0.0,0.0,5.0,0.0,0.0,zsyscall_linux_amd64.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20200323222414-85ca7c5b95cd,kubernetes/kubernetes,7.0,unclassified
+198,399517,1265.0,3.0,		word := *((*uintptr)(unsafe.Pointer(&data[0]))),1.0,0.0,0.0,0.0,1.0,0.0,0.0,syscall_linux.go,golang.org/x/sys/unix,golang.org/x/sys,v0.0.0-20190116161447-11f53e031339,cjbassi/gotop,2.0,unclassified
+199,5423,504.0,4.0,"			a := *(*syscall.RawSockaddrInet4)(unsafe.Pointer(
+				uintptr(ptr) + size*uintptr(i)))",1.0,0.0,0.0,0.0,2.0,0.0,0.0,sctp.go,github.com/ishidawataru/sctp,github.com/ishidawataru/sctp,v0.0.0-20190723014705-7c296d48a2b5,kubernetes/kubernetes,3.0,unclassified

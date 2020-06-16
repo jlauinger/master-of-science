@@ -1,0 +1,3774 @@
+,Unnamed: 0,Unnamed: 0.1,text,context,line_number,column,absolute_offset,match_type,file_name,file_loc,file_byte_size,package_import_path,module_path,module_version,project_name,file_copy_path,label
+0,0,0,"// (6) Conversion of a reflect.SliceHeader or reflect.StringHeader Data field to or from Pointer.
+","//	// before conversion back to Pointer.
+//	u := reflect.ValueOf(new(int)).Pointer()
+//	p := (*int)(unsafe.Pointer(u))
+//
+// (6) Conversion of a reflect.SliceHeader or reflect.StringHeader Data field to or from Pointer.
+//
+// As in the previous case, the reflect data structures SliceHeader and StringHeader
+// declare the field Data as a uintptr to keep callers from changing the result to
+// an arbitrary type without first importing ""unsafe"". However, this means that
+// SliceHeader and StringHeader are only valid when interpreting the content
+",153.0,23.0,6463.0,reflect.SliceHeader,unsafe.go,9215.0,205.0,unsafe,std,std,kubernetes/kubernetes,unsafe/unsafe.go,comment
+1,1,1,"// In general, reflect.SliceHeader and reflect.StringHeader should be used
+","//
+// In this usage hdr.Data is really an alternate way to refer to the underlying
+// pointer in the string header, not a uintptr variable itself.
+//
+// In general, reflect.SliceHeader and reflect.StringHeader should be used
+// only as *reflect.SliceHeader and *reflect.StringHeader pointing at actual
+// slices or strings, never as plain structs.
+// A program should not declare or allocate variables of these struct types.
+//
+//	// INVALID: a directly-declared header will not hold Data as a reference.
+",169.0,15.0,7252.0,reflect.SliceHeader,unsafe.go,9215.0,205.0,unsafe,std,std,kubernetes/kubernetes,unsafe/unsafe.go,comment
+2,2,2,"// only as *reflect.SliceHeader and *reflect.StringHeader pointing at actual
+","// In this usage hdr.Data is really an alternate way to refer to the underlying
+// pointer in the string header, not a uintptr variable itself.
+//
+// In general, reflect.SliceHeader and reflect.StringHeader should be used
+// only as *reflect.SliceHeader and *reflect.StringHeader pointing at actual
+// slices or strings, never as plain structs.
+// A program should not declare or allocate variables of these struct types.
+//
+//	// INVALID: a directly-declared header will not hold Data as a reference.
+//	var hdr reflect.StringHeader
+",170.0,12.0,7327.0,reflect.SliceHeader,unsafe.go,9215.0,205.0,unsafe,std,std,kubernetes/kubernetes,unsafe/unsafe.go,comment
+3,3,3,"	sliceHeader := &reflect.SliceHeader{
+","}
+
+func UnsafeCastString(str string) []byte {
+	stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&str))
+	sliceHeader := &reflect.SliceHeader{
+		Data: stringHeader.Data,
+		Cap: stringHeader.Len,
+		Len: stringHeader.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(sliceHeader))
+",292.0,17.0,7104.0,reflect.SliceHeader,reflect2.go,7272.0,298.0,github.com/modern-go/reflect2,github.com/modern-go/reflect2,v1.0.1,kubernetes/kubernetes,github.com/modern-go/reflect2/reflect2.go,vuln:create_sliceheader
+4,4,4,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+","// Warning: the string returned by the function should be used with care, as the whole input data
+// chunk may be either blocked from being freed by GC because of a single string or the buffer.Data
+// may be garbage-collected even when the string exists.
+func bytesToStr(data []byte) string {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+	shdr := reflect.StringHeader{Data: h.Data, Len: h.Len}
+	return *(*string)(unsafe.Pointer(&shdr))
+}
+",21.0,8.0,616.0,reflect.SliceHeader,bytestostr.go,768.0,24.0,github.com/mailru/easyjson/jlexer,github.com/mailru/easyjson,v0.7.0,kubernetes/kubernetes,github.com/mailru/easyjson/jlexer/bytestostr.go,vuln:create_sliceheader
+5,5,5,"	// A slice header (see reflect.SliceHeader) in Go is a tuple of a starting
+","	// since slices represents a list of pointers, rather than a single pointer.
+	// The pointer checking logic must be handled on a per-element basis
+	// in compareAny.
+	//
+	// A slice header (see reflect.SliceHeader) in Go is a tuple of a starting
+	// pointer P, a length N, and a capacity C. Supposing each slice element has
+	// a memory size of M, then the slice is equivalent to the list of pointers:
+	//	[P+i*M for i in range(N)]
+	//
+	// For example, v[:0] and v[:1] are slices with the same starting pointer,
+",416.0,24.0,14758.0,reflect.SliceHeader,compare.go,22204.0,655.0,github.com/google/go-cmp/cmp,github.com/google/go-cmp,v0.4.0,kubernetes/kubernetes,github.com/google/go-cmp/cmp/compare.go,comment
+6,6,6,"	sh := (*reflect.SliceHeader)(unsafe.Pointer(&name))
+","	// syscall.Dirent fields. Setting the Cap, Len, and Data field values for
+	// the slice header modifies what the slice header points to, and in this
+	// case, the name buffer.
+	var name []byte
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(&name))
+	sh.Cap = ml
+	sh.Len = ml
+	sh.Data = uintptr(unsafe.Pointer(&de.Name[0]))
+
+	if index := bytes.IndexByte(name, 0); index >= 0 {
+",24.0,9.0,769.0,reflect.SliceHeader,withoutNamlen.go,1061.0,36.0,github.com/karrick/godirwalk,github.com/karrick/godirwalk,v1.7.5,kubernetes/kubernetes,github.com/karrick/godirwalk/withoutNamlen.go,need_context
+7,7,7,"		sh := &reflect.SliceHeader{
+","
+func unmarshalBytes(data interface{}, buf []byte) error {
+	switch value := data.(type) {
+	case unsafe.Pointer:
+		sh := &reflect.SliceHeader{
+			Data: uintptr(value),
+			Len:  len(buf),
+			Cap:  len(buf),
+		}
+
+",67.0,9.0,1400.0,reflect.SliceHeader,marshalers.go,4755.0,192.0,github.com/cilium/ebpf,github.com/cilium/ebpf,v0.0.0-20191113100448-d9fb101ca1fb,kubernetes/kubernetes,github.com/cilium/ebpf/marshalers.go,vuln:create_sliceheader
+8,8,8,"	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+","
+// StringToReadOnlyBytes returns bytes converted from given string.
+func StringToReadOnlyBytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+}
+",18.0,7.0,396.0,reflect.SliceHeader,util_unsafe.go,506.0,20.0,github.com/yuin/goldmark/util,github.com/yuin/goldmark,v1.1.28,gohugoio/hugo,github.com/yuin/goldmark/util/util_unsafe.go,vuln:create_sliceheader
+9,9,9,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// Sum64String computes the 64-bit xxHash digest of s.
+// It may be faster than Sum64([]byte(s)) by avoiding a copy.
+func Sum64String(s string) uint64 {
+	var b []byte
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bh.Data = (*reflect.StringHeader)(unsafe.Pointer(&s)).Data
+	bh.Len = len(s)
+	bh.Cap = len(s)
+	return Sum64(b)
+}
+",30.0,9.0,884.0,reflect.SliceHeader,xxhash_unsafe.go,1416.0,46.0,github.com/cespare/xxhash/v2,github.com/cespare/xxhash/v2,v2.1.1,fatedier/frp,github.com/cespare/xxhash/v2/xxhash_unsafe.go,cast:str_to_slice
+10,10,10,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// WriteString adds more data to d. It always returns len(s), nil.
+// It may be faster than Write([]byte(s)) by avoiding a copy.
+func (d *Digest) WriteString(s string) (n int, err error) {
+	var b []byte
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bh.Data = (*reflect.StringHeader)(unsafe.Pointer(&s)).Data
+	bh.Len = len(s)
+	bh.Cap = len(s)
+	return d.Write(b)
+}
+",41.0,9.0,1251.0,reflect.SliceHeader,xxhash_unsafe.go,1416.0,46.0,github.com/cespare/xxhash/v2,github.com/cespare/xxhash/v2,v2.1.1,fatedier/frp,github.com/cespare/xxhash/v2/xxhash_unsafe.go,cast:str_to_slice
+11,11,11,"		Data: ((*reflect.SliceHeader)(unsafe.Pointer(&slice))).Data,
+","
+func strslice(slice []byte) string {
+	var str string
+	*(*reflect.StringHeader)(unsafe.Pointer(&str)) = reflect.StringHeader{
+		Data: ((*reflect.SliceHeader)(unsafe.Pointer(&slice))).Data,
+		Len:  len(slice),
+	}
+	return str
+}
+",68.0,11.0,1576.0,reflect.SliceHeader,murmur.go,1676.0,72.0,github.com/spaolacci/murmur3,github.com/spaolacci/murmur3,v1.1.0,syncthing/syncthing,github.com/spaolacci/murmur3/murmur.go,vuln:create_sliceheader
+12,12,12,"	dst := *(*[]pgid)(unsafe.Pointer(&reflect.SliceHeader{
+","	}
+	sort.Sort(m)
+	fpgids := f.getFreePageIDs()
+	sz := len(fpgids) + len(m)
+	dst := *(*[]pgid)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(dstptr),
+		Len:  sz,
+		Cap:  sz,
+	}))
+	mergepgids(dst, fpgids, m)
+",107.0,35.0,3719.0,reflect.SliceHeader,freelist.go,11854.0,413.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/freelist.go,vuln:create_sliceheader
+13,13,13,"		ids := *(*[]pgid)(unsafe.Pointer(&reflect.SliceHeader{
+","	// Copy the list of page ids from the freelist.
+	if count == 0 {
+		f.ids = nil
+	} else {
+		ids := *(*[]pgid)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p) + idx*unsafe.Sizeof(pgid(0)),
+			Len:  int(count),
+			Cap:  int(count),
+		}))
+
+",297.0,36.0,8699.0,reflect.SliceHeader,freelist.go,11854.0,413.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/freelist.go,vuln:create_sliceheader
+14,14,14,"	return *(*[]leafPageElement)(unsafe.Pointer(&reflect.SliceHeader{
+","func (p *page) leafPageElements() []leafPageElement {
+	if p.count == 0 {
+		return nil
+	}
+	return *(*[]leafPageElement)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p),
+		Len:  int(p.count),
+		Cap:  int(p.count),
+	}))
+}
+",68.0,46.0,1502.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,vuln:create_sliceheader
+15,15,15,"	return *(*[]branchPageElement)(unsafe.Pointer(&reflect.SliceHeader{
+","func (p *page) branchPageElements() []branchPageElement {
+	if p.count == 0 {
+		return nil
+	}
+	return *(*[]branchPageElement)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p),
+		Len:  int(p.count),
+		Cap:  int(p.count),
+	}))
+}
+",86.0,48.0,2112.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,vuln:create_sliceheader
+16,16,16,"	buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+// dump writes n bytes of the page to STDERR as hex output.
+func (p *page) hexdump(n int) {
+	buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(p)),
+		Len:  n,
+		Cap:  n,
+	}))
+	fmt.Fprintf(os.Stderr, ""%x\n"", buf)
+",95.0,35.0,2381.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,vuln:create_sliceheader
+17,17,17,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+// key returns a byte slice of the node key.
+func (n *branchPageElement) key() []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(n)) + uintptr(n.pos),
+		Len:  int(n.ksize),
+		Cap:  int(n.ksize),
+	}))
+}
+",118.0,35.0,2961.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,vuln:create_sliceheader
+18,18,18,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+// key returns a byte slice of the node key.
+func (n *leafPageElement) key() []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(n)) + uintptr(n.pos),
+		Len:  int(n.ksize),
+		Cap:  int(n.ksize),
+	}))
+}
+",135.0,35.0,3350.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,vuln:create_sliceheader
+19,19,19,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+// value returns a byte slice of the node value.
+func (n *leafPageElement) value() []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(n)) + uintptr(n.pos) + uintptr(n.ksize),
+		Len:  int(n.vsize),
+		Cap:  int(n.vsize),
+	}))
+}
+",144.0,35.0,3603.0,reflect.SliceHeader,page.go,5445.0,219.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/page.go,vuln:create_sliceheader
+20,20,20,"		b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","		// Create a slice to write into of needed size and advance
+		// byte pointer for next iteration.
+		klen, vlen := len(item.key), len(item.value)
+		sz := klen + vlen
+		b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: bp,
+			Len:  sz,
+			Cap:  sz,
+		}))
+		bp += uintptr(sz)
+",234.0,34.0,6139.0,reflect.SliceHeader,node.go,16185.0,607.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/node.go,vuln:create_sliceheader
+21,21,21,"			buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","				sz = maxAllocSize - 1
+			}
+
+			// Write chunk to disk.
+			buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+				Data: ptr,
+				Len:  sz,
+				Cap:  sz,
+			}))
+			if _, err := tx.db.ops.writeAt(buf, offset); err != nil {
+",540.0,37.0,14807.0,reflect.SliceHeader,tx.go,19979.0,735.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/tx.go,vuln:create_sliceheader
+22,22,22,"		buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","		if int(p.overflow) != 0 {
+			continue
+		}
+
+		buf := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(p)),
+			Len:  tx.db.pageSize,
+			Cap:  tx.db.pageSize,
+		}))
+
+",579.0,36.0,15626.0,reflect.SliceHeader,tx.go,19979.0,735.0,go.etcd.io/bbolt,go.etcd.io/bbolt,v1.3.4,etcd-io/etcd,go.etcd.io/bbolt/tx.go,vuln:create_sliceheader
+23,23,23,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func Sum64String(s string) uint64 {
+	// See https://groups.google.com/d/msg/golang-nuts/dcjzJy-bSpw/tcZYBzQqAQAJ
+	// for some discussion about this unsafe conversion.
+	var b []byte
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bh.Data = (*reflect.StringHeader)(unsafe.Pointer(&s)).Data
+	bh.Len = len(s)
+	bh.Cap = len(s)
+	return Sum64(b)
+}
+",25.0,9.0,743.0,reflect.SliceHeader,xxhash_unsafe.go,906.0,30.0,github.com/cespare/xxhash,github.com/cespare/xxhash,v1.1.0,prometheus/prometheus,github.com/cespare/xxhash/xxhash_unsafe.go,cast:str_to_slice
+24,24,24,"func (m *MMap) header() *reflect.SliceHeader {
+","	}
+	return mmap(length, uintptr(prot), uintptr(flags), fd, offset)
+}
+
+func (m *MMap) header() *reflect.SliceHeader {
+	return (*reflect.SliceHeader)(unsafe.Pointer(m))
+}
+
+func (m *MMap) addrLen() (uintptr, uintptr) {
+	header := m.header()
+",80.0,25.0,2523.0,reflect.SliceHeader,mmap.go,3653.0,117.0,github.com/edsrzf/mmap-go,github.com/edsrzf/mmap-go,v1.0.0,prometheus/prometheus,github.com/edsrzf/mmap-go/mmap.go,wrap:newSliceHeader
+25,25,25,"	return (*reflect.SliceHeader)(unsafe.Pointer(m))
+","	return mmap(length, uintptr(prot), uintptr(flags), fd, offset)
+}
+
+func (m *MMap) header() *reflect.SliceHeader {
+	return (*reflect.SliceHeader)(unsafe.Pointer(m))
+}
+
+func (m *MMap) addrLen() (uintptr, uintptr) {
+	header := m.header()
+	return header.Data, uintptr(header.Len)
+",81.0,10.0,2570.0,reflect.SliceHeader,mmap.go,3653.0,117.0,github.com/edsrzf/mmap-go,github.com/edsrzf/mmap-go,v1.0.0,prometheus/prometheus,github.com/edsrzf/mmap-go/mmap.go,wrap:newSliceHeader
+26,26,26,"	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+","//
+// It is unsafe, and is intended to prepare input to short-lived functions
+// that require strings.
+func unsafeBytesToString(in []byte) string {
+	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+	dst := reflect.StringHeader{
+		Data: src.Data,
+		Len:  src.Len,
+	}
+	s := *(*string)(unsafe.Pointer(&dst))
+",37.0,11.0,1146.0,reflect.SliceHeader,inline_strconv_parse.go,1318.0,44.0,github.com/influxdata/influxdb/models,github.com/influxdata/influxdb,v1.7.7,prometheus/prometheus,github.com/influxdata/influxdb/models/inline_strconv_parse.go,vuln:create_sliceheader
+27,27,27,"	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	""unsafe""
+)
+
+func BytesToString(b []byte) string {
+	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	strHeader := reflect.StringHeader{bytesHeader.Data, bytesHeader.Len}
+	return *(*string)(unsafe.Pointer(&strHeader))
+}
+",11.0,18.0,111.0,reflect.SliceHeader,unsafe.go,289.0,14.0,gopkg.in/redis.v5/internal,gopkg.in/redis.v5,v5.2.9,containous/traefik,gopkg.in/redis.v5/internal/unsafe.go,vuln:create_sliceheader
+28,28,28,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","
+// unsafe cast string as []byte
+func unsafestr(b string) []byte {
+	l := len(b)
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Len:  l,
+		Cap:  l,
+		Data: (*reflect.StringHeader)(unsafe.Pointer(&b)).Data,
+	}))
+}
+",13.0,35.0,147.0,reflect.SliceHeader,writer_unsafe.go,290.0,18.0,github.com/philhofer/fwd,github.com/philhofer/fwd,v1.0.0,containous/traefik,github.com/philhofer/fwd/writer_unsafe.go,vuln:create_sliceheader
+29,29,29,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","// THIS SHOULD ONLY BE USED BY THE CODE GENERATOR.
+// THIS IS EVIL CODE.
+// YOU HAVE BEEN WARNED.
+func UnsafeBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Len:  len(s),
+		Cap:  len(s),
+		Data: (*(*reflect.StringHeader)(unsafe.Pointer(&s))).Data,
+	}))
+}
+",35.0,35.0,838.0,reflect.SliceHeader,unsafe.go,994.0,40.0,github.com/tinylib/msgp/msgp,github.com/tinylib/msgp,v1.0.2,containous/traefik,github.com/tinylib/msgp/msgp/unsafe.go,vuln:create_sliceheader
+30,30,30,"	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+","//
+// It is unsafe, and is intended to prepare input to short-lived functions
+// that require strings.
+func unsafeBytesToString(in []byte) string {
+	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+	dst := reflect.StringHeader{
+		Data: src.Data,
+		Len:  src.Len,
+	}
+	s := *(*string)(unsafe.Pointer(&dst))
+",37.0,11.0,1154.0,reflect.SliceHeader,inline_strconv_parse.go,1326.0,44.0,github.com/influxdata/influxdb1-client/models,github.com/influxdata/influxdb1-client,v0.0.0-20190809212627-fc22c7df067e,containous/traefik,github.com/influxdata/influxdb1-client/models/inline_strconv_parse.go,vuln:create_sliceheader
+31,31,31,"func (m *MMap) header() *reflect.SliceHeader {
+","	}
+	return mmap(length, uintptr(prot), uintptr(flags), fd, offset)
+}
+
+func (m *MMap) header() *reflect.SliceHeader {
+	return (*reflect.SliceHeader)(unsafe.Pointer(m))
+}
+
+// Lock keeps the mapped region in physical memory, ensuring that it will not be
+// swapped out.
+",76.0,25.0,2387.0,reflect.SliceHeader,mmap.go,3565.0,112.0,github.com/edsrzf/mmap-go,github.com/edsrzf/mmap-go,v0.0.0-20160512033002-935e0e8a636c,ethereum/go-ethereum,github.com/edsrzf/mmap-go/mmap.go,wrap:newSliceHeader
+32,32,32,"	return (*reflect.SliceHeader)(unsafe.Pointer(m))
+","	return mmap(length, uintptr(prot), uintptr(flags), fd, offset)
+}
+
+func (m *MMap) header() *reflect.SliceHeader {
+	return (*reflect.SliceHeader)(unsafe.Pointer(m))
+}
+
+// Lock keeps the mapped region in physical memory, ensuring that it will not be
+// swapped out.
+func (m MMap) Lock() error {
+",77.0,10.0,2434.0,reflect.SliceHeader,mmap.go,3565.0,112.0,github.com/edsrzf/mmap-go,github.com/edsrzf/mmap-go,v0.0.0-20160512033002-935e0e8a636c,ethereum/go-ethereum,github.com/edsrzf/mmap-go/mmap.go,wrap:newSliceHeader
+33,33,33,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","
+// no copy to change slice to string
+// use your own risk
+func String(b []byte) (s string) {
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pstring.Data = pbytes.Data
+	pstring.Len = pbytes.Len
+	return
+}
+",11.0,13.0,140.0,reflect.SliceHeader,hack.go,607.0,27.0,github.com/siddontang/go/hack,github.com/siddontang/go,v0.0.0-20180604090527-bdc77568d726,astaxie/beego,github.com/siddontang/go/hack/hack.go,cast:slice_to_str
+34,34,34,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","
+// no copy to change string to slice
+// use your own risk
+func Slice(s string) (b []byte) {
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pbytes.Data = pstring.Data
+	pbytes.Len = pstring.Len
+	pbytes.Cap = pstring.Len
+	return
+",21.0,13.0,407.0,reflect.SliceHeader,hack.go,607.0,27.0,github.com/siddontang/go/hack,github.com/siddontang/go,v0.0.0-20180604090527-bdc77568d726,astaxie/beego,github.com/siddontang/go/hack/hack.go,cast:str_to_slice
+35,35,35,"	b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+func (d *sqlDigester) doDigestNormalized(normalized string) (result string) {
+	hdr := *(*reflect.StringHeader)(unsafe.Pointer(&normalized))
+	b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: hdr.Data,
+		Len:  hdr.Len,
+		Cap:  hdr.Len,
+	}))
+	d.hasher.Write(b)
+",95.0,33.0,2950.0,reflect.SliceHeader,digester.go,8563.0,383.0,github.com/pingcap/parser,github.com/pingcap/parser,v0.0.0-20200413043052-ef80f4de418c,pingcap/tidb,github.com/pingcap/parser/digester.go,vuln:create_sliceheader
+36,36,36,"	sh := (*reflect.SliceHeader)(unsafe.Pointer(stringbuf))
+","}
+
+func parse_string_simd(buf []byte, stringbuf *[]byte) bool {
+
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(stringbuf))
+
+	src := uintptr(unsafe.Pointer(&buf[0])) + 1 // Advance buffer by one in order to skip opening quote
+	string_buf_loc := uintptr(unsafe.Pointer(sh.Data)) + uintptr(sh.Len)
+	dst := string_buf_loc
+
+",47.0,9.0,1444.0,reflect.SliceHeader,parse_string_amd64.go,1861.0,58.0,github.com/minio/simdjson-go,github.com/minio/simdjson-go,v0.1.5-0.20200303142138-b17fe061ea37,minio/minio,github.com/minio/simdjson-go/parse_string_amd64.go,no_idea
+37,37,37,"		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+","		// safely get the string headers
+		rawhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Raw))
+		strhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Str))
+		// create byte slice headers
+		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+		if strh.Data == 0 {
+			// str is nil
+			if rawh.Data == 0 {
+				// raw is nil
+",23.0,10.0,660.0,reflect.SliceHeader,gjson_ngae.go,2565.0,81.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.3.5,minio/minio,github.com/tidwall/gjson/gjson_ngae.go,cast:any_to_slice
+38,38,38,"		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+","		rawhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Raw))
+		strhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Str))
+		// create byte slice headers
+		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+		if strh.Data == 0 {
+			// str is nil
+			if rawh.Data == 0 {
+				// raw is nil
+				result.Raw = """"
+",24.0,10.0,724.0,reflect.SliceHeader,gjson_ngae.go,2565.0,81.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.3.5,minio/minio,github.com/tidwall/gjson/gjson_ngae.go,vuln:create_sliceheader
+39,39,39,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","	}
+}
+
+func stringBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: (*reflect.StringHeader)(unsafe.Pointer(&s)).Data,
+		Len:  len(s),
+		Cap:  len(s),
+	}))
+}
+",72.0,35.0,2334.0,reflect.SliceHeader,gjson_ngae.go,2565.0,81.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.3.5,minio/minio,github.com/tidwall/gjson/gjson_ngae.go,vuln:create_sliceheader
+40,40,40,"					jsonbh := reflect.SliceHeader{
+","			}
+			if inplace && sz <= len(jstr) {
+				if !stringify || !mustMarshalString(raw) {
+					jsonh := *(*reflect.StringHeader)(unsafe.Pointer(&jstr))
+					jsonbh := reflect.SliceHeader{
+						Data: jsonh.Data, Len: jsonh.Len, Cap: jsonh.Len}
+					jbytes := *(*[]byte)(unsafe.Pointer(&jsonbh))
+					if stringify {
+						jbytes[res.Index] = '""'
+						copy(jbytes[res.Index+1:], []byte(raw))
+",29.0,15.0,639.0,reflect.SliceHeader,sjson_ngae.go,5846.0,191.0,github.com/tidwall/sjson,github.com/tidwall/sjson,v1.0.4,minio/minio,github.com/tidwall/sjson/sjson_ngae.go,vuln:create_sliceheader
+41,41,41,"	jsonbh := reflect.SliceHeader{Data: jsonh.Data, Len: jsonh.Len}
+","			opts.ReplaceInPlace = false
+		}
+	}
+	jsonh := *(*reflect.StringHeader)(unsafe.Pointer(&json))
+	jsonbh := reflect.SliceHeader{Data: jsonh.Data, Len: jsonh.Len}
+	jsonb := *(*[]byte)(unsafe.Pointer(&jsonbh))
+	res, err := SetBytesOptions(jsonb, path, value, opts)
+	return string(res), err
+}
+
+",97.0,11.0,2647.0,reflect.SliceHeader,sjson_ngae.go,5846.0,191.0,github.com/tidwall/sjson,github.com/tidwall/sjson,v1.0.4,minio/minio,github.com/tidwall/sjson/sjson_ngae.go,vuln:create_sliceheader
+42,42,42,"	sh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// THIS SHOULD ONLY BE USED BY THE CODE GENERATOR.
+// THIS IS EVIL CODE.
+// YOU HAVE BEEN WARNED.
+func UnsafeString(b []byte) string {
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	return *(*string)(unsafe.Pointer(&reflect.StringHeader{Data: sh.Data, Len: sh.Len}))
+}
+
+// UnsafeBytes returns the string as a byte slice
+// THIS SHOULD ONLY BE USED BY THE CODE GENERATOR.
+",27.0,9.0,550.0,reflect.SliceHeader,unsafe.go,1029.0,41.0,github.com/tinylib/msgp/msgp,github.com/tinylib/msgp,v1.1.1,minio/minio,github.com/tinylib/msgp/msgp/unsafe.go,vuln:create_sliceheader
+43,43,43,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","// THIS SHOULD ONLY BE USED BY THE CODE GENERATOR.
+// THIS IS EVIL CODE.
+// YOU HAVE BEEN WARNED.
+func UnsafeBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Len:  len(s),
+		Cap:  len(s),
+		Data: (*(*reflect.StringHeader)(unsafe.Pointer(&s))).Data,
+	}))
+}
+",36.0,35.0,873.0,reflect.SliceHeader,unsafe.go,1029.0,41.0,github.com/tinylib/msgp/msgp,github.com/tinylib/msgp,v1.1.1,minio/minio,github.com/tinylib/msgp/msgp/unsafe.go,vuln:create_sliceheader
+44,44,44,"	h := (*reflect.SliceHeader)(unsafe.Pointer(dest))
+","	return ENOSYS
+}
+
+func toSlice(dest *[]byte, ptr unsafe.Pointer, byteCount uintptr) {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(dest))
+	*h = reflect.SliceHeader{
+		Data: uintptr(ptr),
+		Len:  int(byteCount),
+		Cap:  int(byteCount),
+	}
+",69.0,8.0,1341.0,reflect.SliceHeader,misc.go,2092.0,100.0,github.com/hanwen/go-fuse/v2/fuse,github.com/hanwen/go-fuse/v2,v2.0.3-0.20191108143333-152e6ac32d54,rclone/rclone,github.com/hanwen/go-fuse/v2/fuse/misc.go,manual:safe
+45,45,45,"	*h = reflect.SliceHeader{
+","}
+
+func toSlice(dest *[]byte, ptr unsafe.Pointer, byteCount uintptr) {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(dest))
+	*h = reflect.SliceHeader{
+		Data: uintptr(ptr),
+		Len:  int(byteCount),
+		Cap:  int(byteCount),
+	}
+}
+",70.0,6.0,1392.0,reflect.SliceHeader,misc.go,2092.0,100.0,github.com/hanwen/go-fuse/v2/fuse,github.com/hanwen/go-fuse/v2,v2.0.3-0.20191108143333-152e6ac32d54,rclone/rclone,github.com/hanwen/go-fuse/v2/fuse/misc.go,vuln:create_sliceheader
+46,46,46,"	h := &reflect.SliceHeader{
+","		log.Printf(""Too few bytes for batch forget. Got %d bytes, want %d (%d entries)"",
+			len(req.arg), wantBytes, in.Count)
+	}
+
+	h := &reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(&req.arg[0])),
+		Len:  int(in.Count),
+		Cap:  int(in.Count),
+	}
+
+",304.0,7.0,8746.0,reflect.SliceHeader,opcode.go,28131.0,804.0,github.com/hanwen/go-fuse/v2/fuse,github.com/hanwen/go-fuse/v2,v2.0.3-0.20191108143333-152e6ac32d54,rclone/rclone,github.com/hanwen/go-fuse/v2/fuse/opcode.go,vuln:create_sliceheader
+47,47,47,"	oldslice := (*reflect.SliceHeader)(unsafe.Pointer(&oldbytes))
+","}
+
+func copyUintPtr(oldptr, newptr uintptr, size int) {
+	oldbytes := make([]byte, 0)
+	oldslice := (*reflect.SliceHeader)(unsafe.Pointer(&oldbytes))
+	oldslice.Data = oldptr
+	oldslice.Len = size
+	oldslice.Cap = size
+	newbytes := make([]byte, 0)
+	newslice := (*reflect.SliceHeader)(unsafe.Pointer(&newbytes))
+",57.0,15.0,2127.0,reflect.SliceHeader,pointer_unsafe_gogo.go,4486.0,128.0,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,github.com/gogo/protobuf/proto/pointer_unsafe_gogo.go,vuln:supplied_len_in_memcpy
+48,48,48,"	newslice := (*reflect.SliceHeader)(unsafe.Pointer(&newbytes))
+","	oldslice.Data = oldptr
+	oldslice.Len = size
+	oldslice.Cap = size
+	newbytes := make([]byte, 0)
+	newslice := (*reflect.SliceHeader)(unsafe.Pointer(&newbytes))
+	newslice.Data = newptr
+	newslice.Len = size
+	newslice.Cap = size
+	copy(newbytes, oldbytes)
+}
+",62.0,15.0,2285.0,reflect.SliceHeader,pointer_unsafe_gogo.go,4486.0,128.0,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,github.com/gogo/protobuf/proto/pointer_unsafe_gogo.go,vuln:supplied_len_in_memcpy
+49,49,49,"func structPointer_GetSliceHeader(p structPointer, f field) *reflect.SliceHeader {
+","func structPointer_GetRefStructPointer(p structPointer, f field) structPointer {
+	return structPointer((*structPointer)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+}
+
+func structPointer_GetSliceHeader(p structPointer, f field) *reflect.SliceHeader {
+	return (*reflect.SliceHeader)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+func structPointer_Add(p structPointer, size field) structPointer {
+	return structPointer(unsafe.Pointer(uintptr(p) + uintptr(size)))
+",97.0,61.0,3452.0,reflect.SliceHeader,pointer_unsafe_gogo.go,4486.0,128.0,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,github.com/gogo/protobuf/proto/pointer_unsafe_gogo.go,pointer_arithmetic
+50,50,50,"	return (*reflect.SliceHeader)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+","	return structPointer((*structPointer)(unsafe.Pointer(uintptr(p) + uintptr(f))))
+}
+
+func structPointer_GetSliceHeader(p structPointer, f field) *reflect.SliceHeader {
+	return (*reflect.SliceHeader)(unsafe.Pointer(uintptr(p) + uintptr(f)))
+}
+
+func structPointer_Add(p structPointer, size field) structPointer {
+	return structPointer(unsafe.Pointer(uintptr(p) + uintptr(size)))
+}
+",98.0,10.0,3535.0,reflect.SliceHeader,pointer_unsafe_gogo.go,4486.0,128.0,github.com/gogo/protobuf/proto,github.com/gogo/protobuf,v0.0.0-20170307180453-100ba4e88506,drone/drone,github.com/gogo/protobuf/proto/pointer_unsafe_gogo.go,pointer_arithmetic
+51,51,51,"	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+","}
+
+func uint64SliceAsByteSlice(slice []uint64) []byte {
+	// make a new slice header
+	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+
+	// update its capacity and length
+	header.Len *= 8
+	header.Cap *= 8
+
+",28.0,14.0,612.0,reflect.SliceHeader,serialization_littleendian.go,3742.0,134.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.21,go-gitea/gitea,github.com/RoaringBitmap/roaring/serialization_littleendian.go,not_found
+52,52,52,"	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+","}
+
+func uint16SliceAsByteSlice(slice []uint16) []byte {
+	// make a new slice header
+	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+
+	// update its capacity and length
+	header.Len *= 2
+	header.Cap *= 2
+
+",44.0,14.0,995.0,reflect.SliceHeader,serialization_littleendian.go,3742.0,134.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.21,go-gitea/gitea,github.com/RoaringBitmap/roaring/serialization_littleendian.go,need_context
+53,53,53,"	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+","	}
+	// reference: https://go101.org/article/unsafe.html
+
+	// make a new slice header
+	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+
+	// transfer the data from the given slice to a new variable (our result)
+	rHeader.Data = bHeader.Data
+	rHeader.Len = bHeader.Len / 2
+",77.0,14.0,1955.0,reflect.SliceHeader,serialization_littleendian.go,3742.0,134.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.21,go-gitea/gitea,github.com/RoaringBitmap/roaring/serialization_littleendian.go,need_context
+54,54,54,"	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+","	// reference: https://go101.org/article/unsafe.html
+
+	// make a new slice header
+	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+
+	// transfer the data from the given slice to a new variable (our result)
+	rHeader.Data = bHeader.Data
+	rHeader.Len = bHeader.Len / 2
+	rHeader.Cap = bHeader.Cap / 2
+",78.0,14.0,2014.0,reflect.SliceHeader,serialization_littleendian.go,3742.0,134.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.21,go-gitea/gitea,github.com/RoaringBitmap/roaring/serialization_littleendian.go,need_context
+55,55,55,"	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+","	}
+	// reference: https://go101.org/article/unsafe.html
+
+	// make a new slice header
+	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+
+	// transfer the data from the given slice to a new variable (our result)
+	rHeader.Data = bHeader.Data
+	rHeader.Len = bHeader.Len / 8
+",99.0,14.0,2621.0,reflect.SliceHeader,serialization_littleendian.go,3742.0,134.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.21,go-gitea/gitea,github.com/RoaringBitmap/roaring/serialization_littleendian.go,need_context
+56,56,56,"	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+","	// reference: https://go101.org/article/unsafe.html
+
+	// make a new slice header
+	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+
+	// transfer the data from the given slice to a new variable (our result)
+	rHeader.Data = bHeader.Data
+	rHeader.Len = bHeader.Len / 8
+	rHeader.Cap = bHeader.Cap / 8
+",100.0,14.0,2680.0,reflect.SliceHeader,serialization_littleendian.go,3742.0,134.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.21,go-gitea/gitea,github.com/RoaringBitmap/roaring/serialization_littleendian.go,need_context
+57,57,57,"	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+","	}
+	// reference: https://go101.org/article/unsafe.html
+
+	// make a new slice header
+	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+
+	// transfer the data from the given slice to a new variable (our result)
+	rHeader.Data = bHeader.Data
+	rHeader.Len = bHeader.Len / 4
+",121.0,14.0,3295.0,reflect.SliceHeader,serialization_littleendian.go,3742.0,134.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.21,go-gitea/gitea,github.com/RoaringBitmap/roaring/serialization_littleendian.go,need_context
+58,58,58,"	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+","	// reference: https://go101.org/article/unsafe.html
+
+	// make a new slice header
+	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+	rHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+
+	// transfer the data from the given slice to a new variable (our result)
+	rHeader.Data = bHeader.Data
+	rHeader.Len = bHeader.Len / 4
+	rHeader.Cap = bHeader.Cap / 4
+",122.0,14.0,3354.0,reflect.SliceHeader,serialization_littleendian.go,3742.0,134.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.21,go-gitea/gitea,github.com/RoaringBitmap/roaring/serialization_littleendian.go,need_context
+59,59,59,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","
+// no copy to change slice to string
+// use your own risk
+func String(b []byte) (s string) {
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pstring.Data = pbytes.Data
+	pstring.Len = pbytes.Len
+	return
+}
+",16.0,13.0,230.0,reflect.SliceHeader,util.go,2089.0,113.0,github.com/lunny/nodb,github.com/lunny/nodb,v0.0.0-20160621015157-fc1ef06ad4af,go-gitea/gitea,github.com/lunny/nodb/util.go,cast:slice_to_str
+60,60,60,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","
+// no copy to change string to slice
+// use your own risk
+func Slice(s string) (b []byte) {
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pbytes.Data = pstring.Data
+	pbytes.Len = pstring.Len
+	pbytes.Cap = pstring.Len
+	return
+",26.0,13.0,497.0,reflect.SliceHeader,util.go,2089.0,113.0,github.com/lunny/nodb,github.com/lunny/nodb,v0.0.0-20160621015157-fc1ef06ad4af,go-gitea/gitea,github.com/lunny/nodb/util.go,cast:str_to_slice
+61,61,61,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+func PutInt64(v int64) []byte {
+	var b []byte
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pbytes.Data = uintptr(unsafe.Pointer(&v))
+	pbytes.Len = 8
+	pbytes.Cap = 8
+	return b
+}
+",48.0,13.0,986.0,reflect.SliceHeader,util.go,2089.0,113.0,github.com/lunny/nodb,github.com/lunny/nodb,v0.0.0-20160621015157-fc1ef06ad4af,go-gitea/gitea,github.com/lunny/nodb/util.go,cast:any_to_slice
+62,62,62,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	uint64SizeBits  = uint64SizeBytes * 8
+)
+
+func bytesToUint64(b []byte) []uint64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / uint64SizeBytes
+",147.0,8.0,3723.0,reflect.SliceHeader,bitutil.go,3940.0,156.0,github.com/apache/arrow/go/arrow/bitutil,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/bitutil/bitutil.go,cast:slice_to_any
+63,63,63,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func bytesToUint64(b []byte) []uint64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / uint64SizeBytes
+	s.Cap = h.Cap / uint64SizeBytes
+
+	return res
+",150.0,8.0,3791.0,reflect.SliceHeader,bitutil.go,3940.0,156.0,github.com/apache/arrow/go/arrow/bitutil,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/bitutil/bitutil.go,cast:slice_to_any
+64,64,64,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type uint16.
+//
+// NOTE: len(b) must be a multiple of Uint16SizeBytes.
+func (float16Traits) CastFromBytes(b []byte) []float16.Num {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []float16.Num
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Float16SizeBytes
+",49.0,8.0,1623.0,reflect.SliceHeader,type_traits_float16.go,2282.0,74.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_float16.go,cast:slice_to_any
+65,65,65,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (float16Traits) CastFromBytes(b []byte) []float16.Num {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []float16.Num
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Float16SizeBytes
+	s.Cap = h.Cap / Float16SizeBytes
+
+	return res
+",52.0,8.0,1696.0,reflect.SliceHeader,type_traits_float16.go,2282.0,74.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_float16.go,cast:slice_to_any
+66,66,66,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (float16Traits) CastToBytes(b []float16.Num) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Float16SizeBytes
+",62.0,8.0,1968.0,reflect.SliceHeader,type_traits_float16.go,2282.0,74.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_float16.go,cast:any_to_slice
+67,67,67,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (float16Traits) CastToBytes(b []float16.Num) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Float16SizeBytes
+	s.Cap = h.Cap * Float16SizeBytes
+
+	return res
+",65.0,8.0,2034.0,reflect.SliceHeader,type_traits_float16.go,2282.0,74.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_float16.go,cast:any_to_slice
+68,68,68,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type uint16.
+//
+// NOTE: len(b) must be a multiple of Uint16SizeBytes.
+func (decimal128Traits) CastFromBytes(b []byte) []decimal128.Num {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []decimal128.Num
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Decimal128SizeBytes
+",50.0,8.0,1737.0,reflect.SliceHeader,type_traits_decimal128.go,2423.0,75.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_decimal128.go,cast:slice_to_any
+69,69,69,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (decimal128Traits) CastFromBytes(b []byte) []decimal128.Num {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []decimal128.Num
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Decimal128SizeBytes
+	s.Cap = h.Cap / Decimal128SizeBytes
+
+	return res
+",53.0,8.0,1813.0,reflect.SliceHeader,type_traits_decimal128.go,2423.0,75.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_decimal128.go,cast:slice_to_any
+70,70,70,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (decimal128Traits) CastToBytes(b []decimal128.Num) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Decimal128SizeBytes
+",63.0,8.0,2097.0,reflect.SliceHeader,type_traits_decimal128.go,2423.0,75.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_decimal128.go,cast:any_to_slice
+71,71,71,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (decimal128Traits) CastToBytes(b []decimal128.Num) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Decimal128SizeBytes
+	s.Cap = h.Cap * Decimal128SizeBytes
+
+	return res
+",66.0,8.0,2163.0,reflect.SliceHeader,type_traits_decimal128.go,2423.0,75.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_decimal128.go,cast:any_to_slice
+72,72,72,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type MonthInterval.
+//
+// NOTE: len(b) must be a multiple of MonthIntervalSizeBytes.
+func (monthTraits) CastFromBytes(b []byte) []MonthInterval {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []MonthInterval
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / MonthIntervalSizeBytes
+",51.0,8.0,1665.0,reflect.SliceHeader,type_traits_interval.go,3875.0,125.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_interval.go,cast:slice_to_any
+73,73,73,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (monthTraits) CastFromBytes(b []byte) []MonthInterval {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []MonthInterval
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / MonthIntervalSizeBytes
+	s.Cap = h.Cap / MonthIntervalSizeBytes
+
+	return res
+",54.0,8.0,1740.0,reflect.SliceHeader,type_traits_interval.go,3875.0,125.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_interval.go,cast:slice_to_any
+74,74,74,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (monthTraits) CastToBytes(b []MonthInterval) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * MonthIntervalSizeBytes
+",64.0,8.0,2024.0,reflect.SliceHeader,type_traits_interval.go,3875.0,125.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_interval.go,cast:any_to_slice
+75,75,75,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (monthTraits) CastToBytes(b []MonthInterval) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * MonthIntervalSizeBytes
+	s.Cap = h.Cap * MonthIntervalSizeBytes
+
+	return res
+",67.0,8.0,2090.0,reflect.SliceHeader,type_traits_interval.go,3875.0,125.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_interval.go,cast:any_to_slice
+76,76,76,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type DayTimeInterval.
+//
+// NOTE: len(b) must be a multiple of DayTimeIntervalSizeBytes.
+func (daytimeTraits) CastFromBytes(b []byte) []DayTimeInterval {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []DayTimeInterval
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / DayTimeIntervalSizeBytes
+",100.0,8.0,3172.0,reflect.SliceHeader,type_traits_interval.go,3875.0,125.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_interval.go,cast:slice_to_any
+77,77,77,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (daytimeTraits) CastFromBytes(b []byte) []DayTimeInterval {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []DayTimeInterval
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / DayTimeIntervalSizeBytes
+	s.Cap = h.Cap / DayTimeIntervalSizeBytes
+
+	return res
+",103.0,8.0,3249.0,reflect.SliceHeader,type_traits_interval.go,3875.0,125.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_interval.go,cast:slice_to_any
+78,78,78,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (daytimeTraits) CastToBytes(b []DayTimeInterval) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * DayTimeIntervalSizeBytes
+",113.0,8.0,3541.0,reflect.SliceHeader,type_traits_interval.go,3875.0,125.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_interval.go,cast:any_to_slice
+79,79,79,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (daytimeTraits) CastToBytes(b []DayTimeInterval) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * DayTimeIntervalSizeBytes
+	s.Cap = h.Cap * DayTimeIntervalSizeBytes
+
+	return res
+",116.0,8.0,3607.0,reflect.SliceHeader,type_traits_interval.go,3875.0,125.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_interval.go,cast:any_to_slice
+80,80,80,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type int64.
+//
+// NOTE: len(b) must be a multiple of Int64SizeBytes.
+func (int64Traits) CastFromBytes(b []byte) []int64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []int64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Int64SizeBytes
+",68.0,8.0,2115.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+81,81,81,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (int64Traits) CastFromBytes(b []byte) []int64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []int64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Int64SizeBytes
+	s.Cap = h.Cap / Int64SizeBytes
+
+	return res
+",71.0,8.0,2182.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+82,82,82,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (int64Traits) CastToBytes(b []int64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Int64SizeBytes
+",81.0,8.0,2442.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+83,83,83,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (int64Traits) CastToBytes(b []int64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Int64SizeBytes
+	s.Cap = h.Cap * Int64SizeBytes
+
+	return res
+",84.0,8.0,2508.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+84,84,84,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type uint64.
+//
+// NOTE: len(b) must be a multiple of Uint64SizeBytes.
+func (uint64Traits) CastFromBytes(b []byte) []uint64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Uint64SizeBytes
+",116.0,8.0,3400.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+85,85,85,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (uint64Traits) CastFromBytes(b []byte) []uint64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Uint64SizeBytes
+	s.Cap = h.Cap / Uint64SizeBytes
+
+	return res
+",119.0,8.0,3468.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+86,86,86,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (uint64Traits) CastToBytes(b []uint64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Uint64SizeBytes
+",129.0,8.0,3732.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+87,87,87,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (uint64Traits) CastToBytes(b []uint64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Uint64SizeBytes
+	s.Cap = h.Cap * Uint64SizeBytes
+
+	return res
+",132.0,8.0,3798.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+88,88,88,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type float64.
+//
+// NOTE: len(b) must be a multiple of Float64SizeBytes.
+func (float64Traits) CastFromBytes(b []byte) []float64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []float64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Float64SizeBytes
+",164.0,8.0,4718.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+89,89,89,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (float64Traits) CastFromBytes(b []byte) []float64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []float64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Float64SizeBytes
+	s.Cap = h.Cap / Float64SizeBytes
+
+	return res
+",167.0,8.0,4787.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+90,90,90,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (float64Traits) CastToBytes(b []float64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Float64SizeBytes
+",177.0,8.0,5055.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+91,91,91,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (float64Traits) CastToBytes(b []float64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Float64SizeBytes
+	s.Cap = h.Cap * Float64SizeBytes
+
+	return res
+",180.0,8.0,5121.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+92,92,92,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type int32.
+//
+// NOTE: len(b) must be a multiple of Int32SizeBytes.
+func (int32Traits) CastFromBytes(b []byte) []int32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []int32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Int32SizeBytes
+",212.0,8.0,6007.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+93,93,93,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (int32Traits) CastFromBytes(b []byte) []int32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []int32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Int32SizeBytes
+	s.Cap = h.Cap / Int32SizeBytes
+
+	return res
+",215.0,8.0,6074.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+94,94,94,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (int32Traits) CastToBytes(b []int32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Int32SizeBytes
+",225.0,8.0,6334.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+95,95,95,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (int32Traits) CastToBytes(b []int32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Int32SizeBytes
+	s.Cap = h.Cap * Int32SizeBytes
+
+	return res
+",228.0,8.0,6400.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+96,96,96,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type uint32.
+//
+// NOTE: len(b) must be a multiple of Uint32SizeBytes.
+func (uint32Traits) CastFromBytes(b []byte) []uint32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Uint32SizeBytes
+",260.0,8.0,7292.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+97,97,97,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (uint32Traits) CastFromBytes(b []byte) []uint32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Uint32SizeBytes
+	s.Cap = h.Cap / Uint32SizeBytes
+
+	return res
+",263.0,8.0,7360.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+98,98,98,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (uint32Traits) CastToBytes(b []uint32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Uint32SizeBytes
+",273.0,8.0,7624.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+99,99,99,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (uint32Traits) CastToBytes(b []uint32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Uint32SizeBytes
+	s.Cap = h.Cap * Uint32SizeBytes
+
+	return res
+",276.0,8.0,7690.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+100,100,100,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type float32.
+//
+// NOTE: len(b) must be a multiple of Float32SizeBytes.
+func (float32Traits) CastFromBytes(b []byte) []float32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []float32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Float32SizeBytes
+",308.0,8.0,8610.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+101,101,101,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (float32Traits) CastFromBytes(b []byte) []float32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []float32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Float32SizeBytes
+	s.Cap = h.Cap / Float32SizeBytes
+
+	return res
+",311.0,8.0,8679.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+102,102,102,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (float32Traits) CastToBytes(b []float32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Float32SizeBytes
+",321.0,8.0,8947.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+103,103,103,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (float32Traits) CastToBytes(b []float32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Float32SizeBytes
+	s.Cap = h.Cap * Float32SizeBytes
+
+	return res
+",324.0,8.0,9013.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+104,104,104,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type int16.
+//
+// NOTE: len(b) must be a multiple of Int16SizeBytes.
+func (int16Traits) CastFromBytes(b []byte) []int16 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []int16
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Int16SizeBytes
+",356.0,8.0,9899.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+105,105,105,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (int16Traits) CastFromBytes(b []byte) []int16 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []int16
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Int16SizeBytes
+	s.Cap = h.Cap / Int16SizeBytes
+
+	return res
+",359.0,8.0,9966.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+106,106,106,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (int16Traits) CastToBytes(b []int16) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Int16SizeBytes
+",369.0,8.0,10226.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+107,107,107,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (int16Traits) CastToBytes(b []int16) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Int16SizeBytes
+	s.Cap = h.Cap * Int16SizeBytes
+
+	return res
+",372.0,8.0,10292.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+108,108,108,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type uint16.
+//
+// NOTE: len(b) must be a multiple of Uint16SizeBytes.
+func (uint16Traits) CastFromBytes(b []byte) []uint16 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint16
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Uint16SizeBytes
+",404.0,8.0,11184.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+109,109,109,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (uint16Traits) CastFromBytes(b []byte) []uint16 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint16
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Uint16SizeBytes
+	s.Cap = h.Cap / Uint16SizeBytes
+
+	return res
+",407.0,8.0,11252.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+110,110,110,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (uint16Traits) CastToBytes(b []uint16) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Uint16SizeBytes
+",417.0,8.0,11516.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+111,111,111,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (uint16Traits) CastToBytes(b []uint16) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Uint16SizeBytes
+	s.Cap = h.Cap * Uint16SizeBytes
+
+	return res
+",420.0,8.0,11582.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+112,112,112,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type int8.
+//
+// NOTE: len(b) must be a multiple of Int8SizeBytes.
+func (int8Traits) CastFromBytes(b []byte) []int8 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []int8
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Int8SizeBytes
+",452.0,8.0,12421.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+113,113,113,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (int8Traits) CastFromBytes(b []byte) []int8 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []int8
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Int8SizeBytes
+	s.Cap = h.Cap / Int8SizeBytes
+
+	return res
+",455.0,8.0,12487.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+114,114,114,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (int8Traits) CastToBytes(b []int8) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Int8SizeBytes
+",465.0,8.0,12743.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+115,115,115,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (int8Traits) CastToBytes(b []int8) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Int8SizeBytes
+	s.Cap = h.Cap * Int8SizeBytes
+
+	return res
+",468.0,8.0,12809.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+116,116,116,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type uint8.
+//
+// NOTE: len(b) must be a multiple of Uint8SizeBytes.
+func (uint8Traits) CastFromBytes(b []byte) []uint8 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint8
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Uint8SizeBytes
+",500.0,8.0,13654.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+117,117,117,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (uint8Traits) CastFromBytes(b []byte) []uint8 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []uint8
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Uint8SizeBytes
+	s.Cap = h.Cap / Uint8SizeBytes
+
+	return res
+",503.0,8.0,13721.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+118,118,118,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (uint8Traits) CastToBytes(b []uint8) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Uint8SizeBytes
+",513.0,8.0,13981.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+119,119,119,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (uint8Traits) CastToBytes(b []uint8) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Uint8SizeBytes
+	s.Cap = h.Cap * Uint8SizeBytes
+
+	return res
+",516.0,8.0,14047.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+120,120,120,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type Timestamp.
+//
+// NOTE: len(b) must be a multiple of TimestampSizeBytes.
+func (timestampTraits) CastFromBytes(b []byte) []Timestamp {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Timestamp
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / TimestampSizeBytes
+",548.0,8.0,14981.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+121,121,121,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (timestampTraits) CastFromBytes(b []byte) []Timestamp {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Timestamp
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / TimestampSizeBytes
+	s.Cap = h.Cap / TimestampSizeBytes
+
+	return res
+",551.0,8.0,15052.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+122,122,122,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (timestampTraits) CastToBytes(b []Timestamp) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * TimestampSizeBytes
+",561.0,8.0,15328.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+123,123,123,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (timestampTraits) CastToBytes(b []Timestamp) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * TimestampSizeBytes
+	s.Cap = h.Cap * TimestampSizeBytes
+
+	return res
+",564.0,8.0,15394.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+124,124,124,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type Time32.
+//
+// NOTE: len(b) must be a multiple of Time32SizeBytes.
+func (time32Traits) CastFromBytes(b []byte) []Time32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Time32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Time32SizeBytes
+",596.0,8.0,16302.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+125,125,125,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (time32Traits) CastFromBytes(b []byte) []Time32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Time32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Time32SizeBytes
+	s.Cap = h.Cap / Time32SizeBytes
+
+	return res
+",599.0,8.0,16370.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+126,126,126,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (time32Traits) CastToBytes(b []Time32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Time32SizeBytes
+",609.0,8.0,16634.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+127,127,127,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (time32Traits) CastToBytes(b []Time32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Time32SizeBytes
+	s.Cap = h.Cap * Time32SizeBytes
+
+	return res
+",612.0,8.0,16700.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+128,128,128,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type Time64.
+//
+// NOTE: len(b) must be a multiple of Time64SizeBytes.
+func (time64Traits) CastFromBytes(b []byte) []Time64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Time64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Time64SizeBytes
+",644.0,8.0,17596.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+129,129,129,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (time64Traits) CastFromBytes(b []byte) []Time64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Time64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Time64SizeBytes
+	s.Cap = h.Cap / Time64SizeBytes
+
+	return res
+",647.0,8.0,17664.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+130,130,130,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (time64Traits) CastToBytes(b []Time64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Time64SizeBytes
+",657.0,8.0,17928.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+131,131,131,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (time64Traits) CastToBytes(b []Time64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Time64SizeBytes
+	s.Cap = h.Cap * Time64SizeBytes
+
+	return res
+",660.0,8.0,17994.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+132,132,132,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type Date32.
+//
+// NOTE: len(b) must be a multiple of Date32SizeBytes.
+func (date32Traits) CastFromBytes(b []byte) []Date32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Date32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Date32SizeBytes
+",692.0,8.0,18890.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+133,133,133,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (date32Traits) CastFromBytes(b []byte) []Date32 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Date32
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Date32SizeBytes
+	s.Cap = h.Cap / Date32SizeBytes
+
+	return res
+",695.0,8.0,18958.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+134,134,134,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (date32Traits) CastToBytes(b []Date32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Date32SizeBytes
+",705.0,8.0,19222.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+135,135,135,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (date32Traits) CastToBytes(b []Date32) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Date32SizeBytes
+	s.Cap = h.Cap * Date32SizeBytes
+
+	return res
+",708.0,8.0,19288.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+136,136,136,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type Date64.
+//
+// NOTE: len(b) must be a multiple of Date64SizeBytes.
+func (date64Traits) CastFromBytes(b []byte) []Date64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Date64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Date64SizeBytes
+",740.0,8.0,20184.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+137,137,137,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (date64Traits) CastFromBytes(b []byte) []Date64 {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Date64
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / Date64SizeBytes
+	s.Cap = h.Cap / Date64SizeBytes
+
+	return res
+",743.0,8.0,20252.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+138,138,138,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (date64Traits) CastToBytes(b []Date64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Date64SizeBytes
+",753.0,8.0,20516.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+139,139,139,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (date64Traits) CastToBytes(b []Date64) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * Date64SizeBytes
+	s.Cap = h.Cap * Date64SizeBytes
+
+	return res
+",756.0,8.0,20582.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+140,140,140,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// CastFromBytes reinterprets the slice b to a slice of type Duration.
+//
+// NOTE: len(b) must be a multiple of DurationSizeBytes.
+func (durationTraits) CastFromBytes(b []byte) []Duration {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Duration
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / DurationSizeBytes
+",788.0,8.0,21506.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+141,141,141,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (durationTraits) CastFromBytes(b []byte) []Duration {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []Duration
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len / DurationSizeBytes
+	s.Cap = h.Cap / DurationSizeBytes
+
+	return res
+",791.0,8.0,21576.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:slice_to_any
+142,142,142,"	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","}
+
+// CastToBytes reinterprets the slice b to a slice of bytes.
+func (durationTraits) CastToBytes(b []Duration) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * DurationSizeBytes
+",801.0,8.0,21848.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+143,143,143,"	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+","func (durationTraits) CastToBytes(b []Duration) []byte {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	var res []byte
+	s := (*reflect.SliceHeader)(unsafe.Pointer(&res))
+	s.Data = h.Data
+	s.Len = h.Len * DurationSizeBytes
+	s.Cap = h.Cap * DurationSizeBytes
+
+	return res
+",804.0,8.0,21914.0,reflect.SliceHeader,type_traits_numeric.gen.go,22162.0,813.0,github.com/apache/arrow/go/arrow,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,influxdata/influxdb,github.com/apache/arrow/go/arrow/type_traits_numeric.gen.go,cast:any_to_slice
+144,144,144,"	bh := reflect.SliceHeader{
+","}
+
+func StringToBytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+",36.0,7.0,1083.0,reflect.SliceHeader,bytes_unsafe.go,1205.0,42.0,github.com/buger/jsonparser,github.com/buger/jsonparser,v0.0.0-20191004114745-ee4c978eae7e,influxdata/influxdb,github.com/buger/jsonparser/bytes_unsafe.go,vuln:create_sliceheader
+145,145,145,"	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+","}
+
+func uint64SliceAsByteSlice(slice []uint64) []byte {
+	// make a new slice header
+	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+
+	// update its capacity and length
+	header.Len *= 8
+	header.Cap *= 8
+
+",43.0,14.0,1156.0,reflect.SliceHeader,serialization_littleendian.go,2817.0,117.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.16,influxdata/influxdb,github.com/RoaringBitmap/roaring/serialization_littleendian.go,cast:any_to_slice
+146,146,146,"	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+","}
+
+func uint16SliceAsByteSlice(slice []uint16) []byte {
+	// make a new slice header
+	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+
+	// update its capacity and length
+	header.Len *= 2
+	header.Cap *= 2
+
+",55.0,14.0,1428.0,reflect.SliceHeader,serialization_littleendian.go,2817.0,117.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.16,influxdata/influxdb,github.com/RoaringBitmap/roaring/serialization_littleendian.go,cast:any_to_slice
+147,147,147,"	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+","		panic(""Slice size should be divisible by 8"")
+	}
+
+	// make a new slice header
+	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+
+	// update its capacity and length
+	header.Len /= 8
+	header.Cap /= 8
+
+",93.0,14.0,2264.0,reflect.SliceHeader,serialization_littleendian.go,2817.0,117.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.16,influxdata/influxdb,github.com/RoaringBitmap/roaring/serialization_littleendian.go,need_context
+148,148,148,"	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+","		panic(""Slice size should be divisible by 4"")
+	}
+
+	// make a new slice header
+	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+
+	// update its capacity and length
+	header.Len /= 4
+	header.Cap /= 4
+
+",109.0,14.0,2621.0,reflect.SliceHeader,serialization_littleendian.go,2817.0,117.0,github.com/RoaringBitmap/roaring,github.com/RoaringBitmap/roaring,v0.4.16,influxdata/influxdb,github.com/RoaringBitmap/roaring/serialization_littleendian.go,need_context
+149,149,149,"			// dataHeader is the reflect.SliceHeader of the coldata.Vec's underlying
+","		var (
+			values  []byte
+			offsets []byte
+
+			// dataHeader is the reflect.SliceHeader of the coldata.Vec's underlying
+			// data slice that we are casting to bytes.
+			dataHeader *reflect.SliceHeader
+			// datumSize is the size of one datum that we are casting to a byte slice.
+			datumSize int
+		)
+",179.0,24.0,6088.0,reflect.SliceHeader,arrowbatchconverter.go,13740.0,391.0,_/root/download/cockroach/pkg/col/colserde,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/col/colserde/arrowbatchconverter.go,comment
+150,150,150,"			dataHeader *reflect.SliceHeader
+","			offsets []byte
+
+			// dataHeader is the reflect.SliceHeader of the coldata.Vec's underlying
+			// data slice that we are casting to bytes.
+			dataHeader *reflect.SliceHeader
+			// datumSize is the size of one datum that we are casting to a byte slice.
+			datumSize int
+		)
+
+		switch typ {
+",181.0,15.0,6211.0,reflect.SliceHeader,arrowbatchconverter.go,13740.0,391.0,_/root/download/cockroach/pkg/col/colserde,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/col/colserde/arrowbatchconverter.go,need_context
+151,151,151,"			int32Header := (*reflect.SliceHeader)(unsafe.Pointer(&int32Offsets))
+","		case coltypes.Bytes:
+			var int32Offsets []int32
+			values, int32Offsets = vec.Bytes().ToArrowSerializationFormat(n)
+			// Cast int32Offsets to []byte.
+			int32Header := (*reflect.SliceHeader)(unsafe.Pointer(&int32Offsets))
+			offsetsHeader := (*reflect.SliceHeader)(unsafe.Pointer(&offsets))
+			offsetsHeader.Data = int32Header.Data
+			offsetsHeader.Len = int32Header.Len * sizeOfInt32
+			offsetsHeader.Cap = int32Header.Cap * sizeOfInt32
+		case coltypes.Int16:
+",191.0,20.0,6515.0,reflect.SliceHeader,arrowbatchconverter.go,13740.0,391.0,_/root/download/cockroach/pkg/col/colserde,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/col/colserde/arrowbatchconverter.go,cast:str_to_slice
+152,152,152,"			offsetsHeader := (*reflect.SliceHeader)(unsafe.Pointer(&offsets))
+","			var int32Offsets []int32
+			values, int32Offsets = vec.Bytes().ToArrowSerializationFormat(n)
+			// Cast int32Offsets to []byte.
+			int32Header := (*reflect.SliceHeader)(unsafe.Pointer(&int32Offsets))
+			offsetsHeader := (*reflect.SliceHeader)(unsafe.Pointer(&offsets))
+			offsetsHeader.Data = int32Header.Data
+			offsetsHeader.Len = int32Header.Len * sizeOfInt32
+			offsetsHeader.Cap = int32Header.Cap * sizeOfInt32
+		case coltypes.Int16:
+			ints := vec.Int16()[:n]
+",192.0,22.0,6587.0,reflect.SliceHeader,arrowbatchconverter.go,13740.0,391.0,_/root/download/cockroach/pkg/col/colserde,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/col/colserde/arrowbatchconverter.go,cast:str_to_slice
+153,153,153,"			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+","			offsetsHeader.Len = int32Header.Len * sizeOfInt32
+			offsetsHeader.Cap = int32Header.Cap * sizeOfInt32
+		case coltypes.Int16:
+			ints := vec.Int16()[:n]
+			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+			datumSize = sizeOfInt16
+		case coltypes.Int32:
+			ints := vec.Int32()[:n]
+			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+			datumSize = sizeOfInt32
+",198.0,18.0,6853.0,reflect.SliceHeader,arrowbatchconverter.go,13740.0,391.0,_/root/download/cockroach/pkg/col/colserde,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/col/colserde/arrowbatchconverter.go,cast:any_to_slice
+154,154,154,"			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+","			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+			datumSize = sizeOfInt16
+		case coltypes.Int32:
+			ints := vec.Int32()[:n]
+			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+			datumSize = sizeOfInt32
+		case coltypes.Int64:
+			ints := vec.Int64()[:n]
+			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+			datumSize = sizeOfInt64
+",202.0,18.0,6992.0,reflect.SliceHeader,arrowbatchconverter.go,13740.0,391.0,_/root/download/cockroach/pkg/col/colserde,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/col/colserde/arrowbatchconverter.go,cast:any_to_slice
+155,155,155,"			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+","			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+			datumSize = sizeOfInt32
+		case coltypes.Int64:
+			ints := vec.Int64()[:n]
+			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+			datumSize = sizeOfInt64
+		case coltypes.Float64:
+			floats := vec.Float64()[:n]
+			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&floats))
+			datumSize = sizeOfFloat64
+",206.0,18.0,7131.0,reflect.SliceHeader,arrowbatchconverter.go,13740.0,391.0,_/root/download/cockroach/pkg/col/colserde,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/col/colserde/arrowbatchconverter.go,cast:any_to_slice
+156,156,156,"			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&floats))
+","			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&ints))
+			datumSize = sizeOfInt64
+		case coltypes.Float64:
+			floats := vec.Float64()[:n]
+			dataHeader = (*reflect.SliceHeader)(unsafe.Pointer(&floats))
+			datumSize = sizeOfFloat64
+		default:
+			panic(fmt.Sprintf(""unsupported type for conversion to arrow data %s"", typ))
+		}
+
+",210.0,18.0,7276.0,reflect.SliceHeader,arrowbatchconverter.go,13740.0,391.0,_/root/download/cockroach/pkg/col/colserde,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/col/colserde/arrowbatchconverter.go,cast:any_to_slice
+157,157,157,"			valuesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&values))
+","		}
+
+		// Cast values if not set (mostly for non-byte types).
+		if values == nil {
+			valuesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&values))
+			valuesHeader.Data = dataHeader.Data
+			valuesHeader.Len = dataHeader.Len * datumSize
+			valuesHeader.Cap = dataHeader.Cap * datumSize
+		}
+
+",218.0,21.0,7542.0,reflect.SliceHeader,arrowbatchconverter.go,13740.0,391.0,_/root/download/cockroach/pkg/col/colserde,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/col/colserde/arrowbatchconverter.go,cast:any_to_slice
+158,158,158,"			sh := (*reflect.SliceHeader)(unsafe.Pointer(&%[2]s))
+","// meant to be used as a format string for fmt.Sprintf with the first argument
+// being the ""target"" (i.e. what variable to assign the hash to) and the second
+// argument being the ""value"" (i.e. what is the name of a byte slice variable).
+const hashByteSliceString = `
+			sh := (*reflect.SliceHeader)(unsafe.Pointer(&%[2]s))
+			%[1]s = memhash(unsafe.Pointer(sh.Data), %[1]s, uintptr(len(%[2]s)))
+`
+
+func (bytesCustomizer) getHashAssignFunc() assignFunc {
+	return func(op overload, target, v, _ string) string {
+",647.0,11.0,20288.0,reflect.SliceHeader,overloads.go,48361.0,1479.0,_/root/download/cockroach/pkg/sql/colexec/execgen/cmd/execgen,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/sql/colexec/execgen/cmd/execgen/overloads.go,cast:slice_to_any
+159,159,159,"	sliceHeaderSize   = unsafe.Sizeof(reflect.SliceHeader{})
+","const (
+	wordSize          = unsafe.Sizeof(big.Word(0))
+	decimalSize       = unsafe.Sizeof(apd.Decimal{})
+	stringHeaderSize  = unsafe.Sizeof(reflect.StringHeader{})
+	sliceHeaderSize   = unsafe.Sizeof(reflect.SliceHeader{})
+	keyValuePairSize  = unsafe.Sizeof(jsonKeyValuePair{})
+	jsonInterfaceSize = unsafe.Sizeof((JSON)(nil))
+)
+
+const (
+",52.0,35.0,1217.0,reflect.SliceHeader,json.go,51452.0,1827.0,_/root/download/cockroach/pkg/util/json,std,std,cockroachdb/cockroach,_/root/download/cockroach/pkg/util/json/json.go,field_sizes
+160,160,160,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// Note it may break if string and/or slice header will change
+// in the future go versions.
+func s2b(s string) (b []byte) {
+	/* #nosec G103 */
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	/* #nosec G103 */
+	sh := *(*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh.Data = sh.Data
+	bh.Len = sh.Len
+	bh.Cap = sh.Len
+",343.0,9.0,7245.0,reflect.SliceHeader,bytesconv.go,8389.0,388.0,github.com/valyala/fasthttp,github.com/valyala/fasthttp,v1.10.0,kataras/iris,github.com/valyala/fasthttp/bytesconv.go,cast:str_to_slice
+161,161,161,"	b := (*reflect.SliceHeader)(unsafe.Pointer(&bts))
+","}
+
+func strToBytes(str string) (bts []byte) {
+	s := (*reflect.StringHeader)(unsafe.Pointer(&str))
+	b := (*reflect.SliceHeader)(unsafe.Pointer(&bts))
+	b.Data = s.Data
+	b.Len = s.Len
+	b.Cap = s.Len
+	return
+}
+",46.0,8.0,885.0,reflect.SliceHeader,util.go,5789.0,255.0,github.com/gobwas/ws,github.com/gobwas/ws,v1.0.2,kataras/iris,github.com/gobwas/ws/util.go,cast:str_to_slice
+162,162,162,"	bh := reflect.SliceHeader{
+","}
+
+func unsafeString2Bytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+",16.0,7.0,256.0,reflect.SliceHeader,unsafe.go,378.0,22.0,github.com/valyala/fasttemplate,github.com/valyala/fasttemplate,v1.1.0,labstack/echo,github.com/valyala/fasttemplate/unsafe.go,vuln:create_sliceheader
+163,163,163,"	sh := (*reflect.SliceHeader)(unsafe.Pointer(&name))
+","
+	// Convert syscall.Dirent.Name, which is array of int8, to []byte, by
+	// overwriting Cap, Len, and Data slice header fields to the max possible
+	// name length computed above, and finding the terminating NULL byte.
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(&name))
+	sh.Cap = ml
+	sh.Len = ml
+	sh.Data = uintptr(unsafe.Pointer(&de.Name[0]))
+
+	if index := bytes.IndexByte(name, 0); index >= 0 {
+",24.0,9.0,722.0,reflect.SliceHeader,nameWithoutNamlen.go,1223.0,42.0,github.com/gobuffalo/packr/v2/internal/takeon/github.com/karrick/godirwalk,github.com/gobuffalo/packr/v2,v2.7.1,cayleygraph/cayley,github.com/gobuffalo/packr/v2/internal/takeon/github.com/karrick/godirwalk/nameWithoutNamlen.go,manual:safe
+164,164,164,"	fheader *reflect.SliceHeader
+","// allocator is a fast bulk memory allocator for the LValue.
+type allocator struct {
+	size    int
+	fptrs   []float64
+	fheader *reflect.SliceHeader
+
+	scratchValue  LValue
+	scratchValueP *iface
+}
+
+",31.0,10.0,484.0,reflect.SliceHeader,alloc.go,2140.0,79.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20191220021717-ab39c6098bdb,zyedidia/micro,github.com/yuin/gopher-lua/alloc.go,protocol
+165,165,165,"	al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+","		size:    size,
+		fptrs:   make([]float64, 0, size),
+		fheader: nil,
+	}
+	al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+	al.scratchValue = LNumber(0)
+	al.scratchValueP = (*iface)(unsafe.Pointer(&al.scratchValue))
+
+	return al
+}
+",43.0,16.0,695.0,reflect.SliceHeader,alloc.go,2140.0,79.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20191220021717-ab39c6098bdb,zyedidia/micro,github.com/yuin/gopher-lua/alloc.go,manual:safe
+166,166,166,"		al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+","
+	// check if we need a new alloc page
+	if cap(al.fptrs) == len(al.fptrs) {
+		al.fptrs = make([]float64, 0, al.size)
+		al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+	}
+
+	// alloc a new float, and store our value into it
+	al.fptrs = append(al.fptrs, float64(v))
+	fptr := &al.fptrs[len(al.fptrs)-1]
+",66.0,17.0,1687.0,reflect.SliceHeader,alloc.go,2140.0,79.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20191220021717-ab39c6098bdb,zyedidia/micro,github.com/yuin/gopher-lua/alloc.go,manual:safe
+167,167,167,"	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+","}
+
+func unsafeFastStringToReadOnlyBytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+}
+",260.0,7.0,5119.0,reflect.SliceHeader,utils.go,5229.0,262.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20191220021717-ab39c6098bdb,zyedidia/micro,github.com/yuin/gopher-lua/utils.go,vuln:create_sliceheader
+168,168,168,"	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	if len(u32s) == 0 {
+		return nil
+	}
+	var b []byte
+	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	hdr.Len = len(u32s) * 4
+	hdr.Cap = hdr.Len
+	hdr.Data = uintptr(unsafe.Pointer(&u32s[0]))
+	return b
+}
+",323.0,10.0,8243.0,reflect.SliceHeader,y.go,13386.0,510.0,github.com/dgraph-io/badger/v2/y,github.com/dgraph-io/badger/v2,v2.0.1-rc1.0.20200316175624-91c31ebe8c22,dgraph-io/dgraph,github.com/dgraph-io/badger/v2/y/y.go,cast:any_to_slice
+169,169,169,"	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&u32s))
+","	if len(b) == 0 {
+		return nil
+	}
+	var u32s []uint32
+	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&u32s))
+	hdr.Len = len(b) / 4
+	hdr.Cap = hdr.Len
+	hdr.Data = uintptr(unsafe.Pointer(&b[0]))
+	return u32s
+}
+",336.0,10.0,8557.0,reflect.SliceHeader,y.go,13386.0,510.0,github.com/dgraph-io/badger/v2/y,github.com/dgraph-io/badger/v2,v2.0.1-rc1.0.20200316175624-91c31ebe8c22,dgraph-io/dgraph,github.com/dgraph-io/badger/v2/y/y.go,cast:slice_to_any
+170,170,170,"		slice := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+","func (p *Handle) ZeroCopyReadPacketData() (data []byte, ci gopacket.CaptureInfo, err error) {
+	p.mu.Lock()
+	err = p.getNextBufPtrLocked(&ci)
+	if err == nil {
+		slice := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+		slice.Data = uintptr(unsafe.Pointer(p.bufptr))
+		slice.Len = ci.CaptureLength
+		slice.Cap = ci.CaptureLength
+	}
+	p.mu.Unlock()
+",355.0,13.0,10732.0,reflect.SliceHeader,pcap.go,25820.0,866.0,github.com/google/gopacket/pcap,github.com/google/gopacket,v0.0.0-20190211013929-f86faeb88894,buger/goreplay,github.com/google/gopacket/pcap/pcap.go,vuln:supplied_len_in_memcpy
+171,171,171,"		bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	func myfile() []byte {
+		var empty [0]byte
+		sx := (*reflect.StringHeader)(unsafe.Pointer(&_myfile))
+		b := empty[:]
+		bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+		bx.Data = sx.Data
+		bx.Len = len(_myfile)
+		bx.Cap = bx.Len
+		return b
+	}
+",75.0,10.0,3221.0,reflect.SliceHeader,doc.go,5028.0,129.0,github.com/go-bindata/go-bindata,github.com/go-bindata/go-bindata,v3.1.2+incompatible,rancher/k3s,github.com/go-bindata/go-bindata/doc.go,cast:str_to_slice
+172,172,172,"	// 		bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	// 	func myfile() []byte {
+	// 		var empty [0]byte
+	// 		sx := (*reflect.StringHeader)(unsafe.Pointer(&_myfile))
+	// 		b := empty[:]
+	// 		bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	// 		bx.Data = sx.Data
+	// 		bx.Len = len(_myfile)
+	// 		bx.Cap = bx.Len
+	// 		return b
+	// 	}
+",96.0,14.0,3507.0,reflect.SliceHeader,config.go,6877.0,208.0,github.com/go-bindata/go-bindata,github.com/go-bindata/go-bindata,v3.1.2+incompatible,rancher/k3s,github.com/go-bindata/go-bindata/config.go,comment
+173,173,173,"	bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func bindataRead(data, name string) ([]byte, error) {
+	var empty [0]byte
+	sx := (*reflect.StringHeader)(unsafe.Pointer(&data))
+	b := empty[:]
+	bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bx.Data = sx.Data
+	bx.Len = len(data)
+	bx.Cap = bx.Len
+	return b, nil
+}
+",249.0,9.0,4551.0,reflect.SliceHeader,release.go,8378.0,473.0,github.com/go-bindata/go-bindata,github.com/go-bindata/go-bindata,v3.1.2+incompatible,rancher/k3s,github.com/go-bindata/go-bindata/release.go,cast:str_to_slice
+174,174,174,"		buf: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","		return nil
+	}
+	s := &cgoSlice{
+		ptr: p,
+		buf: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: uintptr(p), Len: n, Cap: n,
+		})),
+	}
+	runtime.SetFinalizer(s, (*cgoSlice).reclaim)
+	return s
+",38.0,34.0,670.0,reflect.SliceHeader,cgo_slice.go,1378.0,75.0,_/root/download/codis/pkg/utils/unsafe2,std,std,CodisLabs/codis,_/root/download/codis/pkg/utils/unsafe2/cgo_slice.go,vuln:create_sliceheader
+175,175,175,"	var ptr = (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func CastString(b []byte) string {
+	if len(b) == 0 {
+		return """"
+	}
+	var ptr = (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	var h = &reflect.StringHeader{
+		Data: uintptr(ptr.Data), Len: ptr.Len,
+	}
+	return *(*string)(unsafe.Pointer(h))
+}
+",15.0,13.0,222.0,reflect.SliceHeader,string.go,392.0,20.0,_/root/download/codis/pkg/utils/unsafe2,std,std,CodisLabs/codis,_/root/download/codis/pkg/utils/unsafe2/string.go,vuln:create_sliceheader
+176,176,176,"	sh := (*reflect.SliceHeader)(unsafe.Pointer(&name))
+","
+	// Convert syscall.Dirent.Name, which is array of int8, to []byte, by
+	// overwriting Cap, Len, and Data slice header fields to the max possible
+	// name length computed above, and finding the terminating NULL byte.
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(&name))
+	sh.Cap = ml
+	sh.Len = ml
+	sh.Data = uintptr(unsafe.Pointer(&de.Name[0]))
+
+	if index := bytes.IndexByte(name, 0); index >= 0 {
+",24.0,9.0,722.0,reflect.SliceHeader,nameWithoutNamlen.go,1223.0,42.0,github.com/karrick/godirwalk,github.com/karrick/godirwalk,v1.13.4,GoogleContainerTools/skaffold,github.com/karrick/godirwalk/nameWithoutNamlen.go,manual:safe
+177,177,177,"	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+","}
+
+func Str2Bytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
+	b := *(*[]byte)(unsafe.Pointer(&bh))
+	return b
+}
+
+func Bytes2Str(b []byte) string {
+",32.0,7.0,1002.0,reflect.SliceHeader,unsafe.go,2679.0,79.0,github.com/elastic/go-structform/internal/unsafe,github.com/elastic/go-structform,v0.0.6,elastic/beats,github.com/elastic/go-structform/internal/unsafe/unsafe.go,vuln:create_sliceheader
+178,178,178,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	return b
+}
+
+func Bytes2Str(b []byte) string {
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	sh := reflect.StringHeader{Data: bh.Data, Len: bh.Len}
+	return *((*string)(unsafe.Pointer(&sh)))
+}
+
+// IfcValuePtr extracts the underlying values pointer from an empty interface{}
+",38.0,9.0,1155.0,reflect.SliceHeader,unsafe.go,2679.0,79.0,github.com/elastic/go-structform/internal/unsafe,github.com/elastic/go-structform,v0.0.6,elastic/beats,github.com/elastic/go-structform/internal/unsafe/unsafe.go,vuln:create_sliceheader
+179,179,179,"	nheader     *reflect.SliceHeader
+","type allocator struct {
+	top         int
+	size        int
+	nptrs       []LValue
+	nheader     *reflect.SliceHeader
+	fptrs       []float64
+	fheader     *reflect.SliceHeader
+	itabLNumber unsafe.Pointer
+	preloads    [int(preloadLimit)]LValue
+}
+",24.0,14.0,379.0,reflect.SliceHeader,alloc.go,1818.0,73.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20170403160031-b402f3114ec7,elastic/beats,github.com/yuin/gopher-lua/alloc.go,protocol
+180,180,180,"	fheader     *reflect.SliceHeader
+","	size        int
+	nptrs       []LValue
+	nheader     *reflect.SliceHeader
+	fptrs       []float64
+	fheader     *reflect.SliceHeader
+	itabLNumber unsafe.Pointer
+	preloads    [int(preloadLimit)]LValue
+}
+
+func newAllocator(size int) *allocator {
+",26.0,14.0,436.0,reflect.SliceHeader,alloc.go,1818.0,73.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20170403160031-b402f3114ec7,elastic/beats,github.com/yuin/gopher-lua/alloc.go,protocol
+181,181,181,"	al.nheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.nptrs))
+","		fptrs:       make([]float64, size),
+		fheader:     nil,
+		itabLNumber: unsafe.Pointer(nil),
+	}
+	al.nheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.nptrs))
+	al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+
+	var v LValue = LNumber(0)
+	vp := (*iface)(unsafe.Pointer(&v))
+	al.itabLNumber = vp.itab
+",41.0,16.0,793.0,reflect.SliceHeader,alloc.go,1818.0,73.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20170403160031-b402f3114ec7,elastic/beats,github.com/yuin/gopher-lua/alloc.go,need_context
+182,182,182,"	al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+","		fheader:     nil,
+		itabLNumber: unsafe.Pointer(nil),
+	}
+	al.nheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.nptrs))
+	al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+
+	var v LValue = LNumber(0)
+	vp := (*iface)(unsafe.Pointer(&v))
+	al.itabLNumber = vp.itab
+	for i := 0; i < int(preloadLimit); i++ {
+",42.0,16.0,857.0,reflect.SliceHeader,alloc.go,1818.0,73.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20170403160031-b402f3114ec7,elastic/beats,github.com/yuin/gopher-lua/alloc.go,need_context
+183,183,183,"		al.nheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.nptrs))
+","	}
+	if al.top == len(al.nptrs)-1 {
+		al.top = 0
+		al.nptrs = make([]LValue, al.size)
+		al.nheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.nptrs))
+		al.fptrs = make([]float64, al.size)
+		al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+	}
+	fptr := (*float64)(unsafe.Pointer(al.fheader.Data + uintptr(al.top)*unsafe.Sizeof(_fv)))
+	e := *(*LValue)(unsafe.Pointer(al.nheader.Data + uintptr(al.top)*unsafe.Sizeof(_uv)))
+",60.0,17.0,1333.0,reflect.SliceHeader,alloc.go,1818.0,73.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20170403160031-b402f3114ec7,elastic/beats,github.com/yuin/gopher-lua/alloc.go,need_context
+184,184,184,"		al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+","		al.top = 0
+		al.nptrs = make([]LValue, al.size)
+		al.nheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.nptrs))
+		al.fptrs = make([]float64, al.size)
+		al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
+	}
+	fptr := (*float64)(unsafe.Pointer(al.fheader.Data + uintptr(al.top)*unsafe.Sizeof(_fv)))
+	e := *(*LValue)(unsafe.Pointer(al.nheader.Data + uintptr(al.top)*unsafe.Sizeof(_uv)))
+	al.top++
+
+",62.0,17.0,1436.0,reflect.SliceHeader,alloc.go,1818.0,73.0,github.com/yuin/gopher-lua,github.com/yuin/gopher-lua,v0.0.0-20170403160031-b402f3114ec7,elastic/beats,github.com/yuin/gopher-lua/alloc.go,need_context
+185,185,185,"	sh := *((*reflect.SliceHeader)(unsafe.Pointer(&s)))
+","	return *(*string)(unsafe.Pointer(&b))
+}
+
+func unsafeBytes(s string) []byte {
+	sh := *((*reflect.SliceHeader)(unsafe.Pointer(&s)))
+	return *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Cap}))
+}
+
+func isFieldValue(v interface{}) bool {
+	_, ok := v.(diag.Field)
+",29.0,11.0,551.0,reflect.SliceHeader,util.go,885.0,43.0,github.com/urso/diag/ctxfmt,github.com/urso/diag,v0.0.0-20200210123136-21b3cc8eb797,elastic/beats,github.com/urso/diag/ctxfmt/util.go,vuln:create_sliceheader
+186,186,186,"	return *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Cap}))
+","}
+
+func unsafeBytes(s string) []byte {
+	sh := *((*reflect.SliceHeader)(unsafe.Pointer(&s)))
+	return *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Cap}))
+}
+
+func isFieldValue(v interface{}) bool {
+	_, ok := v.(diag.Field)
+	return ok
+",30.0,37.0,604.0,reflect.SliceHeader,util.go,885.0,43.0,github.com/urso/diag/ctxfmt,github.com/urso/diag,v0.0.0-20200210123136-21b3cc8eb797,elastic/beats,github.com/urso/diag/ctxfmt/util.go,vuln:create_sliceheader
+187,187,187,"		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+","		// safely get the string headers
+		rawhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Raw))
+		strhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Str))
+		// create byte slice headers
+		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+		if strh.Data == 0 {
+			// str is nil
+			if rawh.Data == 0 {
+				// raw is nil
+",2840.0,10.0,59160.0,reflect.SliceHeader,gjson.go,61065.0,2898.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.6.0,ory/hydra,github.com/tidwall/gjson/gjson.go,vuln:create_sliceheader
+188,188,188,"		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+","		rawhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Raw))
+		strhi := *(*reflect.StringHeader)(unsafe.Pointer(&result.Str))
+		// create byte slice headers
+		rawh := reflect.SliceHeader{Data: rawhi.Data, Len: rawhi.Len}
+		strh := reflect.SliceHeader{Data: strhi.Data, Len: strhi.Len}
+		if strh.Data == 0 {
+			// str is nil
+			if rawh.Data == 0 {
+				// raw is nil
+				result.Raw = """"
+",2841.0,10.0,59224.0,reflect.SliceHeader,gjson.go,61065.0,2898.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.6.0,ory/hydra,github.com/tidwall/gjson/gjson.go,vuln:create_sliceheader
+189,189,189,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","	}
+}
+
+func stringBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: (*reflect.StringHeader)(unsafe.Pointer(&s)).Data,
+		Len:  len(s),
+		Cap:  len(s),
+	}))
+}
+",2889.0,35.0,60834.0,reflect.SliceHeader,gjson.go,61065.0,2898.0,github.com/tidwall/gjson,github.com/tidwall/gjson,v1.6.0,ory/hydra,github.com/tidwall/gjson/gjson.go,vuln:create_sliceheader
+190,190,190,"	bh := reflect.SliceHeader{
+","// Note it may break if string and/or slice header will change
+// in the future go versions.
+func s2b(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+",389.0,7.0,7967.0,reflect.SliceHeader,bytesconv.go,9693.0,437.0,github.com/valyala/fasthttp,github.com/valyala/fasthttp,v1.2.0,kubernetes/ingress-nginx,github.com/valyala/fasthttp/bytesconv.go,vuln:create_sliceheader
+191,191,191,"	h := (*reflect.SliceHeader)(unsafe.Pointer(dest))
+","	return ENOSYS
+}
+
+func toSlice(dest *[]byte, ptr unsafe.Pointer, byteCount uintptr) {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(dest))
+	*h = reflect.SliceHeader{
+		Data: uintptr(ptr),
+		Len:  int(byteCount),
+		Cap:  int(byteCount),
+	}
+",69.0,8.0,1341.0,reflect.SliceHeader,misc.go,2092.0,100.0,github.com/hanwen/go-fuse/fuse,github.com/hanwen/go-fuse,v1.0.0,attic-labs/noms,github.com/hanwen/go-fuse/fuse/misc.go,vuln:supplied_len_in_cast_to_slice
+192,192,192,"	*h = reflect.SliceHeader{
+","}
+
+func toSlice(dest *[]byte, ptr unsafe.Pointer, byteCount uintptr) {
+	h := (*reflect.SliceHeader)(unsafe.Pointer(dest))
+	*h = reflect.SliceHeader{
+		Data: uintptr(ptr),
+		Len:  int(byteCount),
+		Cap:  int(byteCount),
+	}
+}
+",70.0,6.0,1392.0,reflect.SliceHeader,misc.go,2092.0,100.0,github.com/hanwen/go-fuse/fuse,github.com/hanwen/go-fuse,v1.0.0,attic-labs/noms,github.com/hanwen/go-fuse/fuse/misc.go,vuln:create_sliceheader
+193,193,193,"	h := &reflect.SliceHeader{
+","		log.Printf(""Too few bytes for batch forget. Got %d bytes, want %d (%d entries)"",
+			len(req.arg), wantBytes, in.Count)
+	}
+
+	h := &reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(&req.arg[0])),
+		Len:  int(in.Count),
+		Cap:  int(in.Count),
+	}
+
+",308.0,7.0,8389.0,reflect.SliceHeader,opcode.go,25259.0,754.0,github.com/hanwen/go-fuse/fuse,github.com/hanwen/go-fuse,v1.0.0,attic-labs/noms,github.com/hanwen/go-fuse/fuse/opcode.go,vuln:create_sliceheader
+194,194,194,"		sh := &reflect.SliceHeader{
+","
+func unmarshalBytes(data interface{}, buf []byte) error {
+	switch value := data.(type) {
+	case unsafe.Pointer:
+		sh := &reflect.SliceHeader{
+			Data: uintptr(value),
+			Len:  len(buf),
+			Cap:  len(buf),
+		}
+
+",76.0,9.0,1627.0,reflect.SliceHeader,marshalers.go,5063.0,203.0,github.com/cilium/ebpf,github.com/cilium/ebpf,v0.0.0-20200319110858-a7172c01168f,opencontainers/runc,github.com/cilium/ebpf/marshalers.go,vuln:create_sliceheader
+195,195,195,"		data := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","			}
+		}
+	case *byte:
+		// convert the byte pointer back to a valid slice
+		data := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(v)),
+			Len:  int((^uint(0)) >> 1),
+			Cap:  int((^uint(0)) >> 1),
+		}))
+		n := binary.LittleEndian.Uint32(data[1:])
+",192.0,37.0,4443.0,reflect.SliceHeader,series.go,7968.0,350.0,github.com/tidwall/geojson/geometry,github.com/tidwall/geojson,v1.1.13,tidwall/tile38,github.com/tidwall/geojson/geometry/series.go,vuln:create_sliceheader
+196,196,196,"	return int(xxhash.Sum64(*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","
+// hash returns a 48-bit hash for 64-bit environments, or 32-bit hash for
+// 32-bit environments.
+func (m *MapU64) hash(key uint64) int {
+	return int(xxhash.Sum64(*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(&key)), Len: 8, Cap: 8,
+	}))) >> dibBitSize)
+}
+
+// MapU64 is a map. Like map[uint64]interface{}
+",36.0,52.0,839.0,reflect.SliceHeader,u64.go,4274.0,185.0,github.com/tidwall/rhh,github.com/tidwall/rhh,v1.1.0,tidwall/tile38,github.com/tidwall/rhh/u64.go,vuln:create_sliceheader
+197,197,197,"func (m *MMap) header() *reflect.SliceHeader {
+","	}
+	return mmap(length, uintptr(prot), uintptr(flags), fd, offset)
+}
+
+func (m *MMap) header() *reflect.SliceHeader {
+	return (*reflect.SliceHeader)(unsafe.Pointer(m))
+}
+
+func (m *MMap) addrLen() (uintptr, uintptr) {
+	header := m.header()
+",80.0,25.0,2523.0,reflect.SliceHeader,mmap.go,3653.0,117.0,github.com/blevesearch/mmap-go,github.com/blevesearch/mmap-go,v1.0.2,blevesearch/bleve,github.com/blevesearch/mmap-go/mmap.go,wrap:newSliceHeader
+198,198,198,"	return (*reflect.SliceHeader)(unsafe.Pointer(m))
+","	return mmap(length, uintptr(prot), uintptr(flags), fd, offset)
+}
+
+func (m *MMap) header() *reflect.SliceHeader {
+	return (*reflect.SliceHeader)(unsafe.Pointer(m))
+}
+
+func (m *MMap) addrLen() (uintptr, uintptr) {
+	header := m.header()
+	return header.Data, uintptr(header.Len)
+",81.0,10.0,2570.0,reflect.SliceHeader,mmap.go,3653.0,117.0,github.com/blevesearch/mmap-go,github.com/blevesearch/mmap-go,v1.0.2,blevesearch/bleve,github.com/blevesearch/mmap-go/mmap.go,wrap:newSliceHeader
+199,199,199,"	inHeader := (*reflect.SliceHeader)(unsafe.Pointer(&in))
+","// default, an efficient O(1) implementation of this function is used,
+// but which requires the unsafe package.  See the ""safe"" build tag to
+// use an O(N) implementation that does not need the unsafe package.
+func Uint64SliceToByteSlice(in []uint64) ([]byte, error) {
+	inHeader := (*reflect.SliceHeader)(unsafe.Pointer(&in))
+
+	var out []byte
+	outHeader := (*reflect.SliceHeader)(unsafe.Pointer(&out))
+	outHeader.Data = inHeader.Data
+	outHeader.Len = inHeader.Len * 8
+",26.0,15.0,996.0,reflect.SliceHeader,slice_util.go,2093.0,61.0,github.com/couchbase/moss,github.com/couchbase/moss,v0.1.0,blevesearch/bleve,github.com/couchbase/moss/slice_util.go,cast:any_to_slice
+200,200,200,"	outHeader := (*reflect.SliceHeader)(unsafe.Pointer(&out))
+","func Uint64SliceToByteSlice(in []uint64) ([]byte, error) {
+	inHeader := (*reflect.SliceHeader)(unsafe.Pointer(&in))
+
+	var out []byte
+	outHeader := (*reflect.SliceHeader)(unsafe.Pointer(&out))
+	outHeader.Data = inHeader.Data
+	outHeader.Len = inHeader.Len * 8
+	outHeader.Cap = inHeader.Cap * 8
+
+	return out, nil
+",29.0,16.0,1070.0,reflect.SliceHeader,slice_util.go,2093.0,61.0,github.com/couchbase/moss,github.com/couchbase/moss,v0.1.0,blevesearch/bleve,github.com/couchbase/moss/slice_util.go,cast:any_to_slice
+201,201,201,"	inHeader := (*reflect.SliceHeader)(unsafe.Pointer(&in))
+","// default, an efficient O(1) implementation of this function is used,
+// but which requires the unsafe package.  See the ""safe"" build tag to
+// use an O(N) implementation that does not need the unsafe package.
+func ByteSliceToUint64Slice(in []byte) ([]uint64, error) {
+	inHeader := (*reflect.SliceHeader)(unsafe.Pointer(&in))
+
+	var out []uint64
+	outHeader := (*reflect.SliceHeader)(unsafe.Pointer(&out))
+	outHeader.Data = inHeader.Data
+	outHeader.Len = inHeader.Len / 8
+",42.0,15.0,1586.0,reflect.SliceHeader,slice_util.go,2093.0,61.0,github.com/couchbase/moss,github.com/couchbase/moss,v0.1.0,blevesearch/bleve,github.com/couchbase/moss/slice_util.go,cast:slice_to_any
+202,202,202,"	outHeader := (*reflect.SliceHeader)(unsafe.Pointer(&out))
+","func ByteSliceToUint64Slice(in []byte) ([]uint64, error) {
+	inHeader := (*reflect.SliceHeader)(unsafe.Pointer(&in))
+
+	var out []uint64
+	outHeader := (*reflect.SliceHeader)(unsafe.Pointer(&out))
+	outHeader.Data = inHeader.Data
+	outHeader.Len = inHeader.Len / 8
+	outHeader.Cap = outHeader.Len
+
+	return out, nil
+",45.0,16.0,1662.0,reflect.SliceHeader,slice_util.go,2093.0,61.0,github.com/couchbase/moss,github.com/couchbase/moss,v0.1.0,blevesearch/bleve,github.com/couchbase/moss/slice_util.go,cast:slice_to_any
+203,203,203,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","//
+// Note it may break if string and/or slice header will change
+// in the future go versions.
+func s2b(s string) (b []byte) {
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	sh := *(*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh.Data = sh.Data
+	bh.Len = sh.Len
+	bh.Cap = sh.Len
+	return b
+",341.0,9.0,7207.0,reflect.SliceHeader,bytesconv.go,8332.0,385.0,github.com/valyala/fasthttp,github.com/valyala/fasthttp,v1.9.0,dapr/dapr,github.com/valyala/fasthttp/bytesconv.go,cast:str_to_slice
+204,204,204,"	header := (*reflect.SliceHeader)(unsafe.Pointer(&str))
+","	Flush() error
+}
+
+func Str2Bytes(str string) []byte {
+	header := (*reflect.SliceHeader)(unsafe.Pointer(&str))
+	header.Len = len(str)
+	header.Cap = header.Len
+	return *(*[]byte)(unsafe.Pointer(header))
+}
+",167.0,13.0,3226.0,reflect.SliceHeader,encoder.go,3375.0,171.0,github.com/ClickHouse/clickhouse-go/lib/binary,github.com/ClickHouse/clickhouse-go,v1.3.14,xo/usql,github.com/ClickHouse/clickhouse-go/lib/binary/encoder.go,cast:str_to_slice
+205,205,205,"				Data: (*reflect.SliceHeader)(unsafe.Pointer(&key)).Data,
+","	return Sum32(
+		*(*string)((unsafe.Pointer)(
+			&reflect.StringHeader{
+				Len:  len(key),
+				Data: (*reflect.SliceHeader)(unsafe.Pointer(&key)).Data,
+			})),
+		seed...)
+
+	// return Sum32(string(key), seed...)
+}
+",45.0,12.0,1119.0,reflect.SliceHeader,murmur.go,2212.0,98.0,github.com/go-ego/murmur,github.com/go-ego/murmur,v0.0.0-20191001133222-eab2da088fb4,go-ego/riot,github.com/go-ego/murmur/murmur.go,vuln:create_sliceheader
+206,206,206,"	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+","//
+// It is unsafe, and is intended to prepare input to short-lived functions
+// that require strings.
+func unsafeBytesToString(in []byte) string {
+	src := *(*reflect.SliceHeader)(unsafe.Pointer(&in))
+	dst := reflect.StringHeader{
+		Data: src.Data,
+		Len:  src.Len,
+	}
+	s := *(*string)(unsafe.Pointer(&dst))
+",31.0,11.0,925.0,reflect.SliceHeader,inline_strconv_parse.go,1097.0,38.0,github.com/influxdata/influxdb/models,github.com/influxdata/influxdb,v1.2.0,fission/fission,github.com/influxdata/influxdb/models/inline_strconv_parse.go,vuln:create_sliceheader
+207,207,207,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func String(b []byte) (s string) {
+	if len(b) == 0 {
+		return """"
+	}
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pstring.Data = pbytes.Data
+	pstring.Len = pbytes.Len
+	return
+}
+",27.0,13.0,704.0,reflect.SliceHeader,hack.go,1186.0,43.0,github.com/pingcap/tidb/util/hack,github.com/pingcap/tidb,v2.1.11+incompatible,photoprism/photoprism,github.com/pingcap/tidb/util/hack/hack.go,cast:slice_to_str
+208,208,208,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","
+// Slice converts string to slice without copy.
+// Use at your own risk.
+func Slice(s string) (b []byte) {
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pbytes.Data = pstring.Data
+	pbytes.Len = pstring.Len
+	pbytes.Cap = pstring.Len
+	return
+",37.0,13.0,986.0,reflect.SliceHeader,hack.go,1186.0,43.0,github.com/pingcap/tidb/util/hack,github.com/pingcap/tidb,v2.1.11+incompatible,photoprism/photoprism,github.com/pingcap/tidb/util/hack/hack.go,cast:str_to_slice
+209,209,209,"	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func (c *Codec) i64SliceToBytes(i64s []int64) (b []byte) {
+	if len(i64s) == 0 {
+		return nil
+	}
+	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	hdr.Len = len(i64s) * 8
+	hdr.Cap = hdr.Len
+	hdr.Data = uintptr(unsafe.Pointer(&i64s[0]))
+	return b
+}
+",82.0,10.0,2231.0,reflect.SliceHeader,codec.go,5316.0,189.0,github.com/pingcap/tidb/util/chunk,github.com/pingcap/tidb,v2.1.11+incompatible,photoprism/photoprism,github.com/pingcap/tidb/util/chunk/codec.go,cast:any_to_slice
+210,210,210,"	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&i64s))
+","func (c *Codec) bytesToI64Slice(b []byte) (i64s []int64) {
+	if len(b) == 0 {
+		return nil
+	}
+	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&i64s))
+	hdr.Len = len(b) / 8
+	hdr.Cap = hdr.Len
+	hdr.Data = uintptr(unsafe.Pointer(&b[0]))
+	return i64s
+}
+",159.0,10.0,4561.0,reflect.SliceHeader,codec.go,5316.0,189.0,github.com/pingcap/tidb/util/chunk,github.com/pingcap/tidb,v2.1.11+incompatible,photoprism/photoprism,github.com/pingcap/tidb/util/chunk/codec.go,cast:slice_to_any
+211,211,211,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","
+// StringToBytes converts string to byte slice without a memory allocation.
+func StringToBytes(s string) (b []byte) {
+	sh := *(*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bh.Data, bh.Len, bh.Cap = sh.Data, sh.Len, sh.Len
+	return b
+}
+
+// BytesToString converts byte slice to string without a memory allocation.
+",11.0,9.0,222.0,reflect.SliceHeader,bytesconv.go,491.0,19.0,github.com/gin-gonic/gin/internal/bytesconv,github.com/gin-gonic/gin,v1.6.2,photoprism/photoprism,github.com/gin-gonic/gin/internal/bytesconv/bytesconv.go,cast:str_to_slice
+212,212,212,"// or obtained from the Data field of a *reflect.SliceHeader or *reflect.StringHeader.
+","// isSafeUintptr reports whether x - already known to be a uintptr -
+// is safe to convert to unsafe.Pointer. It is safe if x is itself derived
+// directly from an unsafe.Pointer via conversion and pointer arithmetic
+// or if x is the result of reflect.Value.Pointer or reflect.Value.UnsafeAddr
+// or obtained from the Data field of a *reflect.SliceHeader or *reflect.StringHeader.
+func isSafeUintptr(info *types.Info, x ast.Expr) bool {
+	switch x := x.(type) {
+	case *ast.ParenExpr:
+		return isSafeUintptr(info, x.X)
+
+",58.0,41.0,1851.0,reflect.SliceHeader,unsafeptr.go,3938.0,130.0,golang.org/x/tools/go/analysis/passes/unsafeptr,golang.org/x/tools,v0.0.0-20200204192400-7124308813f3,golangci/golangci-lint,golang.org/x/tools/go/analysis/passes/unsafeptr/unsafeptr.go,comment
+213,213,213,"		// reflect.SliceHeader and reflect.StringHeader are okay,
+","	case *ast.SelectorExpr:
+		if x.Sel.Name != ""Data"" {
+			break
+		}
+		// reflect.SliceHeader and reflect.StringHeader are okay,
+		// but only if they are pointing at a real slice or string.
+		// It's not okay to do:
+		//	var x SliceHeader
+		//	x.Data = uintptr(unsafe.Pointer(...))
+		//	... use x ...
+",68.0,5.0,2141.0,reflect.SliceHeader,unsafeptr.go,3938.0,130.0,golang.org/x/tools/go/analysis/passes/unsafeptr,golang.org/x/tools,v0.0.0-20200204192400-7124308813f3,golangci/golangci-lint,golang.org/x/tools/go/analysis/passes/unsafeptr/unsafeptr.go,comment
+214,214,214,"	f32h := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+","	""unsafe""
+)
+
+func float32sToBytes(v []float32) []byte {
+	f32h := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+
+	var b []byte
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bh.Data = f32h.Data
+	bh.Len = len(v) * 4
+",23.0,11.0,688.0,reflect.SliceHeader,bytes.go,1114.0,42.0,github.com/hajimehoshi/ebiten/internal/graphicsdriver/opengl,github.com/hajimehoshi/ebiten,v1.11.0-alpha.2.0.20200102072751-e66f1fb71e2e,OpenDiablo2/OpenDiablo2,github.com/hajimehoshi/ebiten/internal/graphicsdriver/opengl/bytes.go,cast:any_to_slice
+215,215,215,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func float32sToBytes(v []float32) []byte {
+	f32h := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+
+	var b []byte
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bh.Data = f32h.Data
+	bh.Len = len(v) * 4
+	bh.Cap = len(v) * 4
+	return b
+}
+",26.0,9.0,755.0,reflect.SliceHeader,bytes.go,1114.0,42.0,github.com/hajimehoshi/ebiten/internal/graphicsdriver/opengl,github.com/hajimehoshi/ebiten,v1.11.0-alpha.2.0.20200102072751-e66f1fb71e2e,OpenDiablo2/OpenDiablo2,github.com/hajimehoshi/ebiten/internal/graphicsdriver/opengl/bytes.go,cast:any_to_slice
+216,216,216,"	u16h := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+","	return b
+}
+
+func uint16sToBytes(v []uint16) []byte {
+	u16h := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+
+	var b []byte
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bh.Data = u16h.Data
+	bh.Len = len(v) * 2
+",34.0,11.0,922.0,reflect.SliceHeader,bytes.go,1114.0,42.0,github.com/hajimehoshi/ebiten/internal/graphicsdriver/opengl,github.com/hajimehoshi/ebiten,v1.11.0-alpha.2.0.20200102072751-e66f1fb71e2e,OpenDiablo2/OpenDiablo2,github.com/hajimehoshi/ebiten/internal/graphicsdriver/opengl/bytes.go,cast:any_to_slice
+217,217,217,"	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func uint16sToBytes(v []uint16) []byte {
+	u16h := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+
+	var b []byte
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bh.Data = u16h.Data
+	bh.Len = len(v) * 2
+	bh.Cap = len(v) * 2
+	return b
+}
+",37.0,9.0,989.0,reflect.SliceHeader,bytes.go,1114.0,42.0,github.com/hajimehoshi/ebiten/internal/graphicsdriver/opengl,github.com/hajimehoshi/ebiten,v1.11.0-alpha.2.0.20200102072751-e66f1fb71e2e,OpenDiablo2/OpenDiablo2,github.com/hajimehoshi/ebiten/internal/graphicsdriver/opengl/bytes.go,cast:any_to_slice
+218,218,218,"	h := &reflect.SliceHeader{
+","		log.Printf(""Too few bytes for batch forget. Got %d bytes, want %d (%d entries)"",
+			len(req.arg), wantBytes, in.Count)
+	}
+
+	h := &reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(&req.arg[0])),
+		Len:  int(in.Count),
+		Cap:  int(in.Count),
+	}
+
+",263.0,7.0,7203.0,reflect.SliceHeader,opcode.go,21317.0,661.0,github.com/hanwen/go-fuse/fuse,github.com/hanwen/go-fuse,v0.0.0-20180522155540-291273cb8ce0,pachyderm/pachyderm,github.com/hanwen/go-fuse/fuse/opcode.go,vuln:supplied_len_in_cast_to_slice
+219,219,219,"	return unsafe.Pointer(&reflect.SliceHeader{
+","	return (*meta)(unsafe.Pointer(uintptr(unsafe.Pointer(p)) + pageHeaderSize))
+}
+
+func (p *page) dataPtr() unsafe.Pointer {
+	return unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(p)) + pageHeaderSize,
+		Len:  int(p.count),
+		Cap:  int(p.count),
+	})
+}
+",59.0,24.0,994.0,reflect.SliceHeader,page.go,1834.0,88.0,_/root/download/7days-golang/gee-bolt/day1-pages,std,std,geektutu/7days-golang,_/root/download/7days-golang/gee-bolt/day1-pages/page.go,vuln:create_sliceheader
+220,220,220,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func String(b []byte) (s MutableString) {
+	if len(b) == 0 {
+		return """"
+	}
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pstring.Data = pbytes.Data
+	pstring.Len = pbytes.Len
+	return
+}
+",31.0,13.0,900.0,reflect.SliceHeader,hack.go,1382.0,47.0,github.com/pingcap/tidb/util/hack,github.com/pingcap/tidb,v0.0.0-20190625145607-60965b006877,sql-machine-learning/sqlflow,github.com/pingcap/tidb/util/hack/hack.go,cast:slice_to_str
+221,221,221,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","
+// Slice converts string to slice without copy.
+// Use at your own risk.
+func Slice(s string) (b []byte) {
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pbytes.Data = pstring.Data
+	pbytes.Len = pstring.Len
+	pbytes.Cap = pstring.Len
+	return
+",41.0,13.0,1182.0,reflect.SliceHeader,hack.go,1382.0,47.0,github.com/pingcap/tidb/util/hack,github.com/pingcap/tidb,v0.0.0-20190625145607-60965b006877,sql-machine-learning/sqlflow,github.com/pingcap/tidb/util/hack/hack.go,cast:str_to_slice
+222,222,222,"	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","}
+
+//go:nosplit
+func stringToBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: ((*reflect.StringHeader)(unsafe.Pointer(&s))).Data,
+		Len:  len(s),
+		Cap:  len(s),
+	}))
+}
+",1006.0,35.0,27328.0,reflect.SliceHeader,codec.go,31809.0,1179.0,github.com/segmentio/encoding/json,github.com/segmentio/encoding,v0.1.10,go-pg/pg,github.com/segmentio/encoding/json/codec.go,vuln:create_sliceheader
+223,223,223,"	header := *(*reflect.SliceHeader)(unsafe.Pointer(&mem))
+","	if err != nil {
+		return nil, nil, err
+	}
+	// Yay, we managed to memory map the file, here be dragons
+	header := *(*reflect.SliceHeader)(unsafe.Pointer(&mem))
+	header.Len /= 4
+	header.Cap /= 4
+
+	return mem, *(*[]uint32)(unsafe.Pointer(&header)), nil
+}
+",102.0,14.0,3055.0,reflect.SliceHeader,ethash.go,23478.0,725.0,_/root/download/quorum/consensus/ethash,std,std,jpmorganchase/quorum,_/root/download/quorum/consensus/ethash/ethash.go,cast:slice_to_any
+224,224,224,"	header := *(*reflect.SliceHeader)(unsafe.Pointer(&dest))
+","		}
+		logFn(""Generated ethash verification cache"", ""elapsed"", common.PrettyDuration(elapsed))
+	}()
+	// Convert our destination slice to a byte buffer
+	header := *(*reflect.SliceHeader)(unsafe.Pointer(&dest))
+	header.Len *= 4
+	header.Cap *= 4
+	cache := *(*[]byte)(unsafe.Pointer(&header))
+
+	// Calculate the number of theoretical rows (we'll store in one buffer nonetheless)
+",154.0,14.0,5450.0,reflect.SliceHeader,algorithm.go,62012.0,1148.0,_/root/download/quorum/consensus/ethash,std,std,jpmorganchase/quorum,_/root/download/quorum/consensus/ethash/algorithm.go,cast:any_to_slice
+225,225,225,"	header := *(*reflect.SliceHeader)(unsafe.Pointer(&dest))
+","	// Figure out whether the bytes need to be swapped for the machine
+	swapped := !isLittleEndian()
+
+	// Convert our destination slice to a byte buffer
+	header := *(*reflect.SliceHeader)(unsafe.Pointer(&dest))
+	header.Len *= 4
+	header.Cap *= 4
+	dataset := *(*[]byte)(unsafe.Pointer(&header))
+
+	// Generate the dataset on many goroutines since it takes a while
+",286.0,14.0,9700.0,reflect.SliceHeader,algorithm.go,62012.0,1148.0,_/root/download/quorum/consensus/ethash,std,std,jpmorganchase/quorum,_/root/download/quorum/consensus/ethash/algorithm.go,cast:any_to_slice
+226,226,226,"	dh := (*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+","		return nil, err
+	}
+	mmap := MMap{}
+
+	dh := (*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	dh.Data = addr
+	dh.Len = int(length) // Hmmm.. truncating here feels like trouble.
+	dh.Cap = dh.Len
+	return mmap, nil
+}
+",64.0,9.0,2561.0,reflect.SliceHeader,gommap.go,5902.0,159.0,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,github.com/tysontate/gommap/gommap.go,manual:safe
+227,227,227,"	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+","// will also flush any remaining changes, if necessary.  Using mmap or any
+// other slices based on it after this method has been called will crash the
+// application.
+func (mmap MMap) UnsafeUnmap() error {
+	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	_, _, err := syscall.Syscall(syscall.SYS_MUNMAP, uintptr(rh.Data), uintptr(rh.Len), 0)
+	if err != 0 {
+		return err
+	}
+	return nil
+",76.0,10.0,3023.0,reflect.SliceHeader,gommap.go,5902.0,159.0,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,github.com/tysontate/gommap/gommap.go,manual:safe
+228,228,228,"	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+","// flags parameter specifies whether flushing should be done synchronously
+// (before the method returns) with MS_SYNC, or asynchronously (flushing is just
+// scheduled) with MS_ASYNC.
+func (mmap MMap) Sync(flags SyncFlags) error {
+	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	_, _, err := syscall.Syscall(syscall.SYS_MSYNC, uintptr(rh.Data), uintptr(rh.Len), uintptr(flags))
+	if err != 0 {
+		return err
+	}
+	return nil
+",91.0,10.0,3664.0,reflect.SliceHeader,gommap.go,5902.0,159.0,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,github.com/tysontate/gommap/gommap.go,manual:safe
+229,229,229,"	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+","// Advise advises the kernel about how to handle the mapped memory
+// region in terms of input/output paging within the memory region
+// defined by the mmap slice.
+func (mmap MMap) Advise(advice AdviseFlags) error {
+	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	_, _, err := syscall.Syscall(syscall.SYS_MADVISE, uintptr(rh.Data), uintptr(rh.Len), uintptr(advice))
+	if err != 0 {
+		return err
+	}
+	return nil
+",103.0,10.0,4080.0,reflect.SliceHeader,gommap.go,5902.0,159.0,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,github.com/tysontate/gommap/gommap.go,manual:safe
+230,230,230,"	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+","
+// Protect changes the protection flags for the memory mapped region
+// defined by the mmap slice.
+func (mmap MMap) Protect(prot ProtFlags) error {
+	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	_, _, err := syscall.Syscall(syscall.SYS_MPROTECT, uintptr(rh.Data), uintptr(rh.Len), uintptr(prot))
+	if err != 0 {
+		return err
+	}
+	return nil
+",114.0,10.0,4431.0,reflect.SliceHeader,gommap.go,5902.0,159.0,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,github.com/tysontate/gommap/gommap.go,manual:safe
+231,231,231,"	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+","
+// Lock locks the mapped region defined by the mmap slice,
+// preventing it from being swapped out.
+func (mmap MMap) Lock() error {
+	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	_, _, err := syscall.Syscall(syscall.SYS_MLOCK, uintptr(rh.Data), uintptr(rh.Len), 0)
+	if err != 0 {
+		return err
+	}
+	return nil
+",125.0,10.0,4765.0,reflect.SliceHeader,gommap.go,5902.0,159.0,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,github.com/tysontate/gommap/gommap.go,manual:safe
+232,232,232,"	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+","
+// Unlock unlocks the mapped region defined by the mmap slice,
+// allowing it to swap out again.
+func (mmap MMap) Unlock() error {
+	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	_, _, err := syscall.Syscall(syscall.SYS_MUNLOCK, uintptr(rh.Data), uintptr(rh.Len), 0)
+	if err != 0 {
+		return err
+	}
+	return nil
+",136.0,10.0,5083.0,reflect.SliceHeader,gommap.go,5902.0,159.0,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,github.com/tysontate/gommap/gommap.go,manual:safe
+233,233,233,"	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+","// memory page in mmap was mapped at the time the call was made.
+func (mmap MMap) IsResident() ([]bool, error) {
+	pageSize := os.Getpagesize()
+	result := make([]bool, (len(mmap)+pageSize-1)/pageSize)
+	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	resulth := *(*reflect.SliceHeader)(unsafe.Pointer(&result))
+	_, _, err := syscall.Syscall(syscall.SYS_MINCORE, uintptr(rh.Data), uintptr(rh.Len), uintptr(resulth.Data))
+	for i := range result {
+		*(*uint8)(unsafe.Pointer(&result[i])) &= 1
+	}
+",149.0,10.0,5547.0,reflect.SliceHeader,gommap.go,5902.0,159.0,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,github.com/tysontate/gommap/gommap.go,manual:safe
+234,234,234,"	resulth := *(*reflect.SliceHeader)(unsafe.Pointer(&result))
+","func (mmap MMap) IsResident() ([]bool, error) {
+	pageSize := os.Getpagesize()
+	result := make([]bool, (len(mmap)+pageSize-1)/pageSize)
+	rh := *(*reflect.SliceHeader)(unsafe.Pointer(&mmap))
+	resulth := *(*reflect.SliceHeader)(unsafe.Pointer(&result))
+	_, _, err := syscall.Syscall(syscall.SYS_MINCORE, uintptr(rh.Data), uintptr(rh.Len), uintptr(resulth.Data))
+	for i := range result {
+		*(*uint8)(unsafe.Pointer(&result[i])) &= 1
+	}
+	if err != 0 {
+",150.0,15.0,5601.0,reflect.SliceHeader,gommap.go,5902.0,159.0,github.com/tysontate/gommap,github.com/tysontate/gommap,v0.0.0-20131202084435-e87a6e482c2c,travisjeffery/jocko,github.com/tysontate/gommap/gommap.go,manual:safe
+235,235,235,"	sliceHeader := reflect.SliceHeader{
+","// new memory for it with the assumption that the resulting byte slice will not
+// be mutated.
+func unsafeStringToBytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	sliceHeader := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&sliceHeader))
+",33.0,16.0,1437.0,reflect.SliceHeader,unsafe.go,1837.0,46.0,go.uber.org/thriftrw/wire,go.uber.org/thriftrw,v1.20.2,uber/cadence,go.uber.org/thriftrw/wire/unsafe.go,vuln:create_sliceheader
+236,236,236,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&sa.buf))
+","
+// NewStringArena creates an arena of the specified size.
+func NewStringArena(size int) *StringArena {
+	sa := &StringArena{buf: make([]byte, 0, size)}
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&sa.buf))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&sa.str))
+	pstring.Data = pbytes.Data
+	pstring.Len = pbytes.Cap
+	return sa
+}
+",36.0,13.0,1011.0,reflect.SliceHeader,hack.go,2224.0,79.0,github.com/xwb1989/sqlparser/dependency/hack,github.com/xwb1989/sqlparser,v0.0.0-20180606152119-120387863bf2,uber/cadence,github.com/xwb1989/sqlparser/dependency/hack/hack.go,cast:slice_to_str
+237,237,237,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func String(b []byte) (s string) {
+	if len(b) == 0 {
+		return """"
+	}
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pstring.Data = pbytes.Data
+	pstring.Len = pbytes.Len
+	return
+}
+",68.0,13.0,1849.0,reflect.SliceHeader,hack.go,2224.0,79.0,github.com/xwb1989/sqlparser/dependency/hack,github.com/xwb1989/sqlparser,v0.0.0-20180606152119-120387863bf2,uber/cadence,github.com/xwb1989/sqlparser/dependency/hack/hack.go,cast:slice_to_str
+238,238,238,"	var sh reflect.SliceHeader
+","}
+
+func s2b(s string) []byte {
+	strh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	var sh reflect.SliceHeader
+	sh.Data = strh.Data
+	sh.Len = strh.Len
+	sh.Cap = strh.Len
+	return *(*[]byte)(unsafe.Pointer(&sh))
+}
+",14.0,8.0,202.0,reflect.SliceHeader,util.go,524.0,30.0,github.com/valyala/fastjson,github.com/valyala/fastjson,v1.4.1,uber/cadence,github.com/valyala/fastjson/util.go,vuln:create_sliceheader
+239,239,239,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&sa.buf))
+","
+// NewStringArena creates an arena of the specified size.
+func NewStringArena(size int) *StringArena {
+	sa := &StringArena{buf: make([]byte, 0, size)}
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&sa.buf))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&sa.str))
+	pstring.Data = pbytes.Data
+	pstring.Len = pbytes.Cap
+	return sa
+}
+",36.0,13.0,1011.0,reflect.SliceHeader,hack.go,2224.0,79.0,vitess.io/vitess/go/hack,vitess.io/vitess,v0.0.0-20190119075008-dbef792951a4,cookieY/Yearning,vitess.io/vitess/go/hack/hack.go,manual:safe
+240,240,240,"	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func String(b []byte) (s string) {
+	if len(b) == 0 {
+		return """"
+	}
+	pbytes := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	pstring := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	pstring.Data = pbytes.Data
+	pstring.Len = pbytes.Len
+	return
+}
+",68.0,13.0,1849.0,reflect.SliceHeader,hack.go,2224.0,79.0,vitess.io/vitess/go/hack,vitess.io/vitess,v0.0.0-20190119075008-dbef792951a4,cookieY/Yearning,vitess.io/vitess/go/hack/hack.go,cast:slice_to_str
+241,241,241,"	dstAsSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","	if dstType.Size() != srcType.Size() {
+		panic(""Type size mismatch between "" + dstType.String() + "" and "" + srcType.String())
+	}
+
+	dstAsSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: dstValue.Pointer(),
+		Len:  int(dstType.Size()),
+		Cap:  int(dstType.Size()),
+	}))
+
+",243.0,42.0,7160.0,reflect.SliceHeader,reflection.go,11252.0,373.0,github.com/trivago/tgo/treflect,github.com/trivago/tgo,v1.0.1,jenkins-x/jx,github.com/trivago/tgo/treflect/reflection.go,vuln:create_sliceheader
+242,242,242,"	srcAsSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","		Len:  int(dstType.Size()),
+		Cap:  int(dstType.Size()),
+	}))
+
+	srcAsSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: srcPtr,
+		Len:  int(srcType.Size()),
+		Cap:  int(srcType.Size()),
+	}))
+
+",249.0,42.0,7315.0,reflect.SliceHeader,reflection.go,11252.0,373.0,github.com/trivago/tgo/treflect,github.com/trivago/tgo,v1.0.1,jenkins-x/jx,github.com/trivago/tgo/treflect/reflection.go,vuln:create_sliceheader
+243,243,243,"	basePtr := (*reflect.SliceHeader)(unsafe.Pointer(&buffer)).Data
+","
+func newByteSlab(size, count int) byteSlab {
+	bufferSize := count * size
+	buffer := make([]byte, bufferSize)
+	basePtr := (*reflect.SliceHeader)(unsafe.Pointer(&buffer)).Data
+	nextPtr := basePtr + uintptr(bufferSize)
+
+	return byteSlab{
+		buffer:     buffer,
+		bufferSize: uintptr(bufferSize),
+",58.0,14.0,1353.0,reflect.SliceHeader,bytepool.go,4160.0,157.0,github.com/trivago/tgo/tcontainer,github.com/trivago/tgo,v1.0.1,jenkins-x/jx,github.com/trivago/tgo/tcontainer/bytepool.go,manual:safe
+244,244,244,"	chunkHeader := (*reflect.SliceHeader)(unsafe.Pointer(&chunk))
+","	}
+}
+
+func (slab *byteSlab) getSlice(size int) (chunk []byte) {
+	chunkHeader := (*reflect.SliceHeader)(unsafe.Pointer(&chunk))
+	chunkHeader.Len = size
+	chunkHeader.Cap = int(slab.stride)
+
+	for {
+		// WARNING: The following two lines are order sensitive
+",71.0,18.0,1677.0,reflect.SliceHeader,bytepool.go,4160.0,157.0,github.com/trivago/tgo/tcontainer,github.com/trivago/tgo,v1.0.1,jenkins-x/jx,github.com/trivago/tgo/tcontainer/bytepool.go,manual:safe
+245,245,245,"			dataPtr := (*reflect.SliceHeader)(unsafe.Pointer(&slab.buffer)).Data
+","
+		case nextPtr == basePtr:
+			// Last item: realloc
+			slab.buffer = make([]byte, slab.bufferSize)
+			dataPtr := (*reflect.SliceHeader)(unsafe.Pointer(&slab.buffer)).Data
+
+			// WARNING: The following two lines are order sensitive
+			atomic.StoreUintptr(slab.nextPtr, dataPtr+slab.bufferSize)
+			atomic.StoreUintptr(slab.basePtr, dataPtr)
+			fallthrough
+",90.0,16.0,2331.0,reflect.SliceHeader,bytepool.go,4160.0,157.0,github.com/trivago/tgo/tcontainer,github.com/trivago/tgo,v1.0.1,jenkins-x/jx,github.com/trivago/tgo/tcontainer/bytepool.go,manual:safe
+246,246,246,"	sh := &reflect.SliceHeader{
+","}
+
+//export LLVMFuzzerTestOneInput
+func LLVMFuzzerTestOneInput(data uintptr, size uint64) int {
+	sh := &reflect.SliceHeader{
+	    Data: data,
+	    Len:  int(size),
+	    Cap:  int(size),
+	}
+
+",868.0,8.0,26392.0,reflect.SliceHeader,main.go,26593.0,882.0,_/root/download/go-fuzz/go-fuzz-build,std,std,dvyukov/go-fuzz,_/root/download/go-fuzz/go-fuzz-build/main.go,vuln:create_sliceheader
+247,247,247,"	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	""unsafe""
+)
+
+func bytesToString(b []byte) string {
+	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	strHeader := reflect.StringHeader{bytesHeader.Data, bytesHeader.Len}
+	return *(*string)(unsafe.Pointer(&strHeader))
+}
+",11.0,18.0,108.0,reflect.SliceHeader,unsafe.go,286.0,14.0,gopkg.in/redis.v3,gopkg.in/redis.v3,v3.6.4,tsuru/tsuru,gopkg.in/redis.v3/unsafe.go,vuln:create_sliceheader
+248,248,248,"// Header is runtime representation of a slice. It's a cleaner version of reflect.SliceHeader.
+","	""reflect""
+	""unsafe""
+)
+
+// Header is runtime representation of a slice. It's a cleaner version of reflect.SliceHeader.
+// With this, we wouldn't need to keep the uintptr.
+// This usually means additional pressure for the GC though, especially when passing around Headers
+type Header struct {
+	Ptr unsafe.Pointer
+	L   int
+",8.0,74.0,99.0,reflect.SliceHeader,header.go,2301.0,101.0,gorgonia.org/tensor/internal/storage,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/internal/storage/header.go,need_context
+249,249,249,"	hdr := reflect.SliceHeader{
+","}
+
+func AsByteSlice(a *Header, t reflect.Type) []byte {
+	size := a.L * int(t.Size())
+	hdr := reflect.SliceHeader{
+		Data: uintptr(a.Ptr),
+		Len:  size,
+		Cap:  size,
+	}
+	return *(*[]byte)(unsafe.Pointer(&hdr))
+",90.0,8.0,1990.0,reflect.SliceHeader,header.go,2301.0,101.0,gorgonia.org/tensor/internal/storage,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/internal/storage/header.go,vuln:create_sliceheader
+250,250,250,"		shdr := reflect.SliceHeader{
+","		return t.Get(0)
+	}
+	if t.v == nil {
+		// build a type of []T
+		shdr := reflect.SliceHeader{
+			Data: uintptr(t.Header.Ptr),
+			Len:  t.Header.L,
+			Cap:  t.Header.C,
+		}
+		sliceT := reflect.SliceOf(t.t.Type)
+",118.0,10.0,2624.0,reflect.SliceHeader,dense.go,13429.0,625.0,gorgonia.org/tensor,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/dense.go,vuln:create_sliceheader
+251,251,251,"		shdr := reflect.SliceHeader{
+","// Data returns the representation of a slice.
+func (a array) Data() interface{} {
+	if a.v == nil {
+		// build a type of []T
+		shdr := reflect.SliceHeader{
+			Data: uintptr(a.Header.Ptr),
+			Len:  a.Header.L,
+			Cap:  a.Header.C,
+		}
+		sliceT := reflect.SliceOf(a.t.Type)
+",251.0,10.0,5683.0,reflect.SliceHeader,array.go,13090.0,543.0,gorgonia.org/tensor,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/array.go,vuln:create_sliceheader
+252,252,252,"		sh := (*reflect.SliceHeader)(unsafe.Pointer(e.Addr().Pointer()))
+","	retVal := reflect.MakeSlice(reflect.SliceOf(reflect.SliceOf(typ)), rows, rows)
+	ptr := t.Uintptr()
+	for i := 0; i < rows; i++ {
+		e := retVal.Index(i)
+		sh := (*reflect.SliceHeader)(unsafe.Pointer(e.Addr().Pointer()))
+		sh.Data = uintptr(i*rowStride)*typ.Size() + ptr
+		sh.Len = cols
+		sh.Cap = cols
+	}
+	return retVal.Interface(), nil
+",33.0,10.0,638.0,reflect.SliceHeader,generic.go,1791.0,72.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/generic.go,need_context
+253,253,253,"			sh := (*reflect.SliceHeader)(unsafe.Pointer(e.Addr().Pointer()))
+","		el := retVal.Index(i)
+		inner := reflect.MakeSlice(reflect.SliceOf(reflect.SliceOf(typ)), rows, rows)
+		for j := 0; j < rows; j++ {
+			e := inner.Index(j)
+			sh := (*reflect.SliceHeader)(unsafe.Pointer(e.Addr().Pointer()))
+			sh.Data = uintptr(i*layerStride+j*rowStride)*typ.Size() + ptr
+			sh.Len = cols
+			sh.Cap = cols
+		}
+		sh := (*reflect.SliceHeader)(unsafe.Pointer(el.Addr().Pointer()))
+",61.0,11.0,1439.0,reflect.SliceHeader,generic.go,1791.0,72.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/generic.go,need_context
+254,254,254,"		sh := (*reflect.SliceHeader)(unsafe.Pointer(el.Addr().Pointer()))
+","			sh.Data = uintptr(i*layerStride+j*rowStride)*typ.Size() + ptr
+			sh.Len = cols
+			sh.Cap = cols
+		}
+		sh := (*reflect.SliceHeader)(unsafe.Pointer(el.Addr().Pointer()))
+		sh.Data = inner.Index(0).Addr().Pointer()
+		sh.Len = rows
+		sh.Cap = rows
+	}
+	return retVal.Interface(), nil
+",66.0,10.0,1610.0,reflect.SliceHeader,generic.go,1791.0,72.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/generic.go,need_context
+255,255,255,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]bool, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]bool)(unsafe.Pointer(hdr)))
+",53.0,11.0,1341.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+256,256,256,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int)(unsafe.Pointer(hdr)))
+",91.0,11.0,2183.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+257,257,257,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int8, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int8)(unsafe.Pointer(hdr)))
+",129.0,11.0,3034.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+258,258,258,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int16, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int16)(unsafe.Pointer(hdr)))
+",167.0,11.0,3896.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+259,259,259,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int32, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int32)(unsafe.Pointer(hdr)))
+",205.0,11.0,4759.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+260,260,260,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]int64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]int64)(unsafe.Pointer(hdr)))
+",243.0,11.0,5622.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+261,261,261,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint)(unsafe.Pointer(hdr)))
+",281.0,11.0,6472.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+262,262,262,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint8, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint8)(unsafe.Pointer(hdr)))
+",319.0,11.0,7331.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+263,263,263,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint16, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint16)(unsafe.Pointer(hdr)))
+",357.0,11.0,8201.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+264,264,264,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint32, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint32)(unsafe.Pointer(hdr)))
+",395.0,11.0,9072.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+265,265,265,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint64)(unsafe.Pointer(hdr)))
+",433.0,11.0,9943.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+266,266,266,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]float32, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]float32)(unsafe.Pointer(hdr)))
+",471.0,11.0,10821.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+267,267,267,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]float64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]float64)(unsafe.Pointer(hdr)))
+",509.0,11.0,11700.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+268,268,268,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]complex64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]complex64)(unsafe.Pointer(hdr)))
+",547.0,11.0,12593.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+269,269,269,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]complex128, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]complex128)(unsafe.Pointer(hdr)))
+",585.0,11.0,13498.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+270,270,270,"			hdr := &reflect.SliceHeader{
+","		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]string, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]string)(unsafe.Pointer(hdr)))
+",623.0,11.0,14373.0,reflect.SliceHeader,iterator_native2.go,14599.0,635.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native2.go,vuln:create_sliceheader
+271,271,271,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]bool, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]bool)(unsafe.Pointer(hdr))
+",62.0,10.0,1606.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+272,272,272,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]bool, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]bool)(unsafe.Pointer(hdr))
+",93.0,11.0,2392.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+273,273,273,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int)(unsafe.Pointer(hdr))
+",132.0,10.0,3363.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+274,274,274,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int)(unsafe.Pointer(hdr))
+",163.0,11.0,4142.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+275,275,275,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int8, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int8)(unsafe.Pointer(hdr))
+",202.0,10.0,5126.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+276,276,276,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int8, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int8)(unsafe.Pointer(hdr))
+",233.0,11.0,5914.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+277,277,277,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int16, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int16)(unsafe.Pointer(hdr))
+",272.0,10.0,6913.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+278,278,278,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int16, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int16)(unsafe.Pointer(hdr))
+",303.0,11.0,7710.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+279,279,279,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int32, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int32)(unsafe.Pointer(hdr))
+",342.0,10.0,8710.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+280,280,280,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int32, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int32)(unsafe.Pointer(hdr))
+",373.0,11.0,9507.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+281,281,281,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]int64, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int64)(unsafe.Pointer(hdr))
+",412.0,10.0,10507.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+282,282,282,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]int64, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int64)(unsafe.Pointer(hdr))
+",443.0,11.0,11304.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+283,283,283,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint)(unsafe.Pointer(hdr))
+",482.0,10.0,12286.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+284,284,284,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint)(unsafe.Pointer(hdr))
+",513.0,11.0,13072.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+285,285,285,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint8, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint8)(unsafe.Pointer(hdr))
+",552.0,10.0,14067.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+286,286,286,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint8, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint8)(unsafe.Pointer(hdr))
+",583.0,11.0,14862.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+287,287,287,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint16, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint16)(unsafe.Pointer(hdr))
+",622.0,10.0,15872.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+288,288,288,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint16, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint16)(unsafe.Pointer(hdr))
+",653.0,11.0,16676.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+289,289,289,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint32, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint32)(unsafe.Pointer(hdr))
+",692.0,10.0,17687.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+290,290,290,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint32, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint32)(unsafe.Pointer(hdr))
+",723.0,11.0,18491.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+291,291,291,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]uint64, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]uint64)(unsafe.Pointer(hdr))
+",762.0,10.0,19502.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+292,292,292,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]uint64, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]uint64)(unsafe.Pointer(hdr))
+",793.0,11.0,20306.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+293,293,293,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]float32, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]float32)(unsafe.Pointer(hdr))
+",832.0,10.0,21327.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+294,294,294,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]float32, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]float32)(unsafe.Pointer(hdr))
+",863.0,11.0,22138.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+295,295,295,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]float64, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]float64)(unsafe.Pointer(hdr))
+",902.0,10.0,23160.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+296,296,296,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]float64, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]float64)(unsafe.Pointer(hdr))
+",933.0,11.0,23971.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+297,297,297,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]complex64, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]complex64)(unsafe.Pointer(hdr))
+",972.0,10.0,25013.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+298,298,298,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]complex64, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]complex64)(unsafe.Pointer(hdr))
+",1003.0,11.0,25838.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+299,299,299,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]complex128, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]complex128)(unsafe.Pointer(hdr))
+",1042.0,10.0,26896.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+300,300,300,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]complex128, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]complex128)(unsafe.Pointer(hdr))
+",1073.0,11.0,27730.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+301,301,301,"		hdr := &reflect.SliceHeader{
+","	rowStride := strides[0]
+	retVal = make([][]string, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]string)(unsafe.Pointer(hdr))
+",1112.0,10.0,28745.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+302,302,302,"			hdr := &reflect.SliceHeader{
+","	for i := range retVal {
+		retVal[i] = make([][]string, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]string)(unsafe.Pointer(hdr))
+",1143.0,11.0,29549.0,reflect.SliceHeader,iterator_native.go,29736.0,1152.0,gorgonia.org/tensor/native,gorgonia.org/tensor,v0.9.6,gorgonia/gorgonia,gorgonia.org/tensor/native/iterator_native.go,vuln:create_sliceheader
+303,303,303,"	b := (*reflect.SliceHeader)(unsafe.Pointer(&bts))
+","}
+
+func strToBytes(str string) (bts []byte) {
+	s := (*reflect.StringHeader)(unsafe.Pointer(&str))
+	b := (*reflect.SliceHeader)(unsafe.Pointer(&bts))
+	b.Data = s.Data
+	b.Len = s.Len
+	b.Cap = s.Len
+	return
+}
+",46.0,8.0,885.0,reflect.SliceHeader,util.go,4774.0,214.0,_/root/download/ws,std,std,gobwas/ws,_/root/download/ws/util.go,cast:str_to_slice
+304,304,304,"	// 		bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	// 	func myfile() []byte {
+	// 		var empty [0]byte
+	// 		sx := (*reflect.StringHeader)(unsafe.Pointer(&_myfile))
+	// 		b := empty[:]
+	// 		bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	// 		bx.Data = sx.Data
+	// 		bx.Len = len(_myfile)
+	// 		bx.Cap = bx.Len
+	// 		return b
+	// 	}
+",96.0,14.0,3507.0,reflect.SliceHeader,config.go,6217.0,192.0,github.com/jteeuwen/go-bindata,github.com/jteeuwen/go-bindata,v3.0.7+incompatible,GoAdminGroup/go-admin,github.com/jteeuwen/go-bindata/config.go,comment
+305,305,305,"	bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func bindata_read(data, name string) ([]byte, error) {
+	var empty [0]byte
+	sx := (*reflect.StringHeader)(unsafe.Pointer(&data))
+	b := empty[:]
+	bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bx.Data = sx.Data
+	bx.Len = len(data)
+	bx.Cap = bx.Len
+
+	gz, err := gzip.NewReader(bytes.NewBuffer(b))
+",106.0,9.0,2467.0,reflect.SliceHeader,release.go,5648.0,295.0,github.com/jteeuwen/go-bindata,github.com/jteeuwen/go-bindata,v3.0.7+incompatible,GoAdminGroup/go-admin,github.com/jteeuwen/go-bindata/release.go,cast:str_to_slice
+306,306,306,"	bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","func bindata_read(data, name string) ([]byte, error) {
+	var empty [0]byte
+	sx := (*reflect.StringHeader)(unsafe.Pointer(&data))
+	b := empty[:]
+	bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bx.Data = sx.Data
+	bx.Len = len(data)
+	bx.Cap = bx.Len
+	return b, nil
+}
+",173.0,9.0,3665.0,reflect.SliceHeader,release.go,5648.0,295.0,github.com/jteeuwen/go-bindata,github.com/jteeuwen/go-bindata,v3.0.7+incompatible,GoAdminGroup/go-admin,github.com/jteeuwen/go-bindata/release.go,cast:str_to_slice
+307,307,307,"		bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	func myfile() []byte {
+		var empty [0]byte
+		sx := (*reflect.StringHeader)(unsafe.Pointer(&_myfile))
+		b := empty[:]
+		bx := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+		bx.Data = sx.Data
+		bx.Len = len(_myfile)
+		bx.Cap = bx.Len
+		return b
+	}
+",75.0,10.0,3221.0,reflect.SliceHeader,doc.go,5028.0,129.0,github.com/jteeuwen/go-bindata,github.com/jteeuwen/go-bindata,v3.0.7+incompatible,GoAdminGroup/go-admin,github.com/jteeuwen/go-bindata/doc.go,cast:str_to_slice
+308,308,308,"	sliceHeader := &reflect.SliceHeader{
+","}
+
+func UnsafeCastString(str string) []byte {
+	stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&str))
+	sliceHeader := &reflect.SliceHeader{
+		Data: stringHeader.Data,
+		Cap: stringHeader.Len,
+		Len: stringHeader.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(sliceHeader))
+",289.0,17.0,7069.0,reflect.SliceHeader,reflect2.go,7237.0,295.0,github.com/modern-go/reflect2,github.com/modern-go/reflect2,v0.0.0-20180320133207-05fbef0ca5da,googleforgames/agones,github.com/modern-go/reflect2/reflect2.go,vuln:create_sliceheader
+309,309,309,"	aHeader := (*reflect.SliceHeader)(unsafe.Pointer(&a))
+","
+// ByteSlicesBackedBySameData returns a bool indicating if the raw backing bytes
+// under the []byte slice point to the same memory.
+func ByteSlicesBackedBySameData(a, b []byte) bool {
+	aHeader := (*reflect.SliceHeader)(unsafe.Pointer(&a))
+	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	return aHeader.Data == bHeader.Data
+}
+",31.0,14.0,1354.0,reflect.SliceHeader,util.go,1503.0,34.0,_/root/download/m3/src/x/test,std,std,m3db/m3,_/root/download/m3/src/x/test/util.go,manual:safe
+310,310,310,"	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","// ByteSlicesBackedBySameData returns a bool indicating if the raw backing bytes
+// under the []byte slice point to the same memory.
+func ByteSlicesBackedBySameData(a, b []byte) bool {
+	aHeader := (*reflect.SliceHeader)(unsafe.Pointer(&a))
+	bHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	return aHeader.Data == bHeader.Data
+}
+",32.0,14.0,1409.0,reflect.SliceHeader,util.go,1503.0,34.0,_/root/download/m3/src/x/test,std,std,m3db/m3,_/root/download/m3/src/x/test/util.go,manual:safe
+311,311,311,"	stringHeader.Data = (*reflect.SliceHeader)(unsafe.Pointer(&b)).Data
+","
+	// NB(r): This makes sure that even if GC relocates the byte slices's underlying
+	// memory after this assignment, the corresponding unsafe.Pointer in the internal
+	// string struct will be updated accordingly to reflect the memory relocation.
+	stringHeader.Data = (*reflect.SliceHeader)(unsafe.Pointer(&b)).Data
+
+	// NB(r): It is important that we access b after we assign the Data
+	// pointer of the byte slice header to the Data pointer of the string header to
+	// make sure the bytes don't get GC'ed before the assignment happens.
+	l := len(b)
+",74.0,23.0,3364.0,reflect.SliceHeader,bytes.go,3703.0,83.0,_/root/download/m3/src/x/unsafe,std,std,m3db/m3,_/root/download/m3/src/x/unsafe/bytes.go,cast:slice_to_str
+312,312,312,"	byteHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+","	// once the slice's array pointer is updated with the pointer to the string's
+	// underlying bytes, the compiler won't prematurely GC the memory when the string
+	// goes out of scope.
+	var b []byte
+	byteHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+
+	// NB(xichen): This makes sure that even if GC relocates the string's underlying
+	// memory after this assignment, the corresponding unsafe.Pointer in the internal
+	// slice struct will be updated accordingly to reflect the memory relocation.
+	byteHeader.Data = (*reflect.StringHeader)(unsafe.Pointer(&s)).Data
+",73.0,17.0,3296.0,reflect.SliceHeader,string.go,4006.0,89.0,_/root/download/m3/src/x/unsafe,std,std,m3db/m3,_/root/download/m3/src/x/unsafe/string.go,cast:str_to_slice
+313,313,313,"	tempSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+","	}
+}
+
+func newMemSwap(size uintptr, baseMem, tempMem unsafe.Pointer) *memSwap {
+	tempSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(tempMem),
+		Len:  int(size),
+		Cap:  int(size),
+	}))
+	ms := &memSwap{
+",83.0,41.0,1999.0,reflect.SliceHeader,slice.go,4698.0,186.0,github.com/bradfitz/slice,github.com/bradfitz/slice,v0.0.0-20140430145140-a665b5dbaad5,bosun-monitor/bosun,github.com/bradfitz/slice/slice.go,vuln:create_sliceheader
+314,314,314,"		imem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+","		Len:  int(size),
+		Cap:  int(size),
+	}))
+	ms := &memSwap{
+		imem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+		jmem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+		temp: tempSlice,
+		size: size,
+		base: baseMem,
+	}
+",89.0,35.0,2147.0,reflect.SliceHeader,slice.go,4698.0,186.0,github.com/bradfitz/slice,github.com/bradfitz/slice,v0.0.0-20140430145140-a665b5dbaad5,bosun-monitor/bosun,github.com/bradfitz/slice/slice.go,vuln:create_sliceheader
+315,315,315,"		jmem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+","		Cap:  int(size),
+	}))
+	ms := &memSwap{
+		imem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+		jmem: *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(baseMem), Len: int(size), Cap: int(size)})),
+		temp: tempSlice,
+		size: size,
+		base: baseMem,
+	}
+	ms.ibase = (*uintptr)(unsafe.Pointer(&ms.imem))
+",90.0,35.0,2261.0,reflect.SliceHeader,slice.go,4698.0,186.0,github.com/bradfitz/slice,github.com/bradfitz/slice,v0.0.0-20140430145140-a665b5dbaad5,bosun-monitor/bosun,github.com/bradfitz/slice/slice.go,vuln:create_sliceheader

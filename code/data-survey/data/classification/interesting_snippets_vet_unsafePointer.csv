@@ -1,0 +1,2511 @@
+,Unnamed: 0,Unnamed: 0.1,project_name,module_path,module_version,package_import_path,match_type,file_name,line_number,text,context,message,label
+0,0,0,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,atomic_pointer.go,63.0,"	old := unsafe.Pointer(sync_atomic_SwapUintptr((*uintptr)(noescape(unsafe.Pointer(ptr))), uintptr(new)))
+","func sync_atomic_SwapPointer(ptr *unsafe.Pointer, new unsafe.Pointer) unsafe.Pointer {
+	if writeBarrier.enabled {
+		atomicwb(ptr, new)
+	}
+	old := unsafe.Pointer(sync_atomic_SwapUintptr((*uintptr)(noescape(unsafe.Pointer(ptr))), uintptr(new)))
+	return old
+}
+
+//go:linkname sync_atomic_CompareAndSwapUintptr sync/atomic.CompareAndSwapUintptr
+func sync_atomic_CompareAndSwapUintptr(ptr *uintptr, old, new uintptr) bool
+",possible misuse of unsafe.Pointer,runtime
+1,1,1,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgo_mmap.go,42.0,"		return unsafe.Pointer(ret), 0
+","		})
+		if ret < 4096 {
+			return nil, int(ret)
+		}
+		return unsafe.Pointer(ret), 0
+	}
+	return sysMmap(addr, n, prot, flags, fd, off)
+}
+
+func munmap(addr unsafe.Pointer, n uintptr) {
+",possible misuse of unsafe.Pointer,runtime
+2,2,2,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,alg.go,56.0,"	size := *(*uintptr)(unsafe.Pointer(ptr + unsafe.Sizeof(h)))
+","
+//go:nosplit
+func memhash_varlen(p unsafe.Pointer, h uintptr) uintptr {
+	ptr := getclosureptr()
+	size := *(*uintptr)(unsafe.Pointer(ptr + unsafe.Sizeof(h)))
+	return memhash(p, h, size)
+}
+
+// runtime variable to check if the processor we're running on
+// actually supports the instructions used by the AES-based
+",possible misuse of unsafe.Pointer,runtime
+3,3,3,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocheck.go,26.0,"	if !cgoIsGoPointer(unsafe.Pointer(src)) {
+","//
+//go:nosplit
+//go:nowritebarrier
+func cgoCheckWriteBarrier(dst *uintptr, src uintptr) {
+	if !cgoIsGoPointer(unsafe.Pointer(src)) {
+		return
+	}
+	if cgoIsGoPointer(unsafe.Pointer(dst)) {
+		return
+	}
+",possible misuse of unsafe.Pointer,runtime
+4,4,4,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,lfstack_64bit.go,52.0,"		return (*lfnode)(unsafe.Pointer(uintptr(int64(val) >> cntBits << 3)))
+","func lfstackUnpack(val uint64) *lfnode {
+	if GOARCH == ""amd64"" {
+		// amd64 systems can place the stack above the VA hole, so we need to sign extend
+		// val before unpacking.
+		return (*lfnode)(unsafe.Pointer(uintptr(int64(val) >> cntBits << 3)))
+	}
+	if GOARCH == ""ppc64"" && GOOS == ""aix"" {
+		return (*lfnode)(unsafe.Pointer(uintptr((val >> aixCntBits << 3) | 0xa<<56)))
+	}
+	return (*lfnode)(unsafe.Pointer(uintptr(val >> cntBits << 3)))
+",possible misuse of unsafe.Pointer,runtime
+5,5,5,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,lfstack_64bit.go,55.0,"		return (*lfnode)(unsafe.Pointer(uintptr((val >> aixCntBits << 3) | 0xa<<56)))
+","		// val before unpacking.
+		return (*lfnode)(unsafe.Pointer(uintptr(int64(val) >> cntBits << 3)))
+	}
+	if GOARCH == ""ppc64"" && GOOS == ""aix"" {
+		return (*lfnode)(unsafe.Pointer(uintptr((val >> aixCntBits << 3) | 0xa<<56)))
+	}
+	return (*lfnode)(unsafe.Pointer(uintptr(val >> cntBits << 3)))
+}
+",possible misuse of unsafe.Pointer,runtime
+6,6,6,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,lfstack_64bit.go,57.0,"	return (*lfnode)(unsafe.Pointer(uintptr(val >> cntBits << 3)))
+","	}
+	if GOARCH == ""ppc64"" && GOOS == ""aix"" {
+		return (*lfnode)(unsafe.Pointer(uintptr((val >> aixCntBits << 3) | 0xa<<56)))
+	}
+	return (*lfnode)(unsafe.Pointer(uintptr(val >> cntBits << 3)))
+}
+",possible misuse of unsafe.Pointer,runtime
+7,7,7,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,200.0,"	savedsp := unsafe.Pointer(gp.syscallsp)
+","	// entersyscall saves the caller's SP to allow the GC to trace the Go
+	// stack. However, since we're returning to an earlier stack frame and
+	// need to pair with the entersyscall() call made by cgocall, we must
+	// save syscall* and let reentersyscall restore them.
+	savedsp := unsafe.Pointer(gp.syscallsp)
+	savedpc := gp.syscallpc
+	exitsyscall() // coming out of cgo call
+	gp.m.incgo = false
+
+	osPreemptExtExit(gp.m)
+",possible misuse of unsafe.Pointer,runtime
+8,8,8,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,282.0,"		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+","		throw(""cgocallbackg is unimplemented on arch"")
+	case ""arm"":
+		// On arm, stack frame is two words and there's a saved LR between
+		// SP and the stack frame and between the stack frame and the arguments.
+		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+	case ""arm64"":
+		// On arm64, stack frame is four words and there's a saved LR between
+		// SP and the stack frame and between the stack frame and the arguments.
+		// Additional two words (16-byte alignment) are for saving FP.
+		cb = (*args)(unsafe.Pointer(sp + 7*sys.PtrSize))
+",possible misuse of unsafe.Pointer,runtime
+9,9,9,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,287.0,"		cb = (*args)(unsafe.Pointer(sp + 7*sys.PtrSize))
+","	case ""arm64"":
+		// On arm64, stack frame is four words and there's a saved LR between
+		// SP and the stack frame and between the stack frame and the arguments.
+		// Additional two words (16-byte alignment) are for saving FP.
+		cb = (*args)(unsafe.Pointer(sp + 7*sys.PtrSize))
+	case ""amd64"":
+		// On amd64, stack frame is two words, plus caller PC.
+		if framepointer_enabled {
+			// In this case, there's also saved BP.
+			cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+",possible misuse of unsafe.Pointer,runtime
+10,10,10,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,292.0,"			cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+","	case ""amd64"":
+		// On amd64, stack frame is two words, plus caller PC.
+		if framepointer_enabled {
+			// In this case, there's also saved BP.
+			cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+			break
+		}
+		cb = (*args)(unsafe.Pointer(sp + 3*sys.PtrSize))
+	case ""386"":
+		// On 386, stack frame is three words, plus caller PC.
+",possible misuse of unsafe.Pointer,runtime
+11,11,11,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,295.0,"		cb = (*args)(unsafe.Pointer(sp + 3*sys.PtrSize))
+","			// In this case, there's also saved BP.
+			cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+			break
+		}
+		cb = (*args)(unsafe.Pointer(sp + 3*sys.PtrSize))
+	case ""386"":
+		// On 386, stack frame is three words, plus caller PC.
+		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+	case ""ppc64"", ""ppc64le"", ""s390x"":
+		// On ppc64 and s390x, the callback arguments are in the arguments area of
+",possible misuse of unsafe.Pointer,runtime
+12,12,12,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,298.0,"		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+","		}
+		cb = (*args)(unsafe.Pointer(sp + 3*sys.PtrSize))
+	case ""386"":
+		// On 386, stack frame is three words, plus caller PC.
+		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+	case ""ppc64"", ""ppc64le"", ""s390x"":
+		// On ppc64 and s390x, the callback arguments are in the arguments area of
+		// cgocallback's stack frame. The stack looks like this:
+		// +--------------------+------------------------------+
+		// |                    | ...                          |
+",possible misuse of unsafe.Pointer,runtime
+13,13,13,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,315.0,"		cb = (*args)(unsafe.Pointer(sp + 2*sys.MinFrameSize + 2*sys.PtrSize))
+","		// |                    | local variables (2 pointers) |
+		// | cgocallback_gofunc +------------------------------+ <- sp + minFrameSize
+		// |                    | fixed frame area             |
+		// +--------------------+------------------------------+ <- sp
+		cb = (*args)(unsafe.Pointer(sp + 2*sys.MinFrameSize + 2*sys.PtrSize))
+	case ""mips64"", ""mips64le"":
+		// On mips64x, stack frame is two words and there's a saved LR between
+		// SP and the stack frame and between the stack frame and the arguments.
+		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+	case ""mips"", ""mipsle"":
+",possible misuse of unsafe.Pointer,runtime
+14,14,14,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,319.0,"		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+","		cb = (*args)(unsafe.Pointer(sp + 2*sys.MinFrameSize + 2*sys.PtrSize))
+	case ""mips64"", ""mips64le"":
+		// On mips64x, stack frame is two words and there's a saved LR between
+		// SP and the stack frame and between the stack frame and the arguments.
+		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+	case ""mips"", ""mipsle"":
+		// On mipsx, stack frame is two words and there's a saved LR between
+		// SP and the stack frame and between the stack frame and the arguments.
+		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+	}
+",possible misuse of unsafe.Pointer,runtime
+15,15,15,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,323.0,"		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+","		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+	case ""mips"", ""mipsle"":
+		// On mipsx, stack frame is two words and there's a saved LR between
+		// SP and the stack frame and between the stack frame and the arguments.
+		cb = (*args)(unsafe.Pointer(sp + 4*sys.PtrSize))
+	}
+
+	// Invoke callback.
+	// NOTE(rsc): passing nil for argtype means that the copying of the
+	// results back into cb.arg happens without any corresponding write barriers.
+",possible misuse of unsafe.Pointer,runtime
+16,16,16,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,360.0,"			sched.sp = *(*uintptr)(unsafe.Pointer(sched.sp + sys.MinFrameSize))
+","		switch GOARCH {
+		default:
+			throw(""unwindm not implemented"")
+		case ""386"", ""amd64"", ""arm"", ""ppc64"", ""ppc64le"", ""mips64"", ""mips64le"", ""s390x"", ""mips"", ""mipsle"":
+			sched.sp = *(*uintptr)(unsafe.Pointer(sched.sp + sys.MinFrameSize))
+		case ""arm64"":
+			sched.sp = *(*uintptr)(unsafe.Pointer(sched.sp + 16))
+		}
+
+		// Do the accounting that cgocall will not have a chance to do
+",possible misuse of unsafe.Pointer,runtime
+17,17,17,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,362.0,"			sched.sp = *(*uintptr)(unsafe.Pointer(sched.sp + 16))
+","			throw(""unwindm not implemented"")
+		case ""386"", ""amd64"", ""arm"", ""ppc64"", ""ppc64le"", ""mips64"", ""mips64le"", ""s390x"", ""mips"", ""mipsle"":
+			sched.sp = *(*uintptr)(unsafe.Pointer(sched.sp + sys.MinFrameSize))
+		case ""arm64"":
+			sched.sp = *(*uintptr)(unsafe.Pointer(sched.sp + 16))
+		}
+
+		// Do the accounting that cgocall will not have a chance to do
+		// during an unwind.
+		//
+",possible misuse of unsafe.Pointer,runtime
+18,18,18,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,cgocall.go,612.0,"			if hbits.isPointer() && cgoIsGoPointer(*(*unsafe.Pointer)(unsafe.Pointer(base + i))) {
+","			if i != 1*sys.PtrSize && !hbits.morePointers() {
+				// No more possible pointers.
+				break
+			}
+			if hbits.isPointer() && cgoIsGoPointer(*(*unsafe.Pointer)(unsafe.Pointer(base + i))) {
+				panic(errorString(msg))
+			}
+			hbits = hbits.next()
+		}
+
+",possible misuse of unsafe.Pointer,runtime
+19,19,19,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,heapdump.go,219.0,"	dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
+","func dumpfinalizer(obj unsafe.Pointer, fn *funcval, fint *_type, ot *ptrtype) {
+	dumpint(tagFinalizer)
+	dumpint(uint64(uintptr(obj)))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fint))))
+	dumpint(uint64(uintptr(unsafe.Pointer(ot))))
+}
+
+type childInfo struct {
+",possible misuse of unsafe.Pointer,runtime
+20,20,20,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,heapdump.go,275.0,"	dumpmemrange(unsafe.Pointer(s.sp), s.fp-s.sp)      // frame contents
+","	dumpint(tagStackFrame)
+	dumpint(uint64(s.sp))                              // lowest address in frame
+	dumpint(uint64(child.depth))                       // # of frames deep on the stack
+	dumpint(uint64(uintptr(unsafe.Pointer(child.sp)))) // sp of child, or 0 if bottom of stack
+	dumpmemrange(unsafe.Pointer(s.sp), s.fp-s.sp)      // frame contents
+	dumpint(uint64(f.entry))
+	dumpint(uint64(s.pc))
+	dumpint(uint64(s.continpc))
+	name := funcname(f)
+	if name == """" {
+",possible misuse of unsafe.Pointer,runtime
+21,21,21,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,heapdump.go,320.0,"	child.sp = (*uint8)(unsafe.Pointer(s.sp))
+","
+	// Record arg info for parent.
+	child.argoff = s.argp - s.fp
+	child.arglen = s.arglen
+	child.sp = (*uint8)(unsafe.Pointer(s.sp))
+	child.depth++
+	stkmap = (*stackmap)(funcdata(f, _FUNCDATA_ArgsPointerMaps))
+	if stkmap != nil {
+		child.args = stackmapdata(stkmap, pcdata)
+	} else {
+",possible misuse of unsafe.Pointer,runtime
+22,22,22,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,heapdump.go,378.0,"			dumpint(uint64(uintptr(unsafe.Pointer(d.fn.fn))))
+","		if d.fn == nil {
+			// d.fn can be nil for open-coded defers
+			dumpint(uint64(0))
+		} else {
+			dumpint(uint64(uintptr(unsafe.Pointer(d.fn.fn))))
+		}
+		dumpint(uint64(uintptr(unsafe.Pointer(d.link))))
+	}
+	for p := gp._panic; p != nil; p = p.link {
+		dumpint(tagPanic)
+",possible misuse of unsafe.Pointer,runtime
+23,23,23,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,heapdump.go,417.0,"	dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
+","func finq_callback(fn *funcval, obj unsafe.Pointer, nret uintptr, fint *_type, ot *ptrtype) {
+	dumpint(tagQueuedFinalizer)
+	dumpint(uint64(uintptr(obj)))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fint))))
+	dumpint(uint64(uintptr(unsafe.Pointer(ot))))
+}
+
+func dumproots() {
+",possible misuse of unsafe.Pointer,runtime
+24,24,24,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,heapdump.go,427.0,"	dumpmemrange(unsafe.Pointer(firstmoduledata.data), firstmoduledata.edata-firstmoduledata.data)
+","	// TODO(mwhudson): dump datamask etc from all objects
+	// data segment
+	dumpint(tagData)
+	dumpint(uint64(firstmoduledata.data))
+	dumpmemrange(unsafe.Pointer(firstmoduledata.data), firstmoduledata.edata-firstmoduledata.data)
+	dumpfields(firstmoduledata.gcdatamask)
+
+	// bss segment
+	dumpint(tagBSS)
+	dumpint(uint64(firstmoduledata.bss))
+",possible misuse of unsafe.Pointer,runtime
+25,25,25,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,heapdump.go,433.0,"	dumpmemrange(unsafe.Pointer(firstmoduledata.bss), firstmoduledata.ebss-firstmoduledata.bss)
+","
+	// bss segment
+	dumpint(tagBSS)
+	dumpint(uint64(firstmoduledata.bss))
+	dumpmemrange(unsafe.Pointer(firstmoduledata.bss), firstmoduledata.ebss-firstmoduledata.bss)
+	dumpfields(firstmoduledata.gcbssmask)
+
+	// mspan.types
+	for _, s := range mheap_.allspans {
+		if s.state.get() == mSpanInUse {
+",possible misuse of unsafe.Pointer,runtime
+26,26,26,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,heapdump.go,445.0,"				p := unsafe.Pointer(s.base() + uintptr(spf.special.offset))
+","				if sp.kind != _KindSpecialFinalizer {
+					continue
+				}
+				spf := (*specialfinalizer)(unsafe.Pointer(sp))
+				p := unsafe.Pointer(s.base() + uintptr(spf.special.offset))
+				dumpfinalizer(p, spf.fn, spf.fint, spf.ot)
+			}
+		}
+	}
+
+",possible misuse of unsafe.Pointer,runtime
+27,27,27,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,heapdump.go,482.0,"			dumpobj(unsafe.Pointer(p), size, makeheapobjbv(p, size))
+","			if freemark[j] {
+				freemark[j] = false
+				continue
+			}
+			dumpobj(unsafe.Pointer(p), size, makeheapobjbv(p, size))
+		}
+	}
+}
+
+func dumpparams() {
+",possible misuse of unsafe.Pointer,runtime
+28,28,28,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,debuglog.go,64.0,"		all := (*dlogger)(unsafe.Pointer(atomic.Loaduintptr(allp)))
+","	// If we couldn't get a cached logger, try to get one from the
+	// global pool.
+	if l == nil {
+		allp := (*uintptr)(unsafe.Pointer(&allDloggers))
+		all := (*dlogger)(unsafe.Pointer(atomic.Loaduintptr(allp)))
+		for l1 := all; l1 != nil; l1 = l1.allLink {
+			if atomic.Load(&l1.owned) == 0 && atomic.Cas(&l1.owned, 0, 1) {
+				l = l1
+				break
+			}
+",possible misuse of unsafe.Pointer,runtime
+29,29,29,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,debuglog.go,86.0,"			l.allLink = (*dlogger)(unsafe.Pointer(head))
+","		// Prepend to allDloggers list.
+		headp := (*uintptr)(unsafe.Pointer(&allDloggers))
+		for {
+			head := atomic.Loaduintptr(headp)
+			l.allLink = (*dlogger)(unsafe.Pointer(head))
+			if atomic.Casuintptr(headp, head, uintptr(unsafe.Pointer(l))) {
+				break
+			}
+		}
+	}
+",possible misuse of unsafe.Pointer,runtime
+30,30,30,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,debuglog.go,658.0,"			str: unsafe.Pointer(ptr),
+","	case debugLogConstString:
+		len, ptr := int(r.uvarint()), uintptr(r.uvarint())
+		ptr += firstmoduledata.etext
+		str := stringStruct{
+			str: unsafe.Pointer(ptr),
+			len: len,
+		}
+		s := *(*string)(unsafe.Pointer(&str))
+		print(s)
+
+",possible misuse of unsafe.Pointer,runtime
+31,31,31,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,debuglog.go,694.0,"	all := (*dlogger)(unsafe.Pointer(atomic.Loaduintptr(allp)))
+","	printlock()
+
+	// Get the list of all debug logs.
+	allp := (*uintptr)(unsafe.Pointer(&allDloggers))
+	all := (*dlogger)(unsafe.Pointer(atomic.Loaduintptr(allp)))
+
+	// Count the logs.
+	n := 0
+	for l := all; l != nil; l = l.allLink {
+		n++
+",possible misuse of unsafe.Pointer,runtime
+32,32,32,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mem_linux.go,86.0,"			madvise(unsafe.Pointer(head), 2*physHugePageSize, _MADV_NOHUGEPAGE)
+","		// errors.
+		if head != 0 && head+physHugePageSize == tail {
+			// head and tail are different but adjacent,
+			// so do this in one call.
+			madvise(unsafe.Pointer(head), 2*physHugePageSize, _MADV_NOHUGEPAGE)
+		} else {
+			// Advise the huge pages containing v and v+n-1.
+			if head != 0 {
+				madvise(unsafe.Pointer(head), physHugePageSize, _MADV_NOHUGEPAGE)
+			}
+",possible misuse of unsafe.Pointer,runtime
+33,33,33,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mem_linux.go,90.0,"				madvise(unsafe.Pointer(head), physHugePageSize, _MADV_NOHUGEPAGE)
+","			madvise(unsafe.Pointer(head), 2*physHugePageSize, _MADV_NOHUGEPAGE)
+		} else {
+			// Advise the huge pages containing v and v+n-1.
+			if head != 0 {
+				madvise(unsafe.Pointer(head), physHugePageSize, _MADV_NOHUGEPAGE)
+			}
+			if tail != 0 && tail != head {
+				madvise(unsafe.Pointer(tail), physHugePageSize, _MADV_NOHUGEPAGE)
+			}
+		}
+",possible misuse of unsafe.Pointer,runtime
+34,34,34,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mem_linux.go,93.0,"				madvise(unsafe.Pointer(tail), physHugePageSize, _MADV_NOHUGEPAGE)
+","			if head != 0 {
+				madvise(unsafe.Pointer(head), physHugePageSize, _MADV_NOHUGEPAGE)
+			}
+			if tail != 0 && tail != head {
+				madvise(unsafe.Pointer(tail), physHugePageSize, _MADV_NOHUGEPAGE)
+			}
+		}
+	}
+
+	if uintptr(v)&(physPageSize-1) != 0 || n&(physPageSize-1) != 0 {
+",possible misuse of unsafe.Pointer,runtime
+35,35,35,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mem_linux.go,139.0,"			madvise(unsafe.Pointer(beg), end-beg, _MADV_HUGEPAGE)
+","		// Round v+n down to a huge page boundary.
+		end := alignDown(uintptr(v)+n, physHugePageSize)
+
+		if beg < end {
+			madvise(unsafe.Pointer(beg), end-beg, _MADV_HUGEPAGE)
+		}
+	}
+}
+
+// Don't split the stack as this function may be invoked without a valid G,
+",possible misuse of unsafe.Pointer,runtime
+36,36,36,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mfixalloc.go,84.0,"	v := unsafe.Pointer(f.chunk)
+","		f.chunk = uintptr(persistentalloc(_FixAllocChunk, 0, f.stat))
+		f.nchunk = _FixAllocChunk
+	}
+
+	v := unsafe.Pointer(f.chunk)
+	if f.first != nil {
+		f.first(f.arg, v)
+	}
+	f.chunk = f.chunk + f.size
+	f.nchunk -= uint32(f.size)
+",possible misuse of unsafe.Pointer,runtime
+37,37,37,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mcache.go,74.0,"	return (*gclink)(unsafe.Pointer(p))
+","// ptr returns the *gclink form of p.
+// The result should be used for accessing fields, not stored
+// in other data structures.
+func (p gclinkptr) ptr() *gclink {
+	return (*gclink)(unsafe.Pointer(p))
+}
+
+type stackfreelist struct {
+	list gclinkptr // linked list of free stacks
+	size uintptr   // total size of stacks in list
+",possible misuse of unsafe.Pointer,runtime
+38,38,38,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcscavenge.go,588.0,"	sysUnused(unsafe.Pointer(addr), uintptr(npages)*pageSize)
+","	// It's dangerous to do so otherwise.
+	if s.test {
+		return
+	}
+	sysUnused(unsafe.Pointer(addr), uintptr(npages)*pageSize)
+
+	// Update global accounting only when not in test, otherwise
+	// the runtime's accounting will be wrong.
+	mSysStatInc(&memstats.heap_released, uintptr(npages)*pageSize)
+}
+",possible misuse of unsafe.Pointer,runtime
+39,39,39,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,594.0,"			a, size := sysReserveAligned(unsafe.Pointer(p), arenaSize, heapArenaBytes)
+","			256 << 20,
+			128 << 20,
+		}
+		for _, arenaSize := range arenaSizes {
+			a, size := sysReserveAligned(unsafe.Pointer(p), arenaSize, heapArenaBytes)
+			if a != nil {
+				mheap_.arena.init(uintptr(a), size)
+				p = uintptr(a) + size // For hint below
+				break
+			}
+",possible misuse of unsafe.Pointer,runtime
+40,40,40,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,641.0,"			v = sysReserve(unsafe.Pointer(p), n)
+","		} else if arenaIndex(p+n-1) >= 1<<arenaBits {
+			// Outside addressable heap. Can't use.
+			v = nil
+		} else {
+			v = sysReserve(unsafe.Pointer(p), n)
+		}
+		if p == uintptr(v) {
+			// Success. Update the hint.
+			if !hint.down {
+				p += n
+",possible misuse of unsafe.Pointer,runtime
+41,41,41,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,794.0,"		return unsafe.Pointer(p), size + align
+","		return nil, 0
+	case p&(align-1) == 0:
+		// We got lucky and got an aligned region, so we can
+		// use the whole thing.
+		return unsafe.Pointer(p), size + align
+	case GOOS == ""windows"":
+		// On Windows we can't release pieces of a
+		// reservation, so we release the whole thing and
+		// re-reserve the aligned sub-region. This may race,
+		// so we may have to try again.
+",possible misuse of unsafe.Pointer,runtime
+42,42,42,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,800.0,"		sysFree(unsafe.Pointer(p), size+align, nil)
+","		// On Windows we can't release pieces of a
+		// reservation, so we release the whole thing and
+		// re-reserve the aligned sub-region. This may race,
+		// so we may have to try again.
+		sysFree(unsafe.Pointer(p), size+align, nil)
+		p = alignUp(p, align)
+		p2 := sysReserve(unsafe.Pointer(p), size)
+		if p != uintptr(p2) {
+			// Must have raced. Try again.
+			sysFree(p2, size, nil)
+",possible misuse of unsafe.Pointer,runtime
+43,43,43,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,802.0,"		p2 := sysReserve(unsafe.Pointer(p), size)
+","		// re-reserve the aligned sub-region. This may race,
+		// so we may have to try again.
+		sysFree(unsafe.Pointer(p), size+align, nil)
+		p = alignUp(p, align)
+		p2 := sysReserve(unsafe.Pointer(p), size)
+		if p != uintptr(p2) {
+			// Must have raced. Try again.
+			sysFree(p2, size, nil)
+			if retries++; retries == 100 {
+				throw(""failed to allocate aligned heap memory; too many retries"")
+",possible misuse of unsafe.Pointer,runtime
+44,44,44,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,816.0,"		sysFree(unsafe.Pointer(p), pAligned-p, nil)
+","		return p2, size
+	default:
+		// Trim off the unaligned parts.
+		pAligned := alignUp(p, align)
+		sysFree(unsafe.Pointer(p), pAligned-p, nil)
+		end := pAligned + size
+		endLen := (p + size + align) - end
+		if endLen > 0 {
+			sysFree(unsafe.Pointer(end), endLen, nil)
+		}
+",possible misuse of unsafe.Pointer,runtime
+45,45,45,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,820.0,"			sysFree(unsafe.Pointer(end), endLen, nil)
+","		sysFree(unsafe.Pointer(p), pAligned-p, nil)
+		end := pAligned + size
+		endLen := (p + size + align) - end
+		if endLen > 0 {
+			sysFree(unsafe.Pointer(end), endLen, nil)
+		}
+		return unsafe.Pointer(pAligned), size
+	}
+}
+
+",possible misuse of unsafe.Pointer,runtime
+46,46,46,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,822.0,"		return unsafe.Pointer(pAligned), size
+","		endLen := (p + size + align) - end
+		if endLen > 0 {
+			sysFree(unsafe.Pointer(end), endLen, nil)
+		}
+		return unsafe.Pointer(pAligned), size
+	}
+}
+
+// base address for all 0-byte allocations
+var zerobase uintptr
+",possible misuse of unsafe.Pointer,runtime
+47,47,47,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,1001.0,"				x = unsafe.Pointer(c.tiny + off)
+","				off = alignUp(off, 2)
+			}
+			if off+size <= maxTinySize && c.tiny != 0 {
+				// The object fits into existing tiny block.
+				x = unsafe.Pointer(c.tiny + off)
+				c.tinyoffset = off + size
+				c.local_tinyallocs++
+				mp.mallocing = 0
+				releasem(mp)
+				return x
+",possible misuse of unsafe.Pointer,runtime
+48,48,48,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,1014.0,"			x = unsafe.Pointer(v)
+","			v := nextFreeFast(span)
+			if v == 0 {
+				v, _, shouldhelpgc = c.nextFree(tinySpanClass)
+			}
+			x = unsafe.Pointer(v)
+			(*[2]uint64)(x)[0] = 0
+			(*[2]uint64)(x)[1] = 0
+			// See if we need to replace the existing tiny block with the new one
+			// based on amount of remaining free space.
+			if size < c.tinyoffset || c.tiny == 0 {
+",possible misuse of unsafe.Pointer,runtime
+49,49,49,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,1038.0,"			x = unsafe.Pointer(v)
+","			v := nextFreeFast(span)
+			if v == 0 {
+				v, span, shouldhelpgc = c.nextFree(spc)
+			}
+			x = unsafe.Pointer(v)
+			if needzero && span.needzero != 0 {
+				memclrNoHeapPointers(unsafe.Pointer(v), size)
+			}
+		}
+	} else {
+",possible misuse of unsafe.Pointer,runtime
+50,50,50,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,1040.0,"				memclrNoHeapPointers(unsafe.Pointer(v), size)
+","				v, span, shouldhelpgc = c.nextFree(spc)
+			}
+			x = unsafe.Pointer(v)
+			if needzero && span.needzero != 0 {
+				memclrNoHeapPointers(unsafe.Pointer(v), size)
+			}
+		}
+	} else {
+		var s *mspan
+		shouldhelpgc = true
+",possible misuse of unsafe.Pointer,runtime
+51,51,51,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,1051.0,"		x = unsafe.Pointer(s.base())
+","			s = largeAlloc(size, needzero, noscan)
+		})
+		s.freeindex = 1
+		s.allocCount = 1
+		x = unsafe.Pointer(s.base())
+		size = s.elemsize
+	}
+
+	var scanSize uintptr
+	if !noscan {
+",possible misuse of unsafe.Pointer,runtime
+52,52,52,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,1374.0,"		chunk = *(*uintptr)(unsafe.Pointer(chunk))
+","	for chunk != 0 {
+		if p >= chunk && p < chunk+persistentChunkSize {
+			return true
+		}
+		chunk = *(*uintptr)(unsafe.Pointer(chunk))
+	}
+	return false
+}
+
+// linearAlloc is a simple linear allocator that pre-reserves a region
+",possible misuse of unsafe.Pointer,runtime
+53,53,53,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,1401.0,"		sysMap(unsafe.Pointer(l.mapped), pEnd-l.mapped, sysStat)
+","	}
+	l.next = p + size
+	if pEnd := alignUp(l.next-1, physPageSize); pEnd > l.mapped {
+		// Transition from Reserved to Prepared to Ready.
+		sysMap(unsafe.Pointer(l.mapped), pEnd-l.mapped, sysStat)
+		sysUsed(unsafe.Pointer(l.mapped), pEnd-l.mapped)
+		l.mapped = pEnd
+	}
+	return unsafe.Pointer(p)
+}
+",possible misuse of unsafe.Pointer,runtime
+54,54,54,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,1402.0,"		sysUsed(unsafe.Pointer(l.mapped), pEnd-l.mapped)
+","	l.next = p + size
+	if pEnd := alignUp(l.next-1, physPageSize); pEnd > l.mapped {
+		// Transition from Reserved to Prepared to Ready.
+		sysMap(unsafe.Pointer(l.mapped), pEnd-l.mapped, sysStat)
+		sysUsed(unsafe.Pointer(l.mapped), pEnd-l.mapped)
+		l.mapped = pEnd
+	}
+	return unsafe.Pointer(p)
+}
+
+",possible misuse of unsafe.Pointer,runtime
+55,55,55,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,malloc.go,1405.0,"	return unsafe.Pointer(p)
+","		sysMap(unsafe.Pointer(l.mapped), pEnd-l.mapped, sysStat)
+		sysUsed(unsafe.Pointer(l.mapped), pEnd-l.mapped)
+		l.mapped = pEnd
+	}
+	return unsafe.Pointer(p)
+}
+
+// notInHeap is off-heap memory allocated by a lower-level allocator
+// like sysAlloc or persistentAlloc.
+//
+",possible misuse of unsafe.Pointer,runtime
+56,56,56,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcmark.go,814.0,"			gcdata = (*byte)(unsafe.Pointer(s.startAddr))
+","			// to change from a Lempel-Ziv style program to something else.
+			// Or we can forbid putting objects on stacks if they require
+			// a gc program (see issue 27447).
+			s = materializeGCProg(t.ptrdata, gcdata)
+			gcdata = (*byte)(unsafe.Pointer(s.startAddr))
+		}
+
+		b := state.stack.lo + uintptr(obj.off)
+		if conservative {
+			scanConservative(b, t.ptrdata, gcdata, gcw, &state)
+",possible misuse of unsafe.Pointer,runtime
+57,57,57,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcmark.go,1168.0,"				p := *(*uintptr)(unsafe.Pointer(b + i))
+","		}
+		for j := 0; j < 8 && i < n; j++ {
+			if bits&1 != 0 {
+				// Same work as in scanobject; see comments there.
+				p := *(*uintptr)(unsafe.Pointer(b + i))
+				if p != 0 {
+					if obj, span, objIndex := findObject(p, b, i); obj != 0 {
+						greyobject(obj, b, i, span, gcw, objIndex)
+					} else if stk != nil && p >= stk.stack.lo && p < stk.stack.hi {
+						stk.putPtr(p, false)
+",possible misuse of unsafe.Pointer,runtime
+58,58,58,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcmark.go,1260.0,"		obj := *(*uintptr)(unsafe.Pointer(b + i))
+","		}
+
+		// Work here is duplicated in scanblock and above.
+		// If you make changes here, make changes there too.
+		obj := *(*uintptr)(unsafe.Pointer(b + i))
+
+		// At this point we have extracted the next potential pointer.
+		// Quickly filter out nil and pointers back to the current object.
+		if obj != 0 && obj-b >= n {
+			// Test if obj points into the Go heap and, if so,
+",possible misuse of unsafe.Pointer,runtime
+59,59,59,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcmark.go,1304.0,"			val := *(*uintptr)(unsafe.Pointer(p))
+","					return '$'
+				}
+			}
+
+			val := *(*uintptr)(unsafe.Pointer(p))
+			if state != nil && state.stack.lo <= val && val < state.stack.hi {
+				return '@'
+			}
+
+			span := spanOfHeap(val)
+",possible misuse of unsafe.Pointer,runtime
+60,60,60,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcmark.go,1344.0,"		val := *(*uintptr)(unsafe.Pointer(b + i))
+","				continue
+			}
+		}
+
+		val := *(*uintptr)(unsafe.Pointer(b + i))
+
+		// Check if val points into the stack.
+		if state != nil && state.stack.lo <= val && val < state.stack.hi {
+			// val may point to a stack object. This
+			// object may be dead from last cycle and
+",possible misuse of unsafe.Pointer,runtime
+61,61,61,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcmark.go,1502.0,"		print("" *("", label, ""+"", i, "") = "", hex(*(*uintptr)(unsafe.Pointer(obj + i))))
+","		if skipped {
+			print("" ...\n"")
+			skipped = false
+		}
+		print("" *("", label, ""+"", i, "") = "", hex(*(*uintptr)(unsafe.Pointer(obj + i))))
+		if i == off {
+			print("" <=="")
+		}
+		print(""\n"")
+	}
+",possible misuse of unsafe.Pointer,runtime
+62,62,62,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcsweep.go,278.0,"					freespecial(y, unsafe.Pointer(p), size)
+","					// Splice out special record.
+					y := special
+					special = special.next
+					*specialp = special
+					freespecial(y, unsafe.Pointer(p), size)
+				} else {
+					// This is profile record, but the object has finalizers (so kept alive).
+					// Keep special record.
+					specialp = &special.next
+					special = *specialp
+",possible misuse of unsafe.Pointer,runtime
+63,63,63,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcsweep.go,302.0,"					tracefree(unsafe.Pointer(x), size)
+","		for i := uintptr(0); i < s.nelems; i++ {
+			if !mbits.isMarked() && (abits.index < s.freeindex || abits.isMarked()) {
+				x := s.base() + i*s.elemsize
+				if debug.allocfreetrace != 0 {
+					tracefree(unsafe.Pointer(x), size)
+				}
+				if debug.clobberfree != 0 {
+					clobberfree(unsafe.Pointer(x), size)
+				}
+				if raceenabled {
+",possible misuse of unsafe.Pointer,runtime
+64,64,64,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcsweep.go,305.0,"					clobberfree(unsafe.Pointer(x), size)
+","				if debug.allocfreetrace != 0 {
+					tracefree(unsafe.Pointer(x), size)
+				}
+				if debug.clobberfree != 0 {
+					clobberfree(unsafe.Pointer(x), size)
+				}
+				if raceenabled {
+					racefree(unsafe.Pointer(x), size)
+				}
+				if msanenabled {
+",possible misuse of unsafe.Pointer,runtime
+65,65,65,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcsweep.go,308.0,"					racefree(unsafe.Pointer(x), size)
+","				if debug.clobberfree != 0 {
+					clobberfree(unsafe.Pointer(x), size)
+				}
+				if raceenabled {
+					racefree(unsafe.Pointer(x), size)
+				}
+				if msanenabled {
+					msanfree(unsafe.Pointer(x), size)
+				}
+			}
+",possible misuse of unsafe.Pointer,runtime
+66,66,66,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcsweep.go,311.0,"					msanfree(unsafe.Pointer(x), size)
+","				if raceenabled {
+					racefree(unsafe.Pointer(x), size)
+				}
+				if msanenabled {
+					msanfree(unsafe.Pointer(x), size)
+				}
+			}
+			mbits.advance()
+			abits.advance()
+		}
+",possible misuse of unsafe.Pointer,runtime
+67,67,67,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcsweep.go,387.0,"			sysFault(unsafe.Pointer(s.base()), size)
+","		// It should be possible to switch back to sysFree if we also
+		// implement and then call some kind of mheap.deleteSpan.
+		if debug.efence > 0 {
+			s.limit = 0 // prevent mlookup from finding this span
+			sysFault(unsafe.Pointer(s.base()), size)
+		} else {
+			mheap_.freeSpan(s)
+		}
+		c.local_nlargefree++
+		c.local_largefree += size
+",possible misuse of unsafe.Pointer,runtime
+68,68,68,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mgcwork.go,453.0,"			newb := (*workbuf)(unsafe.Pointer(s.base() + i))
+","		}
+		// Slice up the span into new workbufs. Return one and
+		// put the rest on the empty list.
+		for i := uintptr(0); i+_WorkbufSize <= workbufAlloc; i += _WorkbufSize {
+			newb := (*workbuf)(unsafe.Pointer(s.base() + i))
+			newb.nobj = 0
+			lfnodeValidate(&newb.node)
+			if i == 0 {
+				b = newb
+			} else {
+",possible misuse of unsafe.Pointer,runtime
+69,69,69,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,498.0,"		h.bitp = (*uint8)(unsafe.Pointer(nbitp))
+","	n += uintptr(h.shift) / heapBitsShift
+	nbitp := uintptr(unsafe.Pointer(h.bitp)) + n/4
+	h.shift = uint32(n%4) * heapBitsShift
+	if nbitp <= uintptr(unsafe.Pointer(h.last)) {
+		h.bitp = (*uint8)(unsafe.Pointer(nbitp))
+		return h
+	}
+
+	// We're in a new heap arena.
+	past := nbitp - (uintptr(unsafe.Pointer(h.last)) + 1)
+",possible misuse of unsafe.Pointer,runtime
+70,70,70,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,646.0,"				dstx := (*uintptr)(unsafe.Pointer(dst + i))
+","	h := heapBitsForAddr(dst)
+	if src == 0 {
+		for i := uintptr(0); i < size; i += sys.PtrSize {
+			if h.isPointer() {
+				dstx := (*uintptr)(unsafe.Pointer(dst + i))
+				if !buf.putFast(*dstx, 0) {
+					wbBufFlush(nil, 0)
+				}
+			}
+			h = h.next()
+",possible misuse of unsafe.Pointer,runtime
+71,71,71,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,656.0,"				dstx := (*uintptr)(unsafe.Pointer(dst + i))
+","		}
+	} else {
+		for i := uintptr(0); i < size; i += sys.PtrSize {
+			if h.isPointer() {
+				dstx := (*uintptr)(unsafe.Pointer(dst + i))
+				srcx := (*uintptr)(unsafe.Pointer(src + i))
+				if !buf.putFast(*dstx, *srcx) {
+					wbBufFlush(nil, 0)
+				}
+			}
+",possible misuse of unsafe.Pointer,runtime
+72,72,72,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,657.0,"				srcx := (*uintptr)(unsafe.Pointer(src + i))
+","	} else {
+		for i := uintptr(0); i < size; i += sys.PtrSize {
+			if h.isPointer() {
+				dstx := (*uintptr)(unsafe.Pointer(dst + i))
+				srcx := (*uintptr)(unsafe.Pointer(src + i))
+				if !buf.putFast(*dstx, *srcx) {
+					wbBufFlush(nil, 0)
+				}
+			}
+			h = h.next()
+",possible misuse of unsafe.Pointer,runtime
+73,73,73,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,687.0,"			srcx := (*uintptr)(unsafe.Pointer(src + i))
+","	buf := &getg().m.p.ptr().wbBuf
+	h := heapBitsForAddr(dst)
+	for i := uintptr(0); i < size; i += sys.PtrSize {
+		if h.isPointer() {
+			srcx := (*uintptr)(unsafe.Pointer(src + i))
+			if !buf.putFast(0, *srcx) {
+				wbBufFlush(nil, 0)
+			}
+		}
+		h = h.next()
+",possible misuse of unsafe.Pointer,runtime
+74,74,74,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,721.0,"			dstx := (*uintptr)(unsafe.Pointer(dst + i))
+","			}
+			mask = 1
+		}
+		if *bits&mask != 0 {
+			dstx := (*uintptr)(unsafe.Pointer(dst + i))
+			if src == 0 {
+				if !buf.putFast(*dstx, 0) {
+					wbBufFlush(nil, 0)
+				}
+			} else {
+",possible misuse of unsafe.Pointer,runtime
+75,75,75,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,727.0,"				srcx := (*uintptr)(unsafe.Pointer(src + i))
+","				if !buf.putFast(*dstx, 0) {
+					wbBufFlush(nil, 0)
+				}
+			} else {
+				srcx := (*uintptr)(unsafe.Pointer(src + i))
+				if !buf.putFast(*dstx, *srcx) {
+					wbBufFlush(nil, 0)
+				}
+			}
+		}
+",possible misuse of unsafe.Pointer,runtime
+76,76,76,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,780.0,"			dstx := (*uintptr)(unsafe.Pointer(dst + i))
+","		} else {
+			bits = bits >> 1
+		}
+		if bits&1 != 0 {
+			dstx := (*uintptr)(unsafe.Pointer(dst + i))
+			srcx := (*uintptr)(unsafe.Pointer(src + i))
+			if !buf.putFast(*dstx, *srcx) {
+				wbBufFlush(nil, 0)
+			}
+		}
+",possible misuse of unsafe.Pointer,runtime
+77,77,77,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,781.0,"			srcx := (*uintptr)(unsafe.Pointer(src + i))
+","			bits = bits >> 1
+		}
+		if bits&1 != 0 {
+			dstx := (*uintptr)(unsafe.Pointer(dst + i))
+			srcx := (*uintptr)(unsafe.Pointer(src + i))
+			if !buf.putFast(*dstx, *srcx) {
+				wbBufFlush(nil, 0)
+			}
+		}
+	}
+",possible misuse of unsafe.Pointer,runtime
+78,78,78,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,1039.0,"		h.bitp = (*uint8)(unsafe.Pointer(x))
+","		//
+		// In doubleCheck mode, we randomly do this anyway to
+		// stress test the bitmap copying path.
+		outOfPlace = true
+		h.bitp = (*uint8)(unsafe.Pointer(x))
+		h.last = nil
+	}
+
+	var (
+		// Ptrmask input.
+",possible misuse of unsafe.Pointer,runtime
+79,79,79,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,1379.0,"		src := (*uint8)(unsafe.Pointer(x))
+","		h := heapBitsForAddr(x)
+		// cnw is the number of heap words, or bit pairs
+		// remaining (like nw above).
+		cnw := size / sys.PtrSize
+		src := (*uint8)(unsafe.Pointer(x))
+		// We know the first and last byte of the bitmap are
+		// not the same, but it's still possible for small
+		// objects span arenas, so it may share bitmap bytes
+		// with neighboring objects.
+		//
+",possible misuse of unsafe.Pointer,runtime
+80,80,80,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,1436.0,"		memclrNoHeapPointers(unsafe.Pointer(x), uintptr(unsafe.Pointer(src))-x)
+","			// Set up hbitp so doubleCheck code below can check it.
+			hbitp = h.bitp
+		}
+		// Zero the object where we wrote the bitmap.
+		memclrNoHeapPointers(unsafe.Pointer(x), uintptr(unsafe.Pointer(src))-x)
+	}
+
+	// Double check the whole bitmap.
+	if doubleCheck {
+		// x+size may not point to the heap, so back up one
+",possible misuse of unsafe.Pointer,runtime
+81,81,81,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mbitmap.go,1929.0,"	runGCProg(addb(prog, 4), nil, (*byte)(unsafe.Pointer(s.startAddr)), 1)
+","	bitmapBytes := divRoundUp(ptrdata, 8*sys.PtrSize)
+	// Compute the number of pages needed for bitmapBytes.
+	pages := divRoundUp(bitmapBytes, pageSize)
+	s := mheap_.allocManual(pages, &memstats.gc_sys)
+	runGCProg(addb(prog, 4), nil, (*byte)(unsafe.Pointer(s.startAddr)), 1)
+	return s
+}
+func dematerializeGCProg(s *mspan) {
+	mheap_.freeManual(s, &memstats.gc_sys)
+}
+",possible misuse of unsafe.Pointer,runtime
+82,82,82,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mheap.go,876.0,"			memclrNoHeapPointers(unsafe.Pointer(s.base()), s.npages<<_PageShift)
+","	})
+
+	if s != nil {
+		if needzero && s.needzero != 0 {
+			memclrNoHeapPointers(unsafe.Pointer(s.base()), s.npages<<_PageShift)
+		}
+		s.needzero = 0
+	}
+	return s
+}
+",possible misuse of unsafe.Pointer,runtime
+83,83,83,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mheap.go,1229.0,"		sysUsed(unsafe.Pointer(base), nbytes)
+","	// Commit and account for any scavenged memory that the span now owns.
+	if scav != 0 {
+		// sysUsed all the pages that are actually available
+		// in the span since some of them might be scavenged.
+		sysUsed(unsafe.Pointer(base), nbytes)
+		mSysStatDec(&memstats.heap_released, scav)
+	}
+	// Update stats.
+	mSysStatInc(sysStat, nbytes)
+	mSysStatDec(&memstats.heap_idle, nbytes)
+",possible misuse of unsafe.Pointer,runtime
+84,84,84,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mheap.go,1353.0,"			base := unsafe.Pointer(s.base())
+","		memstats.tinyallocs += uint64(mp.mcache.local_tinyallocs)
+		mp.mcache.local_tinyallocs = 0
+		if msanenabled {
+			// Tell msan that this entire span is no longer in use.
+			base := unsafe.Pointer(s.base())
+			bytes := s.npages << _PageShift
+			msanfree(base, bytes)
+		}
+		if gcBlackenEnabled != 0 {
+			// heap_scan changed.
+",possible misuse of unsafe.Pointer,runtime
+85,85,85,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mpagealloc_64bit.go,177.0,"		sysMap(unsafe.Pointer(need.base), need.size(), s.sysStat)
+","			continue
+		}
+
+		// Map and commit need.
+		sysMap(unsafe.Pointer(need.base), need.size(), s.sysStat)
+		sysUsed(unsafe.Pointer(need.base), need.size())
+	}
+}
+",possible misuse of unsafe.Pointer,runtime
+86,86,86,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mpagealloc_64bit.go,178.0,"		sysUsed(unsafe.Pointer(need.base), need.size())
+","		}
+
+		// Map and commit need.
+		sysMap(unsafe.Pointer(need.base), need.size(), s.sysStat)
+		sysUsed(unsafe.Pointer(need.base), need.size())
+	}
+}
+",possible misuse of unsafe.Pointer,runtime
+87,87,87,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,netpoll.go,453.0,"			return (*g)(unsafe.Pointer(old))
+","		if atomic.Casuintptr(gpp, old, new) {
+			if old == pdReady || old == pdWait {
+				old = 0
+			}
+			return (*g)(unsafe.Pointer(old))
+		}
+	}
+}
+
+func netpolldeadlineimpl(pd *pollDesc, seq uintptr, read, write bool) {
+",possible misuse of unsafe.Pointer,runtime
+88,88,88,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,mwbbuf.go,151.0,"	p := (*[2]uintptr)(unsafe.Pointer(b.next))
+","//
+//go:nowritebarrierrec
+//go:nosplit
+func (b *wbBuf) putFast(old, new uintptr) bool {
+	p := (*[2]uintptr)(unsafe.Pointer(b.next))
+	p[0] = old
+	p[1] = new
+	b.next += 2 * sys.PtrSize
+	return b.next != b.end
+}
+",possible misuse of unsafe.Pointer,runtime
+89,89,89,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,plugin.go,81.0,"		symName := resolveNameOff(unsafe.Pointer(md.types), ptab.name)
+","	// function symbol names are prefixed here with '.' to avoid
+	// a dependency on the reflect package.
+	syms = make(map[string]interface{}, len(md.ptab))
+	for _, ptab := range md.ptab {
+		symName := resolveNameOff(unsafe.Pointer(md.types), ptab.name)
+		t := (*_type)(unsafe.Pointer(md.types)).typeOff(ptab.typ)
+		var val interface{}
+		valp := (*[2]unsafe.Pointer)(unsafe.Pointer(&val))
+		(*valp)[0] = unsafe.Pointer(t)
+
+",possible misuse of unsafe.Pointer,runtime
+90,90,90,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,plugin.go,82.0,"		t := (*_type)(unsafe.Pointer(md.types)).typeOff(ptab.typ)
+","	// a dependency on the reflect package.
+	syms = make(map[string]interface{}, len(md.ptab))
+	for _, ptab := range md.ptab {
+		symName := resolveNameOff(unsafe.Pointer(md.types), ptab.name)
+		t := (*_type)(unsafe.Pointer(md.types)).typeOff(ptab.typ)
+		var val interface{}
+		valp := (*[2]unsafe.Pointer)(unsafe.Pointer(&val))
+		(*valp)[0] = unsafe.Pointer(t)
+
+		name := symName.name()
+",possible misuse of unsafe.Pointer,runtime
+91,91,91,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,print.go,297.0,"		val := *(*uintptr)(unsafe.Pointer(p + i))
+","				markbuf[0] = ' '
+			}
+		}
+		gwrite(markbuf[:])
+		val := *(*uintptr)(unsafe.Pointer(p + i))
+		p1(val)
+		print("" "")
+
+		// Can we symbolize val?
+		fn := findfunc(val)
+",possible misuse of unsafe.Pointer,runtime
+92,92,92,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,runtime1.go,470.0,"	sections := []unsafe.Pointer{unsafe.Pointer(modules[0].types)}
+","
+//go:linkname reflect_typelinks reflect.typelinks
+func reflect_typelinks() ([]unsafe.Pointer, [][]int32) {
+	modules := activeModules()
+	sections := []unsafe.Pointer{unsafe.Pointer(modules[0].types)}
+	ret := [][]int32{modules[0].typelinks}
+	for _, md := range modules[1:] {
+		sections = append(sections, unsafe.Pointer(md.types))
+		ret = append(ret, md.typelinks)
+	}
+",possible misuse of unsafe.Pointer,runtime
+93,93,93,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,runtime1.go,473.0,"		sections = append(sections, unsafe.Pointer(md.types))
+","	modules := activeModules()
+	sections := []unsafe.Pointer{unsafe.Pointer(modules[0].types)}
+	ret := [][]int32{modules[0].typelinks}
+	for _, md := range modules[1:] {
+		sections = append(sections, unsafe.Pointer(md.types))
+		ret = append(ret, md.typelinks)
+	}
+	return sections, ret
+}
+
+",possible misuse of unsafe.Pointer,runtime
+94,94,94,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,os_linux.go,69.0,"	*(*int32)(unsafe.Pointer(uintptr(0x1006))) = 0x1006
+","	systemstack(func() {
+		print(""futexwakeup addr="", addr, "" returned "", ret, ""\n"")
+	})
+
+	*(*int32)(unsafe.Pointer(uintptr(0x1006))) = 0x1006
+}
+
+func getproccount() int32 {
+	// This buffer is huge (8 kB) but we are on the system stack
+	// and there should be plenty of space (64 kB).
+",possible misuse of unsafe.Pointer,runtime
+95,95,95,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,os_linux.go,141.0,"	stk := unsafe.Pointer(mp.g0.stack.hi)
+","
+// May run with m.p==nil, so write barriers are not allowed.
+//go:nowritebarrier
+func newosproc(mp *m) {
+	stk := unsafe.Pointer(mp.g0.stack.hi)
+	/*
+	 * note: strace gets confused if we use CLONE_PTRACE here.
+	 */
+	if false {
+		print(""newosproc stk="", stk, "" m="", mp, "" g="", mp.g0, "" clone="", funcPC(clone), "" id="", mp.id, "" ostk="", &mp, ""\n"")
+",possible misuse of unsafe.Pointer,runtime
+96,96,96,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,os_linux.go,153.0,"	ret := clone(cloneFlags, stk, unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(funcPC(mstart)))
+","	// Disable signals during clone, so that the new thread starts
+	// with signals disabled. It will enable them in minit.
+	var oset sigset
+	sigprocmask(_SIG_SETMASK, &sigset_all, &oset)
+	ret := clone(cloneFlags, stk, unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(funcPC(mstart)))
+	sigprocmask(_SIG_SETMASK, &oset, nil)
+
+	if ret < 0 {
+		print(""runtime: failed to create new OS thread (have "", mcount(), "" already; errno="", -ret, "")\n"")
+		if ret == -_EAGAIN {
+",possible misuse of unsafe.Pointer,runtime
+97,97,97,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,os_linux.go,260.0,"			startupRandomData = (*[16]byte)(unsafe.Pointer(val))[:]
+","		switch tag {
+		case _AT_RANDOM:
+			// The kernel provides a pointer to 16-bytes
+			// worth of random data.
+			startupRandomData = (*[16]byte)(unsafe.Pointer(val))[:]
+
+		case _AT_PAGESZ:
+			physPageSize = val
+		}
+
+",possible misuse of unsafe.Pointer,runtime
+98,98,98,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,os_linux.go,497.0,"		atomic.Cas((*uint32)(unsafe.Pointer(mp.gsignal.stack.hi-4)), 0, 0)
+","
+// signalM sends a signal to mp.
+func signalM(mp *m, sig int) {
+	if atomic.Load(&touchStackBeforeSignal) != 0 {
+		atomic.Cas((*uint32)(unsafe.Pointer(mp.gsignal.stack.hi-4)), 0, 0)
+	}
+	tgkill(getpid(), int(mp.procid), sig)
+}
+",possible misuse of unsafe.Pointer,runtime
+99,99,99,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,runtime2.go,259.0,"func (gp guintptr) ptr() *g { return (*g)(unsafe.Pointer(gp)) }
+","// alternate arena. Using guintptr doesn't make that problem any worse.
+type guintptr uintptr
+
+//go:nosplit
+func (gp guintptr) ptr() *g { return (*g)(unsafe.Pointer(gp)) }
+
+//go:nosplit
+func (gp *guintptr) set(g *g) { *gp = guintptr(unsafe.Pointer(g)) }
+
+//go:nosplit
+",possible misuse of unsafe.Pointer,runtime
+100,100,100,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,runtime2.go,280.0,"func (pp puintptr) ptr() *p { return (*p)(unsafe.Pointer(pp)) }
+","
+type puintptr uintptr
+
+//go:nosplit
+func (pp puintptr) ptr() *p { return (*p)(unsafe.Pointer(pp)) }
+
+//go:nosplit
+func (pp *puintptr) set(p *p) { *pp = puintptr(unsafe.Pointer(p)) }
+
+// muintptr is a *m that is not tracked by the garbage collector.
+",possible misuse of unsafe.Pointer,runtime
+101,101,101,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,runtime2.go,297.0,"func (mp muintptr) ptr() *m { return (*m)(unsafe.Pointer(mp)) }
+","//    ensure it is not in use when the last true *m is released.
+type muintptr uintptr
+
+//go:nosplit
+func (mp muintptr) ptr() *m { return (*m)(unsafe.Pointer(mp)) }
+
+//go:nosplit
+func (mp *muintptr) set(m *m) { *mp = muintptr(unsafe.Pointer(m)) }
+
+// setMNoWB performs *mp = new without a write barrier.
+",possible misuse of unsafe.Pointer,runtime
+102,102,102,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,247.0,"		*(*uintptr)(deferArgs(d)) = *(*uintptr)(unsafe.Pointer(argp))
+","	switch siz {
+	case 0:
+		// Do nothing.
+	case sys.PtrSize:
+		*(*uintptr)(deferArgs(d)) = *(*uintptr)(unsafe.Pointer(argp))
+	default:
+		memmove(deferArgs(d), unsafe.Pointer(argp), uintptr(siz))
+	}
+
+	// deferproc returns 0 normally.
+",possible misuse of unsafe.Pointer,runtime
+103,103,103,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,249.0,"		memmove(deferArgs(d), unsafe.Pointer(argp), uintptr(siz))
+","		// Do nothing.
+	case sys.PtrSize:
+		*(*uintptr)(deferArgs(d)) = *(*uintptr)(unsafe.Pointer(argp))
+	default:
+		memmove(deferArgs(d), unsafe.Pointer(argp), uintptr(siz))
+	}
+
+	// deferproc returns 0 normally.
+	// a deferred func that stops a panic
+	// makes the deferproc return 1.
+",possible misuse of unsafe.Pointer,runtime
+104,104,104,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,596.0,"	addOneOpenDeferFrame(gp, getcallerpc(), unsafe.Pointer(getcallersp()))
+","	p.goexit = true
+	p.link = gp._panic
+	gp._panic = (*_panic)(noescape(unsafe.Pointer(&p)))
+
+	addOneOpenDeferFrame(gp, getcallerpc(), unsafe.Pointer(getcallersp()))
+	for {
+		d := gp._defer
+		if d == nil {
+			break
+		}
+",possible misuse of unsafe.Pointer,runtime
+105,105,105,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,628.0,"				addOneOpenDeferFrame(gp, getcallerpc(), unsafe.Pointer(getcallersp()))
+","			if p.aborted {
+				// Since our current defer caused a panic and may
+				// have been already freed, just restart scanning
+				// for open-coded defers from this frame again.
+				addOneOpenDeferFrame(gp, getcallerpc(), unsafe.Pointer(getcallersp()))
+			} else {
+				addOneOpenDeferFrame(gp, 0, nil)
+			}
+		} else {
+
+",possible misuse of unsafe.Pointer,runtime
+106,106,106,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,718.0,"		sp = unsafe.Pointer(prevDefer.sp)
+","	var prevDefer *_defer
+	if sp == nil {
+		prevDefer = gp._defer
+		pc = prevDefer.framepc
+		sp = unsafe.Pointer(prevDefer.sp)
+	}
+	systemstack(func() {
+		gentraceback(pc, uintptr(sp), 0, gp, 0, nil, 0x7fffffff,
+			func(frame *stkframe, unused unsafe.Pointer) bool {
+				if prevDefer != nil && prevDefer.sp == frame.sp {
+",possible misuse of unsafe.Pointer,runtime
+107,107,107,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,822.0,"	deferBits := *(*uint8)(unsafe.Pointer(d.varp - uintptr(deferBitsOffset)))
+","	// Skip the maxargsize
+	_, fd = readvarintUnsafe(fd)
+	deferBitsOffset, fd := readvarintUnsafe(fd)
+	nDefers, fd := readvarintUnsafe(fd)
+	deferBits := *(*uint8)(unsafe.Pointer(d.varp - uintptr(deferBitsOffset)))
+
+	for i := int(nDefers) - 1; i >= 0; i-- {
+		// read the funcdata info for this defer
+		var argWidth, closureOffset, nArgs uint32
+		argWidth, fd = readvarintUnsafe(fd)
+",possible misuse of unsafe.Pointer,runtime
+108,108,108,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,838.0,"		closure := *(**funcval)(unsafe.Pointer(d.varp - uintptr(closureOffset)))
+","				_, fd = readvarintUnsafe(fd)
+			}
+			continue
+		}
+		closure := *(**funcval)(unsafe.Pointer(d.varp - uintptr(closureOffset)))
+		d.fn = closure
+		deferArgs := deferArgs(d)
+		// If there is an interface receiver or method receiver, it is
+		// described/included as the first arg.
+		for j := uint32(0); j < nArgs; j++ {
+",possible misuse of unsafe.Pointer,runtime
+109,109,109,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,849.0,"				unsafe.Pointer(d.varp-uintptr(argOffset)),
+","			argOffset, fd = readvarintUnsafe(fd)
+			argLen, fd = readvarintUnsafe(fd)
+			argCallOffset, fd = readvarintUnsafe(fd)
+			memmove(unsafe.Pointer(uintptr(deferArgs)+uintptr(argCallOffset)),
+				unsafe.Pointer(d.varp-uintptr(argOffset)),
+				uintptr(argLen))
+		}
+		deferBits = deferBits &^ (1 << i)
+		*(*uint8)(unsafe.Pointer(d.varp - uintptr(deferBitsOffset))) = deferBits
+		p := d._panic
+",possible misuse of unsafe.Pointer,runtime
+110,110,110,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,853.0,"		*(*uint8)(unsafe.Pointer(d.varp - uintptr(deferBitsOffset))) = deferBits
+","				unsafe.Pointer(d.varp-uintptr(argOffset)),
+				uintptr(argLen))
+		}
+		deferBits = deferBits &^ (1 << i)
+		*(*uint8)(unsafe.Pointer(d.varp - uintptr(deferBitsOffset))) = deferBits
+		p := d._panic
+		reflectcallSave(p, unsafe.Pointer(closure), deferArgs, argWidth)
+		if p != nil && p.aborted {
+			break
+		}
+",possible misuse of unsafe.Pointer,runtime
+111,111,111,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,877.0,"		p.argp = unsafe.Pointer(getargp(0))
+","// loop, in the unusual case where the Goexit may be bypassed by a successful
+// recover.
+func reflectcallSave(p *_panic, fn, arg unsafe.Pointer, argsize uint32) {
+	if p != nil {
+		p.argp = unsafe.Pointer(getargp(0))
+		p.pc = getcallerpc()
+		p.sp = unsafe.Pointer(getcallersp())
+	}
+	reflectcall(nil, fn, arg, argsize, argsize)
+	if p != nil {
+",possible misuse of unsafe.Pointer,runtime
+112,112,112,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,879.0,"		p.sp = unsafe.Pointer(getcallersp())
+","func reflectcallSave(p *_panic, fn, arg unsafe.Pointer, argsize uint32) {
+	if p != nil {
+		p.argp = unsafe.Pointer(getargp(0))
+		p.pc = getcallerpc()
+		p.sp = unsafe.Pointer(getcallersp())
+	}
+	reflectcall(nil, fn, arg, argsize, argsize)
+	if p != nil {
+		p.pc = 0
+		p.sp = unsafe.Pointer(nil)
+",possible misuse of unsafe.Pointer,runtime
+113,113,113,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,929.0,"	addOneOpenDeferFrame(gp, getcallerpc(), unsafe.Pointer(getcallersp()))
+","	atomic.Xadd(&runningPanicDefers, 1)
+
+	// By calculating getcallerpc/getcallersp here, we avoid scanning the
+	// gopanic frame (stack scanning is slow...)
+	addOneOpenDeferFrame(gp, getcallerpc(), unsafe.Pointer(getcallersp()))
+
+	for {
+		d := gp._defer
+		if d == nil {
+			break
+",possible misuse of unsafe.Pointer,runtime
+114,114,114,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,974.0,"			p.argp = unsafe.Pointer(getargp(0))
+","			if done && !d._panic.recovered {
+				addOneOpenDeferFrame(gp, 0, nil)
+			}
+		} else {
+			p.argp = unsafe.Pointer(getargp(0))
+			reflectcall(nil, unsafe.Pointer(d.fn), deferArgs(d), uint32(d.siz), uint32(d.siz))
+		}
+		p.argp = nil
+
+		// reflectcall did not panic. Remove d.
+",possible misuse of unsafe.Pointer,runtime
+115,115,115,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,panic.go,989.0,"		sp := unsafe.Pointer(d.sp) // must be pointer so it gets adjusted during stack copy
+","		// trigger shrinkage to test stack copy. See stack_test.go:TestStackPanic
+		//GC()
+
+		pc := d.pc
+		sp := unsafe.Pointer(d.sp) // must be pointer so it gets adjusted during stack copy
+		if done {
+			d.fn = nil
+			gp._defer = d.link
+			freedefer(d)
+		}
+",possible misuse of unsafe.Pointer,runtime
+116,116,116,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,proc.go,1661.0,"			return (*m)(unsafe.Pointer(old))
+","			usleep(1)
+			continue
+		}
+		if atomic.Casuintptr(&extram, old, locked) {
+			return (*m)(unsafe.Pointer(old))
+		}
+		yield := osyield
+		yield()
+		continue
+	}
+",possible misuse of unsafe.Pointer,runtime
+117,117,117,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,proc.go,1743.0,"		ts.fn = unsafe.Pointer(funcPC(mstart))
+","			throw(""_cgo_thread_start missing"")
+		}
+		ts.g.set(mp.g0)
+		ts.tls = (*uint64)(unsafe.Pointer(&mp.tls[0]))
+		ts.fn = unsafe.Pointer(funcPC(mstart))
+		if msanenabled {
+			msanwrite(unsafe.Pointer(&ts), unsafe.Sizeof(ts))
+		}
+		execLock.rlock() // Prevent process clone.
+		asmcgocall(_cgo_thread_start, unsafe.Pointer(&ts))
+",possible misuse of unsafe.Pointer,runtime
+118,118,118,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,proc.go,3364.0,"		*(*uintptr)(unsafe.Pointer(newg.stack.lo)) = 0
+","		newg.stackguard0 = newg.stack.lo + _StackGuard
+		newg.stackguard1 = ^uintptr(0)
+		// Clear the bottom word of the stack. We record g
+		// there on gsignal stack during VDSO on ARM and ARM64.
+		*(*uintptr)(unsafe.Pointer(newg.stack.lo)) = 0
+	}
+	return newg
+}
+
+// Create a new g running fn with siz bytes of arguments.
+",possible misuse of unsafe.Pointer,runtime
+119,119,119,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,proc.go,3428.0,"		*(*uintptr)(unsafe.Pointer(sp)) = 0
+","	sp := newg.stack.hi - totalSize
+	spArg := sp
+	if usesLR {
+		// caller's LR
+		*(*uintptr)(unsafe.Pointer(sp)) = 0
+		prepGoExitFrame(sp)
+		spArg += sys.MinFrameSize
+	}
+	if narg > 0 {
+		memmove(unsafe.Pointer(spArg), argp, uintptr(narg))
+",possible misuse of unsafe.Pointer,runtime
+120,120,120,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,proc.go,3433.0,"		memmove(unsafe.Pointer(spArg), argp, uintptr(narg))
+","		prepGoExitFrame(sp)
+		spArg += sys.MinFrameSize
+	}
+	if narg > 0 {
+		memmove(unsafe.Pointer(spArg), argp, uintptr(narg))
+		// This is a stack-to-stack copy. If write barriers
+		// are enabled and the source stack is grey (the
+		// destination is always black), then perform a
+		// barrier copy. We do this *after* the memmove
+		// because the destination stack may have garbage on
+",possible misuse of unsafe.Pointer,runtime
+121,121,121,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,proc.go,3597.0,"			racemalloc(unsafe.Pointer(gp.stack.lo), gp.stack.hi-gp.stack.lo)
+","		})
+		gp.stackguard0 = gp.stack.lo + _StackGuard
+	} else {
+		if raceenabled {
+			racemalloc(unsafe.Pointer(gp.stack.lo), gp.stack.hi-gp.stack.lo)
+		}
+		if msanenabled {
+			msanmalloc(unsafe.Pointer(gp.stack.lo), gp.stack.hi-gp.stack.lo)
+		}
+	}
+",possible misuse of unsafe.Pointer,runtime
+122,122,122,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,proc.go,3600.0,"			msanmalloc(unsafe.Pointer(gp.stack.lo), gp.stack.hi-gp.stack.lo)
+","		if raceenabled {
+			racemalloc(unsafe.Pointer(gp.stack.lo), gp.stack.hi-gp.stack.lo)
+		}
+		if msanenabled {
+			msanmalloc(unsafe.Pointer(gp.stack.lo), gp.stack.hi-gp.stack.lo)
+		}
+	}
+	return gp
+}
+
+",possible misuse of unsafe.Pointer,runtime
+123,123,123,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,signal_amd64.go,53.0,"		pc := (*[4]byte)(unsafe.Pointer(gp.sigpc))
+","	// Work around Leopard bug that doesn't set FPE_INTDIV.
+	// Look at instruction to see if it is a divide.
+	// Not necessary in Snow Leopard (si_code will be != 0).
+	if GOOS == ""darwin"" && sig == _SIGFPE && gp.sigcode0 == 0 {
+		pc := (*[4]byte)(unsafe.Pointer(gp.sigpc))
+		i := 0
+		if pc[i]&0xF0 == 0x40 { // 64-bit REX prefix
+			i++
+		} else if pc[i] == 0x66 { // 16-bit instruction prefix
+			i++
+",possible misuse of unsafe.Pointer,runtime
+124,124,124,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,signal_amd64.go,68.0,"	if shouldPushSigpanic(gp, pc, *(*uintptr)(unsafe.Pointer(sp))) {
+","
+	pc := uintptr(c.rip())
+	sp := uintptr(c.rsp())
+
+	if shouldPushSigpanic(gp, pc, *(*uintptr)(unsafe.Pointer(sp))) {
+		c.pushCall(funcPC(sigpanic))
+	} else {
+		// Not safe to push the call. Just clobber the frame.
+		c.set_rip(uint64(funcPC(sigpanic)))
+	}
+",possible misuse of unsafe.Pointer,runtime
+125,125,125,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,signal_amd64.go,84.0,"	*(*uintptr)(unsafe.Pointer(sp)) = pc
+","	// Make it look like the signaled instruction called target.
+	pc := uintptr(c.rip())
+	sp := uintptr(c.rsp())
+	sp -= sys.PtrSize
+	*(*uintptr)(unsafe.Pointer(sp)) = pc
+	c.set_rsp(uint64(sp))
+	c.set_rip(uint64(targetPC))
+}
+",possible misuse of unsafe.Pointer,runtime
+126,126,126,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,378.0,"		v = unsafe.Pointer(x)
+","			}
+			c.stackcache[order].list = x.ptr().next
+			c.stackcache[order].size -= uintptr(n)
+		}
+		v = unsafe.Pointer(x)
+	} else {
+		var s *mspan
+		npage := uintptr(n) >> _PageShift
+		log2npage := stacklog2(npage)
+
+",possible misuse of unsafe.Pointer,unclassified
+127,127,127,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,401.0,"		v = unsafe.Pointer(s.base())
+","			}
+			osStackAlloc(s)
+			s.elemsize = uintptr(n)
+		}
+		v = unsafe.Pointer(s.base())
+	}
+
+	if raceenabled {
+		racemalloc(v, uintptr(n))
+	}
+",possible misuse of unsafe.Pointer,unclassified
+128,128,128,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,424.0,"	v := unsafe.Pointer(stk.lo)
+","//
+//go:systemstack
+func stackfree(stk stack) {
+	gp := getg()
+	v := unsafe.Pointer(stk.lo)
+	n := stk.hi - stk.lo
+	if n&(n-1) != 0 {
+		throw(""stack not a power of 2"")
+	}
+	if stk.lo+n < stk.hi {
+",possible misuse of unsafe.Pointer,unclassified
+129,129,129,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,607.0,"					if !atomic.Casp1(ppu, unsafe.Pointer(p), unsafe.Pointer(p+delta)) {
+","					print(""adjust ptr "", hex(p), "" "", funcname(f), ""\n"")
+				}
+				if useCAS {
+					ppu := (*unsafe.Pointer)(unsafe.Pointer(pp))
+					if !atomic.Casp1(ppu, unsafe.Pointer(p), unsafe.Pointer(p+delta)) {
+						goto retry
+					}
+				} else {
+					*pp = p + delta
+				}
+",possible misuse of unsafe.Pointer,unclassified
+130,130,130,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,641.0,"		adjustpointers(unsafe.Pointer(frame.varp-size), &locals, adjinfo, f)
+","
+	// Adjust local variables if stack frame has been allocated.
+	if locals.n > 0 {
+		size := uintptr(locals.n) * sys.PtrSize
+		adjustpointers(unsafe.Pointer(frame.varp-size), &locals, adjinfo, f)
+	}
+
+	// Adjust saved base pointer if there is one.
+	if sys.ArchFamily == sys.AMD64 && frame.argp-frame.varp == 2*sys.RegSize {
+		if !framepointer_enabled {
+",possible misuse of unsafe.Pointer,unclassified
+131,131,131,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,657.0,"			bp := *(*uintptr)(unsafe.Pointer(frame.varp))
+","		}
+		if debugCheckBP {
+			// Frame pointers should always point to the next higher frame on
+			// the Go stack (or be nil, for the top frame on the stack).
+			bp := *(*uintptr)(unsafe.Pointer(frame.varp))
+			if bp != 0 && (bp < adjinfo.old.lo || bp >= adjinfo.old.hi) {
+				println(""runtime: found invalid frame pointer"")
+				print(""bp="", hex(bp), "" min="", hex(adjinfo.old.lo), "" max="", hex(adjinfo.old.hi), ""\n"")
+				throw(""bad frame pointer"")
+			}
+",possible misuse of unsafe.Pointer,unclassified
+132,132,132,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,664.0,"		adjustpointer(adjinfo, unsafe.Pointer(frame.varp))
+","				print(""bp="", hex(bp), "" min="", hex(adjinfo.old.lo), "" max="", hex(adjinfo.old.hi), ""\n"")
+				throw(""bad frame pointer"")
+			}
+		}
+		adjustpointer(adjinfo, unsafe.Pointer(frame.varp))
+	}
+
+	// Adjust arguments.
+	if args.n > 0 {
+		if stackDebug >= 3 {
+",possible misuse of unsafe.Pointer,unclassified
+133,133,133,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,672.0,"		adjustpointers(unsafe.Pointer(frame.argp), &args, adjinfo, funcInfo{})
+","	if args.n > 0 {
+		if stackDebug >= 3 {
+			print(""      args\n"")
+		}
+		adjustpointers(unsafe.Pointer(frame.argp), &args, adjinfo, funcInfo{})
+	}
+
+	// Adjust pointers in all stack objects (whether they are live or not).
+	// See comments in mgcmark.go:scanframeworker.
+	if frame.varp != 0 {
+",possible misuse of unsafe.Pointer,unclassified
+134,134,134,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,697.0,"				gcdata = (*byte)(unsafe.Pointer(s.startAddr))
+","			var s *mspan
+			if t.kind&kindGCProg != 0 {
+				// See comments in mgcmark.go:scanstack
+				s = materializeGCProg(t.ptrdata, gcdata)
+				gcdata = (*byte)(unsafe.Pointer(s.startAddr))
+			}
+			for i := uintptr(0); i < t.ptrdata; i += sys.PtrSize {
+				if *addb(gcdata, i/(8*sys.PtrSize))>>(i/sys.PtrSize&7)&1 != 0 {
+					adjustpointer(adjinfo, unsafe.Pointer(p+i))
+				}
+",possible misuse of unsafe.Pointer,unclassified
+135,135,135,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,701.0,"					adjustpointer(adjinfo, unsafe.Pointer(p+i))
+","				gcdata = (*byte)(unsafe.Pointer(s.startAddr))
+			}
+			for i := uintptr(0); i < t.ptrdata; i += sys.PtrSize {
+				if *addb(gcdata, i/(8*sys.PtrSize))>>(i/sys.PtrSize&7)&1 != 0 {
+					adjustpointer(adjinfo, unsafe.Pointer(p+i))
+				}
+			}
+			if s != nil {
+				dematerializeGCProg(s)
+			}
+",possible misuse of unsafe.Pointer,unclassified
+136,136,136,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,765.0,"		*(*byte)(unsafe.Pointer(p)) = b
+","}
+
+func fillstack(stk stack, b byte) {
+	for p := stk.lo; p < stk.hi; p++ {
+		*(*byte)(unsafe.Pointer(p)) = b
+	}
+}
+
+func findsghi(gp *g, stk stack) uintptr {
+	var sghi uintptr
+",possible misuse of unsafe.Pointer,unclassified
+137,137,137,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,808.0,"		memmove(unsafe.Pointer(newBot), unsafe.Pointer(oldBot), sgsize)
+","	if adjinfo.sghi != 0 {
+		oldBot := adjinfo.old.hi - used
+		newBot := oldBot + adjinfo.delta
+		sgsize = adjinfo.sghi - oldBot
+		memmove(unsafe.Pointer(newBot), unsafe.Pointer(oldBot), sgsize)
+	}
+
+	// Unlock channels.
+	lastc = nil
+	for sg := gp.waiting; sg != nil; sg = sg.waitlink {
+",possible misuse of unsafe.Pointer,unclassified
+138,138,138,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,869.0,"	memmove(unsafe.Pointer(new.hi-ncopy), unsafe.Pointer(old.hi-ncopy), ncopy)
+","		ncopy -= syncadjustsudogs(gp, used, &adjinfo)
+	}
+
+	// Copy the stack (or the rest of it) to the new location
+	memmove(unsafe.Pointer(new.hi-ncopy), unsafe.Pointer(old.hi-ncopy), ncopy)
+
+	// Adjust remaining structures that have pointers into stacks.
+	// We have to do most of these before we traceback the new
+	// stack because gentraceback uses them.
+	adjustctxt(gp, &adjinfo)
+",possible misuse of unsafe.Pointer,unclassified
+139,139,139,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,1061.0,"		fn = unsafe.Pointer(fv.fn)
+","// and then did an immediate gosave.
+func gostartcallfn(gobuf *gobuf, fv *funcval) {
+	var fn unsafe.Pointer
+	if fv != nil {
+		fn = unsafe.Pointer(fv.fn)
+	} else {
+		fn = unsafe.Pointer(funcPC(nilfunc))
+	}
+	gostartcall(gobuf, fn, unsafe.Pointer(fv))
+}
+",possible misuse of unsafe.Pointer,unclassified
+140,140,140,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stack.go,1063.0,"		fn = unsafe.Pointer(funcPC(nilfunc))
+","	var fn unsafe.Pointer
+	if fv != nil {
+		fn = unsafe.Pointer(fv.fn)
+	} else {
+		fn = unsafe.Pointer(funcPC(nilfunc))
+	}
+	gostartcall(gobuf, fn, unsafe.Pointer(fv))
+}
+
+// isShrinkStackSafe returns whether it's safe to attempt to shrink
+",possible misuse of unsafe.Pointer,unclassified
+141,141,141,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,symtab.go,435.0,"			md.gcdatamask = progToPointerMask((*byte)(unsafe.Pointer(md.gcdata)), md.edata-md.data)
+","			continue
+		}
+		*modules = append(*modules, md)
+		if md.gcdatamask == (bitvector{}) {
+			md.gcdatamask = progToPointerMask((*byte)(unsafe.Pointer(md.gcdata)), md.edata-md.data)
+			md.gcbssmask = progToPointerMask((*byte)(unsafe.Pointer(md.gcbss)), md.ebss-md.bss)
+		}
+	}
+
+	// Modules appear in the moduledata linked list in the order they are
+",possible misuse of unsafe.Pointer,unclassified
+142,142,142,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,symtab.go,436.0,"			md.gcbssmask = progToPointerMask((*byte)(unsafe.Pointer(md.gcbss)), md.ebss-md.bss)
+","		}
+		*modules = append(*modules, md)
+		if md.gcdatamask == (bitvector{}) {
+			md.gcdatamask = progToPointerMask((*byte)(unsafe.Pointer(md.gcdata)), md.edata-md.data)
+			md.gcbssmask = progToPointerMask((*byte)(unsafe.Pointer(md.gcbss)), md.ebss-md.bss)
+		}
+	}
+
+	// Modules appear in the moduledata linked list in the order they are
+	// loaded by the dynamic loader, with one exception: the
+",possible misuse of unsafe.Pointer,unclassified
+143,143,143,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,symtab.go,647.0,"	ffb := (*findfuncbucket)(add(unsafe.Pointer(datap.findfunctab), b*unsafe.Sizeof(findfuncbucket{})))
+","	x := pc - datap.minpc
+	b := x / pcbucketsize
+	i := x % pcbucketsize / (pcbucketsize / nsub)
+
+	ffb := (*findfuncbucket)(add(unsafe.Pointer(datap.findfunctab), b*unsafe.Sizeof(findfuncbucket{})))
+	idx := ffb.idx + uint32(ffb.subbuckets[i])
+
+	// If the idx is beyond the end of the ftab, set it to the end of the table and search backward.
+	// This situation can occur if multiple text sections are generated to handle large text sections
+	// and the linker has inserted jump tables between them.
+",possible misuse of unsafe.Pointer,unclassified
+144,144,144,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,trace.go,171.0,"func (tp traceBufPtr) ptr() *traceBuf   { return (*traceBuf)(unsafe.Pointer(tp)) }
+","//
+// TODO: Since traceBuf is now go:notinheap, this isn't necessary.
+type traceBufPtr uintptr
+
+func (tp traceBufPtr) ptr() *traceBuf   { return (*traceBuf)(unsafe.Pointer(tp)) }
+func (tp *traceBufPtr) set(b *traceBuf) { *tp = traceBufPtr(unsafe.Pointer(b)) }
+func traceBufPtrOf(b *traceBuf) traceBufPtr {
+	return traceBufPtr(unsafe.Pointer(b))
+}
+
+",possible misuse of unsafe.Pointer,unclassified
+145,145,145,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,trace.go,348.0,"		sysFree(unsafe.Pointer(buf), unsafe.Sizeof(*buf.ptr()), &memstats.other_sys)
+","	}
+	for trace.empty != 0 {
+		buf := trace.empty
+		trace.empty = buf.ptr().link
+		sysFree(unsafe.Pointer(buf), unsafe.Sizeof(*buf.ptr()), &memstats.other_sys)
+	}
+	trace.strings = nil
+	trace.shutdown = false
+	unlock(&trace.lock)
+}
+",possible misuse of unsafe.Pointer,unclassified
+146,146,146,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,trace.go,755.0,"func (tp traceStackPtr) ptr() *traceStack { return (*traceStack)(unsafe.Pointer(tp)) }
+","}
+
+type traceStackPtr uintptr
+
+func (tp traceStackPtr) ptr() *traceStack { return (*traceStack)(unsafe.Pointer(tp)) }
+
+// stack returns slice of PCs.
+func (ts *traceStack) stack() []uintptr {
+	return (*[traceStackSize]uintptr)(unsafe.Pointer(&ts.stk))[:ts.n]
+}
+",possible misuse of unsafe.Pointer,unclassified
+147,147,147,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,trace.go,920.0,"func (p traceAllocBlockPtr) ptr() *traceAllocBlock   { return (*traceAllocBlock)(unsafe.Pointer(p)) }
+","
+// TODO: Since traceAllocBlock is now go:notinheap, this isn't necessary.
+type traceAllocBlockPtr uintptr
+
+func (p traceAllocBlockPtr) ptr() *traceAllocBlock   { return (*traceAllocBlock)(unsafe.Pointer(p)) }
+func (p *traceAllocBlockPtr) set(x *traceAllocBlock) { *p = traceAllocBlockPtr(unsafe.Pointer(x)) }
+
+// alloc allocates n-byte block.
+func (a *traceAlloc) alloc(n uintptr) unsafe.Pointer {
+	n = alignUp(n, sys.PtrSize)
+",possible misuse of unsafe.Pointer,unclassified
+148,148,148,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,sys_x86.go,20.0,"		*(*uintptr)(unsafe.Pointer(sp)) = 0
+","func gostartcall(buf *gobuf, fn, ctxt unsafe.Pointer) {
+	sp := buf.sp
+	if sys.RegSize > sys.PtrSize {
+		sp -= sys.PtrSize
+		*(*uintptr)(unsafe.Pointer(sp)) = 0
+	}
+	sp -= sys.PtrSize
+	*(*uintptr)(unsafe.Pointer(sp)) = buf.pc
+	buf.sp = sp
+	buf.pc = uintptr(fn)
+",possible misuse of unsafe.Pointer,unclassified
+149,149,149,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,sys_x86.go,23.0,"	*(*uintptr)(unsafe.Pointer(sp)) = buf.pc
+","		sp -= sys.PtrSize
+		*(*uintptr)(unsafe.Pointer(sp)) = 0
+	}
+	sp -= sys.PtrSize
+	*(*uintptr)(unsafe.Pointer(sp)) = buf.pc
+	buf.sp = sp
+	buf.pc = uintptr(fn)
+	buf.ctxt = ctxt
+}
+",possible misuse of unsafe.Pointer,unclassified
+150,150,150,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,type.go,197.0,"			return name{(*byte)(unsafe.Pointer(res))}
+","			if res > md.etypes {
+				println(""runtime: nameOff"", hex(off), ""out of range"", hex(md.types), ""-"", hex(md.etypes))
+				throw(""runtime: name offset out of range"")
+			}
+			return name{(*byte)(unsafe.Pointer(res))}
+		}
+	}
+
+	// No module found. see if it is a run time name.
+	reflectOffsLock()
+",possible misuse of unsafe.Pointer,unclassified
+151,151,151,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,type.go,252.0,"	return (*_type)(unsafe.Pointer(res))
+","	if res > md.etypes {
+		println(""runtime: typeOff"", hex(off), ""out of range"", hex(md.types), ""-"", hex(md.etypes))
+		throw(""runtime: type offset out of range"")
+	}
+	return (*_type)(unsafe.Pointer(res))
+}
+
+func (t *_type) typeOff(off typeOff) *_type {
+	return resolveTypeOff(unsafe.Pointer(t), off)
+}
+",possible misuse of unsafe.Pointer,unclassified
+152,152,152,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,type.go,309.0,"	return unsafe.Pointer(res)
+","	if res > md.etext && GOARCH != ""wasm"" { // on wasm, functions do not live in the same address space as the linear memory
+		println(""runtime: textOff"", hex(off), ""out of range"", hex(md.text), ""-"", hex(md.etext))
+		throw(""runtime: text offset out of range"")
+	}
+	return unsafe.Pointer(res)
+}
+
+func (t *functype) in() []*_type {
+	// See funcType in reflect/type.go for details on data layout.
+	uadd := uintptr(unsafe.Sizeof(functype{}))
+",possible misuse of unsafe.Pointer,unclassified
+153,153,153,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,type.go,533.0,"				t = (*_type)(unsafe.Pointer(prev.types + uintptr(tl)))
+","	collect:
+		for _, tl := range prev.typelinks {
+			var t *_type
+			if prev.typemap == nil {
+				t = (*_type)(unsafe.Pointer(prev.types + uintptr(tl)))
+			} else {
+				t = prev.typemap[typeOff(tl)]
+			}
+			// Add to typehash if not seen before.
+			tlist := typehash[t.hash]
+",possible misuse of unsafe.Pointer,unclassified
+154,154,154,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,type.go,555.0,"				t := (*_type)(unsafe.Pointer(md.types + uintptr(tl)))
+","			tm := make(map[typeOff]*_type, len(md.typelinks))
+			pinnedTypemaps = append(pinnedTypemaps, tm)
+			md.typemap = tm
+			for _, tl := range md.typelinks {
+				t := (*_type)(unsafe.Pointer(md.types + uintptr(tl)))
+				for _, candidate := range typehash[t.hash] {
+					seen := map[_typePair]struct{}{}
+					if typesEqual(t, candidate, seen) {
+						t = candidate
+						break
+",possible misuse of unsafe.Pointer,unclassified
+155,155,155,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,stubs.go,145.0,"	return unsafe.Pointer(x ^ 0)
+","// USE CAREFULLY!
+//go:nosplit
+func noescape(p unsafe.Pointer) unsafe.Pointer {
+	x := uintptr(p)
+	return unsafe.Pointer(x ^ 0)
+}
+
+func cgocallback(fn, frame unsafe.Pointer, framesize, ctxt uintptr)
+func gogo(buf *gobuf)
+func gosave(buf *gobuf)
+",possible misuse of unsafe.Pointer,unclassified
+156,156,156,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,vdso_linux.go,107.0,"	pt := unsafe.Pointer(info.loadAddr + uintptr(hdr.e_phoff))
+","func vdsoInitFromSysinfoEhdr(info *vdsoInfo, hdr *elfEhdr) {
+	info.valid = false
+	info.loadAddr = uintptr(unsafe.Pointer(hdr))
+
+	pt := unsafe.Pointer(info.loadAddr + uintptr(hdr.e_phoff))
+
+	// We need two things from the segment table: the load offset
+	// and the dynamic table.
+	var foundVaddr bool
+	var dyn *[vdsoDynSize]elfDyn
+",possible misuse of unsafe.Pointer,unclassified
+157,157,157,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,vdso_linux.go,123.0,"			dyn = (*[vdsoDynSize]elfDyn)(unsafe.Pointer(info.loadAddr + uintptr(pt.p_offset)))
+","				info.loadOffset = info.loadAddr + uintptr(pt.p_offset-pt.p_vaddr)
+			}
+
+		case _PT_DYNAMIC:
+			dyn = (*[vdsoDynSize]elfDyn)(unsafe.Pointer(info.loadAddr + uintptr(pt.p_offset)))
+		}
+	}
+
+	if !foundVaddr || dyn == nil {
+		return // Failed
+",possible misuse of unsafe.Pointer,unclassified
+158,158,158,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,vdso_linux.go,143.0,"			info.symstrings = (*[vdsoSymStringsSize]byte)(unsafe.Pointer(p))
+","		dt := &dyn[i]
+		p := info.loadOffset + uintptr(dt.d_val)
+		switch dt.d_tag {
+		case _DT_STRTAB:
+			info.symstrings = (*[vdsoSymStringsSize]byte)(unsafe.Pointer(p))
+		case _DT_SYMTAB:
+			info.symtab = (*[vdsoSymTabSize]elfSym)(unsafe.Pointer(p))
+		case _DT_HASH:
+			hash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_GNU_HASH:
+",possible misuse of unsafe.Pointer,unclassified
+159,159,159,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,vdso_linux.go,145.0,"			info.symtab = (*[vdsoSymTabSize]elfSym)(unsafe.Pointer(p))
+","		switch dt.d_tag {
+		case _DT_STRTAB:
+			info.symstrings = (*[vdsoSymStringsSize]byte)(unsafe.Pointer(p))
+		case _DT_SYMTAB:
+			info.symtab = (*[vdsoSymTabSize]elfSym)(unsafe.Pointer(p))
+		case _DT_HASH:
+			hash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_GNU_HASH:
+			gnuhash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_VERSYM:
+",possible misuse of unsafe.Pointer,unclassified
+160,160,160,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,vdso_linux.go,147.0,"			hash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+","			info.symstrings = (*[vdsoSymStringsSize]byte)(unsafe.Pointer(p))
+		case _DT_SYMTAB:
+			info.symtab = (*[vdsoSymTabSize]elfSym)(unsafe.Pointer(p))
+		case _DT_HASH:
+			hash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_GNU_HASH:
+			gnuhash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_VERSYM:
+			info.versym = (*[vdsoVerSymSize]uint16)(unsafe.Pointer(p))
+		case _DT_VERDEF:
+",possible misuse of unsafe.Pointer,unclassified
+161,161,161,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,vdso_linux.go,149.0,"			gnuhash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+","			info.symtab = (*[vdsoSymTabSize]elfSym)(unsafe.Pointer(p))
+		case _DT_HASH:
+			hash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_GNU_HASH:
+			gnuhash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_VERSYM:
+			info.versym = (*[vdsoVerSymSize]uint16)(unsafe.Pointer(p))
+		case _DT_VERDEF:
+			info.verdef = (*elfVerdef)(unsafe.Pointer(p))
+		}
+",possible misuse of unsafe.Pointer,unclassified
+162,162,162,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,vdso_linux.go,151.0,"			info.versym = (*[vdsoVerSymSize]uint16)(unsafe.Pointer(p))
+","			hash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_GNU_HASH:
+			gnuhash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_VERSYM:
+			info.versym = (*[vdsoVerSymSize]uint16)(unsafe.Pointer(p))
+		case _DT_VERDEF:
+			info.verdef = (*elfVerdef)(unsafe.Pointer(p))
+		}
+	}
+
+",possible misuse of unsafe.Pointer,unclassified
+163,163,163,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,vdso_linux.go,153.0,"			info.verdef = (*elfVerdef)(unsafe.Pointer(p))
+","			gnuhash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
+		case _DT_VERSYM:
+			info.versym = (*[vdsoVerSymSize]uint16)(unsafe.Pointer(p))
+		case _DT_VERDEF:
+			info.verdef = (*elfVerdef)(unsafe.Pointer(p))
+		}
+	}
+
+	if info.symstrings == nil || info.symtab == nil || (hash == nil && gnuhash == nil) {
+		return // Failed
+",possible misuse of unsafe.Pointer,unclassified
+164,164,164,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,vdso_linux.go,278.0,"		vdsoInitFromSysinfoEhdr(info1, (*elfEhdr)(unsafe.Pointer(val)))
+","		var info vdsoInfo
+		// TODO(rsc): I don't understand why the compiler thinks info escapes
+		// when passed to the three functions below.
+		info1 := (*vdsoInfo)(noescape(unsafe.Pointer(&info)))
+		vdsoInitFromSysinfoEhdr(info1, (*elfEhdr)(unsafe.Pointer(val)))
+		vdsoParseSymbols(info1, vdsoFindVersion(info1, &vdsoLinuxVersion))
+	}
+}
+
+// vdsoMarker reports whether PC is on the VDSO page.
+",possible misuse of unsafe.Pointer,unclassified
+165,165,165,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,signal_unix.go,391.0,"				gp := *(**g)(unsafe.Pointer(s.base()))
+","			// work.
+			sp := getcallersp()
+			s := spanOf(sp)
+			if s != nil && s.state.get() == mSpanManual && s.base() < sp && sp < s.limit {
+				gp := *(**g)(unsafe.Pointer(s.base()))
+				return gp
+			}
+			return nil
+		}
+	}
+",possible misuse of unsafe.Pointer,unclassified
+166,166,166,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,signal_unix.go,906.0,"		*(*uintptr)(unsafe.Pointer(uintptr(123))) = 2
+","		// Cannot call split-stack function as there is no G.
+		s := stringStructOf(&badginsignalMsg)
+		write(2, s.str, int32(s.len))
+		exit(2)
+		*(*uintptr)(unsafe.Pointer(uintptr(123))) = 2
+	}
+	needm(0)
+	if !sigsend(uint32(sig)) {
+		// A foreign thread received the signal sig, and the
+		// Go code does not want to handle it.
+",possible misuse of unsafe.Pointer,unclassified
+167,167,167,kubernetes/kubernetes,std,std,sync/atomic,unsafe.Pointer,value.go,59.0,"			if !CompareAndSwapPointer(&vp.typ, nil, unsafe.Pointer(^uintptr(0))) {
+","			// Disable preemption so that other goroutines can use
+			// active spin wait to wait for completion; and so that
+			// GC does not see the fake type accidentally.
+			runtime_procPin()
+			if !CompareAndSwapPointer(&vp.typ, nil, unsafe.Pointer(^uintptr(0))) {
+				runtime_procUnpin()
+				continue
+			}
+			// Complete first store.
+			StorePointer(&vp.data, xp.data)
+",possible misuse of unsafe.Pointer,unclassified
+168,168,168,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,traceback.go,156.0,"			frame.pc = *(*uintptr)(unsafe.Pointer(frame.sp))
+","	// If the PC is zero, it's likely a nil function call.
+	// Start in the caller's frame.
+	if frame.pc == 0 {
+		if usesLR {
+			frame.pc = *(*uintptr)(unsafe.Pointer(frame.sp))
+			frame.lr = 0
+		} else {
+			frame.pc = uintptr(*(*sys.Uintreg)(unsafe.Pointer(frame.sp)))
+			frame.sp += sys.RegSize
+		}
+",possible misuse of unsafe.Pointer,unclassified
+169,169,169,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,traceback.go,159.0,"			frame.pc = uintptr(*(*sys.Uintreg)(unsafe.Pointer(frame.sp)))
+","		if usesLR {
+			frame.pc = *(*uintptr)(unsafe.Pointer(frame.sp))
+			frame.lr = 0
+		} else {
+			frame.pc = uintptr(*(*sys.Uintreg)(unsafe.Pointer(frame.sp)))
+			frame.sp += sys.RegSize
+		}
+	}
+
+	f := findfunc(frame.pc)
+",possible misuse of unsafe.Pointer,unclassified
+170,170,170,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,traceback.go,246.0,"					frame.lr = *(*uintptr)(unsafe.Pointer(lrPtr))
+","			var lrPtr uintptr
+			if usesLR {
+				if n == 0 && frame.sp < frame.fp || frame.lr == 0 {
+					lrPtr = frame.sp
+					frame.lr = *(*uintptr)(unsafe.Pointer(lrPtr))
+				}
+			} else {
+				if frame.lr == 0 {
+					lrPtr = frame.fp - sys.RegSize
+					frame.lr = uintptr(*(*sys.Uintreg)(unsafe.Pointer(lrPtr)))
+",possible misuse of unsafe.Pointer,unclassified
+171,171,171,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,traceback.go,251.0,"					frame.lr = uintptr(*(*sys.Uintreg)(unsafe.Pointer(lrPtr)))
+","				}
+			} else {
+				if frame.lr == 0 {
+					lrPtr = frame.fp - sys.RegSize
+					frame.lr = uintptr(*(*sys.Uintreg)(unsafe.Pointer(lrPtr)))
+				}
+			}
+			flr = findfunc(frame.lr)
+			if !flr.valid() {
+				// This happens if you get a profiling interrupt at just the wrong time.
+",possible misuse of unsafe.Pointer,unclassified
+172,172,172,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,traceback.go,439.0,"				argp := (*[100]uintptr)(unsafe.Pointer(frame.argp))
+","				if name == ""runtime.gopanic"" {
+					name = ""panic""
+				}
+				print(name, ""("")
+				argp := (*[100]uintptr)(unsafe.Pointer(frame.argp))
+				for i := uintptr(0); i < frame.arglen/sys.PtrSize; i++ {
+					if i >= 10 {
+						print("", ..."")
+						break
+					}
+",possible misuse of unsafe.Pointer,unclassified
+173,173,173,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,traceback.go,496.0,"			x := *(*uintptr)(unsafe.Pointer(frame.sp))
+","
+		// On link register architectures, sighandler saves the LR on stack
+		// before faking a call.
+		if usesLR && injectedCall {
+			x := *(*uintptr)(unsafe.Pointer(frame.sp))
+			frame.sp += sys.MinFrameSize
+			if GOARCH == ""arm64"" {
+				// arm64 needs 16-byte aligned SP, always
+				frame.sp += sys.PtrSize
+			}
+",possible misuse of unsafe.Pointer,unclassified
+174,174,174,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,traceback.go,612.0,"				mv = *(**reflectMethodValue)(unsafe.Pointer(arg0))
+","				// register and immediately saved it
+				// to 0(SP). Get the methodValue from
+				// 0(SP).
+				arg0 := frame.sp + sys.MinFrameSize
+				mv = *(**reflectMethodValue)(unsafe.Pointer(arg0))
+				// Figure out whether the return values are valid.
+				// Reflect will update this value after it copies
+				// in the return values.
+				retValid = *(*bool)(unsafe.Pointer(arg0 + 3*sys.PtrSize))
+			}
+",possible misuse of unsafe.Pointer,unclassified
+175,175,175,kubernetes/kubernetes,std,std,runtime,unsafe.Pointer,traceback.go,616.0,"				retValid = *(*bool)(unsafe.Pointer(arg0 + 3*sys.PtrSize))
+","				mv = *(**reflectMethodValue)(unsafe.Pointer(arg0))
+				// Figure out whether the return values are valid.
+				// Reflect will update this value after it copies
+				// in the return values.
+				retValid = *(*bool)(unsafe.Pointer(arg0 + 3*sys.PtrSize))
+			}
+			if mv.fn != f.entry {
+				print(""runtime: confused by "", funcname(f), ""\n"")
+				throw(""reflect mismatch"")
+			}
+",possible misuse of unsafe.Pointer,unclassified
+176,176,176,kubernetes/kubernetes,std,std,strings,unsafe.Pointer,builder.go,30.0,"	return unsafe.Pointer(x ^ 0)
+","//go:nosplit
+//go:nocheckptr
+func noescape(p unsafe.Pointer) unsafe.Pointer {
+	x := uintptr(p)
+	return unsafe.Pointer(x ^ 0)
+}
+
+func (b *Builder) copyCheck() {
+	if b.addr == nil {
+		// This hack works around a failing of Go's escape analysis
+",possible misuse of unsafe.Pointer,unclassified
+177,177,177,kubernetes/kubernetes,github.com/modern-go/reflect2,v1.0.1,github.com/modern-go/reflect2,unsafe.Pointer,reflect2.go,287.0,"	return unsafe.Pointer(x ^ 0)
+","// USE CAREFULLY!
+//go:nosplit
+func NoEscape(p unsafe.Pointer) unsafe.Pointer {
+	x := uintptr(p)
+	return unsafe.Pointer(x ^ 0)
+}
+
+func UnsafeCastString(str string) []byte {
+	stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&str))
+	sliceHeader := &reflect.SliceHeader{
+",possible misuse of unsafe.Pointer,fun:noescape
+178,178,178,caddyserver/caddy,github.com/AndreasBriese/bbloom,v0.0.0-20190306092124-e2d15f34fcf9,github.com/AndreasBriese/bbloom,unsafe.Pointer,bbloom.go,84.0,"		*(*uint8)(unsafe.Pointer(ptr)) = b
+","func NewWithBoolset(bs *[]byte, locs uint64) (bloomfilter Bloom) {
+	bloomfilter = New(float64(len(*bs)<<3), float64(locs))
+	ptr := uintptr(unsafe.Pointer(&bloomfilter.bitset[0]))
+	for _, b := range *bs {
+		*(*uint8)(unsafe.Pointer(ptr)) = b
+		ptr++
+	}
+	return bloomfilter
+}
+
+",possible misuse of unsafe.Pointer,probably_safe
+179,179,179,caddyserver/caddy,github.com/AndreasBriese/bbloom,v0.0.0-20190306092124-e2d15f34fcf9,github.com/AndreasBriese/bbloom,unsafe.Pointer,bbloom.go,238.0,"		bloomImEx.FilterSet[i] = *(*byte)(unsafe.Pointer(ptr))
+","	bloomImEx.SetLocs = uint64(bl.setLocs)
+	bloomImEx.FilterSet = make([]byte, len(bl.bitset)<<3)
+	ptr := uintptr(unsafe.Pointer(&bl.bitset[0]))
+	for i := range bloomImEx.FilterSet {
+		bloomImEx.FilterSet[i] = *(*byte)(unsafe.Pointer(ptr))
+		ptr++
+	}
+	data, err := json.Marshal(bloomImEx)
+	if err != nil {
+		log.Fatal(""json.Marshal failed: "", err)
+",possible misuse of unsafe.Pointer,probably_safe
+180,180,180,pingcap/tidb,github.com/spaolacci/murmur3,v0.0.0-20180118202830-f09979ecbc72,github.com/spaolacci/murmur3,unsafe.Pointer,murmur32.go,129.0,"		k1 := *(*uint32)(unsafe.Pointer(p))
+","		p = uintptr(unsafe.Pointer(&data[0]))
+	}
+	p1 := p + uintptr(4*nblocks)
+	for ; p < p1; p += 4 {
+		k1 := *(*uint32)(unsafe.Pointer(p))
+
+		k1 *= c1_32
+		k1 = (k1 << 15) | (k1 >> 17) // rotl32(k1, 15)
+		k1 *= c2_32
+
+",possible misuse of unsafe.Pointer,manual:safe
+181,181,181,minio/minio,github.com/minio/simdjson-go,v0.1.5-0.20200303142138-b17fe061ea37,github.com/minio/simdjson-go,unsafe.Pointer,parse_number_amd64.go,60.0,"	success = _parse_number(unsafe.Pointer(src), 0, fm, unsafe.Pointer(&is_double), unsafe.Pointer(&d), unsafe.Pointer(&i)) != 0
+","	if found_minus {
+		fm = 1
+	}
+
+	success = _parse_number(unsafe.Pointer(src), 0, fm, unsafe.Pointer(&is_double), unsafe.Pointer(&d), unsafe.Pointer(&i)) != 0
+
+	return
+}
+",possible misuse of unsafe.Pointer,probably_safe
+182,182,182,minio/minio,github.com/minio/simdjson-go,v0.1.5-0.20200303142138-b17fe061ea37,github.com/minio/simdjson-go,unsafe.Pointer,parse_string_amd64.go,39.0,"	success := _parse_string_validate_only(unsafe.Pointer(src), unsafe.Pointer(&maxStringSize), unsafe.Pointer(&src_length), unsafe.Pointer(dst_length))
+","
+	src := uintptr(unsafe.Pointer(&buf[0])) + 1 // Advance buffer by one in order to skip opening quote
+	src_length := uint64(0)
+
+	success := _parse_string_validate_only(unsafe.Pointer(src), unsafe.Pointer(&maxStringSize), unsafe.Pointer(&src_length), unsafe.Pointer(dst_length))
+
+	*need_copy = src_length != *dst_length
+	return success != 0
+}
+
+",possible misuse of unsafe.Pointer,probably_safe
+183,183,183,minio/minio,github.com/minio/simdjson-go,v0.1.5-0.20200303142138-b17fe061ea37,github.com/minio/simdjson-go,unsafe.Pointer,parse_string_amd64.go,53.0,"	res := _parse_string(unsafe.Pointer(src), unsafe.Pointer(dst), unsafe.Pointer(&string_buf_loc))
+","	src := uintptr(unsafe.Pointer(&buf[0])) + 1 // Advance buffer by one in order to skip opening quote
+	string_buf_loc := uintptr(unsafe.Pointer(sh.Data)) + uintptr(sh.Len)
+	dst := string_buf_loc
+
+	res := _parse_string(unsafe.Pointer(src), unsafe.Pointer(dst), unsafe.Pointer(&string_buf_loc))
+
+	sh.Len += int(uintptr(string_buf_loc) - dst)
+
+	return res != 0
+}
+",possible misuse of unsafe.Pointer,probably_safe
+184,184,184,influxdata/influxdb,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,github.com/apache/arrow/go/arrow/memory,unsafe.Pointer,memory_avx2_amd64.go,33.0,"		p2 = unsafe.Pointer(uintptr(len(buf)))
+","	}
+
+	var (
+		p1 = unsafe.Pointer(&buf[0])
+		p2 = unsafe.Pointer(uintptr(len(buf)))
+		p3 = unsafe.Pointer(uintptr(c))
+	)
+	if len(buf) > 2000 || isMultipleOfPowerOf2(len(buf), 256) {
+		_memset_avx2(p1, p2, p3)
+	} else {
+",possible misuse of unsafe.Pointer,call:assembly
+185,185,185,influxdata/influxdb,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,github.com/apache/arrow/go/arrow/memory,unsafe.Pointer,memory_avx2_amd64.go,34.0,"		p3 = unsafe.Pointer(uintptr(c))
+","
+	var (
+		p1 = unsafe.Pointer(&buf[0])
+		p2 = unsafe.Pointer(uintptr(len(buf)))
+		p3 = unsafe.Pointer(uintptr(c))
+	)
+	if len(buf) > 2000 || isMultipleOfPowerOf2(len(buf), 256) {
+		_memset_avx2(p1, p2, p3)
+	} else {
+		_memset_sse4(p1, p2, p3)
+",possible misuse of unsafe.Pointer,call:assembly
+186,186,186,influxdata/influxdb,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,github.com/apache/arrow/go/arrow/memory,unsafe.Pointer,memory_sse4_amd64.go,30.0,"	_memset_sse4(unsafe.Pointer(&buf[0]), unsafe.Pointer(uintptr(len(buf))), unsafe.Pointer(uintptr(c)))
+","func memory_memset_sse4(buf []byte, c byte) {
+	if len(buf) == 0 {
+		return
+	}
+	_memset_sse4(unsafe.Pointer(&buf[0]), unsafe.Pointer(uintptr(len(buf))), unsafe.Pointer(uintptr(c)))
+}
+",possible misuse of unsafe.Pointer,call:assembly
+187,187,187,influxdata/influxdb,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,github.com/apache/arrow/go/arrow/math,unsafe.Pointer,float64_avx2_amd64.go,36.0,"		p2  = unsafe.Pointer(uintptr(len(buf)))
+","func sum_float64_avx2(a *array.Float64) float64 {
+	buf := a.Float64Values()
+	var (
+		p1  = unsafe.Pointer(&buf[0])
+		p2  = unsafe.Pointer(uintptr(len(buf)))
+		res float64
+	)
+	_sum_float64_avx2(p1, p2, unsafe.Pointer(&res))
+	return res
+}
+",possible misuse of unsafe.Pointer,call:assembly
+188,188,188,influxdata/influxdb,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,github.com/apache/arrow/go/arrow/math,unsafe.Pointer,int64_avx2_amd64.go,36.0,"		p2  = unsafe.Pointer(uintptr(len(buf)))
+","func sum_int64_avx2(a *array.Int64) int64 {
+	buf := a.Int64Values()
+	var (
+		p1  = unsafe.Pointer(&buf[0])
+		p2  = unsafe.Pointer(uintptr(len(buf)))
+		res int64
+	)
+	_sum_int64_avx2(p1, p2, unsafe.Pointer(&res))
+	return res
+}
+",possible misuse of unsafe.Pointer,call:assembly
+189,189,189,influxdata/influxdb,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,github.com/apache/arrow/go/arrow/math,unsafe.Pointer,float64_sse4_amd64.go,36.0,"		p2  = unsafe.Pointer(uintptr(len(buf)))
+","func sum_float64_sse4(a *array.Float64) float64 {
+	buf := a.Float64Values()
+	var (
+		p1  = unsafe.Pointer(&buf[0])
+		p2  = unsafe.Pointer(uintptr(len(buf)))
+		res float64
+	)
+	_sum_float64_sse4(p1, p2, unsafe.Pointer(&res))
+	return res
+}
+",possible misuse of unsafe.Pointer,call:assembly
+190,190,190,influxdata/influxdb,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,github.com/apache/arrow/go/arrow/math,unsafe.Pointer,uint64_avx2_amd64.go,36.0,"		p2  = unsafe.Pointer(uintptr(len(buf)))
+","func sum_uint64_avx2(a *array.Uint64) uint64 {
+	buf := a.Uint64Values()
+	var (
+		p1  = unsafe.Pointer(&buf[0])
+		p2  = unsafe.Pointer(uintptr(len(buf)))
+		res uint64
+	)
+	_sum_uint64_avx2(p1, p2, unsafe.Pointer(&res))
+	return res
+}
+",possible misuse of unsafe.Pointer,call:assembly
+191,191,191,influxdata/influxdb,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,github.com/apache/arrow/go/arrow/math,unsafe.Pointer,uint64_sse4_amd64.go,36.0,"		p2  = unsafe.Pointer(uintptr(len(buf)))
+","func sum_uint64_sse4(a *array.Uint64) uint64 {
+	buf := a.Uint64Values()
+	var (
+		p1  = unsafe.Pointer(&buf[0])
+		p2  = unsafe.Pointer(uintptr(len(buf)))
+		res uint64
+	)
+	_sum_uint64_sse4(p1, p2, unsafe.Pointer(&res))
+	return res
+}
+",possible misuse of unsafe.Pointer,call:assembly
+192,192,192,influxdata/influxdb,github.com/apache/arrow/go/arrow,v0.0.0-20191024131854-af6fa24be0db,github.com/apache/arrow/go/arrow/math,unsafe.Pointer,int64_sse4_amd64.go,36.0,"		p2  = unsafe.Pointer(uintptr(len(buf)))
+","func sum_int64_sse4(a *array.Int64) int64 {
+	buf := a.Int64Values()
+	var (
+		p1  = unsafe.Pointer(&buf[0])
+		p2  = unsafe.Pointer(uintptr(len(buf)))
+		res int64
+	)
+	_sum_int64_sse4(p1, p2, unsafe.Pointer(&res))
+	return res
+}
+",possible misuse of unsafe.Pointer,call:assembly
+193,193,193,xo/usql,github.com/mattn/go-adodb,v0.0.1,github.com/mattn/go-adodb,unsafe.Pointer,adodb.go,488.0,"			sa := (*ole.SafeArray)(unsafe.Pointer(uintptr(val.Val)))
+","			dest[i] = uint64(val.Val)
+		case 72: // ADGUID
+			dest[i] = val.ToString()
+		case 128: // ADBINARY
+			sa := (*ole.SafeArray)(unsafe.Pointer(uintptr(val.Val)))
+			conv := &ole.SafeArrayConversion{sa}
+			elems, err := conv.TotalElements(0)
+			if err != nil {
+				return err
+			}
+",possible misuse of unsafe.Pointer,need_context
+194,194,194,xo/usql,github.com/mattn/go-adodb,v0.0.1,github.com/mattn/go-adodb,unsafe.Pointer,adodb.go,494.0,"			dest[i] = (*[1 << 30]byte)(unsafe.Pointer(uintptr(sa.Data)))[0:elems]
+","			elems, err := conv.TotalElements(0)
+			if err != nil {
+				return err
+			}
+			dest[i] = (*[1 << 30]byte)(unsafe.Pointer(uintptr(sa.Data)))[0:elems]
+		case 129: // ADCHAR
+			dest[i] = val.ToString() //uint8(val.Val)
+		case 130: // ADWCHAR
+			dest[i] = val.ToString() //uint16(val.Val)
+		case 131: // ADNUMERIC
+",possible misuse of unsafe.Pointer,need_context
+195,195,195,xo/usql,github.com/mattn/go-adodb,v0.0.1,github.com/mattn/go-adodb,unsafe.Pointer,adodb.go,528.0,"			sa := (*ole.SafeArray)(unsafe.Pointer(uintptr(val.Val)))
+","			dest[i] = val.ToString()
+		case 204: // ADVARBINARY
+			// TODO
+		case 205: // ADLONGVARBINARY
+			sa := (*ole.SafeArray)(unsafe.Pointer(uintptr(val.Val)))
+			conv := &ole.SafeArrayConversion{sa}
+			elems, err := conv.TotalElements(0)
+			if err != nil {
+				return err
+			}
+",possible misuse of unsafe.Pointer,need_context
+196,196,196,xo/usql,github.com/mattn/go-adodb,v0.0.1,github.com/mattn/go-adodb,unsafe.Pointer,adodb.go,534.0,"			dest[i] = (*[1 << 30]byte)(unsafe.Pointer(uintptr(sa.Data)))[0:elems]
+","			elems, err := conv.TotalElements(0)
+			if err != nil {
+				return err
+			}
+			dest[i] = (*[1 << 30]byte)(unsafe.Pointer(uintptr(sa.Data)))[0:elems]
+		}
+		if typ.Val != 12 {
+			val.Clear()
+		}
+		typ.Clear()
+",possible misuse of unsafe.Pointer,need_context
+197,197,197,xo/usql,github.com/go-ole/go-ole,v1.2.4,github.com/go-ole/go-ole,unsafe.Pointer,variant.go,15.0,"	return (*IUnknown)(unsafe.Pointer(uintptr(v.Val)))
+","func (v *VARIANT) ToIUnknown() *IUnknown {
+	if v.VT != VT_UNKNOWN {
+		return nil
+	}
+	return (*IUnknown)(unsafe.Pointer(uintptr(v.Val)))
+}
+
+// ToIDispatch converts variant to dispatch object.
+func (v *VARIANT) ToIDispatch() *IDispatch {
+	if v.VT != VT_DISPATCH {
+",possible misuse of unsafe.Pointer,manual:safe
+198,198,198,xo/usql,github.com/go-ole/go-ole,v1.2.4,github.com/go-ole/go-ole,unsafe.Pointer,variant.go,23.0,"	return (*IDispatch)(unsafe.Pointer(uintptr(v.Val)))
+","func (v *VARIANT) ToIDispatch() *IDispatch {
+	if v.VT != VT_DISPATCH {
+		return nil
+	}
+	return (*IDispatch)(unsafe.Pointer(uintptr(v.Val)))
+}
+
+// ToArray converts variant to SafeArray helper.
+func (v *VARIANT) ToArray() *SafeArrayConversion {
+	if v.VT != VT_SAFEARRAY {
+",possible misuse of unsafe.Pointer,manual:safe
+199,199,199,xo/usql,github.com/go-ole/go-ole,v1.2.4,github.com/go-ole/go-ole,unsafe.Pointer,variant.go,33.0,"	var safeArray *SafeArray = (*SafeArray)(unsafe.Pointer(uintptr(v.Val)))
+","		if v.VT&VT_ARRAY == 0 {
+			return nil
+		}
+	}
+	var safeArray *SafeArray = (*SafeArray)(unsafe.Pointer(uintptr(v.Val)))
+	return &SafeArrayConversion{safeArray}
+}
+
+// ToString converts variant to Go string.
+func (v *VARIANT) ToString() string {
+",possible misuse of unsafe.Pointer,probably_safe
+200,200,200,weaveworks/scope,github.com/spaolacci/murmur3,v0.0.0-20150829172844-0d12bf811670,github.com/spaolacci/murmur3,unsafe.Pointer,murmur32.go,116.0,"		k1 := *(*uint32)(unsafe.Pointer(p))
+","		p = uintptr(unsafe.Pointer(&data[0]))
+	}
+	p1 := p + uintptr(4*nblocks)
+	for ; p < p1; p += 4 {
+		k1 := *(*uint32)(unsafe.Pointer(p))
+
+		k1 *= c1_32
+		k1 = (k1 << 15) | (k1 >> 17) // rotl32(k1, 15)
+		k1 *= c2_32
+
+",possible misuse of unsafe.Pointer,manual:safe
+201,201,201,go-pg/pg,github.com/segmentio/encoding,v0.1.10,github.com/segmentio/encoding/json,unsafe.Pointer,codec.go,791.0,"	return unsafe.Pointer(x ^ 0)
+","// This was copied from the runtime; see issues 23382 and 7921.
+//go:nosplit
+func noescape(p unsafe.Pointer) unsafe.Pointer {
+	x := uintptr(p)
+	return unsafe.Pointer(x ^ 0)
+}
+
+func alignedSize(t reflect.Type) uintptr {
+	a := t.Align()
+	s := t.Size()
+",possible misuse of unsafe.Pointer,fun:noescape
+202,202,202,gorgonia/gorgonia,gorgonia.org/tensor,v0.9.6,gorgonia.org/tensor,unsafe.Pointer,dense.go,371.0,"		return (*Dense)(unsafe.Pointer(t.viewOf))
+","func (t *Dense) setOldAP(ap *AP)      { t.old = *ap }
+func (t *Dense) transposeAxes() []int { return t.transposeWith }
+func (t *Dense) parentTensor() *Dense {
+	if t.viewOf != 0 {
+		return (*Dense)(unsafe.Pointer(t.viewOf))
+	}
+	return nil
+}
+func (t *Dense) setParentTensor(d *Dense) {
+	if d == nil {
+",possible misuse of unsafe.Pointer,manual:safe
+203,203,203,gorgonia/gorgonia,gorgonia.org/tensor,v0.9.6,gorgonia.org/tensor,unsafe.Pointer,consopt.go,150.0,"			tt.array.Ptr = unsafe.Pointer(ptr)
+","		switch tt := t.(type) {
+		case *Dense:
+			tt.v = nil // if there were any underlying slices it should be GC'd
+
+			tt.array.Ptr = unsafe.Pointer(ptr)
+			tt.array.L = int(memsize / tt.t.Size())
+			tt.array.C = int(memsize / tt.t.Size())
+
+			tt.flag = MakeMemoryFlag(tt.flag, ManuallyManaged)
+
+",possible misuse of unsafe.Pointer,manual:safe
+204,204,204,gorgonia/gorgonia,gorgonia.org/tensor,v0.9.6,gorgonia.org/tensor,unsafe.Pointer,array_getset.go,296.0,"		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+","	xv := reflect.ValueOf(x)
+	ptr := uintptr(a.Ptr)
+	for i := 0; i < a.L; i++ {
+		want := ptr + uintptr(i)*a.t.Size()
+		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+		val = reflect.Indirect(val)
+		val.Set(xv)
+	}
+	return nil
+}
+",possible misuse of unsafe.Pointer,probably_safe
+205,205,205,gorgonia/gorgonia,gorgonia.org/tensor,v0.9.6,gorgonia.org/tensor,unsafe.Pointer,array_getset.go,491.0,"			val := reflect.NewAt(t.t.Type, unsafe.Pointer(want))
+","		xv := reflect.ValueOf(x)
+		ptr := uintptr(t.Ptr)
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			want := ptr + uintptr(i)*t.t.Size()
+			val := reflect.NewAt(t.t.Type, unsafe.Pointer(want))
+			val = reflect.Indirect(val)
+			val.Set(xv)
+		}
+		err = handleNoOp(err)
+	}
+",possible misuse of unsafe.Pointer,probably_safe
+206,206,206,gorgonia/gorgonia,gorgonia.org/tensor,v0.9.6,gorgonia.org/tensor,unsafe.Pointer,array_getset.go,756.0,"			val := reflect.NewAt(t.t.Type, unsafe.Pointer(want))
+","	default:
+		ptr := uintptr(t.Ptr)
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			want := ptr + uintptr(i)*t.t.Size()
+			val := reflect.NewAt(t.t.Type, unsafe.Pointer(want))
+			val = reflect.Indirect(val)
+			val.Set(reflect.Zero(t.t))
+		}
+		err = handleNoOp(err)
+	}
+",possible misuse of unsafe.Pointer,probably_safe
+207,207,207,gorgonia/gorgonia,gorgonia.org/tensor,v0.9.6,gorgonia.org/tensor,unsafe.Pointer,array.go,284.0,"		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+","	}
+	ptr := uintptr(a.Ptr)
+	for i := 0; i < a.L; i++ {
+		want := ptr + uintptr(i)*a.t.Size()
+		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+		val = reflect.Indirect(val)
+		val.Set(reflect.Zero(a.t))
+	}
+}
+
+",possible misuse of unsafe.Pointer,probably_safe
+208,208,208,gorgonia/gorgonia,gorgonia.org/tensor,v0.9.6,gorgonia.org/tensor,unsafe.Pointer,array.go,489.0,"		return unsafe.Pointer(at)
+","		return unsafe.Pointer(&at)
+	case string:
+		return unsafe.Pointer(&at)
+	case uintptr:
+		return unsafe.Pointer(at)
+	case unsafe.Pointer:
+		return at
+
+		// POINTERS
+
+",possible misuse of unsafe.Pointer,manual:safe
+209,209,209,gorgonia/gorgonia,gorgonia.org/tensor,v0.9.6,gorgonia.org/tensor,unsafe.Pointer,array.go,528.0,"		return unsafe.Pointer(*at)
+","		return unsafe.Pointer(at)
+	case *string:
+		return unsafe.Pointer(at)
+	case *uintptr:
+		return unsafe.Pointer(*at)
+	case *unsafe.Pointer:
+		return *at
+	}
+
+	panic(""Cannot get pointer"")
+",possible misuse of unsafe.Pointer,manual:safe
+210,210,210,googleforgames/agones,github.com/modern-go/reflect2,v0.0.0-20180320133207-05fbef0ca5da,github.com/modern-go/reflect2,unsafe.Pointer,reflect2.go,284.0,"	return unsafe.Pointer(x ^ 0)
+","// USE CAREFULLY!
+//go:nosplit
+func NoEscape(p unsafe.Pointer) unsafe.Pointer {
+	x := uintptr(p)
+	return unsafe.Pointer(x ^ 0)
+}
+
+func UnsafeCastString(str string) []byte {
+	stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&str))
+	sliceHeader := &reflect.SliceHeader{
+",possible misuse of unsafe.Pointer,fun:noescape
