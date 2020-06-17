@@ -33,6 +33,63 @@ Summaries of papers I read.
 
 %% -----------------------------------------------------------------------------
 
+\subsection{Understanding Memory and Thread Safety Practices and Issues in Real-World Rust Programs}
+\label{subsec:understanding-memory-and-thread-safety-practices-and-issues-in-real-world-rust-programs}
+
+Qin et al.~\cite{qin2020} contribute the first to their knowledge empirical study of bugs related to unsafe code blocks
+in Rust.
+They mention other empirical studies~\cite{difranco2017, lu2013, chou2001, leesatapornwongsa2016, jin2012, gunawi2014, gu2015}
+none of which seem to be related to Rust or Go.
+The authors analyze 5 projects, 5 libraries and 2 databases.
+They randomly sample 850 unsafe usages out of those.
+They analyze the usages, categorize them into classes, analyze the impact of the bugs and develop two new static code
+checking tools.
+In essence, this is exactly my thesis but done for Rust, and it's probably an excellent example of how to structure a
+paper on this.
+
+A main difference to this thesis is that the authors not only look into the current revision code, but explicitly look
+through the Git history, filtering for commits that remove unsafe usages.
+They further go through reported bugs on the software under analysis and look into the code how those bugs were fixed.
+Bug data is retrieved from CVE and RustSec.
+This is something I should probably do as well!
+
+Within the 850 unsafe usages, the authors analyze 70 memory-safety issues and 100 concurrency bugs.
+It sounds like they found all of those, but this high number is because they look at real-world bugs that were previously
+reported.
+Using their tools however, they also find about 5 to 10 new bugs that they disclosed to the developers.
+
+Similar to my thesis, they explain the purpose of safe code and reasons why unsafe code might be needed.
+They obviously focus on Rust, but some of the points will apply to Go as well.
+
+The reasons to use unsafe code are clustered into these groups: Reuse existing code, convert C-array to Rust slice,
+improve performance.
+The authors find that often the use of unsafe code has good or unavoidable reasons.
+Looking at the commit diffs, they find that unsafe code gets removed to fix memory safety, improve code structure,
+improve thread safety, fix bugs, or because it was unnecessary in the first place.
+
+The authors also look into the Rust standard library, which has similar uses of unsafe as the Go standard library.
+Unsafe code often requires some preconditions on lifetime or input data to hold, and this can be achieved by encapsulating
+it into an interior unsafe function that checks these conditions and might skip the unsafe code if they do not hold.
+
+The areas of problems identified are buffer overflows, null-pointer dereferencing, reading uninitialized memory, invalid
+free, use after free, and double free.
+Fixing strategies were conditionally skipping the unsafe code, adjusting variable lifetime, or changing unsafe operands.
+
+Rust also has thread safety problems, and problems the authors identified can be grouped into blocking and non-blocking.
+Blocking bugs are caused due to incorrect scoping of auto-releasing mutexes.
+Channels might also block.
+Non-blocking bugs include data races and stem from incorrect scoping of shared data or confused ownership.
+
+If a function's safety depends on how it is used, it might be better put into an encapsulation.
+
+The authors suggest development of IDE extension visualizing scopes and lifetimes, development of Rust-tailored static
+analysis tools (which they already contributed two), and dynamic analysis tools.
+Due to the study language developers can also learn from design issues concerning the Rust language itself, because it
+shows how developers adapt to new language concepts over time.
+
+
+%% -----------------------------------------------------------------------------
+
 \subsection{Can automated pull requests encourage software developers to upgrade out-of-date dependencies?}
 \label{subsec:can-automated-pull-requests-encourage-software-developers-to-upgrade-out-of-date-dependencies?}
 
@@ -77,14 +134,6 @@ Cite~\cite{alnaeli2017}
 \label{subsec:statically-detecting-likely-buffer-overflow-vulnerabilities}
 
 Cite~\cite{larochelle2001}
-
-
-%% -----------------------------------------------------------------------------
-
-\subsection{Understanding Memory and Thread Safety Practices and Issues in Real-World Rust Programs}
-\label{subsec:understanding-memory-and-thread-safety-practices-and-issues-in-real-world-rust-programs}
-
-Cite~\cite{qin2020}
 
 
 %% -----------------------------------------------------------------------------
