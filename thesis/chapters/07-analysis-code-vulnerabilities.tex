@@ -8,6 +8,15 @@ described in Chapter~\ref{ch:survey} as well as theoretical reasoning.
 
 %% -----------------------------------------------------------------------------
 
+\section{Code flow redirection}\label{sec:vulnerability-flow-redirection}
+
+Notes: Go uses no \acrshort{aslr}, binaries are statically linked and the standard library is huge.
+Therefore binaries provide a lot of ROP gadgets and spawning a shell from a buffer overflow is easier than with a
+comparable C program.
+
+
+%% -----------------------------------------------------------------------------
+
 \section{Garbage collector race}\label{sec:vulnerability-gc-race}
 
 
