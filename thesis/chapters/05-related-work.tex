@@ -90,6 +90,32 @@ shows how developers adapt to new language concepts over time.
 
 %% -----------------------------------------------------------------------------
 
+\subsection{Is Rust Used Safely by Software Developers?}
+\label{subsec:is-rust-used-safely-by-software-developers?}
+
+Evens et al.~\cite{evans2020} present an empirical study of unsafe usages in Rust crates.
+They only include statistical facts such as total number of unsage usages.
+This is different from Qin et al.~\cite{qin2020} in that they did not do an in-depth analysis of potential bugs.
+Still they got accepted at ICSE!
+
+They found that most unsafe usage is to call other unsafe Rust code, while calling C code is less of a concern.
+About a third of libraries contain unsafe code and more than half of them transitively do through dependencies.
+The usage count in crates did not change much over the course of 10 months work.
+More popular libraries are more likely to contain more unsafe code because they encapsulate more popular C libraries.
+
+The authors conducted a N=20 survey on Reddit, revealing that 10\% of developers used unsafe to make the code compile.
+Other popular reasons included performance optimizations, advanced data structures, and unsafe code offering a slicker
+and "more elegant" interface.
+Most developers employed more testing, static and dynamic analysis, and fuzzing when using unsafe code, but many also
+said they would "look carefully on the code".
+I'd suspect this is not an effective approach.
+
+The authors developed an augmented Rust CFG and algorithm to detect potentially unsafe functions in all Rust crates that
+would compile.
+
+
+%% -----------------------------------------------------------------------------
+
 \subsection{Can automated pull requests encourage software developers to upgrade out-of-date dependencies?}
 \label{subsec:can-automated-pull-requests-encourage-software-developers-to-upgrade-out-of-date-dependencies?}
 
@@ -110,14 +136,6 @@ Cite~\cite{kula2017}
 \label{subsec:escape-from-escape-analysis-of-golang}
 
 Cite~\cite{wang2020}
-
-
-%% -----------------------------------------------------------------------------
-
-\subsection{Is Rust Used Safely by Software Developers?}
-\label{subsec:is-rust-used-safely-by-software-developers?}
-
-Cite~\cite{evans2020}
 
 
 %% -----------------------------------------------------------------------------
