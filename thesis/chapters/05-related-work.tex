@@ -358,4 +358,19 @@ vulnerabilities from dependent projects.
 \subsection{Understanding the Origins of Mobile App Vulnerabilities: A Large-scale Measurement Study of Free and Paid Apps}
 \label{subsec:understanding-the-origins-of-mobile-app-vulnerabilities:-a-large-scale-measurement-study-of-free-and-paid-apps}
 
-Cite~\cite{watanabe2017}
+Watanabe et al.~\cite{watanabe2017} conduct a study on the origins of mobile vulnerabilities.
+They inspect both free and paid Android apps.
+They find that 70 \% of bugs come from dependencies, 50 \% from third-party dependencies.
+More expensive and/or popular apps tended to have more vulnerabilities.
+
+An interesting finding for me: 50 \% of vulnerabilities were found in unreachable code.
+As I also already found one manual vulnerability that was unreachable, it might be interesting to argue that there is a
+very feasible risk that the studies are distorted due to failure to identify dead code.
+
+The authors claim that a limitation of static analysis is that obfuscated, runtime-dynamic code might introduce
+vulnerabilities that the analysis missed.
+This might be true, but such code is also to be treated as dangerous in my opinion.
+
+In contrast to my work, this is based on Android and Java at best, not Go.
+
+This is only minor relevant as another study.
