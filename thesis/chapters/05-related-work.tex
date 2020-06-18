@@ -151,8 +151,8 @@ The paper includes advertisement for a company and curiously uses Go 1.9 althoug
 \label{subsec:why-can’t-johnny-fix-vulnerabilities:-a-usability-evaluation-of-static-analysis-tools-for-security}
 
 Smith et al.~\cite{smith2020} conduct a developer survey on usability problems with static code analysis tools.
-They contribute insights into why developers can often not get the most beneficial outcode from such tools.
-The mainly analyze Java analysis tools such as Find Bugs, CheckStyle and PMD.
+They contribute insights into why developers can often not get the most beneficial outcome from such tools.
+The mainly analyze Java analysis tools such as Find Bugs, CheckStyle and PMD\@.
 
 The problem areas found are code navigation issues, missing or buried information, interface scalability for large
 projects (such as a huge control flow graph), inaccuracy of analysis, code disconnect (meaning the proposed fix to a
@@ -163,21 +163,7 @@ The authors propose as improvements a clear communication of what and how to fix
 editable source code, contextualized and meaningful notifications, and a good integration into existing development
 workflows such as CI.
 
-
-%% -----------------------------------------------------------------------------
-
-\subsection{Can automated pull requests encourage software developers to upgrade out-of-date dependencies?}
-\label{subsec:can-automated-pull-requests-encourage-software-developers-to-upgrade-out-of-date-dependencies?}
-
-Cite~\cite{mirhosseini2017}
-
-
-%% -----------------------------------------------------------------------------
-
-\subsection{Do developers update their library dependencies?}
-\label{subsec:do-developers-update-their-library-dependencies?}
-
-Cite~\cite{kula2017}
+Minor relevance, probably cite in the chapter about the linting tools.
 
 
 %% -----------------------------------------------------------------------------
@@ -185,7 +171,20 @@ Cite~\cite{kula2017}
 \subsection{Source Code Vulnerabilities in IoT Software Systems}
 \label{subsec:source-code-vulnerabilities-in-iot-software-systems}
 
-Cite~\cite{alnaeli2017}
+Alnaeli et al.~\cite{alnaeli2017} contribute a study of unsafe C code patterns, that is well-known unsafe
+functions such as strcpy, in IoT software.
+They count how many unsafe and how many safe functions they find, and compare them with each other to discover trends.
+
+Similar to my work, they search for unsafe code patterns in open-source code.
+Similar to my work, they also look at changes over time.
+In contrast to my work, they analyze C code instead of Go code.
+
+The authors find that the systems under review have neither introduced more nor removed some of the unsafe functions
+over time.
+They conclude that developers might be unaware of the presence of the functions, their implications, or both.
+They suggest better developer education on security-related consequences of these functions.
+
+Minor relevance, cite in survey chapter.
 
 
 %% -----------------------------------------------------------------------------
@@ -198,18 +197,34 @@ Cite~\cite{larochelle2001}
 
 %% -----------------------------------------------------------------------------
 
+\subsection{Vulnerable Open Source Dependencies: Counting Those That Matter}
+\label{subsec:vulnerable-open-source-dependencies:-counting-those-that-matter}
+
+Cite~\cite{pashchenko2018}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Do developers update their library dependencies?}
+\label{subsec:do-developers-update-their-library-dependencies?}
+
+Cite~\cite{kula2017}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Can automated pull requests encourage software developers to upgrade out-of-date dependencies?}
+\label{subsec:can-automated-pull-requests-encourage-software-developers-to-upgrade-out-of-date-dependencies?}
+
+Cite~\cite{mirhosseini2017}
+
+%% -----------------------------------------------------------------------------
+
 \subsection{Understanding the Origins of Mobile App Vulnerabilities: A Large-scale Measurement Study of Free and Paid Apps}
 \label{subsec:understanding-the-origins-of-mobile-app-vulnerabilities:-a-large-scale-measurement-study-of-free-and-paid-apps}
 
 Cite~\cite{watanabe2017}
 
-
-%% -----------------------------------------------------------------------------
-
-\subsection{Vulnerable Open Source Dependencies: Counting Those That Matter}
-\label{subsec:vulnerable-open-source-dependencies:-counting-those-that-matter}
-
-Cite~\cite{pashchenko2018}
 
 
 
