@@ -116,6 +116,41 @@ would compile.
 
 %% -----------------------------------------------------------------------------
 
+\subsection{Escape from Escape Analysis of Golang}
+\label{subsec:escape-from-escape-analysis-of-golang}
+
+Wang et al.~\cite{wang2020} propose an approach to make heap memory usage in Go more effective by improving the escape
+analysis algorithm.
+The current algorithm is very conservative.
+In particular, the authors try improve a specific type of escape analysis: passing a pointer into a function call will
+make that object escape.
+They contribute an optimizer that always replaces such calls by an intermediate cast of the pointer into a uintptr
+variable and then back to a pointer, both through the use of unsafe.Pointer.
+This breaks the escape analysis chain and will make Go escape only the new pointer to the heap, not the entire previous
+data structure.
+After the identification of such snippets in the code comes a verification stage that will check whether the function
+call is synchronous.
+In that case, the underlying variable cannot be freed before the end of the function, and the optimization is correct.
+If the call is asynchronous, the optimizer checks if the variable is used in any other Goroutine, in which case the
+optimization will not be done.
+Otherwise it is deemed valid.
+
+The authors mention escape analysis in other language~\cite{hill2002, hannan1998, choi1999}.
+
+This is an interesting related work because the tool to break escape analysis, the cast to uintptr and back, is exactly
+the problem in the common unsafe slice cast that I describe in the other sections.
+
+The authors evaluate performance and correctness on 10 open-source and 10 industrial projects.
+Their data set includes kubernetes.
+
+The paper includes advertisement for a company and curiously uses Go 1.9 although the paper is to be published at ICSE
+2020.
+
+
+
+
+%% -----------------------------------------------------------------------------
+
 \subsection{Can automated pull requests encourage software developers to upgrade out-of-date dependencies?}
 \label{subsec:can-automated-pull-requests-encourage-software-developers-to-upgrade-out-of-date-dependencies?}
 
@@ -128,14 +163,6 @@ Cite~\cite{mirhosseini2017}
 \label{subsec:do-developers-update-their-library-dependencies?}
 
 Cite~\cite{kula2017}
-
-
-%% -----------------------------------------------------------------------------
-
-\subsection{Escape from Escape Analysis of Golang}
-\label{subsec:escape-from-escape-analysis-of-golang}
-
-Cite~\cite{wang2020}
 
 
 %% -----------------------------------------------------------------------------
