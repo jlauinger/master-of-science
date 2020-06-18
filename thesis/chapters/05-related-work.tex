@@ -218,7 +218,67 @@ annotations.
 \subsection{Vulnerable Open Source Dependencies: Counting Those That Matter}
 \label{subsec:vulnerable-open-source-dependencies:-counting-those-that-matter}
 
-Cite~\cite{pashchenko2018}
+Pashchenko et al.~\cite{pashchenko2018} in a quite recent study propose a way of counting relevant dependencies in a
+project and identifying whether the dependencies are vulnerable.
+The study is done for Java, and specifically for Maven dependency management.
+The authors note that failure of identifying relevant dependencies might lead to bad allocation of development resources.
+
+A central point is dependency scoping (production versus testing) which many studies did not incorporate in the past.
+If a vulnerability is found in a dependency only relevant for testing, it might not be worth to put resources onto its
+mitigation.
+This is extremely relevant for me!
+As of now, I also do not distinguish between testing and production library.
+This is probably not even possible with the Go dependency management system.
+A key insight for distiguishing this related work from my work would be to highlight the relative instability of the
+incredibly new Golang dependency system compared to the very seasoned Maven system.
+The authors find that around 20 \% of dependencies are for testing only (not deployed).
+
+Furthermore, it is very important to transitively look at dependencies of dependencies because they can just as well
+introduce problems into the main project.
+This is something my study already perfectly does.
+
+The authors contribute a method of determining whether a dependency is actively maintained or halted.
+It is done by looking at the release cycle with an exponential smoothing model.
+There are only a few vulnerabilities in halted libraries that they found, but those are especially important because
+mitigation cannot be done by a simple upgrade.
+
+The authors introduce the important concept of reliability for bug fixing.
+This is, the developers are directly reliable for fixing their main package and own dependencies, and they need to
+make sure their direct dependencies are up to date but cannot fix them.
+The indirect, or transitive, depencies are out of responsiblity for the developers since they cannot even be upgraded
+manually.
+A major finding is that grouping the dependencies of a project into these reliability groups gives a better picture into
+how much the developers can actually do, and the authors find that for more than 80 \% of the problems the developers
+can mitigate themselves through an upgrade or fixing their own code.
+
+Identification of vulnerabilities is done by matching code patterns to vulnerability databases both in a manual and an
+automated fashion.
+The developers contribute a tool that can provide annotations to the code as to which vulnerablity it might belong.
+
+A very relevant insight for me: the authors first did an incorrect dependency popularity measurement.
+They counted the times the dependency gets imported, possibly distorting the popularity if a project is decomposed into
+many small own dependencies~\cite{sajnani2014}.
+A better way is to count the projects that include the dependency.
+I already use the second approach in Table~\ref{tbl:pull-requests} for the supplied pull requests for fixes.
+However, I need to make sure in the plot generation that I use the same metrics.
+
+The authors compare to other ecosystems such as Pip and NPM, but not Go.
+For NPM, they cite a relevant study on Javascript dependency vulnerabilites~\cite{lauinger2017}, which showed that
+transitive project dependencies are more vulnerable than direct dependencies.
+They reason that this might be the case because developers are less aware of the existence of those dependencies, and
+have less control about them.
+The authors highlight that this is a finding specific to Javascript because NPM allows several versions of the same
+library to be used in the same project, while Maven does not.
+I need to find out if this is possible with Go modules too, I think it is not.
+I think Go behaves like Maven.
+However, I need to highlight that in my data survey there are of course different versions of the same library, and this
+is even necessary to analyze unsafe usage over time.
+
+Within threats to validity, the authors note that the selection of libraries was potentially biased, that the
+vulnerability database may not cover all vulnerabilites, the study only used Maven, and that project IDs were approximated.
+
+This is an extremely valuable related work that I definitely need to cite both in the background on Go dependencies
+and the survey as well.
 
 
 %% -----------------------------------------------------------------------------
@@ -242,7 +302,3 @@ Cite~\cite{mirhosseini2017}
 \label{subsec:understanding-the-origins-of-mobile-app-vulnerabilities:-a-large-scale-measurement-study-of-free-and-paid-apps}
 
 Cite~\cite{watanabe2017}
-
-
-
-
