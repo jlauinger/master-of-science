@@ -15,7 +15,7 @@ This is similar to many studies as summarized in the related work chapter.
 I downloaded the top 500 most popular (by number of stars) Go projects from Github.
 They can be found through Github search.
 
-Using the \texttt{github.com/google/go-github/github}~\cite{NEEDED} and \texttt{github.com/go-git/go-git/v5}~\cite{NEEDED}
+Using the \texttt{github.com/google/go-github/github}~\cite{gogithub} and \texttt{github.com/go-git/go-git/v5}~\cite{gogit}
 Go libraries, I found, saved, downloaded, and checkout out these projects using a Go program.
 
 The projects, including the revision I checked out, and some meta data is shown in Table~\ref{tbl:projects}.
@@ -30,7 +30,7 @@ Iteration of three data acquisition programs, getting faster and faster: Bash, P
 Loading packages used by the program by running \texttt{go list -deps -json ./...}, then parsing the JSON output.
 
 CSV is used to write data to disk.
-Interop with Go structure types is achieved using the \texttt{github.com/gocarina/gocsv}~\cite{NEEDED} library.
+Interop with Go structure types is achieved using the \texttt{github.com/gocarina/gocsv}~\cite{gocsv} library.
 
 Program uses the following steps:
 
