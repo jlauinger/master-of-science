@@ -294,7 +294,49 @@ Cite~\cite{kula2017}
 \subsection{Can automated pull requests encourage software developers to upgrade out-of-date dependencies?}
 \label{subsec:can-automated-pull-requests-encourage-software-developers-to-upgrade-out-of-date-dependencies?}
 
-Cite~\cite{mirhosseini2017}
+Mirhosseini et al.~\cite{mirhosseini2017} answer the research question whether automated pull requests such as greenkeeper
+or pyup can encourage developers to update dependencies.
+They find that badges provide a good incentive to developers to keep them green by updating.
+Automated pull requests offer an actionable solution to update, but notification fatigue can work against update
+discipline.
+That is, maintaining many open source projects can lead to a lot of pull request notifications, especially if there is
+one opened for every single dependency.
+
+The authors analyze about 7,400 Github projects, grouped into badges, automated pull requests, and a baseline.
+Automated pull requests lead to 1.6 times, badges to 1.4 higher probability to update.
+Pull requests also mean faster updates.
+On purpose, they use a broad sample of Github projects instead of the most popular ones.
+This is something I should talk about too in my work!
+In summary, both versions of update helpers had a positive impact, with pull requests being in the lead.
+
+A surprising finding was that only about 30 \% of automated PRs was merged, compared to about 80 \% of general PRs.
+Some merged update PRs were also downgraded again after some days, hinting incompatibilities introduced.
+Using CI correlated with marginally higher merge rate.
+
+They also conduct a developer survey.
+Developers had mixed feelings about badges versus automated pull requests.
+They suggested to use batched updates, resulting in fewer pull requests and less fatigue.
+
+The authors identified through survey different updating strategies: quick, scheduled, reactive.
+A developer said, reasoned through possible new errors in libraries and minor benefits, that in the reality of commercial
+software engineering, staying on bleeding edge library versions usually costs more than it benefits, and the better
+approach is to update infrequently.
+My work should act on this and argue that this is true for feature releases but very bad for security releases.
+Maybe one could do something with semver here.
+
+The survey also showed that a single bad update of one library can very strongly cause developers to be reluctant from
+updating in the future.
+From this, we can argue for high responsible in library releasing to not destroy the necessary environment for timely
+ships of security fixes.
+
+The authors further cite another work stating that vulnerabilities are often contained in dependencies~\cite{xia2014}.
+CI is not always a guarantee that an update does not break the software.
+Badges can counteract fatigue, and more importantly they rely on a different mechanism: social pressure.
+
+This has very relevance for me because of the survey on update preferences.
+It is interesting to cite this within the argument that libraries must be updated in order to remove already fixed
+vulnerabilities from dependent projects.
+
 
 %% -----------------------------------------------------------------------------
 
