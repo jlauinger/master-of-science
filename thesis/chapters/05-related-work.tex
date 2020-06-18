@@ -192,7 +192,25 @@ Minor relevance, cite in survey chapter.
 \subsection{Statically Detecting Likely Buffer Overflow Vulnerabilities}
 \label{subsec:statically-detecting-likely-buffer-overflow-vulnerabilities}
 
-Cite~\cite{larochelle2001}
+In their (quite old) 2001 paper, Larochelle and David Evans~\cite{larochelle2001} write about static code analysis to
+detect likely buffer overflow vulnerabilities in C code.
+They cite a paper assuming that buffer overflows would still be relevant in 20 years, that would be 2019.
+That would be true but I'll have to see if it makes sense to also cite this and add a comment.
+
+Similar to my work, this is using static analysis to find problems in code.
+But contrary to my work, it's for C code, not Go.
+They also talk about simple overflow exploitation techniques, in the context of C\@.
+I can and probably should do the same, with a focus on Go.
+
+The authors exploit semantic comments to enable local checking of interprocedural properties, they focus on lightweight
+analysis that does not add much overhead, and they use heuristics.
+They conduct their study using the LClint annotation tool also developed by Evans.
+They note that annotating the standard library would bring a lot of security even without annotating actual programs,
+because most vulnerabilities come from using insecure or improperly used functions.
+This I can use too to argue for better auditing of standard libraries and developer education as well.
+
+The annotations available include data constraints, such as x > y, and control flow constraints such as branch-specific
+annotations.
 
 
 %% -----------------------------------------------------------------------------
