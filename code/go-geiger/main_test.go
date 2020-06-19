@@ -31,7 +31,7 @@ func TestRun (t *testing.T) {
 	}, "./testdata")
 
 	statsLine := stripansi.Strip(strings.Split(output.String(), "\n")[2])
-	zp := regexp.MustCompile(` *`)
+	zp := regexp.MustCompile(` +`)
 	stats := zp.Split(statsLine, -1)
 
 	local, _ := strconv.Atoi(stats[1])

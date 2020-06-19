@@ -23,22 +23,31 @@ type Stats struct {
 	SafeCount               int
 }
 
+type LocalPackageCounts struct {
+	Local      int
+	Variable   int
+	Parameter  int
+	Assignment int
+	Call       int
+}
+
 func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, table *tablewriter.Table,
 	seen *map[*packages.Package]bool) (stats Stats) {
 	(*seen)[pkg] = true
 
-	countInThisPackage := getUnsafeCount(pkg, config)
+	countsInThisPackage := getUnsafeCount(pkg, config)
 	totalCount := getTotalUnsafeCount(pkg, config, &map[*packages.Package]bool{})
 	nameString := fmt.Sprintf("%s%s", getIndentString(indents), getPrintedPackageName(pkg, config))
 
-	colors := getColors(countInThisPackage, totalCount, config)
+	colors := getColors(countsInThisPackage.Local, totalCount, config)
 
 	if config.DetailedStats {
-		table.Rich([]string{strconv.Itoa(countInThisPackage), strconv.Itoa(totalCount),
-			strconv.Itoa(0), strconv.Itoa(0), strconv.Itoa(0), strconv.Itoa(0),
+		table.Rich([]string{strconv.Itoa(countsInThisPackage.Local), strconv.Itoa(totalCount),
+			strconv.Itoa(countsInThisPackage.Variable), strconv.Itoa(countsInThisPackage.Parameter),
+			strconv.Itoa(countsInThisPackage.Assignment), strconv.Itoa(countsInThisPackage.Call),
 			nameString}, colors)
 	} else {
-		table.Rich([]string{strconv.Itoa(countInThisPackage), strconv.Itoa(totalCount), nameString}, colors)
+		table.Rich([]string{strconv.Itoa(countsInThisPackage.Local), strconv.Itoa(totalCount), nameString}, colors)
 	}
 
 	childCount, _ := getImportsCount(pkg.Imports, config)
@@ -63,7 +72,7 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 
 	// do not count the outermost parent package in the import stats
 	stats.ImportCount += childCount
-	if countInThisPackage > 0 {
+	if countsInThisPackage.Local > 0 {
 		stats.UnsafeCount += 1
 	} else if totalCount > 0 {
 		stats.TransitivelyUnsafeCount += 1
@@ -84,17 +93,17 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 
 		_, ok := (*seen)[child]
 		if config.ShortenSeenPackages && ok {
-			countInChild := getUnsafeCount(child, config)
+			countsInChild := getUnsafeCount(child, config)
 			totalCountInChild := getTotalUnsafeCount(child, config, &map[*packages.Package]bool{})
 
 			if config.DetailedStats {
-				table.Rich([]string{strconv.Itoa(countInChild), strconv.Itoa(totalCountInChild),
-					strconv.Itoa(0), strconv.Itoa(0),
-					strconv.Itoa(0), strconv.Itoa(0),
+				table.Rich([]string{strconv.Itoa(countsInChild.Local), strconv.Itoa(totalCountInChild),
+					strconv.Itoa(countsInChild.Variable), strconv.Itoa(countsInChild.Parameter),
+					strconv.Itoa(countsInChild.Assignment), strconv.Itoa(countsInChild.Call),
 					fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
 					getColors(0, totalCountInChild, config))
 			} else {
-				table.Rich([]string{strconv.Itoa(countInChild), strconv.Itoa(totalCountInChild),
+				table.Rich([]string{strconv.Itoa(countsInChild.Local), strconv.Itoa(totalCountInChild),
 					fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
 					getColors(0, totalCountInChild, config))
 			}
