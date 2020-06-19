@@ -53,6 +53,14 @@ func isInAssignment(stack []ast.Node) bool {
 		if ok {
 			return true
 		}
+		_, ok = n.(*ast.CompositeLit)
+		if ok {
+			return true
+		}
+		_, ok = n.(*ast.ReturnStmt)
+		if ok {
+			return true
+		}
 	}
 	return false
 }
@@ -92,8 +100,16 @@ func getUnsafeCount(pkg *packages.Package, config Config) LocalPackageCounts {
 	inspectResult := inspector.New(pkg.Syntax)
 	localPackageCounts := LocalPackageCounts{}
 
+	seen := map[*ast.SelectorExpr]bool{}
+
 	inspectResult.WithStack([]ast.Node{(*ast.SelectorExpr)(nil)}, func(n ast.Node, push bool, stack []ast.Node) bool {
 		node := n.(*ast.SelectorExpr)
+		_, ok := seen[node]
+		if ok {
+			return true
+		}
+		seen[node] = true
+
 		if !isUnsafePointer(node) {
 			return true
 		}
@@ -101,32 +117,35 @@ func getUnsafeCount(pkg *packages.Package, config Config) LocalPackageCounts {
 		// it is definitely an unsafe.Pointer finding
 		localPackageCounts.Local++
 
-		if isArgument(stack) {
-			localPackageCounts.Call++
-		} else if isInAssignment(stack) {
+		if isInAssignment(stack) {
 			localPackageCounts.Assignment++
+			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "assignment") {
+				printLine(pkg, n)
+			}
+		} else if isArgument(stack) {
+			localPackageCounts.Call++
+			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "call") {
+				printLine(pkg, n)
+			}
 		} else if isParameter(stack) {
 			localPackageCounts.Parameter++
+			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "parameter") {
+				printLine(pkg, n)
+			}
 		} else if isInVariableDefinition(stack) {
 			localPackageCounts.Variable++
+			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "variable") {
+				printLine(pkg, n)
+			}
 		} else {
 			localPackageCounts.Other++
-		}
-
-		if config.PrintUnsafeLines {
-			printLine(pkg, n)
+			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "other") {
+				printLine(pkg, n)
+			}
 		}
 
 		return true
 	})
-
-	// divide counts by two because WithStack always finds everything twice
-	localPackageCounts.Local /= 2
-	localPackageCounts.Variable /= 2
-	localPackageCounts.Parameter /= 2
-	localPackageCounts.Assignment /= 2
-	localPackageCounts.Call /= 2
-	localPackageCounts.Other /= 2
 
 	packageUnsafeCountCache[pkg] = localPackageCounts
 

@@ -9,6 +9,7 @@ import (
 
 var maxIndent int
 var shortenSeenPackages, showStandardPackages, printLinkToPkgGoDev, printUnsafeLines, detailedStats bool
+var filter string
 
 var RootCmd = &cobra.Command{
 	Use:   "geiger",
@@ -21,8 +22,9 @@ var RootCmd = &cobra.Command{
 			ShortenSeenPackages:  shortenSeenPackages,
 			ShowStandardPackages: showStandardPackages,
 			PrintLinkToPkgGoDev:  printLinkToPkgGoDev,
-			PrintUnsafeLines:     printUnsafeLines,
 			DetailedStats:        detailedStats,
+			PrintUnsafeLines:     printUnsafeLines,
+			Filter:               filter,
 			Output:               os.Stdout,
 		}, args...)
 	},
@@ -41,5 +43,6 @@ func init() {
 	RootCmd.PersistentFlags().BoolVar(&showStandardPackages, "show-std", false, "Show Goland stdlib packages")
 	RootCmd.PersistentFlags().BoolVar(&printLinkToPkgGoDev, "link", false, "Print link to pkg.go.dev instead of package name")
 	RootCmd.PersistentFlags().BoolVar(&printUnsafeLines, "show-code", false, "Print the code lines with unsafe usage")
+	RootCmd.PersistentFlags().StringVar(&filter, "filter", "all", "Print only lines of requested type (variable,parameter,assignment,call,other). You need to specify --show-code also.")
 	RootCmd.PersistentFlags().BoolVar(&detailedStats, "detail", false, "Show detailed stats on different usage types")
 }

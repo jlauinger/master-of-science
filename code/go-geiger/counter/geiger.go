@@ -16,6 +16,7 @@ type Config struct {
 	PrintUnsafeLines     bool
 	DetailedStats        bool
 	Output               io.Writer
+	Filter               string
 }
 
 func Run(config Config, paths... string) {
