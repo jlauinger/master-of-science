@@ -12,6 +12,17 @@ func initCache() {
 	packageUnsafeCountCache = map[*packages.Package]int{}
 }
 
+/**
+ Types of unsafe usages to be counted
+
+ - plain unsafe.Pointer count
+
+ - usage as function parameter type
+ - usage as variable definition, possibly in struct
+ - usage call argument
+ - usage in assignment
+ */
+
 func isUnsafePointer(node *ast.SelectorExpr) bool {
 	switch X := node.X.(type) {
 	case *ast.Ident:

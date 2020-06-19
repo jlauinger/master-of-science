@@ -31,16 +31,27 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 	totalCount := getTotalUnsafeCount(pkg, config, &map[*packages.Package]bool{})
 	nameString := fmt.Sprintf("%s%s", getIndentString(indents), getPrintedPackageName(pkg, config))
 
-	colors := getColors(countInThisPackage, totalCount)
+	colors := getColors(countInThisPackage, totalCount, config)
 
-	table.Rich([]string{strconv.Itoa(countInThisPackage), strconv.Itoa(totalCount), nameString}, colors)
+	if config.DetailedStats {
+		table.Rich([]string{strconv.Itoa(countInThisPackage), strconv.Itoa(totalCount),
+			strconv.Itoa(0), strconv.Itoa(0), strconv.Itoa(0), strconv.Itoa(0),
+			nameString}, colors)
+	} else {
+		table.Rich([]string{strconv.Itoa(countInThisPackage), strconv.Itoa(totalCount), nameString}, colors)
+	}
 
 	childCount, _ := getImportsCount(pkg.Imports, config)
 	nextIndents := getNextIndents(indents)
 
 	if len(indents) == config.MaxIndent && childCount > 0 {
-		table.Append([]string{"", "", fmt.Sprintf("%sMaximum depth reached. Use --level= to increase it",
-			getIndentString(append(nextIndents, L)))})
+		if config.DetailedStats {
+			table.Append([]string{"", "", "", "", "", "", fmt.Sprintf("%sMaximum depth reached. Use --level= to increase it",
+				getIndentString(append(nextIndents, L)))})
+		} else {
+			table.Append([]string{"", "", fmt.Sprintf("%sMaximum depth reached. Use --level= to increase it",
+				getIndentString(append(nextIndents, L)))})
+		}
 		return
 	}
 
@@ -75,9 +86,18 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 		if config.ShortenSeenPackages && ok {
 			countInChild := getUnsafeCount(child, config)
 			totalCountInChild := getTotalUnsafeCount(child, config, &map[*packages.Package]bool{})
-			table.Rich([]string{strconv.Itoa(countInChild), strconv.Itoa(totalCountInChild),
-				fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
-				getColors(0, totalCountInChild))
+
+			if config.DetailedStats {
+				table.Rich([]string{strconv.Itoa(countInChild), strconv.Itoa(totalCountInChild),
+					strconv.Itoa(0), strconv.Itoa(0),
+					strconv.Itoa(0), strconv.Itoa(0),
+					fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
+					getColors(0, totalCountInChild, config))
+			} else {
+				table.Rich([]string{strconv.Itoa(countInChild), strconv.Itoa(totalCountInChild),
+					fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
+					getColors(0, totalCountInChild, config))
+			}
 
 			stats.ImportCount -= 1
 			continue
@@ -106,16 +126,20 @@ func getChildIndents(childIndex int, childCount int, nextIndents []IndentType) [
 	return nextChildIndents
 }
 
-func getColors(countInThisPackage int, totalCount int) []tablewriter.Colors {
-	var colors []tablewriter.Colors
+func getColors(countInThisPackage int, totalCount int, config Config) []tablewriter.Colors {
+	var color int
 	if countInThisPackage > 0 {
-		colors = []tablewriter.Colors{{tablewriter.FgRedColor}, {tablewriter.FgRedColor}, {tablewriter.FgRedColor}}
+		color = tablewriter.FgRedColor
 	} else if totalCount == 0 {
-		colors = []tablewriter.Colors{{tablewriter.FgGreenColor}, {tablewriter.FgGreenColor}, {tablewriter.FgGreenColor}}
+		color = tablewriter.FgGreenColor
 	} else {
-		colors = []tablewriter.Colors{{tablewriter.Normal}, {tablewriter.Normal}, {tablewriter.Normal}}
+		color = tablewriter.Normal
 	}
-	return colors
+	if config.DetailedStats {
+		return []tablewriter.Colors{{color}, {color}, {color}, {color}, {color}, {color}, {color}}
+	} else {
+		return []tablewriter.Colors{{color}, {color}, {color}}
+	}
 }
 
 func getNextIndents(indents []IndentType) []IndentType {

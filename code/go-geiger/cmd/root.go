@@ -8,7 +8,7 @@ import (
 )
 
 var maxIndent int
-var shortenSeenPackages, showStandardPackages, printLinkToPkgGoDev, printUnsafeLines bool
+var shortenSeenPackages, showStandardPackages, printLinkToPkgGoDev, printUnsafeLines, detailedStats bool
 
 var RootCmd = &cobra.Command{
 	Use:   "geiger",
@@ -22,6 +22,8 @@ var RootCmd = &cobra.Command{
 			ShowStandardPackages: showStandardPackages,
 			PrintLinkToPkgGoDev:  printLinkToPkgGoDev,
 			PrintUnsafeLines:     printUnsafeLines,
+			DetailedStats:        detailedStats,
+			Output:               os.Stdout,
 		}, args...)
 	},
 }
@@ -39,4 +41,5 @@ func init() {
 	RootCmd.PersistentFlags().BoolVar(&showStandardPackages, "show-std", false, "Show Goland stdlib packages")
 	RootCmd.PersistentFlags().BoolVar(&printLinkToPkgGoDev, "link", false, "Print link to pkg.go.dev instead of package name")
 	RootCmd.PersistentFlags().BoolVar(&printUnsafeLines, "show-code", false, "Print the code lines with unsafe usage")
+	RootCmd.PersistentFlags().BoolVar(&detailedStats, "detail", false, "Show detailed stats on different usage types")
 }
