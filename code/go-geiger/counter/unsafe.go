@@ -109,6 +109,8 @@ func getUnsafeCount(pkg *packages.Package, config Config) LocalPackageCounts {
 			localPackageCounts.Parameter++
 		} else if isInVariableDefinition(stack) {
 			localPackageCounts.Variable++
+		} else {
+			localPackageCounts.Other++
 		}
 
 		if config.PrintUnsafeLines {
@@ -124,6 +126,7 @@ func getUnsafeCount(pkg *packages.Package, config Config) LocalPackageCounts {
 	localPackageCounts.Parameter /= 2
 	localPackageCounts.Assignment /= 2
 	localPackageCounts.Call /= 2
+	localPackageCounts.Other /= 2
 
 	packageUnsafeCountCache[pkg] = localPackageCounts
 

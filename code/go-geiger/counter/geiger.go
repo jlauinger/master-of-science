@@ -40,9 +40,10 @@ func Run(config Config, paths... string) {
 
 		table := tablewriter.NewWriter(config.Output)
 		if config.DetailedStats {
-			table.SetHeader([]string{"Local", "Total", "Variable", "Parameter", "Assignment", "Call", "Package"})
+			table.SetHeader([]string{"Local", "Total", "Variable", "Parameter", "Assignment", "Call", "Other", "Package"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER,
-				tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_LEFT})
+				tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER,
+				tablewriter.ALIGN_LEFT})
 		} else {
 			table.SetHeader([]string{"Local", "Total", "Package"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_LEFT})

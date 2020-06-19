@@ -40,6 +40,7 @@ func TestRun (t *testing.T) {
 	parameter, _ := strconv.Atoi(stats[4])
 	assignment, _ := strconv.Atoi(stats[5])
 	call, _ := strconv.Atoi(stats[6])
+	other, _ := strconv.Atoi(stats[7])
 
 	if local != 5 {
 		t.Errorf("local = %d; want 5", local)
@@ -58,5 +59,8 @@ func TestRun (t *testing.T) {
 	}
 	if call != 1 {
 		t.Errorf("call = %d; want 1", call)
+	}
+	if other != 0 {
+		t.Errorf("other = %d; want 0", other)
 	}
 }

@@ -29,6 +29,7 @@ type LocalPackageCounts struct {
 	Parameter  int
 	Assignment int
 	Call       int
+	Other      int
 }
 
 func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, table *tablewriter.Table,
@@ -45,6 +46,7 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 		table.Rich([]string{strconv.Itoa(countsInThisPackage.Local), strconv.Itoa(totalCount),
 			strconv.Itoa(countsInThisPackage.Variable), strconv.Itoa(countsInThisPackage.Parameter),
 			strconv.Itoa(countsInThisPackage.Assignment), strconv.Itoa(countsInThisPackage.Call),
+			strconv.Itoa(countsInThisPackage.Other),
 			nameString}, colors)
 	} else {
 		table.Rich([]string{strconv.Itoa(countsInThisPackage.Local), strconv.Itoa(totalCount), nameString}, colors)
@@ -55,7 +57,7 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 
 	if len(indents) == config.MaxIndent && childCount > 0 {
 		if config.DetailedStats {
-			table.Append([]string{"", "", "", "", "", "", fmt.Sprintf("%sMaximum depth reached. Use --level= to increase it",
+			table.Append([]string{"", "", "", "", "", "", "", fmt.Sprintf("%sMaximum depth reached. Use --level= to increase it",
 				getIndentString(append(nextIndents, L)))})
 		} else {
 			table.Append([]string{"", "", fmt.Sprintf("%sMaximum depth reached. Use --level= to increase it",
@@ -100,6 +102,7 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 				table.Rich([]string{strconv.Itoa(countsInChild.Local), strconv.Itoa(totalCountInChild),
 					strconv.Itoa(countsInChild.Variable), strconv.Itoa(countsInChild.Parameter),
 					strconv.Itoa(countsInChild.Assignment), strconv.Itoa(countsInChild.Call),
+					strconv.Itoa(countsInChild.Other),
 					fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
 					getColors(0, totalCountInChild, config))
 			} else {
@@ -145,7 +148,7 @@ func getColors(countInThisPackage int, totalCount int, config Config) []tablewri
 		color = tablewriter.Normal
 	}
 	if config.DetailedStats {
-		return []tablewriter.Colors{{color}, {color}, {color}, {color}, {color}, {color}, {color}}
+		return []tablewriter.Colors{{color}, {color}, {color}, {color}, {color}, {color}, {color}, {color}}
 	} else {
 		return []tablewriter.Colors{{color}, {color}, {color}}
 	}
