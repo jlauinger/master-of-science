@@ -114,32 +114,42 @@ func getUnsafeCount(pkg *packages.Package, config Config) LocalPackageCounts {
 			return true
 		}
 
-		// it is definitely an unsafe.Pointer finding
-		localPackageCounts.Local++
-
 		if isInAssignment(stack) {
-			localPackageCounts.Assignment++
-			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "assignment") {
-				printLine(pkg, n)
+			if config.Filter == "all" || config.Filter == "assignment" {
+				localPackageCounts.Local++
+				localPackageCounts.Assignment++
+				if config.PrintUnsafeLines {
+					printLine(pkg, n)
+				}
 			}
 		} else if isArgument(stack) {
-			localPackageCounts.Call++
-			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "call") {
-				printLine(pkg, n)
+			if config.Filter == "all" || config.Filter == "call" {
+				localPackageCounts.Local++
+				localPackageCounts.Call++
+				if config.PrintUnsafeLines {
+					printLine(pkg, n)
+				}
 			}
 		} else if isParameter(stack) {
-			localPackageCounts.Parameter++
-			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "parameter") {
-				printLine(pkg, n)
+			if config.Filter == "all" || config.Filter == "parameter" {
+				localPackageCounts.Local++
+				localPackageCounts.Parameter++
+				if config.PrintUnsafeLines {
+					printLine(pkg, n)
+				}
 			}
 		} else if isInVariableDefinition(stack) {
-			localPackageCounts.Variable++
-			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "variable") {
-				printLine(pkg, n)
+			if config.Filter == "all" || config.Filter == "variable" {
+				localPackageCounts.Local++
+				localPackageCounts.Variable++
+				if config.PrintUnsafeLines {
+					printLine(pkg, n)
+				}
 			}
-		} else {
+		} else if config.Filter == "all" || config.Filter == "other" {
+			localPackageCounts.Local++
 			localPackageCounts.Other++
-			if config.PrintUnsafeLines && (config.Filter == "all" || config.Filter == "other") {
+			if config.PrintUnsafeLines {
 				printLine(pkg, n)
 			}
 		}

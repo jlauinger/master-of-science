@@ -27,6 +27,7 @@ func TestRun (t *testing.T) {
 		PrintLinkToPkgGoDev:  false,
 		PrintUnsafeLines:     false,
 		DetailedStats:        true,
+		Filter:               "all",
 		Output:               output,
 	}, "./testdata")
 

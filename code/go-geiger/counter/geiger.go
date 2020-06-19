@@ -40,13 +40,16 @@ func Run(config Config, paths... string) {
 		initCache()
 
 		table := tablewriter.NewWriter(config.Output)
-		if config.DetailedStats {
+		if config.DetailedStats && config.Filter == "all" {
 			table.SetHeader([]string{"Local", "Total", "Variable", "Parameter", "Assignment", "Call", "Other", "Package"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER,
 				tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER,
 				tablewriter.ALIGN_LEFT})
-		} else {
+		} else if config.Filter == "all" {
 			table.SetHeader([]string{"Local", "Total", "Package"})
+			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_LEFT})
+		} else {
+			table.SetHeader([]string{config.Filter, "Total", "Package"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_LEFT})
 		}
 		table.SetBorder(false)
