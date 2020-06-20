@@ -1,0 +1,158 @@
+# github.com/urso/tmp/testconv
+liveness: Str2Bytes1
+bb#1 pred= succ=
+	uevar=s,<none> livein=s,<none>
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:11:6) function entry
+	live=s
+(<unknown line number>) v1 = InitMem <mem>
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:11:6) v7 = VarDef <mem> {b} v1
+	varkill=b
+(<unknown line number>) v2 = SP <uintptr> : SP
+
+// zero out b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:11:6) v15 = MOVQstoreconst <mem> {b} [val=0,off=0] v2 v7
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:11:6) v24 = MOVOconst <int128> [0] : X0
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:11:6) v9 = MOVOstore <mem> {b} [8] v2 v24 v15
+	live=s,b
+
+// bh.Data = sh.Data
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:14:14) v17 = MOVQload <uintptr> {s} v2 v9 : AX
+	uevar=s varkill=AX
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:14:10) v20 = MOVQstore <mem> {b} v2 v17 v9
+	live=s,b
+
+// bh.Cap = sh.Len
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:15:13) v23 = MOVQload <int> {s} [8] v2 v20 : AX
+	uevar=s varkill=AX
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:15:9) v26 = MOVQstore <mem> {b} [16] v2 v23 v20
+	live=s,b
+
+// bh.Len = sh.Len
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:16:13) v29 = MOVQload <int> {s} [8] v2 v26 : AX
+	uevar=s varkill=AX
+	live=b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:16:9) v32 = MOVQstore <mem> {b} [8] v2 v29 v26
+	live=b
+end
+	varkill=b,AX liveout=b,<none>
+
+liveness: Str2Bytes4
+bb#1 pred= succ=
+	uevar=s,<none> livein=s,<none>
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:37:6) function entry
+	live=s
+(<unknown line number>) v1 = InitMem <mem>
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:37:6) v7 = VarDef <mem> {b} v1
+	varkill=b
+(<unknown line number>) v2 = SP <uintptr> : SP
+
+// zero out b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:37:6) v15 = MOVQstoreconst <mem> {b} [val=0,off=0] v2 v7
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:37:6) v10 = MOVOconst <int128> [0] : X0
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:37:6) v9 = MOVOstore <mem> {b} [8] v2 v10 v15
+	live=s,b
+
+// bh.Data = sh.Data
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:40:14) v17 = MOVQload <uintptr> {s} v2 v9 : AX
+	uevar=s varkill=AX
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:40:10) v20 = MOVQstore <mem> {b} v2 v17 v9
+	live=s,b
+
+// bh.Cap = sh.Len
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:41:13) v23 = MOVQload <int> {s} [8] v2 v20 : AX
+	uevar=s varkill=AX
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:41:9) v26 = MOVQstore <mem> {b} [16] v2 v23 v20
+	live=s,b
+
+// bh.Len = sh.Len
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:42:13) v29 = MOVQload <int> {s} [8] v2 v26 : AX
+	uevar=s varkill=AX
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:42:9) v32 = MOVQstore <mem> {b} [8] v2 v29 v26
+	live=s,b
+
+// keepalive
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:43:19) v18 = MOVQload <*uint8> {s} v2 v32 : AX
+	uevar=s varkill=AX
+	live=s,b,AX
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:43:19) v28 = MOVQload <int> {s} [8] v2 v32 : CX
+	uevar=s varkill=CX
+	live=b,AX
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:43:19) v34 = VarDef <mem> {.autotmp_4} v32
+	varkill=.autotmp_4
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:43:19) v5 = MOVQstore <mem> {.autotmp_4} v2 v18 v34
+	uevar=AX
+	live=b,.autotmp_4
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:43:19) v36 = MOVQstore <mem> {.autotmp_4} [8] v2 v28 v5
+	live=b,.autotmp_4
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:43:19) v41 = VarLive <mem> {.autotmp_4} v36
+	uevar=.autotmp_4
+end
+	varkill=b,.autotmp_4,AX,CX liveout=b,<none>
+
+liveness: Str2Bytes5
+bb#1 pred= succ=
+	uevar=s,<none> livein=s,<none>
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:57:6) function entry
+	live=s
+(<unknown line number>) v1 = InitMem <mem>
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:57:6) v7 = VarDef <mem> {b} v1
+	varkill=b
+(<unknown line number>) v2 = SP <uintptr> : SP
+
+// zero out b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:57:6) v15 = MOVQstoreconst <mem> {b} [val=0,off=0] v2 v7
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:57:6) v24 = MOVOconst <int128> [0] : X0
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:57:6) v9 = MOVOstore <mem> {b} [8] v2 v24 v15
+	live=s,b
+
+// bh.Data = sh.Data
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:60:14) v17 = MOVQload <unsafe.Pointer> {s} v2 v9 : AX
+	uevar=s varkill=AX
+	live=s,b,AX
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:60:10) v20 = MOVQstore <mem> {b} v2 v17 v9
+	uevar=AX
+	live=s,b
+
+// bh.Cap = sh.Len
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:61:13) v23 = MOVQload <uint> {s} [8] v2 v20 : AX
+	uevar=s varkill=AX
+	live=s,b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:61:9) v26 = MOVQstore <mem> {b} [16] v2 v23 v20
+	live=s,b
+
+// bh.Len = sh.Len
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:62:13) v29 = MOVQload <uint> {s} [8] v2 v26 : AX
+	uevar=s varkill=AX
+	live=b
+(/home/urso/go/src/github.com/urso/tmp/testconv/testconv.go:62:9) v32 = MOVQstore <mem> {b} [8] v2 v29 v26
+	live=b
+end
+	varkill=b,AX liveout=b,<none>
+
+./testconv.go:11:6: live at entry to Str2Bytes1: s
+./testconv.go:11:17: stack object s string
+./testconv.go:11:28: stack object b []byte
+./testconv.go:20:6: live at entry to Str2Bytes2: s
+./testconv.go:20:17: stack object s string
+./testconv.go:20:28: stack object b []byte
+./testconv.go:29:6: live at entry to Str2Bytes3: s
+./testconv.go:29:17: stack object s string
+./testconv.go:29:28: stack object b []byte
+./testconv.go:37:6: live at entry to Str2Bytes4: s
+./testconv.go:37:17: stack object s string
+./testconv.go:37:28: stack object b []byte
+./testconv.go:43:19: stack object .autotmp_4 string
+./testconv.go:57:6: live at entry to Str2Bytes5: s
+./testconv.go:57:17: stack object s string
+./testconv.go:57:28: stack object b []byte

@@ -1,0 +1,39 @@
+"".WithVariable STEXT nosplit size=88 args=0x28 locals=0x20
+        0x0000 00000 (one-statement-analysis.go:51)     TEXT    "".WithVariable(SB), NOSPLIT|ABIInternal, $32-40
+        0x0000 00000 (one-statement-analysis.go:51)     SUBQ    $32, SP
+        0x0004 00004 (one-statement-analysis.go:51)     MOVQ    BP, 24(SP)
+        0x0009 00009 (one-statement-analysis.go:51)     LEAQ    24(SP), BP
+        0x000e 00014 (one-statement-analysis.go:51)     PCDATA  $0, $-2
+        0x000e 00014 (one-statement-analysis.go:51)     PCDATA  $1, $-2
+        0x000e 00014 (one-statement-analysis.go:51)     FUNCDATA        $0, gclocals·9fad110d66c97cf0b58d28cccea80b12(SB)
+        0x000e 00014 (one-statement-analysis.go:51)     FUNCDATA        $1, gclocals·7d2d5fca80364273fb07d5820a76fef4(SB)
+        0x000e 00014 (one-statement-analysis.go:51)     FUNCDATA        $2, gclocals·ebb0e8ce1793da18f0378b883cb3e122(SB)
+        0x000e 00014 (one-statement-analysis.go:51)     FUNCDATA        $3, "".WithVariable.stkobj(SB)
+        0x000e 00014 (one-statement-analysis.go:54)     PCDATA  $0, $0
+        0x000e 00014 (one-statement-analysis.go:54)     PCDATA  $1, $0
+        0x000e 00014 (one-statement-analysis.go:54)     XORPS   X0, X0
+        0x0011 00017 (one-statement-analysis.go:53)     MOVUPS  X0, ""..autotmp_5(SP)
+        0x0015 00021 (one-statement-analysis.go:53)     MOVQ    $0, ""..autotmp_5+16(SP)
+        0x001e 00030 (one-statement-analysis.go:54)     MOVQ    "".s+40(SP), AX
+        0x0023 00035 (one-statement-analysis.go:54)     MOVQ    AX, ""..autotmp_5(SP)
+        0x0027 00039 (one-statement-analysis.go:55)     MOVQ    "".s+48(SP), AX
+        0x002c 00044 (one-statement-analysis.go:55)     MOVQ    AX, ""..autotmp_5+8(SP)
+        0x0031 00049 (one-statement-analysis.go:56)     PCDATA  $1, $1
+        0x0031 00049 (one-statement-analysis.go:56)     MOVQ    "".s+48(SP), CX
+        0x0036 00054 (one-statement-analysis.go:56)     MOVQ    CX, ""..autotmp_5+16(SP)
+        0x003b 00059 (one-statement-analysis.go:58)     PCDATA  $0, $1
+        0x003b 00059 (one-statement-analysis.go:58)     MOVQ    ""..autotmp_5(SP), DX
+        0x003f 00063 (one-statement-analysis.go:58)     PCDATA  $0, $0
+        0x003f 00063 (one-statement-analysis.go:58)     PCDATA  $1, $2
+        0x003f 00063 (one-statement-analysis.go:58)     MOVQ    DX, "".~r1+56(SP)
+        0x0044 00068 (one-statement-analysis.go:58)     MOVQ    AX, "".~r1+64(SP)
+        0x0049 00073 (one-statement-analysis.go:58)     MOVQ    CX, "".~r1+72(SP)
+        0x004e 00078 (one-statement-analysis.go:58)     MOVQ    24(SP), BP
+        0x0053 00083 (one-statement-analysis.go:58)     ADDQ    $32, SP
+        0x0057 00087 (one-statement-analysis.go:58)     RET
+        0x0000 48 83 ec 20 48 89 6c 24 18 48 8d 6c 24 18 0f 57  H.. H.l$.H.l$..W
+        0x0010 c0 0f 11 04 24 48 c7 44 24 10 00 00 00 00 48 8b  ....$H.D$.....H.
+        0x0020 44 24 28 48 89 04 24 48 8b 44 24 30 48 89 44 24  D$(H..$H.D$0H.D$
+        0x0030 08 48 8b 4c 24 30 48 89 4c 24 10 48 8b 14 24 48  .H.L$0H.L$.H..$H
+        0x0040 89 54 24 38 48 89 44 24 40 48 89 4c 24 48 48 8b  .T$8H.D$@H.L$HH.
+        0x0050 6c 24 18 48 83 c4 20 c3                          l$.H.. .

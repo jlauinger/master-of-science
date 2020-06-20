@@ -1,0 +1,24 @@
+"".CorrectCast STEXT nosplit size=48 args=0x28 locals=0x0
+        0x0000 00000 (one-statement-analysis.go:20)     TEXT    "".CorrectCast(SB), NOSPLIT|ABIInternal, $0-40
+        0x0000 00000 (one-statement-analysis.go:20)     PCDATA  $0, $-2
+        0x0000 00000 (one-statement-analysis.go:20)     PCDATA  $1, $-2
+        0x0000 00000 (one-statement-analysis.go:20)     FUNCDATA        $0, gclocals·39d1b96ca581879f548ad2c8aeb3a5fe(SB)
+        0x0000 00000 (one-statement-analysis.go:20)     FUNCDATA        $1, gclocals·7d2d5fca80364273fb07d5820a76fef4(SB)
+        0x0000 00000 (one-statement-analysis.go:20)     FUNCDATA        $2, gclocals·33cdeccccebe80329f1fdbee7f5874cb(SB)
+        0x0000 00000 (one-statement-analysis.go:20)     FUNCDATA        $3, "".CorrectCast.stkobj(SB)
+        0x0000 00000 (one-statement-analysis.go:20)     PCDATA  $0, $0
+        0x0000 00000 (one-statement-analysis.go:20)     PCDATA  $1, $1
+        0x0000 00000 (one-statement-analysis.go:20)     MOVQ    $0, "".b+24(SP)
+        0x0009 00009 (one-statement-analysis.go:20)     XORPS   X0, X0
+        0x000c 00012 (one-statement-analysis.go:20)     MOVUPS  X0, "".b+32(SP)
+        0x0011 00017 (one-statement-analysis.go:23)     MOVQ    "".s+8(SP), AX
+        0x0016 00022 (one-statement-analysis.go:23)     MOVQ    AX, "".b+24(SP)
+        0x001b 00027 (one-statement-analysis.go:24)     MOVQ    "".s+16(SP), AX
+        0x0020 00032 (one-statement-analysis.go:24)     MOVQ    AX, "".b+40(SP)
+        0x0025 00037 (one-statement-analysis.go:25)     PCDATA  $1, $2
+        0x0025 00037 (one-statement-analysis.go:25)     MOVQ    "".s+16(SP), AX
+        0x002a 00042 (one-statement-analysis.go:25)     MOVQ    AX, "".b+32(SP)
+        0x002f 00047 (one-statement-analysis.go:26)     RET
+        0x0000 48 c7 44 24 18 00 00 00 00 0f 57 c0 0f 11 44 24  H.D$......W...D$
+        0x0010 20 48 8b 44 24 08 48 89 44 24 18 48 8b 44 24 10   H.D$.H.D$.H.D$.
+        0x0020 48 89 44 24 28 48 8b 44 24 10 48 89 44 24 20 c3  H.D$(H.D$.H.D$ .

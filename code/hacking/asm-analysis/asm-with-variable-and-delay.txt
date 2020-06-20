@@ -1,0 +1,60 @@
+"".WithVariableAndDelay STEXT size=139 args=0x28 locals=0x28
+        0x0000 00000 (one-statement-analysis.go:62)     TEXT    "".WithVariableAndDelay(SB), ABIInternal, $40-40
+        0x0000 00000 (one-statement-analysis.go:62)     MOVQ    (TLS), CX
+        0x0009 00009 (one-statement-analysis.go:62)     CMPQ    SP, 16(CX)
+        0x000d 00013 (one-statement-analysis.go:62)     PCDATA  $0, $-2
+        0x000d 00013 (one-statement-analysis.go:62)     JLS     129
+        0x000f 00015 (one-statement-analysis.go:62)     PCDATA  $0, $-1
+        0x000f 00015 (one-statement-analysis.go:62)     SUBQ    $40, SP
+        0x0013 00019 (one-statement-analysis.go:62)     MOVQ    BP, 32(SP)
+        0x0018 00024 (one-statement-analysis.go:62)     LEAQ    32(SP), BP
+        0x001d 00029 (one-statement-analysis.go:62)     PCDATA  $0, $-2
+        0x001d 00029 (one-statement-analysis.go:62)     PCDATA  $1, $-2
+        0x001d 00029 (one-statement-analysis.go:62)     FUNCDATA        $0, gclocals·9fad110d66c97cf0b58d28cccea80b12(SB)
+        0x001d 00029 (one-statement-analysis.go:62)     FUNCDATA        $1, gclocals·7d2d5fca80364273fb07d5820a76fef4(SB)
+        0x001d 00029 (one-statement-analysis.go:62)     FUNCDATA        $2, gclocals·568470801006e5c0dc3947ea998fe279(SB)
+        0x001d 00029 (one-statement-analysis.go:62)     FUNCDATA        $3, "".WithVariableAndDelay.stkobj(SB)
+        0x001d 00029 (one-statement-analysis.go:65)     PCDATA  $0, $0
+        0x001d 00029 (one-statement-analysis.go:65)     PCDATA  $1, $0
+        0x001d 00029 (one-statement-analysis.go:65)     XORPS   X0, X0
+        0x0020 00032 (one-statement-analysis.go:64)     MOVUPS  X0, ""..autotmp_5+8(SP)
+        0x0025 00037 (one-statement-analysis.go:64)     MOVQ    $0, ""..autotmp_5+24(SP)
+        0x002e 00046 (one-statement-analysis.go:65)     MOVQ    "".s+48(SP), AX
+        0x0033 00051 (one-statement-analysis.go:65)     MOVQ    AX, ""..autotmp_5+8(SP)
+        0x0038 00056 (one-statement-analysis.go:66)     MOVQ    "".s+56(SP), AX
+        0x003d 00061 (one-statement-analysis.go:66)     MOVQ    AX, ""..autotmp_5+16(SP)
+        0x0042 00066 (one-statement-analysis.go:67)     PCDATA  $1, $1
+        0x0042 00066 (one-statement-analysis.go:67)     MOVQ    "".s+56(SP), AX
+        0x0047 00071 (one-statement-analysis.go:67)     MOVQ    AX, ""..autotmp_5+24(SP)
+        0x004c 00076 (one-statement-analysis.go:69)     MOVQ    $1, (SP)
+        0x0054 00084 (one-statement-analysis.go:69)     CALL    time.Sleep(SB)
+        0x0059 00089 (one-statement-analysis.go:70)     MOVQ    ""..autotmp_5+24(SP), AX
+        0x005e 00094 (one-statement-analysis.go:70)     PCDATA  $0, $1
+        0x005e 00094 (one-statement-analysis.go:70)     MOVQ    ""..autotmp_5+8(SP), CX
+        0x0063 00099 (one-statement-analysis.go:70)     MOVQ    ""..autotmp_5+16(SP), DX
+        0x0068 00104 (one-statement-analysis.go:70)     PCDATA  $0, $0
+        0x0068 00104 (one-statement-analysis.go:70)     PCDATA  $1, $2
+        0x0068 00104 (one-statement-analysis.go:70)     MOVQ    CX, "".~r1+64(SP)
+        0x006d 00109 (one-statement-analysis.go:70)     MOVQ    DX, "".~r1+72(SP)
+        0x0072 00114 (one-statement-analysis.go:70)     MOVQ    AX, "".~r1+80(SP)
+        0x0077 00119 (one-statement-analysis.go:70)     MOVQ    32(SP), BP
+        0x007c 00124 (one-statement-analysis.go:70)     ADDQ    $40, SP
+        0x0080 00128 (one-statement-analysis.go:70)     RET
+        0x0081 00129 (one-statement-analysis.go:70)     NOP
+        0x0081 00129 (one-statement-analysis.go:62)     PCDATA  $1, $-1
+        0x0081 00129 (one-statement-analysis.go:62)     PCDATA  $0, $-2
+        0x0081 00129 (one-statement-analysis.go:62)     CALL    runtime.morestack_noctxt(SB)
+        0x0086 00134 (one-statement-analysis.go:62)     PCDATA  $0, $-1
+        0x0086 00134 (one-statement-analysis.go:62)     JMP     0
+        0x0000 64 48 8b 0c 25 00 00 00 00 48 3b 61 10 76 72 48  dH..%....H;a.vrH
+        0x0010 83 ec 28 48 89 6c 24 20 48 8d 6c 24 20 0f 57 c0  ..(H.l$ H.l$ .W.
+        0x0020 0f 11 44 24 08 48 c7 44 24 18 00 00 00 00 48 8b  ..D$.H.D$.....H.
+        0x0030 44 24 30 48 89 44 24 08 48 8b 44 24 38 48 89 44  D$0H.D$.H.D$8H.D
+        0x0040 24 10 48 8b 44 24 38 48 89 44 24 18 48 c7 04 24  $.H.D$8H.D$.H..$
+        0x0050 01 00 00 00 e8 00 00 00 00 48 8b 44 24 18 48 8b  .........H.D$.H.
+        0x0060 4c 24 08 48 8b 54 24 10 48 89 4c 24 40 48 89 54  L$.H.T$.H.L$@H.T
+        0x0070 24 48 48 89 44 24 50 48 8b 6c 24 20 48 83 c4 28  $HH.D$PH.l$ H..(
+        0x0080 c3 e8 00 00 00 00 e9 75 ff ff ff                 .......u...
+        rel 5+4 t=17 TLS+0
+        rel 85+4 t=8 time.Sleep+0
+        rel 130+4 t=8 runtime.morestack_noctxt+0

@@ -14,7 +14,7 @@
       <excludeFolder url="file://$MODULE_DIR$/data-survey/classification" />
       <excludeFolder url="file://$MODULE_DIR$/data-survey/data" />
       <excludeFolder url="file://$MODULE_DIR$/download" />
-      <excludeFolder url="file://$MODULE_DIR$/hacking" />
+      <excludeFolder url="file://$MODULE_DIR$/hacking/.vagrant" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/writings" />
     </content>
