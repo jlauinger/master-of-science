@@ -25,6 +25,7 @@
 *.gls
 *.glsdefs
 /*.pdf
+paper/*.pdf
 output/
 
 
