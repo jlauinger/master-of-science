@@ -38,8 +38,8 @@ func TestRun (t *testing.T) {
 	zp := regexp.MustCompile(` +`)
 	stats := zp.Split(statsLine, -1)
 
-	local, _ := strconv.Atoi(stats[1])
-	total, _ := strconv.Atoi(stats[2])
+	total, _ := strconv.Atoi(stats[1])
+	local, _ := strconv.Atoi(stats[2])
 	variable, _ := strconv.Atoi(stats[3])
 	parameter, _ := strconv.Atoi(stats[4])
 	assignment, _ := strconv.Atoi(stats[5])

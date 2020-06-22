@@ -45,19 +45,19 @@ func Run(config Config, paths... string) {
 
 		table := tablewriter.NewWriter(config.Output)
 		if config.DetailedStats && config.Filter == "all" {
-			table.SetHeader([]string{"Local", "Total", "Variable", "Parameter", "Assignment", "Call", "Other", "Package"})
+			table.SetHeader([]string{"With Dependencies", "Local Package", "Variable", "Parameter", "Assignment", "Call", "Other", "Package Path"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER,
 				tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER,
 				tablewriter.ALIGN_LEFT})
 		} else if config.Filter == "all" {
-			table.SetHeader([]string{"Local", "Total", "Package"})
+			table.SetHeader([]string{"With Dependencies", "Local Package", "Package Path"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_LEFT})
 		} else {
-			table.SetHeader([]string{config.Filter, "Total", "Package"})
+			table.SetHeader([]string{"With Dependencies", fmt.Sprintf("Local Package %s", config.Filter), "Package Path"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_LEFT})
 		}
 		table.SetBorder(false)
-		table.SetColumnSeparator("")
+		table.SetColumnSeparator(" ")
 		table.SetAutoWrapText(false)
 		table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
 

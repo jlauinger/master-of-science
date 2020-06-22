@@ -43,13 +43,13 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 	colors := getColors(countsInThisPackage.Local, totalCount, config)
 
 	if config.DetailedStats && config.Filter == "all" {
-		table.Rich([]string{strconv.Itoa(countsInThisPackage.Local), strconv.Itoa(totalCount),
+		table.Rich([]string{strconv.Itoa(totalCount), strconv.Itoa(countsInThisPackage.Local),
 			strconv.Itoa(countsInThisPackage.Variable), strconv.Itoa(countsInThisPackage.Parameter),
 			strconv.Itoa(countsInThisPackage.Assignment), strconv.Itoa(countsInThisPackage.Call),
 			strconv.Itoa(countsInThisPackage.Other),
 			nameString}, colors)
 	} else {
-		table.Rich([]string{strconv.Itoa(countsInThisPackage.Local), strconv.Itoa(totalCount), nameString}, colors)
+		table.Rich([]string{strconv.Itoa(totalCount), strconv.Itoa(countsInThisPackage.Local), nameString}, colors)
 	}
 
 	childCount, _ := getImportsCount(pkg.Imports, config)
@@ -99,14 +99,14 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 			totalCountInChild := getTotalUnsafeCount(child, config, &map[*packages.Package]bool{})
 
 			if config.DetailedStats && config.Filter == "all" {
-				table.Rich([]string{strconv.Itoa(countsInChild.Local), strconv.Itoa(totalCountInChild),
+				table.Rich([]string{strconv.Itoa(totalCountInChild), strconv.Itoa(countsInChild.Local),
 					strconv.Itoa(countsInChild.Variable), strconv.Itoa(countsInChild.Parameter),
 					strconv.Itoa(countsInChild.Assignment), strconv.Itoa(countsInChild.Call),
 					strconv.Itoa(countsInChild.Other),
 					fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
 					getColors(0, totalCountInChild, config))
 			} else {
-				table.Rich([]string{strconv.Itoa(countsInChild.Local), strconv.Itoa(totalCountInChild),
+				table.Rich([]string{strconv.Itoa(totalCountInChild), strconv.Itoa(countsInChild.Local),
 					fmt.Sprintf("%s%s...", getIndentString(childIndents), getPrintedPackageName(child, config))},
 					getColors(0, totalCountInChild, config))
 			}
