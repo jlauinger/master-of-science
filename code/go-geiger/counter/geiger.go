@@ -9,14 +9,18 @@ import (
 )
 
 type Config struct {
-	MaxIndent            int
+	MaxDepth             int
 	ShortenSeenPackages  bool
-	ShowStandardPackages bool
 	PrintLinkToPkgGoDev  bool
-	PrintUnsafeLines     bool
+
 	DetailedStats        bool
-	Output               io.Writer
+	HideStats            bool
+	PrintUnsafeLines     bool
+
+	ShowStandardPackages bool
 	Filter               string
+
+	Output               io.Writer
 }
 
 func Run(config Config, paths... string) {
@@ -59,16 +63,19 @@ func Run(config Config, paths... string) {
 
 		stats := printPkgTree(pkg, []IndentType{}, config, table, &map[*packages.Package]bool{})
 
-		if config.PrintUnsafeLines {
+		if config.PrintUnsafeLines && !config.HideStats {
 			_, _ = fmt.Fprintln(config.Output)
 		}
 
-		table.Render()
-
-		printStats(pkg, stats, config)
+		if !config.HideStats {
+			table.Render()
+			printStats(pkg, stats, config)
+		}
 	}
 
-	printLegend(config)
+	if !config.HideStats {
+		printLegend(config)
+	}
 }
 
 func printLegend(config Config) {

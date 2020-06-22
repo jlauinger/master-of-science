@@ -21,12 +21,15 @@ func TestRun (t *testing.T) {
 	output := bytes.NewBufferString("")
 
 	counter.Run(counter.Config{
-		MaxIndent:            9999,
+		MaxDepth:             9999,
 		ShortenSeenPackages:  true,
-		ShowStandardPackages: false,
 		PrintLinkToPkgGoDev:  false,
-		PrintUnsafeLines:     false,
+
 		DetailedStats:        true,
+		HideStats:            false,
+		PrintUnsafeLines:     false,
+
+		ShowStandardPackages: false,
 		Filter:               "all",
 		Output:               output,
 	}, "./testdata")

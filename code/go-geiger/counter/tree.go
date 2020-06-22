@@ -55,12 +55,12 @@ func printPkgTree(pkg *packages.Package, indents []IndentType, config Config, ta
 	childCount, _ := getImportsCount(pkg.Imports, config)
 	nextIndents := getNextIndents(indents)
 
-	if len(indents) == config.MaxIndent && childCount > 0 {
+	if len(indents) == config.MaxDepth && childCount > 0 {
 		if config.DetailedStats && config.Filter == "all" {
-			table.Append([]string{"", "", "", "", "", "", "", fmt.Sprintf("%sMaximum depth reached. Use --level= to increase it",
+			table.Append([]string{"", "", "", "", "", "", "", fmt.Sprintf("%sMaximum depth reached. Use --max-depth= to increase it",
 				getIndentString(append(nextIndents, L)))})
 		} else {
-			table.Append([]string{"", "", fmt.Sprintf("%sMaximum depth reached. Use --level= to increase it",
+			table.Append([]string{"", "", fmt.Sprintf("%sMaximum depth reached. Use --max-depth= to increase it",
 				getIndentString(append(nextIndents, L)))})
 		}
 		return
