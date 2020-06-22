@@ -27,6 +27,27 @@ comparable C program.
 
 %% -----------------------------------------------------------------------------
 
+\section{Cast in one statement}\label{sec:cast-1-statement}
+
+Is the identified unsafe cast pattern safe if it is done in one statement?
+
+\begin{lstlisting}[language=Golang, label=lst:cast-1-statement, caption=Unsafe slice cast in one single statement]
+strHeader := (*reflect.StringHeader)(unsafe.Pointer(&s))
+return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+    Data: strHeader.Data,
+    Cap:  strHeader.Len,
+    Len:  strHeader.Len,
+}))
+\end{lstlisting}
+
+The garbage collector race exploit does not work anymore with this.
+This might be because of the time delay, because the assembly looks IDENTICAL!
+
+Escape analysis however can still not see the connection, the escape analysis exploit still works.
+
+
+%% -----------------------------------------------------------------------------
+
 \section{Misaligned memory layout}\label{sec:vulnerability-alignment}
 
 
