@@ -1,0 +1,20 @@
+TEXT main.WithVariable1Stmt(SB) /home/johannes/studium/s14/masterarbeit/code/hacking/asm-analysis/scratch/incorrect1stmt.go
+  incorrect1stmt.go:9	0x478b80		4883ec20		SUBQ $0x20, SP		
+  incorrect1stmt.go:9	0x478b84		48896c2418		MOVQ BP, 0x18(SP)	
+  incorrect1stmt.go:9	0x478b89		488d6c2418		LEAQ 0x18(SP), BP	
+  incorrect1stmt.go:12	0x478b8e		0f57c0			XORPS X0, X0		
+  incorrect1stmt.go:11	0x478b91		0f110424		MOVUPS X0, 0(SP)	
+  incorrect1stmt.go:11	0x478b95		48c744241000000000	MOVQ $0x0, 0x10(SP)	
+  incorrect1stmt.go:12	0x478b9e		488b442428		MOVQ 0x28(SP), AX	
+  incorrect1stmt.go:12	0x478ba3		48890424		MOVQ AX, 0(SP)		
+  incorrect1stmt.go:13	0x478ba7		488b442430		MOVQ 0x30(SP), AX	
+  incorrect1stmt.go:13	0x478bac		4889442408		MOVQ AX, 0x8(SP)	
+  incorrect1stmt.go:14	0x478bb1		488b4c2430		MOVQ 0x30(SP), CX	
+  incorrect1stmt.go:14	0x478bb6		48894c2410		MOVQ CX, 0x10(SP)	
+  incorrect1stmt.go:11	0x478bbb		488b1424		MOVQ 0(SP), DX		
+  incorrect1stmt.go:11	0x478bbf		4889542438		MOVQ DX, 0x38(SP)	
+  incorrect1stmt.go:11	0x478bc4		4889442440		MOVQ AX, 0x40(SP)	
+  incorrect1stmt.go:11	0x478bc9		48894c2448		MOVQ CX, 0x48(SP)	
+  incorrect1stmt.go:11	0x478bce		488b6c2418		MOVQ 0x18(SP), BP	
+  incorrect1stmt.go:11	0x478bd3		4883c420		ADDQ $0x20, SP		
+  incorrect1stmt.go:11	0x478bd7		c3			RET			

@@ -1,0 +1,11 @@
+TEXT main.CorrectCast(SB) /home/johannes/studium/s14/masterarbeit/code/hacking/asm-analysis/scratch/correct.go
+  correct.go:9		0x478b80		48c744241800000000	MOVQ $0x0, 0x18(SP)	
+  correct.go:9		0x478b89		0f57c0			XORPS X0, X0		
+  correct.go:9		0x478b8c		0f11442420		MOVUPS X0, 0x20(SP)	
+  correct.go:12		0x478b91		488b442408		MOVQ 0x8(SP), AX	
+  correct.go:12		0x478b96		4889442418		MOVQ AX, 0x18(SP)	
+  correct.go:13		0x478b9b		488b442410		MOVQ 0x10(SP), AX	
+  correct.go:13		0x478ba0		4889442428		MOVQ AX, 0x28(SP)	
+  correct.go:14		0x478ba5		488b442410		MOVQ 0x10(SP), AX	
+  correct.go:14		0x478baa		4889442420		MOVQ AX, 0x20(SP)	
+  correct.go:15		0x478baf		c3			RET			

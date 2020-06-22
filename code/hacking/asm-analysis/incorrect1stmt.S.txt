@@ -1,0 +1,162 @@
+"".WithVariable1Stmt STEXT nosplit size=88 args=0x28 locals=0x20
+	0x0000 00000 (incorrect1stmt.go:9)	TEXT	"".WithVariable1Stmt(SB), NOSPLIT|ABIInternal, $32-40
+	0x0000 00000 (incorrect1stmt.go:9)	SUBQ	$32, SP
+	0x0004 00004 (incorrect1stmt.go:9)	MOVQ	BP, 24(SP)
+	0x0009 00009 (incorrect1stmt.go:9)	LEAQ	24(SP), BP
+	0x000e 00014 (incorrect1stmt.go:9)	PCDATA	$0, $-2
+	0x000e 00014 (incorrect1stmt.go:9)	PCDATA	$1, $-2
+	0x000e 00014 (incorrect1stmt.go:9)	FUNCDATA	$0, gclocals·9fad110d66c97cf0b58d28cccea80b12(SB)
+	0x000e 00014 (incorrect1stmt.go:9)	FUNCDATA	$1, gclocals·7d2d5fca80364273fb07d5820a76fef4(SB)
+	0x000e 00014 (incorrect1stmt.go:9)	FUNCDATA	$2, gclocals·ebb0e8ce1793da18f0378b883cb3e122(SB)
+	0x000e 00014 (incorrect1stmt.go:9)	FUNCDATA	$3, "".WithVariable1Stmt.stkobj(SB)
+	0x000e 00014 (incorrect1stmt.go:12)	PCDATA	$0, $0
+	0x000e 00014 (incorrect1stmt.go:12)	PCDATA	$1, $0
+	0x000e 00014 (incorrect1stmt.go:12)	XORPS	X0, X0
+	0x0011 00017 (incorrect1stmt.go:11)	MOVUPS	X0, ""..autotmp_4(SP)
+	0x0015 00021 (incorrect1stmt.go:11)	MOVQ	$0, ""..autotmp_4+16(SP)
+	0x001e 00030 (incorrect1stmt.go:12)	MOVQ	"".s+40(SP), AX
+	0x0023 00035 (incorrect1stmt.go:12)	MOVQ	AX, ""..autotmp_4(SP)
+	0x0027 00039 (incorrect1stmt.go:13)	MOVQ	"".s+48(SP), AX
+	0x002c 00044 (incorrect1stmt.go:13)	MOVQ	AX, ""..autotmp_4+8(SP)
+	0x0031 00049 (incorrect1stmt.go:14)	PCDATA	$1, $1
+	0x0031 00049 (incorrect1stmt.go:14)	MOVQ	"".s+48(SP), CX
+	0x0036 00054 (incorrect1stmt.go:14)	MOVQ	CX, ""..autotmp_4+16(SP)
+	0x003b 00059 (incorrect1stmt.go:11)	PCDATA	$0, $1
+	0x003b 00059 (incorrect1stmt.go:11)	MOVQ	""..autotmp_4(SP), DX
+	0x003f 00063 (incorrect1stmt.go:11)	PCDATA	$0, $0
+	0x003f 00063 (incorrect1stmt.go:11)	PCDATA	$1, $2
+	0x003f 00063 (incorrect1stmt.go:11)	MOVQ	DX, "".~r1+56(SP)
+	0x0044 00068 (incorrect1stmt.go:11)	MOVQ	AX, "".~r1+64(SP)
+	0x0049 00073 (incorrect1stmt.go:11)	MOVQ	CX, "".~r1+72(SP)
+	0x004e 00078 (incorrect1stmt.go:11)	MOVQ	24(SP), BP
+	0x0053 00083 (incorrect1stmt.go:11)	ADDQ	$32, SP
+	0x0057 00087 (incorrect1stmt.go:11)	RET
+	0x0000 48 83 ec 20 48 89 6c 24 18 48 8d 6c 24 18 0f 57  H.. H.l$.H.l$..W
+	0x0010 c0 0f 11 04 24 48 c7 44 24 10 00 00 00 00 48 8b  ....$H.D$.....H.
+	0x0020 44 24 28 48 89 04 24 48 8b 44 24 30 48 89 44 24  D$(H..$H.D$0H.D$
+	0x0030 08 48 8b 4c 24 30 48 89 4c 24 10 48 8b 14 24 48  .H.L$0H.L$.H..$H
+	0x0040 89 54 24 38 48 89 44 24 40 48 89 4c 24 48 48 8b  .T$8H.D$@H.L$HH.
+	0x0050 6c 24 18 48 83 c4 20 c3                          l$.H.. .
+"".main STEXT size=71 args=0x0 locals=0x30
+	0x0000 00000 (incorrect1stmt.go:18)	TEXT	"".main(SB), ABIInternal, $48-0
+	0x0000 00000 (incorrect1stmt.go:18)	MOVQ	(TLS), CX
+	0x0009 00009 (incorrect1stmt.go:18)	CMPQ	SP, 16(CX)
+	0x000d 00013 (incorrect1stmt.go:18)	PCDATA	$0, $-2
+	0x000d 00013 (incorrect1stmt.go:18)	JLS	64
+	0x000f 00015 (incorrect1stmt.go:18)	PCDATA	$0, $-1
+	0x000f 00015 (incorrect1stmt.go:18)	SUBQ	$48, SP
+	0x0013 00019 (incorrect1stmt.go:18)	MOVQ	BP, 40(SP)
+	0x0018 00024 (incorrect1stmt.go:18)	LEAQ	40(SP), BP
+	0x001d 00029 (incorrect1stmt.go:18)	PCDATA	$0, $-2
+	0x001d 00029 (incorrect1stmt.go:18)	PCDATA	$1, $-2
+	0x001d 00029 (incorrect1stmt.go:18)	FUNCDATA	$0, gclocals·33cdeccccebe80329f1fdbee7f5874cb(SB)
+	0x001d 00029 (incorrect1stmt.go:18)	FUNCDATA	$1, gclocals·33cdeccccebe80329f1fdbee7f5874cb(SB)
+	0x001d 00029 (incorrect1stmt.go:18)	FUNCDATA	$2, gclocals·9fb7f0986f647f17cb53dda1484e0f7a(SB)
+	0x001d 00029 (incorrect1stmt.go:20)	PCDATA	$0, $1
+	0x001d 00029 (incorrect1stmt.go:20)	PCDATA	$1, $0
+	0x001d 00029 (incorrect1stmt.go:20)	LEAQ	go.string."hallo"(SB), AX
+	0x0024 00036 (incorrect1stmt.go:20)	PCDATA	$0, $0
+	0x0024 00036 (incorrect1stmt.go:20)	MOVQ	AX, (SP)
+	0x0028 00040 (incorrect1stmt.go:20)	MOVQ	$5, 8(SP)
+	0x0031 00049 (incorrect1stmt.go:20)	CALL	"".WithVariable1Stmt(SB)
+	0x0036 00054 (incorrect1stmt.go:21)	MOVQ	40(SP), BP
+	0x003b 00059 (incorrect1stmt.go:21)	ADDQ	$48, SP
+	0x003f 00063 (incorrect1stmt.go:21)	RET
+	0x0040 00064 (incorrect1stmt.go:21)	NOP
+	0x0040 00064 (incorrect1stmt.go:18)	PCDATA	$1, $-1
+	0x0040 00064 (incorrect1stmt.go:18)	PCDATA	$0, $-2
+	0x0040 00064 (incorrect1stmt.go:18)	CALL	runtime.morestack_noctxt(SB)
+	0x0045 00069 (incorrect1stmt.go:18)	PCDATA	$0, $-1
+	0x0045 00069 (incorrect1stmt.go:18)	JMP	0
+	0x0000 64 48 8b 0c 25 00 00 00 00 48 3b 61 10 76 31 48  dH..%....H;a.v1H
+	0x0010 83 ec 30 48 89 6c 24 28 48 8d 6c 24 28 48 8d 05  ..0H.l$(H.l$(H..
+	0x0020 00 00 00 00 48 89 04 24 48 c7 44 24 08 05 00 00  ....H..$H.D$....
+	0x0030 00 e8 00 00 00 00 48 8b 6c 24 28 48 83 c4 30 c3  ......H.l$(H..0.
+	0x0040 e8 00 00 00 00 eb b9                             .......
+	rel 5+4 t=17 TLS+0
+	rel 32+4 t=16 go.string."hallo"+0
+	rel 50+4 t=8 "".WithVariable1Stmt+0
+	rel 65+4 t=8 runtime.morestack_noctxt+0
+go.cuinfo.packagename. SDWARFINFO dupok size=0
+	0x0000 6d 61 69 6e                                      main
+go.loc."".WithVariable1Stmt SDWARFLOC size=0
+go.info."".WithVariable1Stmt SDWARFINFO size=68
+	0x0000 03 22 22 2e 57 69 74 68 56 61 72 69 61 62 6c 65  ."".WithVariable
+	0x0010 31 53 74 6d 74 00 00 00 00 00 00 00 00 00 00 00  1Stmt...........
+	0x0020 00 00 00 00 00 00 01 9c 00 00 00 00 01 0f 73 00  ..............s.
+	0x0030 00 09 00 00 00 00 00 0f 7e 72 31 00 01 09 00 00  ........~r1.....
+	0x0040 00 00 00 00                                      ....
+	rel 0+0 t=24 type.[]uint8+0
+	rel 0+0 t=24 type.reflect.SliceHeader+0
+	rel 0+0 t=24 type.string+0
+	rel 22+8 t=1 "".WithVariable1Stmt+0
+	rel 30+8 t=1 "".WithVariable1Stmt+88
+	rel 40+4 t=30 gofile../home/johannes/studium/s14/masterarbeit/code/hacking/asm-analysis/scratch/incorrect1stmt.go+0
+	rel 50+4 t=29 go.info.string+0
+	rel 62+4 t=29 go.info.[]uint8+0
+go.range."".WithVariable1Stmt SDWARFRANGE size=0
+go.debuglines."".WithVariable1Stmt SDWARFMISC size=31
+	0x0000 04 02 0a 03 03 14 9e 06 2c 06 92 06 41 06 38 06  ........,...A.8.
+	0x0010 41 06 42 06 41 06 3e 06 37 04 01 03 76 06 01     A.B.A.>.7...v..
+go.string."hallo" SRODATA dupok size=5
+	0x0000 68 61 6c 6c 6f                                   hallo
+go.loc."".main SDWARFLOC size=0
+go.info."".main SDWARFINFO size=42
+	0x0000 03 22 22 2e 6d 61 69 6e 00 00 00 00 00 00 00 00  ."".main........
+	0x0010 00 00 00 00 00 00 00 00 00 01 9c 00 00 00 00 01  ................
+	0x0020 0a 73 00 13 00 00 00 00 00 00                    .s........
+	rel 9+8 t=1 "".main+0
+	rel 17+8 t=1 "".main+71
+	rel 27+4 t=30 gofile../home/johannes/studium/s14/masterarbeit/code/hacking/asm-analysis/scratch/incorrect1stmt.go+0
+	rel 36+4 t=29 go.info.string+0
+go.range."".main SDWARFRANGE size=0
+go.debuglines."".main SDWARFMISC size=18
+	0x0000 04 02 03 0c 14 0a a5 9d 06 55 06 c4 70 04 01 03  .........U..p...
+	0x0010 6f 01                                            o.
+""..inittask SNOPTRDATA size=32
+	0x0000 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
+	0x0010 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+	rel 24+8 t=1 reflect..inittask+0
+runtime.memequal64·f SRODATA dupok size=8
+	0x0000 00 00 00 00 00 00 00 00                          ........
+	rel 0+8 t=1 runtime.memequal64+0
+runtime.gcbits.01 SRODATA dupok size=1
+	0x0000 01                                               .
+type..namedata.*[]uint8- SRODATA dupok size=11
+	0x0000 00 00 08 2a 5b 5d 75 69 6e 74 38                 ...*[]uint8
+type.*[]uint8 SRODATA dupok size=56
+	0x0000 08 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00  ................
+	0x0010 a5 8e d0 69 08 08 08 36 00 00 00 00 00 00 00 00  ...i...6........
+	0x0020 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+	0x0030 00 00 00 00 00 00 00 00                          ........
+	rel 24+8 t=1 runtime.memequal64·f+0
+	rel 32+8 t=1 runtime.gcbits.01+0
+	rel 40+4 t=5 type..namedata.*[]uint8-+0
+	rel 48+8 t=1 type.[]uint8+0
+type.[]uint8 SRODATA dupok size=56
+	0x0000 18 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00  ................
+	0x0010 df 7e 2e 38 02 08 08 17 00 00 00 00 00 00 00 00  .~.8............
+	0x0020 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+	0x0030 00 00 00 00 00 00 00 00                          ........
+	rel 32+8 t=1 runtime.gcbits.01+0
+	rel 40+4 t=5 type..namedata.*[]uint8-+0
+	rel 44+4 t=6 type.*[]uint8+0
+	rel 48+8 t=1 type.uint8+0
+type..importpath.reflect. SRODATA dupok size=10
+	0x0000 00 00 07 72 65 66 6c 65 63 74                    ...reflect
+type..importpath.unsafe. SRODATA dupok size=9
+	0x0000 00 00 06 75 6e 73 61 66 65                       ...unsafe
+gclocals·9fad110d66c97cf0b58d28cccea80b12 SRODATA dupok size=11
+	0x0000 03 00 00 00 03 00 00 00 01 00 04                 ...........
+gclocals·7d2d5fca80364273fb07d5820a76fef4 SRODATA dupok size=8
+	0x0000 03 00 00 00 00 00 00 00                          ........
+gclocals·ebb0e8ce1793da18f0378b883cb3e122 SRODATA dupok size=10
+	0x0000 02 00 00 00 03 00 00 00 00 04                    ..........
+"".WithVariable1Stmt.stkobj SRODATA size=24
+	0x0000 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+	0x0010 00 00 00 00 00 00 00 00                          ........
+	rel 16+8 t=1 type.string+0
+gclocals·33cdeccccebe80329f1fdbee7f5874cb SRODATA dupok size=8
+	0x0000 01 00 00 00 00 00 00 00                          ........
+gclocals·9fb7f0986f647f17cb53dda1484e0f7a SRODATA dupok size=10
+	0x0000 02 00 00 00 01 00 00 00 00 01                    ..........
