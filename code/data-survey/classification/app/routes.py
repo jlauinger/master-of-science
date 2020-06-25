@@ -28,7 +28,7 @@ def classify(index):
         return redirect('/classify/{}'.format(next_index))
 
     snippet = interesting_snippets.loc[index]
-    quick_labels = set(interesting_snippets['label']) | set(['uintptr_type', 'function_call', 'cast', 'protocol'])
+    quick_labels = set(interesting_snippets['label']) | set([])
 
     return render_template('classify.html', form=form, snippet=snippet, quick_labels=quick_labels,
                            next_index=next_index, filename=current_filename)
