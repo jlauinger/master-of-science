@@ -40,22 +40,22 @@ def classify(index):
 def file_content(index):
     snippet = interesting_snippets.loc[index]
 
-    path = "/root/go/pkg/mod/{}@{}/{}/{}".format(
+    file_path = "/root/go/pkg/mod/{}@{}{}/{}".format(
         snippet.module_path,
         snippet.module_version,
-        snippet.package_import_path[len(snippet.module_version)+1:],
+        snippet.package_import_path[len(snippet.module_path):],
         snippet.file_name)
 
-    if not path.exists(path):
-        flash("Path {} not found".format(path))
+    if not path.exists(file_path):
+        flash("Path {} not found".format(file_path))
         return redirect("/classify/{}".format(index))
 
-    with open(path, "r") as f:
+    with open(file_path, "r") as f:
         content = f.readlines()
 
-    content = map(lambda (i, line): "{}: {}".format(str(i).rjust(7, " "), line), enumerate(content))
+    content = map(lambda i, line: "{}: {}".format(str(i).rjust(7, " "), line), enumerate(content))
 
-    return render_template('file_content.html', content=content, file_path=path)
+    return render_template('file_content.html', content=content, file_path=file_path)
 
 
 @app.route('/save')
