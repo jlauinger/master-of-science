@@ -5,6 +5,8 @@ from app.forms import ClassificationForm
 from flask import render_template, flash, redirect
 import pandas as pd
 
+from os import path
+
 
 current_filename = 'n/a'
 interesting_snippets = pd.DataFrame()
@@ -31,7 +33,29 @@ def classify(index):
     quick_labels = set(interesting_snippets['label']) | set([])
 
     return render_template('classify.html', form=form, snippet=snippet, quick_labels=quick_labels,
-                           next_index=next_index, filename=current_filename)
+                           index=index, next_index=next_index, filename=current_filename)
+
+
+@app.route('/file_content/<int:index>', methods=['GET'])
+def file_content(index):
+    snippet = interesting_snippets.loc[index]
+
+    path = "/root/go/pkg/mod/{}@{}/{}/{}".format(
+        snippet.module_path,
+        snippet.module_version,
+        snippet.package_import_path[len(snippet.module_version)+1:],
+        snippet.file_name)
+
+    if not path.exists(path):
+        flash("Path {} not found".format(path))
+        return redirect("/classify/{}".format(index))
+
+    with open(path, "r") as f:
+        content = f.readlines()
+
+    content = map(lambda (i, line): "{}: {}".format(str(i).rjust(7, " "), line), enumerate(content))
+
+    return render_template('file_content.html', content=content, file_path=path)
 
 
 @app.route('/save')
