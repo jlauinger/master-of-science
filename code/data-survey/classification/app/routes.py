@@ -53,7 +53,7 @@ def file_content(index):
     with open(file_path, "r") as f:
         content = f.readlines()
 
-    content = ["{}: {}".format(str(i).rjust(7, " "), line) for i, line in enumerate(content)]
+    content = ["{}: {}".format(str(i+1).rjust(7, " "), line) for i, line in enumerate(content)]
 
     return render_template('file_content.html', content=content, file_path=file_path)
 
