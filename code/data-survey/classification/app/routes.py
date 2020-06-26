@@ -40,11 +40,16 @@ def classify(index):
 def file_content(index):
     snippet = interesting_snippets.loc[index]
 
-    file_path = "/root/go/pkg/mod/{}@{}{}/{}".format(
-        snippet.module_path,
-        snippet.module_version,
-        snippet.package_import_path[len(snippet.module_path):],
-        snippet.file_name)
+    if snippet.module_path == "std":
+        file_path = "/usr/local/go/src/{}/{}".format(
+            snippet.package_import_path,
+            snippet.file_name)
+    else:
+        file_path = "/root/go/pkg/mod/{}@{}{}/{}".format(
+            snippet.module_path,
+            snippet.module_version,
+            snippet.package_import_path[len(snippet.module_path):],
+            snippet.file_name)
 
     if not path.exists(file_path):
         flash("Path {} not found".format(file_path))
