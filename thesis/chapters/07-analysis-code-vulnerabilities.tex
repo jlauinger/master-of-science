@@ -14,7 +14,7 @@ Notes: Go uses no \acrshort{aslr}, binaries are statically linked and the standa
 Therefore binaries provide a lot of ROP gadgets and spawning a shell from a buffer overflow is easier than with a
 comparable C program.
 
-Anschauen: k8s.io/apiserver/pkg/authentication/token/cache/cached_token_authenticator.go:235
+Anschauen: k8s.io/apiserver/pkg/authentication/token/cache/cached\_token\_authenticator.go:235
 
 \begin{lstlisting}[language=Golang, label=lst:todo-unsafe-snippet, caption=Todo: unsafe code snippet?]
 // toBytes performs unholy acts to avoid allocations
@@ -102,6 +102,7 @@ The following Github pull requests were submitted to notify the projects.
         11 & yuin/goldmark & Fix possible memory confusion\ldots & 5 projects & \href{https://github.com/yuin/goldmark/pull/134}{PR \#134} \\
         12 & yuin/gopher-lua & Fix possible memory confusion\ldots & 6 projects & \href{https://github.com/yuin/gopher-lua/pull/287}{PR \#287} \\
         13 & gorgonia/tensor & Fix possible memory confusion\ldots & 1 project & \href{https://github.com/gorgonia/tensor/pull/68}{PR \#68} \\
+        14 & gorgonia/tensor & Fix 48 more possible memory confusions\ldots & 1 project & \href{https://github.com/gorgonia/tensor/pull/72}{PR \#72} \\
         \bottomrule
     \end{tabularx}
 \end{table}
