@@ -8,21 +8,38 @@
     <a href="/switch-files" class="btn btn-primary">Wechseln</a>
 </p>
 
+<h3>Aktuelles Label of Interest:</h3>
+<p><b>{% if classifying_label == 'label' %}Label 1 (What){% else %}Label 2 (Purpose){% endif %}</b></p>
+<p>
+    <a href="/switch-label" class="btn btn-primary">Wechseln</a>
+</p>
+
 <h3>Bereits klassifiziert:</h3>
 <ul>
-    {% for i, snippet in snippets if snippet.label != 'unclassified' %}
+    {% for i, snippet in snippets if snippet[classifying_label] != 'unclassified' %}
     <li>
         <a href="classify/{{ i }}">{{ snippet.text }}</a>&nbsp;
-        <span class="label label-danger">{{ snippet.label }}</span>
+        {% if snippet.label != 'unclassified' %}
+        <span class="label label-primary">{{ snippet.label }}</span>
+        {% endif %}
+        {% if snippet.label2 != 'unclassified' %}
+        <span class="label label-info">{{ snippet.label2 }}</span>
+        {% endif %}
     </li>
     {% endfor %}
 </ul>
 
 <h3>Noch nicht klassifiziert:</h3>
 <ul>
-    {% for i, snippet in snippets2 if snippet.label == 'unclassified' %}
+    {% for i, snippet in snippets2 if snippet[classifying_label] == 'unclassified' %}
     <li>
         <a href="classify/{{ i }}">{{ snippet.text }}</a>&nbsp;
+        {% if snippet.label != 'unclassified' %}
+        <span class="label label-primary">{{ snippet.label }}</span>
+        {% endif %}
+        {% if snippet.label2 != 'unclassified' %}
+        <span class="label label-info">{{ snippet.label2 }}</span>
+        {% endif %}
     </li>
     {% endfor %}
 </ul>

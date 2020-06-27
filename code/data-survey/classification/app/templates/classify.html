@@ -11,7 +11,8 @@
     <div class="col-sm-6">
         <p><b>Match Type:</b> <span class="label label-success">{{ snippet.match_type }}</span></p>
         <p><b>File:</b> {{ snippet.file_name }} : {{ snippet.line_number }}</p>
-        <p><b>Label:</b> <span class="label label-danger">{{ snippet.label }}</span></p>
+        <p><b>Label (What):</b> <span class="label label-primary">{{ snippet.label }}</span></p>
+        <p><b>Label 2 (Purpose):</b> <span class="label label-info">{{ snippet.label2 }}</span></p>
     </div>
 </div>
 
@@ -22,24 +23,41 @@
 <pre>{{ snippet.context }}</pre>
 <p><a href="/file_content/{{ index }}" target="_blank">Full file contents</a></p>
 
-<p><b>Quick Actions:</b></p>
+<p><b>Label 2 Quick Actions:</b></p>
 <p>
-    {% for label in quick_labels %}
-        <button class="btn btn-primary btn-margin-bottom quick-classify" data-label="{{ label }}">{{ label }}</button>
+    {% for label in quick_labels2 %}
+    <button class="btn btn-info btn-margin-bottom quick-classify2" data-label="{{ label }}">{{ label }}</button>
     {% endfor %}
     <a href="/classify/{{ next_index }}" class="btn btn-success pull-right quick-next">Next snippet</a>
 </p>
 
-<form action="" method="post" novalidate id="classification-form">
-    {{ form.hidden_tag() }}
-    {{ wtf.quick_form(form) }}
+<form action="" method="post" novalidate id="classification-form-2">
+    {{ form2.hidden_tag() }}
+    {{ wtf.quick_form(form2) }}
+</form>
+
+<p><b>Label 1 Quick Actions:</b></p>
+<p>
+    {% for label in quick_labels1 %}
+        <button class="btn btn-primary btn-margin-bottom quick-classify1" data-label="{{ label }}">{{ label }}</button>
+    {% endfor %}
+    <a href="/classify/{{ next_index }}" class="btn btn-success pull-right quick-next">Next snippet</a>
+</p>
+
+<form action="" method="post" novalidate id="classification-form-1">
+    {{ form1.hidden_tag() }}
+    {{ wtf.quick_form(form1) }}
 </form>
 
 <script>
     $(function() {
-        $('.quick-classify').click(function() {
-            $('#label').val($(this).data('label'));
-            $('#submit').click();
+        $('.quick-classify2').click(function() {
+            $('#label2').val($(this).data('label'));
+            $('#submit2').click();
+        });
+        $('.quick-classify1').click(function() {
+            $('#label1').val($(this).data('label'));
+            $('#submit1').click();
         });
     });
 </script>

@@ -1,6 +1,6 @@
 from app import app
 from app.data_io import save_data, load_data, get_interesting_files
-from app.forms import ClassificationForm
+from app.forms import ClassificationForm1, ClassificationForm2
 
 from flask import render_template, flash, redirect
 import pandas as pd
@@ -9,6 +9,7 @@ from os import path
 
 
 current_filename = 'n/a'
+classifying_label = 'label'
 interesting_snippets = pd.DataFrame()
 
 
@@ -16,24 +17,31 @@ interesting_snippets = pd.DataFrame()
 @app.route('/index')
 def index():
     return render_template('index.html', snippets=interesting_snippets.iterrows(), snippets2=interesting_snippets.iterrows(),
-                           filename=current_filename)
+                           filename=current_filename, classifying_label=classifying_label)
 
 
 @app.route('/classify/<int:index>', methods=['GET', 'POST'])
 def classify(index):
-    form = ClassificationForm()
+    form1 = ClassificationForm1()
+    form2 = ClassificationForm2()
     next_index = index + 1
 
-    if form.validate_on_submit():
-        flash('Classifying as {}'.format(form.label.data))
-        interesting_snippets.at[index, 'label'] = form.label.data
+    if form1.submit1.data and form1.validate():
+        flash('Classifying (label 1) as {}'.format(form1.label1.data))
+        interesting_snippets.at[index, 'label'] = form1.label1.data
         return redirect('/classify/{}'.format(next_index))
 
-    snippet = interesting_snippets.loc[index]
-    quick_labels = set(interesting_snippets['label']) | set([])
+    if form2.submit2.data and form2.validate():
+            flash('Classifying (label 2) as {}'.format(form2.label2.data))
+            interesting_snippets.at[index, 'label2'] = form2.label2.data
+            return redirect('/classify/{}'.format(next_index))
 
-    return render_template('classify.html', form=form, snippet=snippet, quick_labels=quick_labels,
-                           index=index, next_index=next_index, filename=current_filename)
+    snippet = interesting_snippets.loc[index]
+    quick_labels1 = set(interesting_snippets['label']) | set([])
+    quick_labels2 = set(interesting_snippets['label2']) | set([])
+
+    return render_template('classify.html', form1=form1, form2=form2, snippet=snippet, quick_labels1=quick_labels1,
+                           quick_labels2=quick_labels2, index=index, next_index=next_index, filename=current_filename)
 
 
 @app.route('/file_content/<int:index>', methods=['GET'])
@@ -87,5 +95,17 @@ def switch_files_action(idx):
     current_filename = files[idx]
 
     interesting_snippets = load_data(current_filename)
+
+    return redirect('/index')
+
+
+@app.route('/switch-label')
+def switch_label():
+    global classifying_label
+
+    if classifying_label == 'label':
+        classifying_label = 'label2'
+    else:
+        classifying_label = 'label'
 
     return redirect('/index')

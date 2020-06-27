@@ -15,6 +15,10 @@ def load_data(filename):
         interesting_snippets['label'] = 'unclassified'
         save_data(filename, interesting_snippets)
 
+    if 'label2' not in interesting_snippets:
+        interesting_snippets['label2'] = 'unclassified'
+        save_data(filename, interesting_snippets)
+
     return interesting_snippets
 
 
