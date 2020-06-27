@@ -41,11 +41,13 @@ def file_content(index):
     snippet = interesting_snippets.loc[index]
 
     if snippet.module_path == "std":
-        file_path = "/usr/local/go/src/{}/{}".format(
+        file_path = "{}/src/{}/{}".format(
+            app.config['GO_LIB_PATH'],
             snippet.package_import_path,
             snippet.file_name)
     else:
-        file_path = "/root/go/pkg/mod/{}@{}{}/{}".format(
+        file_path = "{}/pkg/mod/{}@{}{}/{}".format(
+            app.config['GO_MOD_PATH'],
             snippet.module_path,
             snippet.module_version,
             snippet.package_import_path[len(snippet.module_path):],
