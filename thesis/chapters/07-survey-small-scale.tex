@@ -2,7 +2,7 @@
 
 \chapter{In-depth, small-scale study of unsafe code usages}\label{ch:survey-small-scale}
 
-This chapter provides an in-depth study of unsafe usages in 10 selected open-source Go projects.
+This chapter contributes an in-depth study of unsafe usages in 10 selected open-source Go projects.
 I analyzed 1000 usages in application code, and 400 usages in the standard library.
 The usages are classified in two dimensions by what is happening and what is the higher-level purpose.
 
@@ -85,7 +85,7 @@ The different classes and an example for each of them is shown in Section~\ref{s
     \centering
     \caption{Small-scale study results for application code samples}
     \label{tbl:survey-small-results-app}
-    \begin{tabularx}{\textwidth}{Xrrrrrr}
+    \begin{tabularx}{\textwidth}{Xcccccc}
         \toprule
                                           & generics & efficiency & cleaner-code & serialization & inevitable &  unclassified \\
         \midrule
@@ -117,7 +117,7 @@ The different classes and an example for each of them is shown in Section~\ref{s
     \centering
     \caption{Small-scale study results for standard library samples}
     \label{tbl:survey-small-results-std}
-    \begin{tabularx}{\textwidth}{Xrrr}
+    \begin{tabularx}{\textwidth}{Xccc}
         \toprule
                                           & test & not-finished &  unclassified \\
         \midrule
