@@ -40,12 +40,15 @@ by unsafe usages exist.
 The contributions of this thesis are:
 
 \begin{enumerate}
-    \item An analysis of unsafe code usage in the 500 most popular open-source Go projects,
+    \item A large-scale study of unsafe code usage in the 500 most popular open-source Go projects,
     including the identification of (three) main areas of danger
-    \item An in-depth analysis of consequences of those patterns with respect to a security
+    \item A small-scale, in-depth study of 1000 application code and 400 standard library snippets, used in 10
+    selected projects, yielding a two-dimensional classification of usages and valuable insight into how and for what
+    purpose unsafe code is used in Go applications
+    \item A thorough analysis of the problems and consequences of unsafe code patterns with respect to a security
     context
-    \item The submission of (14) fixes to previously vulnerable code snippets in open-source Go
-    libraries, (7) of which have already been merged
+    \item The submission of (14) pull requests with fixes to (62) previously vulnerable code snippets in open-source Go
+    libraries, (9) of which have already been merged
     \item An open-source tool to identify unsafe usages in Go code including its dependencies
     \item An open-source, Go Vet-style, linter tool to find (two) unsafe usage patterns of \texttt{unsafe.Pointer}
     that were previously uncaught with existing tools

@@ -1,0 +1,37 @@
+%% -----------------------------------------------------------------------------
+
+\chapter{In-depth, small-scale study of unsafe code usages}\label{ch:survey-small-scale}
+
+This chapter provides an in-depth study of unsafe usages in 10 selected open-source Go projects.
+I analyzed 1000 usages in application code, and 400 usages in the standard library.
+The usages are classified in two dimensions by what is happening and what is the higher-level purpose.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Methodology}\label{sec:survey-small-methodology}
+
+I analyzed the following projects.
+They are a subset of Table~\ref{tbl:projects}.
+
+\begin{table}[h]
+    \centering
+    \caption{Selected projects for in-depth, small-scale study}
+    \label{tbl:survey-small-projects}
+    \begin{tabular}{llrrll}
+        \toprule
+        {}  &                                               Name &  Stars &  Forks & Last Pushed &   Revision \\
+        \midrule
+        1   &                              kubernetes/kubernetes &  66512 &  23806 & 2020-05-28 &  fb9e1946b0 \\
+        2   &                       mattermost/mattermost-server &  18277 &   4157 & 2020-05-28 &  e83cc7357c \\
+        3   &                                    rancher/rancher &  14344 &   1758 & 2020-05-28 &  56a464049e \\
+        4   &                                   weaveworks/scope &   4354 &    554 & 2020-05-26 &  bf90d56f0c \\
+        5   &                                          rook/rook &   7208 &   1472 & 2020-05-28 &  ff90fa7098 \\
+        6   &                                      elastic/beats &   8852 &   3207 & 2020-05-28 &  df6f2169c5 \\
+        7   &                                hashicorp/terraform &  22151 &   5729 & 2020-05-28 &  01f91316da \\
+        8   &                                      cilium/cilium &   5501 &    626 & 2020-05-28 &  9b0ae85b5f \\
+        9   &                                       grafana/loki &   9537 &    922 & 2020-05-28 &  10a1f28a85 \\
+        10  &                                  gorgonia/gorgonia &   3373 &    301 & 2020-05-24 &  5fb5944d4a \\
+        \bottomrule
+    \end{tabular}
+\end{table}
