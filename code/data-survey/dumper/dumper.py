@@ -128,7 +128,7 @@ def get_full_context(snippet):
 if __name__ == "__main__":
     if len(sys.argv) <= 2:
         print("usage: $0 filename dest_dir.")
-        os.exit(1)
+        sys.exit(1)
 
     filename = sys.argv[1]
     dest_dir = sys.argv[2]
