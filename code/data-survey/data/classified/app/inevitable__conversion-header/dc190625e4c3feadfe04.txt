@@ -1,0 +1,35 @@
+Module: golang.org/x/tools
+Version: v0.0.0-20200428021058-7ae4988eb4d9
+
+Package: golang.org/x/tools/internal/event/label
+File: label.go
+Line: 107
+
+Imported (possibly among others) by: mattermost/mattermost-server
+
+Label 1 (What is happening?): conversion-header
+Label 2 (For what purpose?): inevitable
+
+--------------------------------------------------------------
+Snippet line:
+
+		untyped: unsafe.Pointer(hdr.Data),
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+	hdr := (*reflect.StringHeader)(unsafe.Pointer(&v))
+	return Label{
+		key:     k,
+		packed:  uint64(hdr.Len),
+		untyped: unsafe.Pointer(hdr.Data),
+	}
+}
+
+// UnpackString assumes the label was built using LabelOfString and returns the
+// value that was passed to that constructor.
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+error getting full file: /home/johannes/.go/pkg/mod/golang.org/x/tools@v0.0.0-20200428021058-7ae4988eb4d9/internal/event/label/label.go
