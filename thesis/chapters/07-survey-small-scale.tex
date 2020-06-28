@@ -35,3 +35,46 @@ They are a subset of Table~\ref{tbl:projects}.
         \bottomrule
     \end{tabular}
 \end{table}
+
+I selected them based on their high number of unsafe usages, and taking care of that they represent a reasonably large
+diversity.
+The projects contain applications based around containers and operations, chat, infrastructure as a service, data
+storage, visualization, and machine learning.
+
+When selecting samples to look at, I deliberately separated the standard library from application usages.
+This is based on the results of the large-scale study shown in Chapter~\ref{ch:survey}, which show that all projects
+must use the standard library, and the hypothesis that the standard library uses unsafe patterns differently.
+It has to do so because the standard library takes care of low-level memory management by design.
+
+Standard library is defined by the packages that live in the Go standard library and the \texttt{golang.org/x/sys}
+module.
+I took the decision to include the sys package because it contains a lot of syscall infrastructure and in general
+behaves more like the standard library than application code.
+It is also maintained by the core Go developer team.
+Obviously, application packages is defined as packages that are not part of the standard library.
+
+I randomly sampled 1000 snippets from application packages and 400 snippets from the standard library.
+The samples are taken without duplicates in version, that is the same snippet by module, file, and line number is not
+taken twice if there is a different version of the same module also available.
+This is done by best effort: if the line number changes between module versions there might still be logical
+duplication.
+The set of deduplication is module, package, file, line number.
+I only took samples that contain \texttt{unsafe.Pointer}, no other unsafe matches.
+
+Both because there is no easy way to find out if an imported dependency is maintained by a project itself, or by a
+third party, and because it gives a better picture on real unsafe usages in the industry, the unsafe samples are taken
+from all dependencies.
+Therefore, the snippets are not all part of packages from the ten projects, but some more packages.
+They are shown in Table~\ref{tbl:survey-small-packages-app} and Table~\ref{tbl:survey-small-packages-std}.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Classification results}\label{sec:survey-small-classification}
+
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Classes and examples}\label{sec:survey-small-classes}
+

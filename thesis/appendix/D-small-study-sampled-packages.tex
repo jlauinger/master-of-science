@@ -1,0 +1,162 @@
+%% -----------------------------------------------------------------------------
+
+\chapter{Packages containing the samples for the small-scale study}\label{ch:survey-small-appendix-packages}
+
+For the small-scale, in-depth study described in Chapter~\ref{ch:survey-small-scale}, I sampled 1000 snippets from
+application code packages, and 400 snippets from the standard library and the sys package.
+The samples are taken from unsafe usages by ten selected projects as shown in Table~\ref{tbl:survey-small-projects},
+but they are made up by quite some more packages, some of which are third-party packages.
+
+These tables show which packages make up the samples.
+
+
+%% created by Pandas in notebook table-formatting.ipynb
+\begin{longtable}{lr}
+    \caption{\centering Packages making up the 1000 application code samples}
+    \label{tbl:survey-small-packages-app}\\
+    \toprule
+    Package &  Sample count \\
+    \midrule
+    \endfirsthead
+    \multicolumn{2}{c}%
+    {\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+    \toprule
+    Package &  Sample count \\
+    \midrule
+    \endhead
+    \multicolumn{2}{c}{\textit{Continued on next page}} \\
+    \endfoot
+    \bottomrule
+    \endlastfoot
+
+    \bottomrule
+    \endlastfoot
+    k8s.io/kubernetes/pkg/apis/core/v1 &      266 \\
+    github.com/json-iterator/go &      109 \\
+    github.com/vishvananda/netlink/nl &       58 \\
+    github.com/ugorji/go/codec &       56 \\
+    github.com/elastic/go-structform/gotype &       45 \\
+    k8s.io/apiextensions-apiserver/pkg/apis/apiext... &       40 \\
+    github.com/modern-go/reflect2 &       32 \\
+    k8s.io/apiextensions-apiserver/pkg/apis/apiext... &       28 \\
+    k8s.io/apiserver/pkg/apis/audit/v1beta1 &       26 \\
+    github.com/hashicorp/go-msgpack/codec &       23 \\
+    gorgonia.org/tensor/native &       21 \\
+    k8s.io/apiserver/pkg/apis/audit/v1 &       20 \\
+    gorgonia.org/tensor &       13 \\
+    go.etcd.io/bbolt &       13 \\
+    github.com/gogo/protobuf/proto &       12 \\
+    k8s.io/apiserver/pkg/apis/audit/v1alpha1 &       12 \\
+    k8s.io/client-go/tools/clientcmd/api/v1 &       12 \\
+    github.com/coreos/bbolt &       12 \\
+    golang.org/x/net/internal/socket &       12 \\
+    gorgonia.org/tensor/internal/execution &       11 \\
+    github.com/cilium/ebpf &       10 \\
+    golang.org/x/net/ipv6 &       10 \\
+    golang.org/x/net/ipv4 &        9 \\
+    k8s.io/apiserver/pkg/apis/apiserver/v1alpha1 &        8 \\
+    gorgonia.org/tensor/internal/storage &        8 \\
+    github.com/vishvananda/netlink &        7 \\
+    k8s.io/apiserver/pkg/apis/config/v1 &        7 \\
+    github.com/golang/protobuf/proto &        6 \\
+    k8s.io/client-go/pkg/apis/clientauthentication... &        5 \\
+    k8s.io/apiserver/pkg/apis/apiserver/v1beta1 &        5 \\
+    google.golang.org/protobuf/reflect/protoreflect &        5 \\
+    github.com/Azure/azure-storage-blob-go/azblob &        4 \\
+    k8s.io/apimachinery/pkg/apis/meta/v1 &        4 \\
+    k8s.io/client-go/pkg/apis/clientauthentication... &        4 \\
+    github.com/ishidawataru/sctp &        3 \\
+    github.com/elastic/go-perf &        3 \\
+    k8s.io/metrics/pkg/apis/metrics/v1alpha1 &        3 \\
+    k8s.io/metrics/pkg/apis/metrics/v1beta1 &        3 \\
+    google.golang.org/protobuf/internal/impl &        3 \\
+    github.com/aliyun/alibaba-cloud-sdk-go/sdk/res... &        3 \\
+    github.com/elastic/go-structform/internal/unsafe &        3 \\
+    golang.org/x/tools/internal/event/label &        3 \\
+    k8s.io/apiserver/pkg/apis/apiserver/v1 &        2 \\
+    golang.org/x/tools/internal/fastwalk &        2 \\
+    github.com/docker/docker/pkg/term &        2 \\
+    github.com/francoispqt/gojay &        2 \\
+    github.com/fsnotify/fsnotify &        2 \\
+    github.com/opencontainers/runc/libcontainer/sy... &        2 \\
+    github.com/yuin/gopher-lua &        2 \\
+    k8s.io/sample-apiserver/pkg/apis/wardle/v1alpha1 &        2 \\
+    github.com/google/go-cmp/cmp/internal/value &        2 \\
+    k8s.io/metrics/pkg/apis/custom\_metrics/v1beta2 &        2 \\
+    github.com/cilium/ebpf/perf &        2 \\
+    k8s.io/apiserver/pkg/authentication/token/cache &        2 \\
+    github.com/gorilla/websocket &        2 \\
+    k8s.io/kube-aggregator/pkg/apis/apiregistratio... &        1 \\
+    k8s.io/metrics/pkg/apis/external\_metrics/v1beta1 &        1 \\
+    k8s.io/kube-aggregator/pkg/apis/apiregistratio... &        1 \\
+    k8s.io/apimachinery/pkg/apis/meta/internalversion &        1 \\
+    k8s.io/apimachinery/pkg/apis/meta/v1beta1 &        1 \\
+    k8s.io/apimachinery/pkg/runtime/serializer/json &        1 \\
+    code.cloudfoundry.org/go-diodes &        1 \\
+    github.com/weaveworks/tcptracer-bpf/pkg/tracer &        1 \\
+    gopkg.in/jcmturner/gokrb5.v7/credentials &        1 \\
+    github.com/mailru/easyjson/jlexer &        1 \\
+    github.com/cespare/xxhash &        1 \\
+    github.com/cespare/xxhash/v2 &        1 \\
+    github.com/chewxy/math32 &        1 \\
+    github.com/chzyer/readline &        1 \\
+    github.com/containerd/console &        1 \\
+    github.com/coocood/freecache &        1 \\
+    github.com/coreos/etcd/client &        1 \\
+    github.com/coreos/go-systemd/journal &        1 \\
+    github.com/coreos/go-systemd/sdjournal &        1 \\
+    github.com/google/gopacket/pcap &        1 \\
+    github.com/jessevdk/go-flags &        1 \\
+    github.com/k-sone/critbitgo &        1 \\
+    github.com/nats-io/nats/encoders/builtin &        1 \\
+    gopkg.in/fsnotify.v1 &        1 \\
+    github.com/philhofer/fwd &        1 \\
+    github.com/prometheus/prometheus/scrape &        1 \\
+    github.com/spaolacci/murmur3 &        1 \\
+    github.com/syndtr/gocapability/capability &        1 \\
+    github.com/thanos-io/thanos/pkg/block/indexheader &        1 \\
+    github.com/urso/diag/ctxfmt &        1 \\
+    github.com/urso/go-bin &        1 \\
+    github.com/weaveworks/ps &        1 \\
+    go.elastic.co/apm &        1 \\
+    golang.org/x/crypto/internal/subtle &        1 \\
+    gonum.org/v1/gonum/graph/internal/set &        1 \\
+    google.golang.org/protobuf/internal/strs &        1 \\
+    sigs.k8s.io/structured-merge-diff/v3/fieldpath &        1 \\
+\end{longtable}
+
+%% created by Pandas in notebook table-formatting.ipynb
+\begin{longtable}{lr}
+    \caption{\centering Packages making up the 1000 standard library samples}
+    \label{tbl:survey-small-packages-std}\\
+    \toprule
+    Package &  Sample count \\
+    \midrule
+    \endfirsthead
+    \multicolumn{2}{c}%
+    {\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+    \toprule
+    Package &  Sample count \\
+    \midrule
+    \endhead
+    \multicolumn{2}{c}{\textit{Continued on next page}} \\
+    \endfoot
+    \bottomrule
+    \endlastfoot
+
+    \bottomrule
+    \endlastfoot
+    golang.org/x/sys/unix &      225 \\
+    runtime &       96 \\
+    syscall &       32 \\
+    reflect &       27 \\
+    internal/reflectlite &        8 \\
+    sync &        3 \\
+    internal/poll &        2 \\
+    runtime/internal/atomic &        2 \\
+    crypto/internal/subtle &        1 \\
+    go/types &        1 \\
+    internal/race &        1 \\
+    runtime/pprof &        1 \\
+    strings &        1 \\
+\end{longtable}
