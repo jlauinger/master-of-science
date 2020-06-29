@@ -418,4 +418,23 @@ Cite this both in related work, background, and survey.
 \subsection{A Dataset of Parametric Cryptographic Misuses}
 \label{subsec:a-dataset-of-parametric-cryptographic-misuses}
 
-Wickert et al.~\cite{wickert2019}.
+Wickert et al.~\cite{wickert2019} present a labeled data set of 201 crypto API misuses.
+They focus on Java crypto API JCA parametric misuses, that is the usage of insecure configuration and/or wrong
+parameters to the crypto API.
+They initially downloaded more than 1300 Java projects from Github, but only about 130 of them contained the crypto
+APIs, 53 of them could be built, and 39 of them could be analyzed successfully by a static analysis tool.
+Still, in the remaining 39 projects plus some manual investigation they found 201 misuses in 44 projects.
+
+The authors sorted the misuses by two dimensions: API used (e.g. Cipher, MessageDigest, \ldots) and misuse category (e.g.
+transformation algorithm, incorrect randomization, key, initialization vector, or iteration count).
+
+The authors included their findings into MUBench and performed a benchmark on precision and recall on the FindBugs tool.
+Furthermore, they iterate on how their data set can be used as a foundation for further research, e.g. benchmarking new
+static analysis tools or training classifiers.
+
+Similar to my work, they mined projects from Github and looked for security problems.
+In contrast to my work, they focused on Java and crypto APIs, not Go and unsafe pointers.
+They state that there exists possible bias in project selection, and that approaches that are secure today might become
+insecure in the future.
+
+Medium relevant, cite in related work and both survey chapters I think.
