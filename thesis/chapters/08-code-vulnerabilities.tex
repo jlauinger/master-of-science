@@ -28,6 +28,11 @@ func toBytes(s string) []byte {
 
 \section{Garbage collector race}\label{sec:vulnerability-gc-race}
 
+Note: to use unsafe pattern 4 in syscalls, a conversion to uintptr must occur within the call statement for the compiler
+to notice it.
+If you have a function that already takes a uintptr argument, like the sys package uses a lot, then that function when
+doing the actual syscall must cast the uintptr to uintptr again to make the no-garbage-collect magic happen.
+
 
 %% -----------------------------------------------------------------------------
 
