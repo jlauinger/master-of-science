@@ -1,4 +1,4 @@
-,Unnamed: 0,Unnamed: 0.1,Unnamed: 0.1.1,Unnamed: 0.1.1.1,text,context,line_number,column,absolute_offset,match_type,file_name,file_loc,file_byte_size,package_import_path,module_path,module_version,project_name,file_copy_path,label,label2
+Unnamed: 0,Unnamed: 0.1,Unnamed: 0.1.1,Unnamed: 0.1.1.1,Unnamed: 0.1.1.1.1,text,context,line_number,column,absolute_offset,match_type,file_name,file_loc,file_byte_size,package_import_path,module_path,module_version,project_name,file_copy_path,label,label2
 0,0,0,0,0,"	nameBuf := (*[unsafe.Sizeof(dirent.Name)]byte)(unsafe.Pointer(&dirent.Name[0]))
 ","		// symlinks, and directories.
 		return
@@ -10,7 +10,7 @@
 	// Special cases for common things:
 	if nameLen == 1 && nameBuf[0] == '.' {
 		name = "".""
-",116.0,48.0,3121.0,unsafe.Pointer,fastwalk_unix.go,3466.0,128.0,golang.org/x/tools/internal/fastwalk,golang.org/x/tools,v0.0.0-20200428021058-7ae4988eb4d9,mattermost/mattermost-server,golang.org/x/tools/internal/fastwalk/fastwalk_unix.go,conversion-struct-byteslice,efficiency
+",116.0,48.0,3121.0,unsafe.Pointer,fastwalk_unix.go,3466.0,128.0,golang.org/x/tools/internal/fastwalk,golang.org/x/tools,v0.0.0-20200428021058-7ae4988eb4d9,mattermost/mattermost-server,golang.org/x/tools/internal/fastwalk/fastwalk_unix.go,conversion-struct-bytes,efficiency
 1,1,1,1,1,"	out.PostStart = (*core.Handler)(unsafe.Pointer(in.PostStart))
 ","	return autoConvert_core_KeyToPath_To_v1_KeyToPath(in, out, s)
 }
@@ -82,7 +82,7 @@ func netlinkRouteAttrAndValue(b []byte) (*unix.RtAttr, []byte, int, error) {
 	}
 	return a, b[unix.SizeofRtAttr:], rtaAlignOf(int(a.Len)), nil
 }
-",741.0,21.0,18070.0,unsafe.Pointer,nl_linux.go,18574.0,760.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/nl_linux.go,conversion-struct-byteslice,serialization
+",741.0,21.0,18070.0,unsafe.Pointer,nl_linux.go,18574.0,760.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/nl_linux.go,conversion-struct-bytes,serialization
 7,7,7,7,7,"		*(*uintptr)(unsafe.Pointer(uintptr(unsafe.Pointer(&b[0])) + uintptr(i))) ^= kw
 ","
 	// Mask one word at a time.
@@ -162,7 +162,7 @@ func Convert_v1_PolicyList_To_audit_PolicyList(in *PolicyList, out *audit.Policy
 		return nil, int(mi.Mtu), nil
 	}
 	ifi, err := net.InterfaceByIndex(int(mi.Addr.Scope_id))
-",60.0,22.0,1376.0,unsafe.Pointer,sockopt_posix.go,2199.0,89.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/sockopt_posix.go,conversion-struct-byteslice,layout-control
+",60.0,22.0,1376.0,unsafe.Pointer,sockopt_posix.go,2199.0,89.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/sockopt_posix.go,conversion-struct-bytes,layout-control
 14,14,14,14,14,"	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
 ","	e.e.EncodeUint(uint64(*(*uint64)(v.ptr)))
 }
@@ -198,7 +198,7 @@ func (x *TcTbfQopt) Serialize() []byte {
 const (
 	TCA_HTB_UNSPEC = iota
 	TCA_HTB_PARMS
-",361.0,35.0,7007.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",361.0,35.0,7007.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 17,17,17,17,17,"	out.RequiredDuringSchedulingIgnoredDuringExecution = *(*[]v1.PodAffinityTerm)(unsafe.Pointer(&in.RequiredDuringSchedulingIgnoredDuringExecution))
 ","	return autoConvert_v1_PodAntiAffinity_To_core_PodAntiAffinity(in, out, s)
 }
@@ -642,7 +642,7 @@ func DeserializeXfrmLifetimeCur(b []byte) *XfrmLifetimeCur {
 func (msg *XfrmLifetimeCur) Serialize() []byte {
 	return (*(*[SizeofXfrmLifetimeCur]byte)(unsafe.Pointer(msg)))[:]
 }
-",259.0,27.0,6455.0,unsafe.Pointer,xfrm_linux.go,7430.0,306.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-byteslice,serialization
+",259.0,27.0,6455.0,unsafe.Pointer,xfrm_linux.go,7430.0,306.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-bytes,serialization
 54,54,54,54,54,"		if *((*unsafe.Pointer)(ptr)) == nil {
 ","func (decoder *OptionalDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
 	if iter.ReadNil() {
@@ -666,7 +666,7 @@ func DeserializeTcU32Sel(b []byte) *TcU32Sel {
 	for i = 0; i < x.Nkeys; i++ {
 		x.Keys = append(x.Keys, *DeserializeTcU32Key(b[next:]))
 		next += SizeofTcU32Key
-",558.0,32.0,10572.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",558.0,32.0,10572.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 56,56,56,56,56,"		return unsafe.Pointer(ptr), newUnfolderArrIfc()
 ","	switch ptr := to.(type) {
 	case *interface{}:
@@ -966,7 +966,7 @@ func bpfMapCreate(attr *bpfMapCreateAttr) (*bpfFD, error) {
 }
 
 // munmap unmaps a DB's data file from memory.
-",67.0,31.0,1540.0,unsafe.Pointer,bolt_unix.go,2215.0,94.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/bolt_unix.go,conversion-struct-byteslice,inevitable
+",67.0,31.0,1540.0,unsafe.Pointer,bolt_unix.go,2215.0,94.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/bolt_unix.go,conversion-struct-bytes,inevitable
 81,81,81,81,81,"	out.EgressSelections = *(*[]apiserver.EgressSelection)(unsafe.Pointer(&in.EgressSelections))
 ","	return autoConvert_apiserver_EgressSelection_To_v1alpha1_EgressSelection(in, out, s)
 }
@@ -990,7 +990,7 @@ func autoConvert_v1_AuthInfo_To_api_AuthInfo(in *AuthInfo, out *api.AuthInfo, s 
 	out.Token = in.Token
 	out.TokenFile = in.TokenFile
 	out.Impersonate = in.Impersonate
-",163.0,40.0,7977.0,unsafe.Pointer,zz_generated.conversion.go,19639.0,426.0,k8s.io/client-go/tools/clientcmd/api/v1,k8s.io/client-go,v0.18.3,cilium/cilium,k8s.io/client-go/tools/clientcmd/api/v1/zz_generated.conversion.go,conversion-struct-byteslice,efficiency
+",163.0,40.0,7977.0,unsafe.Pointer,zz_generated.conversion.go,19639.0,426.0,k8s.io/client-go/tools/clientcmd/api/v1,k8s.io/client-go,v0.18.3,cilium/cilium,k8s.io/client-go/tools/clientcmd/api/v1/zz_generated.conversion.go,conversion-struct-bytes,efficiency
 83,83,83,83,83,"		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
 ","		a.SetUnsafePointer(i, xv)
 	default:
@@ -1234,7 +1234,7 @@ func (x *TcMirred) Serialize() []byte {
 const (
 	TCA_TUNNEL_KEY_UNSPEC = iota
 	TCA_TUNNEL_KEY_TM
-",726.0,34.0,13573.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",726.0,34.0,13573.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 104,104,104,104,104,"	out.Glusterfs = (*v1.GlusterfsVolumeSource)(unsafe.Pointer(in.Glusterfs))
 ","	out.GitRepo = (*v1.GitRepoVolumeSource)(unsafe.Pointer(in.GitRepo))
 	out.Secret = (*v1.SecretVolumeSource)(unsafe.Pointer(in.Secret))
@@ -1258,7 +1258,7 @@ const (
 		// Write data for the element to the end of the page.
 		copy(b[0:], item.key)
 		b = b[klen:]
-",235.0,29.0,6212.0,unsafe.Pointer,node.go,16174.0,604.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/node.go,conversion-struct-byteslice,efficiency
+",235.0,29.0,6212.0,unsafe.Pointer,node.go,16174.0,604.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/node.go,conversion-struct-bytes,efficiency
 106,106,106,106,106,"	out.DefaultMode = (*int32)(unsafe.Pointer(in.DefaultMode))
 ","	if err := Convert_v1_LocalObjectReference_To_core_LocalObjectReference(&in.LocalObjectReference, &out.LocalObjectReference, s); err != nil {
 		return err
@@ -1318,7 +1318,7 @@ func direntNamlen(dirent *syscall.Dirent) uint64 {
 	if limit > nameBufLen {
 		limit = nameBufLen
 	}
-",18.0,48.0,374.0,unsafe.Pointer,fastwalk_dirent_namlen_linux.go,730.0,29.0,golang.org/x/tools/internal/fastwalk,golang.org/x/tools,v0.0.0-20191115202509-3a792d9c32b2,rancher/rancher,golang.org/x/tools/internal/fastwalk/fastwalk_dirent_namlen_linux.go,conversion-struct-byteslice,efficiency
+",18.0,48.0,374.0,unsafe.Pointer,fastwalk_dirent_namlen_linux.go,730.0,29.0,golang.org/x/tools/internal/fastwalk,golang.org/x/tools,v0.0.0-20191115202509-3a792d9c32b2,rancher/rancher,golang.org/x/tools/internal/fastwalk/fastwalk_dirent_namlen_linux.go,conversion-struct-bytes,efficiency
 111,111,111,111,111,"	out.Env = *(*[]api.ExecEnvVar)(unsafe.Pointer(&in.Env))
 ","
 func autoConvert_v1_ExecConfig_To_api_ExecConfig(in *ExecConfig, out *api.ExecConfig, s conversion.Scope) error {
@@ -1342,7 +1342,7 @@ func autoConvert_core_RangeAllocation_To_v1_RangeAllocation(in *core.RangeAlloca
 
 // Convert_core_RangeAllocation_To_v1_RangeAllocation is an autogenerated conversion function.
 func Convert_core_RangeAllocation_To_v1_RangeAllocation(in *core.RangeAllocation, out *v1.RangeAllocation, s conversion.Scope) error {
-",6538.0,23.0,351118.0,unsafe.Pointer,zz_generated.conversion.go,431912.0,8119.0,k8s.io/kubernetes/pkg/apis/core/v1,k8s.io/kubernetes,v1.17.2,rook/rook,k8s.io/kubernetes/pkg/apis/core/v1/zz_generated.conversion.go,conversion-struct-byteslice,efficiency
+",6538.0,23.0,351118.0,unsafe.Pointer,zz_generated.conversion.go,431912.0,8119.0,k8s.io/kubernetes/pkg/apis/core/v1,k8s.io/kubernetes,v1.17.2,rook/rook,k8s.io/kubernetes/pkg/apis/core/v1/zz_generated.conversion.go,conversion-struct-bytes,efficiency
 113,113,113,113,113,"	out.SecretRef = (*core.SecretReference)(unsafe.Pointer(in.SecretRef))
 ","	out.FSType = in.FSType
 	out.RBDPool = in.RBDPool
@@ -1390,7 +1390,7 @@ func (msg *XfrmUserpolicyId) Serialize() []byte {
 // struct xfrm_userpolicy_info {
 //   struct xfrm_selector    sel;
 //   struct xfrm_lifetime_cfg  lft;
-",36.0,42.0,629.0,unsafe.Pointer,xfrm_policy_linux.go,2632.0,119.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/xfrm_policy_linux.go,conversion-struct-byteslice,serialization
+",36.0,42.0,629.0,unsafe.Pointer,xfrm_policy_linux.go,2632.0,119.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/xfrm_policy_linux.go,conversion-struct-bytes,serialization
 117,117,117,117,117,"func EqUnsafePointer(a []unsafe.Pointer, b []unsafe.Pointer, retVal []bool) {
 ","		retVal[i] = a[i] == b[i]
 	}
@@ -1438,7 +1438,7 @@ func (msg *XfrmUsersaId) Serialize() []byte {
 // struct xfrm_stats {
 //   __u32 replay_window;
 //   __u32 replay;
-",55.0,38.0,1106.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-byteslice,serialization
+",55.0,38.0,1106.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-bytes,serialization
 121,121,121,121,121,"	_, _, err := unix.Syscall(unix.SYS_IOCTL, fd, uintptr(getTermios), uintptr(unsafe.Pointer(p)))
 ","	""golang.org/x/sys/unix""
 )
@@ -1592,7 +1592,7 @@ func autoConvert_v1beta1_EventList_To_audit_EventList(in *EventList, out *audit.
 
 // Convert_apiextensions_WebhookClientConfig_To_v1beta1_WebhookClientConfig is an autogenerated conversion function.
 func Convert_apiextensions_WebhookClientConfig_To_v1beta1_WebhookClientConfig(in *apiextensions.WebhookClientConfig, out *WebhookClientConfig, s conversion.Scope) error {
-",1320.0,27.0,67992.0,unsafe.Pointer,zz_generated.conversion.go,68451.0,1327.0,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1,k8s.io/apiextensions-apiserver,v0.18.0,rancher/rancher,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1/zz_generated.conversion.go,conversion-struct-byteslice,efficiency
+",1320.0,27.0,67992.0,unsafe.Pointer,zz_generated.conversion.go,68451.0,1327.0,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1,k8s.io/apiextensions-apiserver,v0.18.0,rancher/rancher,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1/zz_generated.conversion.go,conversion-struct-bytes,efficiency
 134,134,134,134,134,"	out.ControllerExpandSecretRef = (*core.SecretReference)(unsafe.Pointer(in.ControllerExpandSecretRef))
 ","	out.VolumeAttributes = *(*map[string]string)(unsafe.Pointer(&in.VolumeAttributes))
 	out.ControllerPublishSecretRef = (*core.SecretReference)(unsafe.Pointer(in.ControllerPublishSecretRef))
@@ -1640,7 +1640,7 @@ func DeserializeIfAddrmsg(b []byte) *IfAddrmsg {
 func (msg *IfAddrmsg) Serialize() []byte {
 	return (*(*[unix.SizeofIfAddrmsg]byte)(unsafe.Pointer(msg)))[:]
 }
-",39.0,21.0,690.0,unsafe.Pointer,addr_linux.go,1618.0,77.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/addr_linux.go,conversion-struct-byteslice,serialization
+",39.0,21.0,690.0,unsafe.Pointer,addr_linux.go,1618.0,77.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/addr_linux.go,conversion-struct-bytes,serialization
 138,138,138,138,138,"	out.SecretRef = (*v1.SecretEnvSource)(unsafe.Pointer(in.SecretRef))
 ","
 func autoConvert_core_EnvFromSource_To_v1_EnvFromSource(in *core.EnvFromSource, out *v1.EnvFromSource, s conversion.Scope) error {
@@ -2058,7 +2058,7 @@ func (decoder *sliceDecoder) doDecode(ptr unsafe.Pointer, iter *Iterator) {
 		b = d[:]
 	} else {
 		b = (*[sizeofGroupReq]byte)(unsafe.Pointer(&gr))[:sizeofGroupReq]
-",27.0,31.0,582.0,unsafe.Pointer,sys_ssmreq.go,1304.0,54.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200226121028-0de0cce0169b,grafana/loki,golang.org/x/net/ipv6/sys_ssmreq.go,conversion-struct-byteslice,layout-control
+",27.0,31.0,582.0,unsafe.Pointer,sys_ssmreq.go,1304.0,54.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200226121028-0de0cce0169b,grafana/loki,golang.org/x/net/ipv6/sys_ssmreq.go,conversion-struct-bytes,layout-control
 173,173,173,173,173,"	out.LabelSelector = (*metav1.LabelSelector)(unsafe.Pointer(in.LabelSelector))
 ","func autoConvert_core_TopologySpreadConstraint_To_v1_TopologySpreadConstraint(in *core.TopologySpreadConstraint, out *v1.TopologySpreadConstraint, s conversion.Scope) error {
 	out.MaxSkew = in.MaxSkew
@@ -2271,7 +2271,7 @@ func (msg *XfrmEncapTmpl) Serialize() []byte {
 // struct xfrm_usersa_flush {
 //    __u8 proto;
 // };
-",288.0,39.0,6712.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-byteslice,serialization
+",288.0,39.0,6712.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-bytes,serialization
 191,191,191,191,191,"	n, _, errno := syscall.Syscall(syscall.SYS_RECVMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
 ","	return errnoErr(errno)
 }
@@ -2379,7 +2379,7 @@ func Convert_v1beta1_Connection_To_apiserver_Connection(in *Connection, out *api
 		}
 		<-ev.pollresp
 
-",114.0,21.0,3381.0,unsafe.Pointer,record.go,45288.0,1533.0,github.com/elastic/go-perf,github.com/elastic/go-perf,v0.0.0-20191212140718-9c656876f595,elastic/beats,github.com/elastic/go-perf/record.go,conversion-struct-byteslice,serialization
+",114.0,21.0,3381.0,unsafe.Pointer,record.go,45288.0,1533.0,github.com/elastic/go-perf,github.com/elastic/go-perf,v0.0.0-20191212140718-9c656876f595,elastic/beats,github.com/elastic/go-perf/record.go,conversion-struct-bytes,serialization
 200,200,200,200,200,"		child.bucket = (*bucket)(unsafe.Pointer(&value[0]))
 ","	if b.tx.writable && !unaligned {
 		child.bucket = &bucket{}
@@ -2463,7 +2463,7 @@ func (so *sockOpt) setICMPFilter(c *socket.Conn, f *ICMPFilter) error {
 
 func (so *sockOpt) getMTUInfo(c *socket.Conn) (*net.Interface, int, error) {
 	b := make([]byte, so.Len)
-",47.0,34.0,1042.0,unsafe.Pointer,sockopt_posix.go,2199.0,89.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/ipv6/sockopt_posix.go,conversion-struct-byteslice,serialization
+",47.0,34.0,1042.0,unsafe.Pointer,sockopt_posix.go,2199.0,89.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/ipv6/sockopt_posix.go,conversion-struct-bytes,serialization
 207,207,207,207,207,"	out.ExternalDocs = (*ExternalDocumentation)(unsafe.Pointer(in.ExternalDocs))
 ","		}
 	} else {
@@ -2631,7 +2631,7 @@ func DeserializeTcNetemCorr(b []byte) *TcNetemCorr {
 func (x *TcNetemCorr) Serialize() []byte {
 	return (*(*[SizeofTcNetemCorr]byte)(unsafe.Pointer(x)))[:]
 }
-",285.0,23.0,5388.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",285.0,23.0,5388.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 221,221,221,221,221,"	out.Started = (*bool)(unsafe.Pointer(in.Started))
 ","	out.RestartCount = in.RestartCount
 	out.Image = in.Image
@@ -2739,7 +2739,7 @@ func DeserializeTcU32Key(b []byte) *TcU32Key {
 func (x *TcU32Key) Serialize() []byte {
 	return (*(*[SizeofTcU32Key]byte)(unsafe.Pointer(x)))[:]
 }
-",513.0,20.0,9709.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",513.0,20.0,9709.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 230,230,230,230,230,"	out.Items = *(*[]wardle.Fischer)(unsafe.Pointer(&in.Items))
 ","}
 
@@ -2914,7 +2914,7 @@ func Convert_v1_CustomResourceDefinitionNames_To_apiextensions_CustomResourceDef
 func toString(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
-",173.0,19.0,5423.0,unsafe.Pointer,cached_token_authenticator.go,5464.0,174.0,k8s.io/apiserver/pkg/authentication/token/cache,k8s.io/apiserver,v0.17.2,rook/rook,k8s.io/apiserver/pkg/authentication/token/cache/cached_token_authenticator.go,conversion-struct-byteslice,efficiency
+",173.0,19.0,5423.0,unsafe.Pointer,cached_token_authenticator.go,5464.0,174.0,k8s.io/apiserver/pkg/authentication/token/cache,k8s.io/apiserver,v0.17.2,rook/rook,k8s.io/apiserver/pkg/authentication/token/cache/cached_token_authenticator.go,conversion-struct-bytes,efficiency
 245,245,245,245,245,"	out.PodCIDRs = *(*[]string)(unsafe.Pointer(&in.PodCIDRs))
 ","	return nil
 }
@@ -2983,7 +2983,7 @@ func (msg *RtMsg) Serialize() []byte {
 type RtNexthop struct {
 	unix.RtNexthop
 	Children []NetlinkRequestData
-",42.0,36.0,640.0,unsafe.Pointer,route_linux.go,2004.0,107.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/route_linux.go,conversion-struct-byteslice,serialization
+",42.0,36.0,640.0,unsafe.Pointer,route_linux.go,2004.0,107.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/route_linux.go,conversion-struct-bytes,serialization
 251,251,251,251,251,"	return (*mergeInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
 ","func atomicStoreMarshalInfo(p **marshalInfo, v *marshalInfo) {
 	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
@@ -3103,7 +3103,7 @@ func DeserializeSkbEdit(b []byte) *TcSkbEdit {
 func (x *TcSkbEdit) Serialize() []byte {
 	return (*(*[SizeofTcSkbEdit]byte)(unsafe.Pointer(x)))[:]
 }
-",779.0,21.0,14598.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",779.0,21.0,14598.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 261,261,261,261,261,"	out.Flocker = (*v1.FlockerVolumeSource)(unsafe.Pointer(in.Flocker))
 ","	out.Quobyte = (*v1.QuobyteVolumeSource)(unsafe.Pointer(in.Quobyte))
 	out.FlexVolume = (*v1.FlexVolumeSource)(unsafe.Pointer(in.FlexVolume))
@@ -3355,7 +3355,7 @@ func (msg *VfVlan) Serialize() []byte {
 // struct ifla_vf_tx_rate {
 //   __u32 vf;
 //   __u32 rate; /* Max TX bandwidth in Mbps, 0 disables throttling */
-",300.0,32.0,5953.0,unsafe.Pointer,link_linux.go,12019.0,606.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-byteslice,serialization
+",300.0,32.0,5953.0,unsafe.Pointer,link_linux.go,12019.0,606.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-bytes,serialization
 282,282,282,282,282,"	out.Add = *(*[]v1.Capability)(unsafe.Pointer(&in.Add))
 ","	return autoConvert_v1_Capabilities_To_core_Capabilities(in, out, s)
 }
@@ -3391,7 +3391,7 @@ func autoConvert_core_Capabilities_To_v1_Capabilities(in *core.Capabilities, out
 }
 
 func (so *sockOpt) setGroupSourceReq(c *socket.Conn, ifi *net.Interface, grp, src net.IP) error {
-",32.0,30.0,697.0,unsafe.Pointer,sys_ssmreq.go,1304.0,54.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/sys_ssmreq.go,conversion-struct-byteslice,serialization
+",32.0,30.0,697.0,unsafe.Pointer,sys_ssmreq.go,1304.0,54.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/sys_ssmreq.go,conversion-struct-bytes,serialization
 285,285,285,285,285,"	extension[reflect2.TypeOfPtr((*interface{})(nil)).Elem()] = &funcDecoder{func(ptr unsafe.Pointer, iter *Iterator) {
 ","	extension[reflect2.TypeOfPtr((*RawMessage)(nil)).Elem()] = encoder
 }
@@ -3487,7 +3487,7 @@ func DeserializeTcHtbGlob(b []byte) *TcHtbGlob {
 func (x *TcHtbGlob) Serialize() []byte {
 	return (*(*[SizeofTcHtbGlob]byte)(unsafe.Pointer(x)))[:]
 }
-",421.0,21.0,8093.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",421.0,21.0,8093.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 293,293,293,293,293,"	out.Maximum = (*float64)(unsafe.Pointer(in.Maximum))
 ","		}
 	} else {
@@ -3531,7 +3531,7 @@ func (msg *XfrmReplayStateEsn) Serialize() []byte {
 	// We deliberately do not pass Bmp, as it gets set by the kernel.
 	return (*(*[SizeofXfrmReplayStateEsn]byte)(unsafe.Pointer(msg)))[:]
 }
-",333.0,44.0,7776.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-byteslice,serialization
+",333.0,44.0,7776.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-bytes,serialization
 297,297,297,297,297,"	ptr := unsafe.Pointer(v.Pointer())
 ","	return
 }
@@ -3666,7 +3666,7 @@ func DeserializeTcTbfQopt(b []byte) *TcTbfQopt {
 func (x *TcTbfQopt) Serialize() []byte {
 	return (*(*[SizeofTcTbfQopt]byte)(unsafe.Pointer(x)))[:]
 }
-",355.0,21.0,6821.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",355.0,21.0,6821.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 309,309,309,309,309,"	return (*(*[SizeofVfRate]byte)(unsafe.Pointer(msg)))[:]
 ","	return (*VfRate)(unsafe.Pointer(&b[0:SizeofVfRate][0]))
 }
@@ -3678,7 +3678,7 @@ func (msg *VfRate) Serialize() []byte {
 // struct ifla_vf_spoofchk {
 //   __u32 vf;
 //   __u32 setting;
-",346.0,32.0,6887.0,unsafe.Pointer,link_linux.go,12019.0,606.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-byteslice,serialization
+",346.0,32.0,6887.0,unsafe.Pointer,link_linux.go,12019.0,606.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-bytes,serialization
 310,310,310,310,310,"	*(*sliceHeader)(unsafe.Pointer(&x)) = sliceHeader{Data: v.ptr, Len: int(v.num), Cap: int(v.num)}
 ","	*(*stringHeader)(unsafe.Pointer(&x)) = stringHeader{Data: v.ptr, Len: int(v.num)}
 	return x
@@ -3786,7 +3786,7 @@ func DeserializeBridgeVlanInfo(b []byte) *BridgeVlanInfo {
 func (b *BridgeVlanInfo) PortVID() bool {
 	return b.Flags&BRIDGE_VLAN_INFO_PVID > 0
 }
-",54.0,26.0,938.0,unsafe.Pointer,bridge_linux.go,1416.0,74.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/bridge_linux.go,conversion-struct-byteslice,serialization
+",54.0,26.0,938.0,unsafe.Pointer,bridge_linux.go,1416.0,74.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/bridge_linux.go,conversion-struct-bytes,serialization
 319,319,319,319,319,"	var p = unsafe.Pointer(&x)
 ","}
 
@@ -4038,7 +4038,7 @@ func (x *TcMsg) Serialize() []byte {
 // struct tcamsg {
 //   unsigned char tca_family;
 //   unsigned char tca__pad1;
-",127.0,31.0,2140.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",127.0,31.0,2140.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 340,340,340,340,340,"	if *(*unsafe.Pointer)(ptr) == nil {
 ","	elemEncoder ValEncoder
 }
@@ -4482,7 +4482,7 @@ func (x *TcHtbCopt) Serialize() []byte {
 type TcHtbGlob struct {
 	Version      uint32
 	Rate2Quantum uint32
-",403.0,35.0,7711.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",403.0,35.0,7711.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 377,377,377,377,377,"	out.MaxItems = (*int64)(unsafe.Pointer(in.MaxItems))
 ","	out.ExclusiveMinimum = in.ExclusiveMinimum
 	out.MaxLength = (*int64)(unsafe.Pointer(in.MaxLength))
@@ -4644,7 +4644,7 @@ func DeserializeVfSpoofchk(b []byte) *VfSpoofchk {
 func (msg *VfSpoofchk) Serialize() []byte {
 	return (*(*[SizeofVfSpoofchk]byte)(unsafe.Pointer(msg)))[:]
 }
-",368.0,22.0,7326.0,unsafe.Pointer,link_linux.go,12153.0,610.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-byteslice,serialization
+",368.0,22.0,7326.0,unsafe.Pointer,link_linux.go,12153.0,610.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-bytes,serialization
 391,391,391,391,391,"	urv = (*unsafeReflectValue)(unsafe.Pointer(&m))
 ","	var urv = (*unsafeReflectValue)(unsafe.Pointer(&k))
 	var kptr = unsafeMapKVPtr(urv)
@@ -4692,7 +4692,7 @@ func (x *TcConnmark) Serialize() []byte {
 const (
 	TCA_ACT_MIRRED = 8
 )
-",691.0,36.0,12918.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",691.0,36.0,12918.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 395,395,395,395,395,"	out.Status = (*clientauthentication.ExecCredentialStatus)(unsafe.Pointer(in.Status))
 ","func autoConvert_v1beta1_ExecCredential_To_clientauthentication_ExecCredential(in *ExecCredential, out *clientauthentication.ExecCredential, s conversion.Scope) error {
 	if err := Convert_v1beta1_ExecCredentialSpec_To_clientauthentication_ExecCredentialSpec(&in.Spec, &out.Spec, s); err != nil {
@@ -4740,7 +4740,7 @@ func DeserializeIfaCacheInfo(b []byte) *IfaCacheInfo {
 func (msg *IfaCacheInfo) Serialize() []byte {
 	return (*(*[SizeofIfaCacheInfo]byte)(unsafe.Pointer(msg)))[:]
 }
-",72.0,24.0,1435.0,unsafe.Pointer,addr_linux.go,1618.0,77.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/addr_linux.go,conversion-struct-byteslice,serialization
+",72.0,24.0,1435.0,unsafe.Pointer,addr_linux.go,1618.0,77.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/addr_linux.go,conversion-struct-bytes,serialization
 399,399,399,399,399,"	out.ObjectRef = (*audit.ObjectReference)(unsafe.Pointer(in.ObjectRef))
 ","	out.User = in.User
 	out.ImpersonatedUser = (*v1.UserInfo)(unsafe.Pointer(in.ImpersonatedUser))
@@ -4812,7 +4812,7 @@ func DeserializeTcNetemReorder(b []byte) *TcNetemReorder {
 func (x *TcNetemReorder) Serialize() []byte {
 	return (*(*[SizeofTcNetemReorder]byte)(unsafe.Pointer(x)))[:]
 }
-",307.0,26.0,5852.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",307.0,26.0,5852.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 405,405,405,405,405,"func (codec *uint64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
 ","
 type uint64Codec struct {
@@ -5100,7 +5100,7 @@ func DeserializeTcMsg(b []byte) *TcMsg {
 func (x *TcMsg) Serialize() []byte {
 	return (*(*[SizeofTcMsg]byte)(unsafe.Pointer(x)))[:]
 }
-",123.0,17.0,2045.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",123.0,17.0,2045.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 429,429,429,429,429,"	atomic.StorePointer(&unixConnPtr, unsafe.Pointer(sock))
 ","	if err != nil {
 		return
@@ -5156,7 +5156,7 @@ func parsePathMTU(cm *ControlMessage, b []byte) {
 	}
 	copy(cm.Dst, mi.Addr.Addr[:])
 	cm.IfIndex = int(mi.Addr.Scope_id)
-",87.0,22.0,2381.0,unsafe.Pointer,control_rfc3542_unix.go,2589.0,94.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/control_rfc3542_unix.go,conversion-struct-byteslice,serialization
+",87.0,22.0,2381.0,unsafe.Pointer,control_rfc3542_unix.go,2589.0,94.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv6/control_rfc3542_unix.go,conversion-struct-bytes,serialization
 434,434,434,434,434,"	jsoniter.RegisterTypeDecoder(""int64"", &nullableFuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 ","		} else {
 			*((*uint32)(ptr)) = iter.ReadUint32()
@@ -5201,7 +5201,7 @@ func (x *TcGen) Serialize() []byte {
 // #define tc_gen \
 //   __u32                 index; \
 //   __u32                 capab; \
-",598.0,31.0,11440.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",598.0,31.0,11440.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 438,438,438,438,438,"	out.MaxLength = (*int64)(unsafe.Pointer(in.MaxLength))
 ","	out.Maximum = (*float64)(unsafe.Pointer(in.Maximum))
 	out.ExclusiveMaximum = in.ExclusiveMaximum
@@ -5273,7 +5273,7 @@ func DeserializeGenlmsg(b []byte) *Genlmsg {
 func (msg *Genlmsg) Serialize() []byte {
 	return (*(*[SizeofGenlmsg]byte)(unsafe.Pointer(msg)))[:]
 }
-",84.0,19.0,1263.0,unsafe.Pointer,genetlink_linux.go,1426.0,89.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/genetlink_linux.go,conversion-struct-byteslice,serialization
+",84.0,19.0,1263.0,unsafe.Pointer,genetlink_linux.go,1426.0,89.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/genetlink_linux.go,conversion-struct-bytes,serialization
 444,444,444,444,444,"	out.GCEPersistentDisk = (*core.GCEPersistentDiskVolumeSource)(unsafe.Pointer(in.GCEPersistentDisk))
 ","	return autoConvert_core_PersistentVolumeList_To_v1_PersistentVolumeList(in, out, s)
 }
@@ -5417,7 +5417,7 @@ func (x *TcPrioMap) Serialize() []byte {
 const (
 	TCA_TBF_UNSPEC = iota
 	TCA_TBF_PARMS
-",176.0,35.0,3138.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",176.0,35.0,3138.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 456,456,456,456,456,"// 	// 	return *(*interface{})(unsafe.Pointer(&unsafeIntf{word: urv.ptr, typ: urv.typ}))
 ","// 	// 	println(""***** IS flagindir"")
 // 	// 	// return *(*interface{})(unsafe.Pointer(&unsafeIntf{word: *(*unsafe.Pointer)(urv.ptr), typ: urv.typ}))
@@ -5569,7 +5569,7 @@ func (decoder *numericMapKeyDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) 
 func (msg *IfaCacheInfo) Serialize() []byte {
 	return (*(*[SizeofIfaCacheInfo]byte)(unsafe.Pointer(msg)))[:]
 }
-",76.0,38.0,1553.0,unsafe.Pointer,addr_linux.go,1618.0,77.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/addr_linux.go,conversion-struct-byteslice,serialization
+",76.0,38.0,1553.0,unsafe.Pointer,addr_linux.go,1618.0,77.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/addr_linux.go,conversion-struct-bytes,serialization
 469,469,469,469,469,"	out.AdditionalPrinterColumns = *(*[]apiextensions.CustomResourceColumnDefinition)(unsafe.Pointer(&in.AdditionalPrinterColumns))
 ","	} else {
 		out.Schema = nil
@@ -5593,7 +5593,7 @@ func autoConvert_v1_RangeAllocation_To_core_RangeAllocation(in *v1.RangeAllocati
 
 // Convert_v1_RangeAllocation_To_core_RangeAllocation is an autogenerated conversion function.
 func Convert_v1_RangeAllocation_To_core_RangeAllocation(in *v1.RangeAllocation, out *core.RangeAllocation, s conversion.Scope) error {
-",6526.0,23.0,350553.0,unsafe.Pointer,zz_generated.conversion.go,431912.0,8119.0,k8s.io/kubernetes/pkg/apis/core/v1,k8s.io/kubernetes,v1.17.2,rook/rook,k8s.io/kubernetes/pkg/apis/core/v1/zz_generated.conversion.go,conversion-struct-byteslice,efficiency
+",6526.0,23.0,350553.0,unsafe.Pointer,zz_generated.conversion.go,431912.0,8119.0,k8s.io/kubernetes/pkg/apis/core/v1,k8s.io/kubernetes,v1.17.2,rook/rook,k8s.io/kubernetes/pkg/apis/core/v1/zz_generated.conversion.go,conversion-struct-bytes,efficiency
 471,471,471,471,471,"	out.Glusterfs = (*core.GlusterfsPersistentVolumeSource)(unsafe.Pointer(in.Glusterfs))
 ","func autoConvert_v1_PersistentVolumeSource_To_core_PersistentVolumeSource(in *v1.PersistentVolumeSource, out *core.PersistentVolumeSource, s conversion.Scope) error {
 	out.GCEPersistentDisk = (*core.GCEPersistentDiskVolumeSource)(unsafe.Pointer(in.GCEPersistentDisk))
@@ -5662,7 +5662,7 @@ func Convert_v1_NodeConfigSource_To_core_NodeConfigSource(in *v1.NodeConfigSourc
 	b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
 	return so.Set(c, b)
 }
-",22.0,36.0,489.0,unsafe.Pointer,sys_bpf.go,594.0,24.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_bpf.go,conversion-struct-byteslice,serialization
+",22.0,36.0,489.0,unsafe.Pointer,sys_bpf.go,594.0,24.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_bpf.go,conversion-struct-bytes,serialization
 477,477,477,477,477,"	out.Resources = *(*[]string)(unsafe.Pointer(&in.Resources))
 ","}
 
@@ -5743,7 +5743,7 @@ func Convert_v1beta1_CustomResourceSubresourceScale_To_apiextensions_CustomResou
 	b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
 	return so.Set(c, b)
 }
-",22.0,36.0,489.0,unsafe.Pointer,sys_bpf.go,594.0,24.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200226121028-0de0cce0169b,grafana/loki,golang.org/x/net/ipv6/sys_bpf.go,conversion-struct-byteslice,serialization
+",22.0,36.0,489.0,unsafe.Pointer,sys_bpf.go,594.0,24.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200226121028-0de0cce0169b,grafana/loki,golang.org/x/net/ipv6/sys_bpf.go,conversion-struct-bytes,serialization
 484,484,484,484,484,"	out.ConversionReviewVersions = *(*[]string)(unsafe.Pointer(&in.ConversionReviewVersions))
 ","		}
 	} else {
@@ -5913,7 +5913,7 @@ func autoConvert_v1_FlexVolumeSource_To_core_FlexVolumeSource(in *v1.FlexVolumeS
 func (msg *Nfgenmsg) Serialize() []byte {
 	return (*(*[SizeofNfgenmsg]byte)(unsafe.Pointer(msg)))[:]
 }
-",216.0,34.0,4659.0,unsafe.Pointer,conntrack_linux.go,4720.0,217.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/conntrack_linux.go,conversion-struct-byteslice,serialization
+",216.0,34.0,4659.0,unsafe.Pointer,conntrack_linux.go,4720.0,217.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/conntrack_linux.go,conversion-struct-bytes,serialization
 499,499,499,499,499,"	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
 ","	*(*int8)(urv.ptr) = int8(f.d.d.DecodeInt(8))
 }
@@ -6021,7 +6021,7 @@ func Convert_v1_ProviderConfiguration_To_config_ProviderConfiguration(in *Provid
 
 // Convert_apiextensions_WebhookClientConfig_To_v1_WebhookClientConfig is an autogenerated conversion function.
 func Convert_apiextensions_WebhookClientConfig_To_v1_WebhookClientConfig(in *apiextensions.WebhookClientConfig, out *WebhookClientConfig, s conversion.Scope) error {
-",1267.0,27.0,63823.0,unsafe.Pointer,zz_generated.conversion.go,64267.0,1274.0,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1,k8s.io/apiextensions-apiserver,v0.18.3,cilium/cilium,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1/zz_generated.conversion.go,conversion-struct-byteslice,efficiency
+",1267.0,27.0,63823.0,unsafe.Pointer,zz_generated.conversion.go,64267.0,1274.0,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1,k8s.io/apiextensions-apiserver,v0.18.3,cilium/cilium,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1/zz_generated.conversion.go,conversion-struct-bytes,efficiency
 508,508,508,508,508,"	out.Monitors = *(*[]string)(unsafe.Pointer(&in.Monitors))
 ","	return autoConvert_v1_CephFSPersistentVolumeSource_To_core_CephFSPersistentVolumeSource(in, out, s)
 }
@@ -6079,7 +6079,7 @@ func autoConvert_core_CephFSPersistentVolumeSource_To_v1_CephFSPersistentVolumeS
 	}
 	return so.Set(c, b)
 }
-",49.0,36.0,1141.0,unsafe.Pointer,sys_ssmreq.go,1248.0,52.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_ssmreq.go,conversion-struct-byteslice,serialization
+",49.0,36.0,1141.0,unsafe.Pointer,sys_ssmreq.go,1248.0,52.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/ipv4/sys_ssmreq.go,conversion-struct-bytes,serialization
 513,513,513,513,513,"		encoder.stringEncoder.Encode(unsafe.Pointer(&str), stream)
 ","	if err != nil {
 		stream.Error = err
@@ -6364,7 +6364,7 @@ func (x *TcSkbEdit) Serialize() []byte {
 // struct tc_police {
 // 	__u32			index;
 // 	int			action;
-",783.0,35.0,14705.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",783.0,35.0,14705.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 537,537,537,537,537,"	out.StorageClassName = (*string)(unsafe.Pointer(in.StorageClassName))
 ","	if err := Convert_core_ResourceRequirements_To_v1_ResourceRequirements(&in.Resources, &out.Resources, s); err != nil {
 		return err
@@ -6400,7 +6400,7 @@ func (db *DB) pageInBuffer(b []byte, id pgid) *page {
 // meta retrieves the current meta page reference.
 func (db *DB) meta() *meta {
 	// We have to return the meta with the highest txid which doesn't fail
-",869.0,16.0,23663.0,unsafe.Pointer,db.go,31359.0,1140.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/db.go,conversion-struct-byteslice,efficiency
+",869.0,16.0,23663.0,unsafe.Pointer,db.go,31359.0,1140.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/db.go,conversion-struct-bytes,efficiency
 540,540,540,540,540,"	ptr := unsafe.Pointer(v.Pointer())
 ","	return
 }
@@ -6436,7 +6436,7 @@ func (r *reusableBuilder) unsafeString() string {
 func (r *reusableBuilder) reset() *bytes.Buffer {
 	r.Reset()
 	return &r.Buffer
-",71.0,19.0,1645.0,unsafe.Pointer,serialize.go,5963.0,238.0,sigs.k8s.io/structured-merge-diff/v3/fieldpath,sigs.k8s.io/structured-merge-diff/v3,v3.0.0,kubernetes/kubernetes,sigs.k8s.io/structured-merge-diff/v3/fieldpath/serialize.go,conversion-struct-byteslice,efficiency
+",71.0,19.0,1645.0,unsafe.Pointer,serialize.go,5963.0,238.0,sigs.k8s.io/structured-merge-diff/v3/fieldpath,sigs.k8s.io/structured-merge-diff/v3,v3.0.0,kubernetes/kubernetes,sigs.k8s.io/structured-merge-diff/v3/fieldpath/serialize.go,conversion-struct-bytes,efficiency
 543,543,543,543,543,"	out.Images = *(*[]v1.ContainerImage)(unsafe.Pointer(&in.Images))
 ","	}
 	if err := Convert_core_NodeSystemInfo_To_v1_NodeSystemInfo(&in.NodeInfo, &out.NodeInfo, s); err != nil {
@@ -6484,7 +6484,7 @@ func unsafeString(b []byte) string {
 func unsafeBytes(s string) []byte {
 	sh := *((*reflect.SliceHeader)(unsafe.Pointer(&s)))
 	return *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Cap}))
-",25.0,19.0,473.0,unsafe.Pointer,util.go,885.0,43.0,github.com/urso/diag/ctxfmt,github.com/urso/diag,v0.0.0-20200210123136-21b3cc8eb797,elastic/beats,github.com/urso/diag/ctxfmt/util.go,conversion-struct-byteslice,efficiency
+",25.0,19.0,473.0,unsafe.Pointer,util.go,885.0,43.0,github.com/urso/diag/ctxfmt,github.com/urso/diag,v0.0.0-20200210123136-21b3cc8eb797,elastic/beats,github.com/urso/diag/ctxfmt/util.go,conversion-struct-bytes,efficiency
 547,547,547,547,547,"	out.Used = *(*core.ResourceList)(unsafe.Pointer(&in.Used))
 ","}
 
@@ -6508,7 +6508,7 @@ func toBytes(s string) []byte {
 // toString performs unholy acts to avoid allocations
 func toString(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
-",235.0,19.0,7164.0,unsafe.Pointer,cached_token_authenticator.go,7334.0,241.0,k8s.io/apiserver/pkg/authentication/token/cache,k8s.io/apiserver,v0.18.0,rancher/rancher,k8s.io/apiserver/pkg/authentication/token/cache/cached_token_authenticator.go,conversion-struct-byteslice,efficiency
+",235.0,19.0,7164.0,unsafe.Pointer,cached_token_authenticator.go,7334.0,241.0,k8s.io/apiserver/pkg/authentication/token/cache,k8s.io/apiserver,v0.18.0,rancher/rancher,k8s.io/apiserver/pkg/authentication/token/cache/cached_token_authenticator.go,conversion-struct-bytes,efficiency
 549,549,549,549,549,"	info := (*SndRcvInfo)(unsafe.Pointer(&b[0]))
 ","func (c *SCTPSndRcvInfoWrappedConn) Write(b []byte) (int, error) {
 	if len(b) < int(sndRcvInfoSize) {
@@ -6520,7 +6520,7 @@ func toString(b []byte) string {
 }
 
 func (c *SCTPSndRcvInfoWrappedConn) Read(b []byte) (int, error) {
-",617.0,23.0,13486.0,unsafe.Pointer,sctp.go,14489.0,656.0,github.com/ishidawataru/sctp,github.com/ishidawataru/sctp,v0.0.0-20180213033435-07191f837fed,cilium/cilium,github.com/ishidawataru/sctp/sctp.go,conversion-struct-byteslice,serialization
+",617.0,23.0,13486.0,unsafe.Pointer,sctp.go,14489.0,656.0,github.com/ishidawataru/sctp,github.com/ishidawataru/sctp,v0.0.0-20180213033435-07191f837fed,cilium/cilium,github.com/ishidawataru/sctp/sctp.go,conversion-struct-bytes,serialization
 550,550,550,550,550,"	}, func(ptr unsafe.Pointer) bool {
 ","		} else {
 			cfg.ReturnIterator(iter)
@@ -6601,7 +6601,7 @@ func DeserializeVfRssQueryEn(b []byte) *VfRssQueryEn {
 func (msg *VfRssQueryEn) Serialize() []byte {
 	return (*(*[SizeofVfRssQueryEn]byte)(unsafe.Pointer(msg)))[:]
 }
-",412.0,24.0,8200.0,unsafe.Pointer,link_linux.go,12153.0,610.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-byteslice,serialization
+",412.0,24.0,8200.0,unsafe.Pointer,link_linux.go,12153.0,610.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-bytes,serialization
 557,557,557,557,557,"	out.DownwardAPI = (*core.DownwardAPIProjection)(unsafe.Pointer(in.DownwardAPI))
 ","}
 
@@ -6682,7 +6682,7 @@ func (encoder *structEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 func (codec *base64Codec) IsEmpty(ptr unsafe.Pointer) bool {
 	return len(*((*[]byte)(ptr))) == 0
 }
-",451.0,38.0,11054.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,rook/rook,github.com/json-iterator/go/reflect_native.go,conversion-struct-byteslice,generics
+",451.0,38.0,11054.0,unsafe.Pointer,reflect_native.go,11153.0,453.0,github.com/json-iterator/go,github.com/json-iterator/go,v1.1.8,rook/rook,github.com/json-iterator/go/reflect_native.go,conversion-struct-bytes,generics
 564,564,564,564,564,"	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
 ","	*(*int8)(urv.ptr) = int8(chkOvf.IntV(d.d.DecodeInt64(), 8))
 }
@@ -6718,7 +6718,7 @@ func (m *SortedMap) Get(key string) (value interface{}, ok bool) {
 func (m *SortedMap) Set(key string, value interface{}) {
 	m.trie.Set([]byte(key), value)
 }
-",17.0,30.0,323.0,unsafe.Pointer,map.go,1380.0,57.0,github.com/k-sone/critbitgo,github.com/k-sone/critbitgo,v1.2.0,weaveworks/scope,github.com/k-sone/critbitgo/map.go,conversion-struct-byteslice,efficiency
+",17.0,30.0,323.0,unsafe.Pointer,map.go,1380.0,57.0,github.com/k-sone/critbitgo,github.com/k-sone/critbitgo,v1.2.0,weaveworks/scope,github.com/k-sone/critbitgo/map.go,conversion-struct-bytes,efficiency
 567,567,567,567,567,"	out.ShortNames = *(*[]string)(unsafe.Pointer(&in.ShortNames))
 ","
 func autoConvert_v1beta1_CustomResourceDefinitionNames_To_apiextensions_CustomResourceDefinitionNames(in *CustomResourceDefinitionNames, out *apiextensions.CustomResourceDefinitionNames, s conversion.Scope) error {
@@ -6946,7 +6946,7 @@ func (x *TcNetemCorrupt) Serialize() []byte {
 // struct tc_tbf_qopt {
 //   struct tc_ratespec rate;
 //   struct tc_ratespec peakrate;
-",333.0,40.0,6450.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",333.0,40.0,6450.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 586,586,586,586,586,"	out.CABundle = *(*[]byte)(unsafe.Pointer(&in.CABundle))
 ","	}
 	out.Group = in.Group
@@ -6958,7 +6958,7 @@ func (x *TcNetemCorrupt) Serialize() []byte {
 	return nil
 }
 
-",217.0,27.0,10567.0,unsafe.Pointer,zz_generated.conversion.go,14807.0,298.0,k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1,k8s.io/kube-aggregator,v0.0.0,kubernetes/kubernetes,k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1/zz_generated.conversion.go,conversion-struct-byteslice,efficiency
+",217.0,27.0,10567.0,unsafe.Pointer,zz_generated.conversion.go,14807.0,298.0,k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1,k8s.io/kube-aggregator,v0.0.0,kubernetes/kubernetes,k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1/zz_generated.conversion.go,conversion-struct-bytes,efficiency
 587,587,587,587,587,"	n, _, errno := syscall.Syscall6(sysSENDMMSG, s, uintptr(unsafe.Pointer(&hs[0])), uintptr(len(hs)), uintptr(flags), 0, 0)
 ","	return int(n), errnoErr(errno)
 }
@@ -7183,7 +7183,7 @@ func i2rtid(i interface{}) uintptr {
 }
 
 // struct xfrm_algo_aead {
-",223.0,29.0,5117.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-byteslice,serialization
+",223.0,29.0,5117.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-bytes,serialization
 606,606,606,606,606,"func (encoder emptyArrayEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 ","func (encoder emptyArrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 	stream.WriteEmptyArray()
@@ -7303,7 +7303,7 @@ func (x *TcHtbGlob) Serialize() []byte {
 // HFSC
 
 type Curve struct {
-",423.0,35.0,8121.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",423.0,35.0,8121.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 616,616,616,616,616,"	return (*XfrmUserExpire)(unsafe.Pointer(&b[0:SizeofXfrmUserExpire][0]))
 ","	return SizeofXfrmUserExpire
 }
@@ -7315,7 +7315,7 @@ func DeserializeXfrmUserExpire(b []byte) *XfrmUserExpire {
 func (msg *XfrmUserExpire) Serialize() []byte {
 	return (*(*[SizeofXfrmUserExpire]byte)(unsafe.Pointer(msg)))[:]
 }
-",27.0,26.0,403.0,unsafe.Pointer,xfrm_monitor_linux.go,594.0,32.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_monitor_linux.go,conversion-struct-byteslice,serialization
+",27.0,26.0,403.0,unsafe.Pointer,xfrm_monitor_linux.go,594.0,32.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_monitor_linux.go,conversion-struct-bytes,serialization
 617,617,617,617,617,"func (encoder *lossyFloat32Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 ","
 type lossyFloat32Encoder struct {
@@ -7411,7 +7411,7 @@ func (x *TcHtbGlob) Serialize() []byte {
 // HFSC
 
 type Curve struct {
-",425.0,35.0,8200.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",425.0,35.0,8200.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 625,625,625,625,625,"func (encoder *directMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 ","		stream.Write(bytes)
 	}
@@ -7531,7 +7531,7 @@ type ArrayType interface {
 }
 
 func (so *sockOpt) setGroupSourceReq(c *socket.Conn, ifi *net.Interface, grp, src net.IP) error {
-",30.0,30.0,641.0,unsafe.Pointer,sys_ssmreq.go,1248.0,52.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/ipv4/sys_ssmreq.go,conversion-struct-byteslice,serialization
+",30.0,30.0,641.0,unsafe.Pointer,sys_ssmreq.go,1248.0,52.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/ipv4/sys_ssmreq.go,conversion-struct-bytes,serialization
 635,635,635,635,635,"	out.XListMapKeys = *(*[]string)(unsafe.Pointer(&in.XListMapKeys))
 ","	}
 	out.XPreserveUnknownFields = (*bool)(unsafe.Pointer(in.XPreserveUnknownFields))
@@ -7639,7 +7639,7 @@ func DeserializeXfrmLifetimeCfg(b []byte) *XfrmLifetimeCfg {
 func (msg *XfrmLifetimeCfg) Serialize() []byte {
 	return (*(*[SizeofXfrmLifetimeCfg]byte)(unsafe.Pointer(msg)))[:]
 }
-",231.0,27.0,5869.0,unsafe.Pointer,xfrm_linux.go,7388.0,304.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-byteslice,serialization
+",231.0,27.0,5869.0,unsafe.Pointer,xfrm_linux.go,7388.0,304.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-bytes,serialization
 644,644,644,644,644,"// 	return uintptr(((*unsafeIntf)(unsafe.Pointer(&rt))).word)
 ","// 	runtime.KeepAlive(v)
 // }
@@ -7675,7 +7675,7 @@ func (decoder *fiveFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterato
 func (so *sockOpt) setICMPFilter(c *socket.Conn, f *ICMPFilter) error {
 	b := (*[sizeofICMPv6Filter]byte)(unsafe.Pointer(f))[:sizeofICMPv6Filter]
 	return so.Set(c, b)
-",43.0,22.0,917.0,unsafe.Pointer,sockopt_posix.go,2199.0,89.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/ipv6/sockopt_posix.go,conversion-struct-byteslice,efficiency
+",43.0,22.0,917.0,unsafe.Pointer,sockopt_posix.go,2199.0,89.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/ipv6/sockopt_posix.go,conversion-struct-bytes,efficiency
 647,647,647,647,647,"	hdr := (*reflect.StringHeader)(unsafe.Pointer(&v))
 ","// This method is for implementing new key types, for type safety normal
 // access should be done with the From method of the key.
@@ -7699,7 +7699,7 @@ func DeserializeVfTxRate(b []byte) *VfTxRate {
 func (msg *VfTxRate) Serialize() []byte {
 	return (*(*[SizeofVfTxRate]byte)(unsafe.Pointer(msg)))[:]
 }
-",322.0,20.0,6426.0,unsafe.Pointer,link_linux.go,12313.0,618.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-byteslice,serialization
+",322.0,20.0,6426.0,unsafe.Pointer,link_linux.go,12313.0,618.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-bytes,serialization
 649,649,649,649,649,"func MapIterErrUnsafePointer(fn func(unsafe.Pointer) (unsafe.Pointer, error), a []unsafe.Pointer, ait Iterator) (err error) {
 ","	}
 	return
@@ -8455,7 +8455,7 @@ type emptyStructEncoder struct {
 
 // Convert_v1beta1_WebhookClientConfig_To_apiextensions_WebhookClientConfig is an autogenerated conversion function.
 func Convert_v1beta1_WebhookClientConfig_To_apiextensions_WebhookClientConfig(in *WebhookClientConfig, out *apiextensions.WebhookClientConfig, s conversion.Scope) error {
-",1300.0,27.0,67060.0,unsafe.Pointer,zz_generated.conversion.go,68451.0,1327.0,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1,k8s.io/apiextensions-apiserver,v0.18.0,rancher/rancher,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1/zz_generated.conversion.go,conversion-struct-byteslice,efficiency
+",1300.0,27.0,67060.0,unsafe.Pointer,zz_generated.conversion.go,68451.0,1327.0,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1,k8s.io/apiextensions-apiserver,v0.18.0,rancher/rancher,k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1/zz_generated.conversion.go,conversion-struct-bytes,efficiency
 712,712,712,712,712,"	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
 ","	*(*int32)(urv.ptr) = int32(chkOvf.IntV(d.d.DecodeInt64(), 32))
 }
@@ -8683,7 +8683,7 @@ func (msg *XfrmAlgoAuth) Serialize() []byte {
 	return b
 }
 
-",222.0,29.0,5051.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-byteslice,serialization
+",222.0,29.0,5051.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-bytes,serialization
 731,731,731,731,731,"	out.SecretRef = (*v1.SecretReference)(unsafe.Pointer(in.SecretRef))
 ","func autoConvert_core_CinderPersistentVolumeSource_To_v1_CinderPersistentVolumeSource(in *core.CinderPersistentVolumeSource, out *v1.CinderPersistentVolumeSource, s conversion.Scope) error {
 	out.VolumeID = in.VolumeID
@@ -8743,7 +8743,7 @@ func deserializeNdmsg(b []byte) *Ndmsg {
 func (msg *Ndmsg) Serialize() []byte {
 	return (*(*[unsafe.Sizeof(*msg)]byte)(unsafe.Pointer(msg)))[:]
 }
-",63.0,17.0,959.0,unsafe.Pointer,neigh_linux.go,11116.0,422.0,github.com/vishvananda/netlink,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/neigh_linux.go,conversion-struct-byteslice,serialization
+",63.0,17.0,959.0,unsafe.Pointer,neigh_linux.go,11116.0,422.0,github.com/vishvananda/netlink,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/neigh_linux.go,conversion-struct-bytes,serialization
 736,736,736,736,736,"		encoder.stringEncoder.Encode(unsafe.Pointer(&str), stream)
 ","	if err != nil {
 		stream.Error = err
@@ -8791,7 +8791,7 @@ func autoConvert_core_Secret_To_v1_Secret(in *core.Secret, out *v1.Secret, s con
 		b = d[:]
 	} else {
 		b = (*[sizeofGroupSourceReq]byte)(unsafe.Pointer(&gsr))[:sizeofGroupSourceReq]
-",46.0,37.0,1075.0,unsafe.Pointer,sys_ssmreq.go,1304.0,54.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200501053045-e0ff5e5a1de5,mattermost/mattermost-server,golang.org/x/net/ipv6/sys_ssmreq.go,conversion-struct-byteslice,serialization
+",46.0,37.0,1075.0,unsafe.Pointer,sys_ssmreq.go,1304.0,54.0,golang.org/x/net/ipv6,golang.org/x/net,v0.0.0-20200501053045-e0ff5e5a1de5,mattermost/mattermost-server,golang.org/x/net/ipv6/sys_ssmreq.go,conversion-struct-bytes,serialization
 740,740,740,740,740,"	return (*(*[SizeofXfrmUsersaInfo]byte)(unsafe.Pointer(msg)))[:]
 ","	return (*XfrmUsersaInfo)(unsafe.Pointer(&b[0:SizeofXfrmUsersaInfo][0]))
 }
@@ -8803,7 +8803,7 @@ func (msg *XfrmUsersaInfo) Serialize() []byte {
 // struct xfrm_userspi_info {
 // 	struct xfrm_usersa_info		info;
 // 	__u32				min;
-",133.0,40.0,2972.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-byteslice,serialization
+",133.0,40.0,2972.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-bytes,serialization
 741,741,741,741,741,"		Addrs:   uintptr(uintptr(unsafe.Pointer(&buf[0]))),
 ","func SCTPConnect(fd int, addr *SCTPAddr) (int, error) {
 	buf := addr.ToRawSockAddrBuf()
@@ -8875,7 +8875,7 @@ func (msg *XfrmUsersaInfo) Serialize() []byte {
 			nameLen := uint32(raw.Len)
 
 			if mask&unix.IN_Q_OVERFLOW != 0 {
-",244.0,31.0,6421.0,unsafe.Pointer,inotify.go,9452.0,337.0,gopkg.in/fsnotify.v1,gopkg.in/fsnotify.v1,v1.4.7,kubernetes/kubernetes,gopkg.in/fsnotify.v1/inotify.go,conversion-struct-byteslice,serialization
+",244.0,31.0,6421.0,unsafe.Pointer,inotify.go,9452.0,337.0,gopkg.in/fsnotify.v1,gopkg.in/fsnotify.v1,v1.4.7,kubernetes/kubernetes,gopkg.in/fsnotify.v1/inotify.go,conversion-struct-bytes,serialization
 747,747,747,747,747,"func Float32frombits(b uint32) float32 { return *(*float32)(unsafe.Pointer(&b)) }
 ","func Float32bits(f float32) uint32 { return *(*uint32)(unsafe.Pointer(&f)) }
 
@@ -8979,7 +8979,7 @@ type dereferenceDecoder struct {
 func (msg *XfrmMark) Serialize() []byte {
 	return (*(*[SizeofXfrmMark]byte)(unsafe.Pointer(msg)))[:]
 }
-",305.0,34.0,7369.0,unsafe.Pointer,xfrm_linux.go,7430.0,306.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-byteslice,serialization
+",305.0,34.0,7369.0,unsafe.Pointer,xfrm_linux.go,7430.0,306.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-bytes,serialization
 756,756,756,756,756,"	out.Timeout = (*metav1.Duration)(unsafe.Pointer(in.Timeout))
 ","func autoConvert_v1_KMSConfiguration_To_config_KMSConfiguration(in *KMSConfiguration, out *config.KMSConfiguration, s conversion.Scope) error {
 	out.Name = in.Name
@@ -9099,7 +9099,7 @@ func (h *msghdr) name() []byte {
 }
 
 func (h *msghdr) controllen() int {
-",25.0,38.0,529.0,unsafe.Pointer,msghdr_linux.go,740.0,36.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/internal/socket/msghdr_linux.go,conversion-struct-byteslice,serialization
+",25.0,38.0,529.0,unsafe.Pointer,msghdr_linux.go,740.0,36.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/internal/socket/msghdr_linux.go,conversion-struct-bytes,serialization
 766,766,766,766,766,"	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
 ","	e.e.EncodeBool(*(*bool)(v.ptr))
 }
@@ -9207,7 +9207,7 @@ func Convert_core_VolumeSource_To_v1_VolumeSource(in *core.VolumeSource, out *v1
 			}
 
 			event := newEvent(name, mask)
-",281.0,35.0,7670.0,unsafe.Pointer,inotify.go,9649.0,343.0,github.com/fsnotify/fsnotify,github.com/fsnotify/fsnotify,v1.4.7,elastic/beats,github.com/fsnotify/fsnotify/inotify.go,conversion-struct-byteslice,serialization
+",281.0,35.0,7670.0,unsafe.Pointer,inotify.go,9649.0,343.0,github.com/fsnotify/fsnotify,github.com/fsnotify/fsnotify,v1.4.7,elastic/beats,github.com/fsnotify/fsnotify/inotify.go,conversion-struct-bytes,serialization
 775,775,775,775,775,"	out.ControllerPublishSecretRef = (*v1.SecretReference)(unsafe.Pointer(in.ControllerPublishSecretRef))
 ","	out.VolumeHandle = in.VolumeHandle
 	out.ReadOnly = in.ReadOnly
@@ -9627,7 +9627,7 @@ func autoConvert_core_PodAffinity_To_v1_PodAffinity(in *core.PodAffinity, out *v
 
 	// Ignore file sync if flag is set on DB.
 	if !tx.db.NoSync || IgnoreNoSync {
-",536.0,31.0,14433.0,unsafe.Pointer,tx.go,19123.0,707.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/tx.go,conversion-struct-byteslice,efficiency
+",536.0,31.0,14433.0,unsafe.Pointer,tx.go,19123.0,707.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/tx.go,conversion-struct-bytes,efficiency
 810,810,810,810,810,"	out.Conditions = *(*[]apiregistration.APIServiceCondition)(unsafe.Pointer(&in.Conditions))
 ","	return autoConvert_apiregistration_APIServiceSpec_To_v1_APIServiceSpec(in, out, s)
 }
@@ -9781,7 +9781,7 @@ func yoloString(b []byte) string {
 // The constants are suffixed with the invalid \xff unicode rune to avoid collisions
 // with scraped metrics in the cache.
 const (
-",1247.0,20.0,33061.0,unsafe.Pointer,scrape.go,36975.0,1381.0,github.com/prometheus/prometheus/scrape,github.com/prometheus/prometheus,v1.8.2-0.20200213233353-b90be6f32a33,grafana/loki,github.com/prometheus/prometheus/scrape/scrape.go,conversion-struct-byteslice,efficiency
+",1247.0,20.0,33061.0,unsafe.Pointer,scrape.go,36975.0,1381.0,github.com/prometheus/prometheus/scrape,github.com/prometheus/prometheus,v1.8.2-0.20200213233353-b90be6f32a33,grafana/loki,github.com/prometheus/prometheus/scrape/scrape.go,conversion-struct-bytes,efficiency
 823,823,823,823,823,"	return (*(*[SizeofXfrmUserpolicyInfo]byte)(unsafe.Pointer(msg)))[:]
 ","	return (*XfrmUserpolicyInfo)(unsafe.Pointer(&b[0:SizeofXfrmUserpolicyInfo][0]))
 }
@@ -9793,7 +9793,7 @@ func (msg *XfrmUserpolicyInfo) Serialize() []byte {
 // struct xfrm_user_tmpl {
 //   struct xfrm_id    id;
 //   __u16     family;
-",78.0,44.0,1748.0,unsafe.Pointer,xfrm_policy_linux.go,2632.0,119.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_policy_linux.go,conversion-struct-byteslice,serialization
+",78.0,44.0,1748.0,unsafe.Pointer,xfrm_policy_linux.go,2632.0,119.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_policy_linux.go,conversion-struct-bytes,serialization
 824,824,824,824,824,"		return unsafe.Pointer(ptr), newUnfolderInt32()
 ","	case *map[string]int16:
 		return unsafe.Pointer(ptr), newUnfolderMapInt16()
@@ -9937,7 +9937,7 @@ func DeserializeXfrmUsersaInfo(b []byte) *XfrmUsersaInfo {
 func (msg *XfrmUsersaInfo) Serialize() []byte {
 	return (*(*[SizeofXfrmUsersaInfo]byte)(unsafe.Pointer(msg)))[:]
 }
-",129.0,26.0,2848.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-byteslice,serialization
+",129.0,26.0,2848.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-bytes,serialization
 836,836,836,836,836,"	out.Default = *(*v1.ResourceList)(unsafe.Pointer(&in.Default))
 ","func autoConvert_core_LimitRangeItem_To_v1_LimitRangeItem(in *core.LimitRangeItem, out *v1.LimitRangeItem, s conversion.Scope) error {
 	out.Type = v1.LimitType(in.Type)
@@ -9973,7 +9973,7 @@ func DeserializeXfrmUserTmpl(b []byte) *XfrmUserTmpl {
 func (msg *XfrmUserTmpl) Serialize() []byte {
 	return (*(*[SizeofXfrmUserTmpl]byte)(unsafe.Pointer(msg)))[:]
 }
-",114.0,24.0,2449.0,unsafe.Pointer,xfrm_policy_linux.go,2632.0,119.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_policy_linux.go,conversion-struct-byteslice,serialization
+",114.0,24.0,2449.0,unsafe.Pointer,xfrm_policy_linux.go,2632.0,119.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_policy_linux.go,conversion-struct-bytes,serialization
 839,839,839,839,839,"	out.NodePublishSecretRef = (*core.SecretReference)(unsafe.Pointer(in.NodePublishSecretRef))
 ","	out.FSType = in.FSType
 	out.VolumeAttributes = *(*map[string]string)(unsafe.Pointer(&in.VolumeAttributes))
@@ -10069,7 +10069,7 @@ func (n *leafPageElement) key() []byte {
 
 // value returns a byte slice of the node value.
 func (n *leafPageElement) value() []byte {
-",119.0,30.0,2869.0,unsafe.Pointer,page.go,4889.0,197.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/page.go,conversion-struct-byteslice,serialization
+",119.0,30.0,2869.0,unsafe.Pointer,page.go,4889.0,197.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/page.go,conversion-struct-bytes,serialization
 847,847,847,847,847,"	*(*unsafe.Pointer)(p.p) = q.p
 ","}
 
@@ -10356,7 +10356,7 @@ func pointerOfIface(v interface{}) pointer {
 func (so *sockOpt) setICMPFilter(c *socket.Conn, f *ICMPFilter) error {
 	b := (*[sizeofICMPFilter]byte)(unsafe.Pointer(f))[:sizeofICMPFilter]
 	return so.Set(c, b)
-",44.0,22.0,970.0,unsafe.Pointer,sockopt_posix.go,1761.0,71.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/ipv4/sockopt_posix.go,conversion-struct-byteslice,efficiency
+",44.0,22.0,970.0,unsafe.Pointer,sockopt_posix.go,1761.0,71.0,golang.org/x/net/ipv4,golang.org/x/net,v0.0.0-20200202094626-16171245cfb2,elastic/beats,golang.org/x/net/ipv4/sockopt_posix.go,conversion-struct-bytes,efficiency
 871,871,871,871,871,"	return (*(*[SizeofVfMac]byte)(unsafe.Pointer(msg)))[:]
 ","	return (*VfMac)(unsafe.Pointer(&b[0:SizeofVfMac][0]))
 }
@@ -10368,7 +10368,7 @@ func (msg *VfMac) Serialize() []byte {
 // struct ifla_vf_vlan {
 //   __u32 vf;
 //   __u32 vlan; /* 0 - 4095, 0 disables VLAN filter */
-",280.0,31.0,5648.0,unsafe.Pointer,link_linux.go,12313.0,618.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-byteslice,serialization
+",280.0,31.0,5648.0,unsafe.Pointer,link_linux.go,12313.0,618.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.1-0.20200210222539-bfba8e4149db,cilium/cilium,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-bytes,serialization
 872,872,872,872,872,"	var ptr unsafe.Pointer
 ","	// the source go stdlib reflect/value.go, and trims the implementation.
 
@@ -10392,7 +10392,7 @@ func (msg *VfMac) Serialize() []byte {
 		for i := range buf {
 			buf[i] = 0
 		}
-",555.0,31.0,14853.0,unsafe.Pointer,tx.go,19123.0,707.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/tx.go,conversion-struct-byteslice,serialization
+",555.0,31.0,14853.0,unsafe.Pointer,tx.go,19123.0,707.0,github.com/coreos/bbolt,github.com/coreos/bbolt,v1.3.1-coreos.6.0.20180318001526-af9db2027c98,elastic/beats,github.com/coreos/bbolt/tx.go,conversion-struct-bytes,serialization
 874,874,874,874,874,"func (*unfoldIgnoreObjPtr) initState(ctx *unfoldCtx, _ unsafe.Pointer) {
 ","func (*unfoldIgnoreObjValue) initState(ctx *unfoldCtx, _ reflect.Value) {
 	ctx.unfolder.push(_singletonunfolderIgnoreObj)
@@ -10512,7 +10512,7 @@ func (x *TcGen) Serialize() []byte {
 // #define tc_gen \
 //   __u32                 index; \
 //   __u32                 capab; \
-",600.0,31.0,11519.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",600.0,31.0,11519.0,unsafe.Pointer,tc_linux.go,16700.0,874.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 884,884,884,884,884,"	UnsafeMakeSlice(length int, cap int) unsafe.Pointer
 ","
 type SliceType interface {
@@ -10572,7 +10572,7 @@ func (x *XfrmAddress) Serialize() []byte {
 // struct xfrm_selector {
 //   xfrm_address_t  daddr;
 //   xfrm_address_t  saddr;
-",157.0,37.0,4138.0,unsafe.Pointer,xfrm_linux.go,7388.0,304.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-byteslice,serialization
+",157.0,37.0,4138.0,unsafe.Pointer,xfrm_linux.go,7388.0,304.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-bytes,serialization
 889,889,889,889,889,"	out.ExternalDocs = (*apiextensions.ExternalDocumentation)(unsafe.Pointer(in.ExternalDocs))
 ","		}
 	} else {
@@ -10773,7 +10773,7 @@ func (h *msghdr) setControl(b []byte) {
 	h.Control = (*byte)(unsafe.Pointer(&b[0]))
 	h.Controllen = uint64(len(b))
 }
-",22.0,21.0,434.0,unsafe.Pointer,msghdr_linux_64bit.go,511.0,24.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/msghdr_linux_64bit.go,conversion-struct-byteslice,layout-control
+",22.0,21.0,434.0,unsafe.Pointer,msghdr_linux_64bit.go,511.0,24.0,golang.org/x/net/internal/socket,golang.org/x/net,v0.0.0-20200324143707-d3edc9973b7e,kubernetes/kubernetes,golang.org/x/net/internal/socket/msghdr_linux_64bit.go,conversion-struct-bytes,layout-control
 906,906,906,906,906,"	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.u)
 ","}
 
@@ -10857,7 +10857,7 @@ func (msg *XfrmAlgoAEAD) Serialize() []byte {
 	return b
 }
 
-",258.0,29.0,5975.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-byteslice,serialization
+",258.0,29.0,5975.0,unsafe.Pointer,xfrm_state_linux.go,7847.0,334.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/xfrm_state_linux.go,conversion-struct-bytes,serialization
 913,913,913,913,913,"	out.HostPath = (*core.HostPathVolumeSource)(unsafe.Pointer(in.HostPath))
 ","	return autoConvert_core_VolumeProjection_To_v1_VolumeProjection(in, out, s)
 }
@@ -11001,7 +11001,7 @@ func DeserializeXfrmAddress(b []byte) *XfrmAddress {
 func (x *XfrmAddress) Serialize() []byte {
 	return (*(*[SizeofXfrmAddress]byte)(unsafe.Pointer(x)))[:]
 }
-",153.0,23.0,4025.0,unsafe.Pointer,xfrm_linux.go,7388.0,304.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-byteslice,serialization
+",153.0,23.0,4025.0,unsafe.Pointer,xfrm_linux.go,7388.0,304.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/xfrm_linux.go,conversion-struct-bytes,serialization
 925,925,925,925,925,"	out.SecurityContext = (*v1.SecurityContext)(unsafe.Pointer(in.SecurityContext))
 ","	out.Lifecycle = (*v1.Lifecycle)(unsafe.Pointer(in.Lifecycle))
 	out.TerminationMessagePath = in.TerminationMessagePath
@@ -11492,7 +11492,7 @@ func DeserializeTcNetemReorder(b []byte) *TcNetemReorder {
 func (x *TcNetemReorder) Serialize() []byte {
 	return (*(*[SizeofTcNetemReorder]byte)(unsafe.Pointer(x)))[:]
 }
-",305.0,26.0,5773.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",305.0,26.0,5773.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 966,966,966,966,966,"	out.Command = *(*[]string)(unsafe.Pointer(&in.Command))
 ","	return autoConvert_core_EventSource_To_v1_EventSource(in, out, s)
 }
@@ -11516,7 +11516,7 @@ func Convert_v1_ExecAction_To_core_ExecAction(in *v1.ExecAction, out *core.ExecA
 	copy(slot[idx:], slot[idx+1:])
 	seg.slotLens[slotId]--
 	seg.entryCount--
-",274.0,25.0,8406.0,unsafe.Pointer,segment.go,9495.0,326.0,github.com/coocood/freecache,github.com/coocood/freecache,v0.0.0-20150903053832-a27035d5537f,weaveworks/scope,github.com/coocood/freecache/segment.go,conversion-struct-byteslice,efficiency
+",274.0,25.0,8406.0,unsafe.Pointer,segment.go,9495.0,326.0,github.com/coocood/freecache,github.com/coocood/freecache,v0.0.0-20150903053832-a27035d5537f,weaveworks/scope,github.com/coocood/freecache/segment.go,conversion-struct-bytes,efficiency
 968,968,968,968,968,"	out.NotReadyAddresses = *(*[]v1.EndpointAddress)(unsafe.Pointer(&in.NotReadyAddresses))
 ","}
 
@@ -11564,7 +11564,7 @@ func (x *TcU32Key) Serialize() []byte {
 // struct tc_u32_sel {
 //   unsigned char   flags;
 //   unsigned char   offshift;
-",515.0,34.0,9734.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-byteslice,serialization
+",515.0,34.0,9734.0,unsafe.Pointer,tc_linux.go,15488.0,815.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.0.1-0.20190913165827-36d367fd76f9,weaveworks/scope,github.com/vishvananda/netlink/nl/tc_linux.go,conversion-struct-bytes,serialization
 972,972,972,972,972,"	meta := (*unix.PerfEventMmapPage)(unsafe.Pointer(&mmap[0]))
 ","	// This relies on the fact that we allocate an extra metadata page,
 	// and that the struct is smaller than an OS page.
@@ -11816,7 +11816,7 @@ func (msg *VfLinkState) Serialize() []byte {
 // struct ifla_vf_rss_query_en {
 //   __u32 vf;
 //   __u32 setting;
-",394.0,37.0,7876.0,unsafe.Pointer,link_linux.go,12153.0,610.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-byteslice,serialization
+",394.0,37.0,7876.0,unsafe.Pointer,link_linux.go,12153.0,610.0,github.com/vishvananda/netlink/nl,github.com/vishvananda/netlink,v1.1.0,kubernetes/kubernetes,github.com/vishvananda/netlink/nl/link_linux.go,conversion-struct-bytes,serialization
 993,993,993,993,993,"	out.UID = (*types.UID)(unsafe.Pointer(in.UID))
 ","	return autoConvert_v1_Preconditions_To_core_Preconditions(in, out, s)
 }
