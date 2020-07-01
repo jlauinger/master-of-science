@@ -114,7 +114,7 @@ def get_full_context(snippet):
             snippet.file_name)
 
     if not os.path.exists(file_path):
-        return "error getting full file: {}".format(file_path)
+        return "n/a"
 
     with open(file_path, "r") as f:
         content = f.readlines()
