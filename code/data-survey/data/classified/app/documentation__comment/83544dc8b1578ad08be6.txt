@@ -1,0 +1,48 @@
+Module: github.com/cilium/ebpf
+Version: v0.0.0-20191113100448-d9fb101ca1fb
+
+Package: github.com/cilium/ebpf
+File: ptr_64.go
+Line: 10
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): comment
+Label 2 (For what purpose?): documentation
+
+--------------------------------------------------------------
+Snippet line:
+
+// ptr wraps an unsafe.Pointer to be 64bit to
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+import (
+	"unsafe"
+)
+
+// ptr wraps an unsafe.Pointer to be 64bit to
+// conform to the syscall specification.
+type syscallPtr struct {
+	ptr unsafe.Pointer
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+// +build !386,!amd64p32,!arm,!mipsle,!mips64p32le
+// +build !armbe,!mips,!mips64p32
+
+package ebpf
+
+import (
+	"unsafe"
+)
+
+// ptr wraps an unsafe.Pointer to be 64bit to
+// conform to the syscall specification.
+type syscallPtr struct {
+	ptr unsafe.Pointer
+}
+

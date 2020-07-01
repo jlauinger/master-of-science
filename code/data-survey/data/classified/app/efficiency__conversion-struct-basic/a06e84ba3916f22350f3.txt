@@ -1,0 +1,35 @@
+Module: k8s.io/apiextensions-apiserver
+Version: v0.0.0
+
+Package: k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
+File: zz_generated.conversion.go
+Line: 1068
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): conversion-struct-basic
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+	out.XMapType = (*string)(unsafe.Pointer(in.XMapType))
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+	out.XEmbeddedResource = in.XEmbeddedResource
+	out.XIntOrString = in.XIntOrString
+	out.XListMapKeys = *(*[]string)(unsafe.Pointer(&in.XListMapKeys))
+	out.XListType = (*string)(unsafe.Pointer(in.XListType))
+	out.XMapType = (*string)(unsafe.Pointer(in.XMapType))
+	return nil
+}
+
+func autoConvert_v1_JSONSchemaPropsOrArray_To_apiextensions_JSONSchemaPropsOrArray(in *JSONSchemaPropsOrArray, out *apiextensions.JSONSchemaPropsOrArray, s conversion.Scope) error {
+	if in.Schema != nil {
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

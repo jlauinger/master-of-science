@@ -1,0 +1,35 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20200420163511-1957bb5e6d1f
+
+Package: golang.org/x/sys/unix
+File: zsyscall_linux_amd64.go
+Line: 1513
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): syscall
+Label 2 (For what purpose?): no-gc
+
+--------------------------------------------------------------
+Snippet line:
+
+	_, _, e1 := Syscall(SYS_UMOUNT2, uintptr(unsafe.Pointer(_p0)), uintptr(flags), 0)
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+	_p0, err = BytePtrFromString(target)
+	if err != nil {
+		return
+	}
+	_, _, e1 := Syscall(SYS_UMOUNT2, uintptr(unsafe.Pointer(_p0)), uintptr(flags), 0)
+	if e1 != 0 {
+		err = errnoErr(e1)
+	}
+	return
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+

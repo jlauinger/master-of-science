@@ -1,0 +1,235 @@
+Module: github.com/ugorji/go
+Version: v0.0.0-20180813092308-00b869d2f4a5
+
+Package: github.com/ugorji/go/codec
+File: helper_unsafe.go
+Line: 202
+
+Imported (possibly among others) by: hashicorp/terraform
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): inevitable
+
+--------------------------------------------------------------
+Snippet line:
+
+	xp := unsafe.Pointer(x)
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+}
+
+func (x *atomicTypeInfoSlice) store(p []rtid2ti) {
+	s := (*unsafeSlice)(unsafe.Pointer(&p))
+	xp := unsafe.Pointer(x)
+	atomic.StorePointer(&xp, unsafe.Pointer(&atomicTypeInfoSlice{l: s.Len, v: s.Data}))
+}
+
+// --------------------------
+func (d *Decoder) raw(f *codecFnInfo, rv reflect.Value) {
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+func i2rtid(i interface{}) uintptr {
+	return uintptr(((*unsafeIntf)(unsafe.Pointer(&i))).typ)
+}
+
+// --------------------------
+
+func isEmptyValue(v reflect.Value, tinfos *TypeInfos, deref, checkStruct bool) bool {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&v))
+	if urv.flag == 0 {
+		return true
+	}
+	switch v.Kind() {
+	case reflect.Invalid:
+		return true
+	case reflect.String:
+		return (*unsafeString)(urv.ptr).Len == 0
+	case reflect.Slice:
+		return (*unsafeSlice)(urv.ptr).Len == 0
+	case reflect.Bool:
+		return !*(*bool)(urv.ptr)
+	case reflect.Int:
+		return *(*int)(urv.ptr) == 0
+	case reflect.Int8:
+		return *(*int8)(urv.ptr) == 0
+	case reflect.Int16:
+		return *(*int16)(urv.ptr) == 0
+	case reflect.Int32:
+		return *(*int32)(urv.ptr) == 0
+	case reflect.Int64:
+		return *(*int64)(urv.ptr) == 0
+	case reflect.Uint:
+		return *(*uint)(urv.ptr) == 0
+	case reflect.Uint8:
+		return *(*uint8)(urv.ptr) == 0
+	case reflect.Uint16:
+		return *(*uint16)(urv.ptr) == 0
+	case reflect.Uint32:
+		return *(*uint32)(urv.ptr) == 0
+	case reflect.Uint64:
+		return *(*uint64)(urv.ptr) == 0
+	case reflect.Uintptr:
+		return *(*uintptr)(urv.ptr) == 0
+	case reflect.Float32:
+		return *(*float32)(urv.ptr) == 0
+	case reflect.Float64:
+		return *(*float64)(urv.ptr) == 0
+	case reflect.Interface:
+		isnil := urv.ptr == nil || *(*unsafe.Pointer)(urv.ptr) == nil
+		if deref {
+			if isnil {
+				return true
+			}
+			return isEmptyValue(v.Elem(), tinfos, deref, checkStruct)
+		}
+		return isnil
+	case reflect.Ptr:
+		// isnil := urv.ptr == nil (not sufficient, as a pointer value encodes the type)
+		isnil := urv.ptr == nil || *(*unsafe.Pointer)(urv.ptr) == nil
+		if deref {
+			if isnil {
+				return true
+			}
+			return isEmptyValue(v.Elem(), tinfos, deref, checkStruct)
+		}
+		return isnil
+	case reflect.Struct:
+		return isEmptyStruct(v, tinfos, deref, checkStruct)
+	case reflect.Map, reflect.Array, reflect.Chan:
+		return v.Len() == 0
+	}
+	return false
+}
+
+// --------------------------
+
+// atomicTypeInfoSlice contains length and pointer to the array for a slice.
+// It is expected to be 2 words.
+//
+// Previously, we atomically loaded and stored the length and array pointer separately,
+// which could lead to some races.
+// We now just atomically store and load the pointer to the value directly.
+
+type atomicTypeInfoSlice struct { // expected to be 2 words
+	l int            // length of the data array (must be first in struct, for 64-bit alignment necessary for 386)
+	v unsafe.Pointer // data array - Pointer (not uintptr) to maintain GC reference
+}
+
+func (x *atomicTypeInfoSlice) load() []rtid2ti {
+	xp := unsafe.Pointer(x)
+	x2 := *(*atomicTypeInfoSlice)(atomic.LoadPointer(&xp))
+	if x2.l == 0 {
+		return nil
+	}
+	return *(*[]rtid2ti)(unsafe.Pointer(&unsafeSlice{Data: x2.v, Len: x2.l, Cap: x2.l}))
+}
+
+func (x *atomicTypeInfoSlice) store(p []rtid2ti) {
+	s := (*unsafeSlice)(unsafe.Pointer(&p))
+	xp := unsafe.Pointer(x)
+	atomic.StorePointer(&xp, unsafe.Pointer(&atomicTypeInfoSlice{l: s.Len, v: s.Data}))
+}
+
+// --------------------------
+func (d *Decoder) raw(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*[]byte)(urv.ptr) = d.rawBytes()
+}
+
+func (d *Decoder) kString(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*string)(urv.ptr) = d.d.DecodeString()
+}
+
+func (d *Decoder) kBool(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*bool)(urv.ptr) = d.d.DecodeBool()
+}
+
+func (d *Decoder) kTime(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*time.Time)(urv.ptr) = d.d.DecodeTime()
+}
+
+func (d *Decoder) kFloat32(f *codecFnInfo, rv reflect.Value) {
+	fv := d.d.DecodeFloat64()
+	if chkOvf.Float32(fv) {
+		d.errorf("float32 overflow: %v", fv)
+	}
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*float32)(urv.ptr) = float32(fv)
+}
+
+func (d *Decoder) kFloat64(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*float64)(urv.ptr) = d.d.DecodeFloat64()
+}
+
+func (d *Decoder) kInt(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int)(urv.ptr) = int(chkOvf.IntV(d.d.DecodeInt64(), intBitsize))
+}
+
+func (d *Decoder) kInt8(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int8)(urv.ptr) = int8(chkOvf.IntV(d.d.DecodeInt64(), 8))
+}
+
+func (d *Decoder) kInt16(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int16)(urv.ptr) = int16(chkOvf.IntV(d.d.DecodeInt64(), 16))
+}
+
+func (d *Decoder) kInt32(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int32)(urv.ptr) = int32(chkOvf.IntV(d.d.DecodeInt64(), 32))
+}
+
+func (d *Decoder) kInt64(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int64)(urv.ptr) = d.d.DecodeInt64()
+}
+
+func (d *Decoder) kUint(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*uint)(urv.ptr) = uint(chkOvf.UintV(d.d.DecodeUint64(), uintBitsize))
+}
+
+func (d *Decoder) kUintptr(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*uintptr)(urv.ptr) = uintptr(chkOvf.UintV(d.d.DecodeUint64(), uintBitsize))
+}
+
+func (d *Decoder) kUint8(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*uint8)(urv.ptr) = uint8(chkOvf.UintV(d.d.DecodeUint64(), 8))
+}
+
+func (d *Decoder) kUint16(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*uint16)(urv.ptr) = uint16(chkOvf.UintV(d.d.DecodeUint64(), 16))
+}
+
+func (d *Decoder) kUint32(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*uint32)(urv.ptr) = uint32(chkOvf.UintV(d.d.DecodeUint64(), 32))
+}
+
+func (d *Decoder) kUint64(f *codecFnInfo, rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*uint64)(urv.ptr) = d.d.DecodeUint64()
+}
+
+// ------------
+
+func (e *Encoder) kBool(f *codecFnInfo, rv reflect.Value) {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	e.e.EncodeBool(*(*bool)(v.ptr))
+}
+
+

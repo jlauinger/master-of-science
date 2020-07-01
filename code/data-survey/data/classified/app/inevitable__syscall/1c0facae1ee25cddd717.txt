@@ -1,0 +1,32 @@
+Module: github.com/docker/docker
+Version: v1.4.2-0.20170802015333-8af4db6f002a
+
+Package: github.com/docker/docker/pkg/term
+File: tc.go
+Line: 18
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): syscall
+Label 2 (For what purpose?): inevitable
+
+--------------------------------------------------------------
+Snippet line:
+
+	_, _, err := unix.Syscall(unix.SYS_IOCTL, fd, setTermios, uintptr(unsafe.Pointer(p)))
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return err
+}
+
+func tcset(fd uintptr, p *Termios) syscall.Errno {
+	_, _, err := unix.Syscall(unix.SYS_IOCTL, fd, setTermios, uintptr(unsafe.Pointer(p)))
+	return err
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

@@ -1,0 +1,35 @@
+Module: k8s.io/apiextensions-apiserver
+Version: v0.0.0
+
+Package: k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
+File: zz_generated.conversion.go
+Line: 1209
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): conversion-struct-basic
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+	out.Path = (*string)(unsafe.Pointer(in.Path))
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func autoConvert_v1_ServiceReference_To_apiextensions_ServiceReference(in *ServiceReference, out *apiextensions.ServiceReference, s conversion.Scope) error {
+	out.Namespace = in.Namespace
+	out.Name = in.Name
+	out.Path = (*string)(unsafe.Pointer(in.Path))
+	if err := metav1.Convert_Pointer_int32_To_int32(&in.Port, &out.Port, s); err != nil {
+		return err
+	}
+	return nil
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

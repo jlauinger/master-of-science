@@ -1,0 +1,35 @@
+Module: k8s.io/apiserver
+Version: v0.0.0
+
+Package: k8s.io/apiserver/pkg/apis/audit/v1beta1
+File: zz_generated.conversion.go
+Line: 152
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): conversion-struct-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+	out.Annotations = *(*map[string]string)(unsafe.Pointer(&in.Annotations))
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+	out.RequestObject = (*runtime.Unknown)(unsafe.Pointer(in.RequestObject))
+	out.ResponseObject = (*runtime.Unknown)(unsafe.Pointer(in.ResponseObject))
+	out.RequestReceivedTimestamp = in.RequestReceivedTimestamp
+	out.StageTimestamp = in.StageTimestamp
+	out.Annotations = *(*map[string]string)(unsafe.Pointer(&in.Annotations))
+	return nil
+}
+
+func autoConvert_v1beta1_EventList_To_audit_EventList(in *EventList, out *audit.EventList, s conversion.Scope) error {
+	out.ListMeta = in.ListMeta
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

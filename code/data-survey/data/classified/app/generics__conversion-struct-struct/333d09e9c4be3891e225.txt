@@ -1,0 +1,235 @@
+Module: github.com/ugorji/go/codec
+Version: v1.1.7
+
+Package: github.com/ugorji/go/codec
+File: helper_unsafe.go
+Line: 616
+
+Imported (possibly among others) by: grafana/loki
+
+Label 1 (What is happening?): conversion-struct-struct
+Label 2 (For what purpose?): generics
+
+--------------------------------------------------------------
+Snippet line:
+
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return *(*uint)(v.ptr)
+}
+
+func rvGetUint8(rv reflect.Value) uint8 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*uint8)(v.ptr)
+}
+
+func rvGetUint16(rv reflect.Value) uint16 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+	uv := (*unsafeReflectValue)(unsafe.Pointer(&v))
+	uv.flag = uintptr(reflect.Array) | unsafeFlagIndir | unsafeFlagAddr
+	uv.typ = ((*unsafeIntf)(unsafe.Pointer(&t))).word
+
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	uv.ptr = *(*unsafe.Pointer)(urv.ptr) // slice rv has a ptr to the slice.
+
+	return
+}
+
+func rvGetSlice4Array(rv reflect.Value, tslice reflect.Type) (v reflect.Value) {
+	uv := (*unsafeReflectValue)(unsafe.Pointer(&v))
+
+	var x []unsafe.Pointer
+
+	uv.ptr = unsafe.Pointer(&x)
+	uv.typ = ((*unsafeIntf)(unsafe.Pointer(&tslice))).word
+	uv.flag = unsafeFlagIndir | uintptr(reflect.Slice)
+
+	s := (*unsafeSlice)(uv.ptr)
+	s.Data = ((*unsafeReflectValue)(unsafe.Pointer(&rv))).ptr
+	s.Len = rv.Len()
+	s.Cap = s.Len
+	return
+}
+
+func rvCopySlice(dest, src reflect.Value) {
+	t := dest.Type().Elem()
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&dest))
+	destPtr := urv.ptr
+	urv = (*unsafeReflectValue)(unsafe.Pointer(&src))
+	typedslicecopy((*unsafeIntf)(unsafe.Pointer(&t)).word,
+		*(*unsafeSlice)(destPtr), *(*unsafeSlice)(urv.ptr))
+}
+
+// ------------
+
+func rvGetBool(rv reflect.Value) bool {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*bool)(v.ptr)
+}
+
+func rvGetBytes(rv reflect.Value) []byte {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*[]byte)(v.ptr)
+}
+
+func rvGetTime(rv reflect.Value) time.Time {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*time.Time)(v.ptr)
+}
+
+func rvGetString(rv reflect.Value) string {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*string)(v.ptr)
+}
+
+func rvGetFloat64(rv reflect.Value) float64 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*float64)(v.ptr)
+}
+
+func rvGetFloat32(rv reflect.Value) float32 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*float32)(v.ptr)
+}
+
+func rvGetInt(rv reflect.Value) int {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*int)(v.ptr)
+}
+
+func rvGetInt8(rv reflect.Value) int8 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*int8)(v.ptr)
+}
+
+func rvGetInt16(rv reflect.Value) int16 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*int16)(v.ptr)
+}
+
+func rvGetInt32(rv reflect.Value) int32 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*int32)(v.ptr)
+}
+
+func rvGetInt64(rv reflect.Value) int64 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*int64)(v.ptr)
+}
+
+func rvGetUint(rv reflect.Value) uint {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*uint)(v.ptr)
+}
+
+func rvGetUint8(rv reflect.Value) uint8 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*uint8)(v.ptr)
+}
+
+func rvGetUint16(rv reflect.Value) uint16 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*uint16)(v.ptr)
+}
+
+func rvGetUint32(rv reflect.Value) uint32 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*uint32)(v.ptr)
+}
+
+func rvGetUint64(rv reflect.Value) uint64 {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*uint64)(v.ptr)
+}
+
+func rvGetUintptr(rv reflect.Value) uintptr {
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*uintptr)(v.ptr)
+}
+
+// ------------ map range and map indexing ----------
+
+// regular calls to map via reflection: MapKeys, MapIndex, MapRange/MapIter etc
+// will always allocate for each map key or value.
+//
+// It is more performant to provide a value that the map entry is set into,
+// and that elides the allocation.
+
+// unsafeMapHashIter
+//
+// go 1.4+ has runtime/hashmap.go or runtime/map.go which has a
+// hIter struct with the first 2 values being key and value
+// of the current iteration.
+//
+// This *hIter is passed to mapiterinit, mapiternext, mapiterkey, mapiterelem.
+// We bypass the reflect wrapper functions and just use the *hIter directly.
+//
+// Though *hIter has many fields, we only care about the first 2.
+type unsafeMapHashIter struct {
+	key, value unsafe.Pointer
+	// other fields are ignored
+}
+
+type mapIter struct {
+	unsafeMapIter
+}
+
+type unsafeMapIter struct {
+	it *unsafeMapHashIter
+	// k, v             reflect.Value
+	mtyp, ktyp, vtyp unsafe.Pointer
+	mptr, kptr, vptr unsafe.Pointer
+	kisref, visref   bool
+	mapvalues        bool
+	done             bool
+	started          bool
+	// _ [2]uint64 // padding (cache-aligned)
+}
+
+func (t *unsafeMapIter) ValidKV() (r bool) {
+	return false
+}
+
+func (t *unsafeMapIter) Next() (r bool) {
+	if t == nil || t.done {
+		return
+	}
+	if t.started {
+		mapiternext((unsafe.Pointer)(t.it))
+	} else {
+		t.started = true
+	}
+
+	t.done = t.it.key == nil
+	if t.done {
+		return
+	}
+	unsafeMapSet(t.kptr, t.ktyp, t.it.key, t.kisref)
+	if t.mapvalues {
+		unsafeMapSet(t.vptr, t.vtyp, t.it.value, t.visref)
+	}
+	return true
+}
+
+func (t *unsafeMapIter) Key() (r reflect.Value) {
+	return
+}
+
+func (t *unsafeMapIter) Value() (r reflect.Value) {
+	return
+}
+
+func (t *unsafeMapIter) Done() {
+}
+
+func unsafeMapSet(p, ptyp, p2 unsafe.Pointer, isref bool) {
+	if isref {
+

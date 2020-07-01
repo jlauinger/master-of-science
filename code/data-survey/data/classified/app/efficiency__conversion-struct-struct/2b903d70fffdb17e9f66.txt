@@ -1,0 +1,35 @@
+Module: github.com/Azure/azure-storage-blob-go
+Version: v0.8.0
+
+Package: github.com/Azure/azure-storage-blob-go/azblob
+File: zz_generated_models.go
+Line: 666
+
+Imported (possibly among others) by: grafana/loki
+
+Label 1 (What is happening?): conversion-struct-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+	ap2 := (*accessPolicy)(unsafe.Pointer(&ap))
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+}
+
+// MarshalXML implements the xml.Marshaler interface for AccessPolicy.
+func (ap AccessPolicy) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	ap2 := (*accessPolicy)(unsafe.Pointer(&ap))
+	return e.EncodeElement(*ap2, start)
+}
+
+// UnmarshalXML implements the xml.Unmarshaler interface for AccessPolicy.
+func (ap *AccessPolicy) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

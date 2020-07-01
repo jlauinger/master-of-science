@@ -1,0 +1,235 @@
+Module: github.com/ugorji/go/codec
+Version: v1.1.7
+
+Package: github.com/ugorji/go/codec
+File: helper_unsafe.go
+Line: 154
+
+Imported (possibly among others) by: grafana/loki
+
+Label 1 (What is happening?): conversion-struct-struct
+Label 2 (For what purpose?): generics
+
+--------------------------------------------------------------
+Snippet line:
+
+	urv.typ = ((*unsafeIntf)(unsafe.Pointer(&t))).word
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+func rvConvert(v reflect.Value, t reflect.Type) (rv reflect.Value) {
+	uv := (*unsafeReflectValue)(unsafe.Pointer(&v))
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*urv = *uv
+	urv.typ = ((*unsafeIntf)(unsafe.Pointer(&t))).word
+	return
+}
+
+func rt2id(rt reflect.Type) uintptr {
+	return uintptr(((*unsafeIntf)(unsafe.Pointer(&rt))).word)
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+	typ  unsafe.Pointer
+	ptr  unsafe.Pointer
+	flag uintptr
+}
+
+func stringView(v []byte) string {
+	if len(v) == 0 {
+		return ""
+	}
+	bx := (*unsafeSlice)(unsafe.Pointer(&v))
+	return *(*string)(unsafe.Pointer(&unsafeString{bx.Data, bx.Len}))
+}
+
+func bytesView(v string) []byte {
+	if len(v) == 0 {
+		return zeroByteSlice
+	}
+	sx := (*unsafeString)(unsafe.Pointer(&v))
+	return *(*[]byte)(unsafe.Pointer(&unsafeSlice{sx.Data, sx.Len, sx.Len}))
+}
+
+// // isNilRef says whether the interface is a nil reference or not.
+// //
+// // A reference here is a pointer-sized reference i.e. map, ptr, chan, func, unsafepointer.
+// // It is optional to extend this to also check if slices or interfaces are nil also.
+// //
+// // NOTE: There is no global way of checking if an interface is nil.
+// // For true references (map, ptr, func, chan), you can just look
+// // at the word of the interface.
+// // However, for slices, you have to dereference
+// // the word, and get a pointer to the 3-word interface value.
+// func isNilRef(v interface{}) (rv reflect.Value, isnil bool) {
+// 	isnil = ((*unsafeIntf)(unsafe.Pointer(&v))).word == nil
+// 	return
+// }
+
+func isNil(v interface{}) (rv reflect.Value, isnil bool) {
+	var ui = (*unsafeIntf)(unsafe.Pointer(&v))
+	if ui.word == nil {
+		isnil = true
+		return
+	}
+	rv = rv4i(v) // reflect.value is cheap and inline'able
+	tk := rv.Kind()
+	isnil = (tk == reflect.Interface || tk == reflect.Slice) && *(*unsafe.Pointer)(ui.word) == nil
+	return
+}
+
+func rv2ptr(urv *unsafeReflectValue) (ptr unsafe.Pointer) {
+	// true references (map, func, chan, ptr - NOT slice) may be double-referenced? as flagIndir
+	if refBitset.isset(byte(urv.flag&unsafeFlagKindMask)) && urv.flag&unsafeFlagIndir != 0 {
+		ptr = *(*unsafe.Pointer)(urv.ptr)
+	} else {
+		ptr = urv.ptr
+	}
+	return
+}
+
+func rv4i(i interface{}) (rv reflect.Value) {
+	// Unfortunately, we cannot get the "kind" of the interface directly here.
+	// We need the 'rtype', whose structure changes in different go versions.
+	// Finally, it's not clear that there is benefit to reimplementing it,
+	// as the "escapes(i)" is not clearly expensive since we want i to exist on the heap.
+
+	return reflect.ValueOf(i)
+}
+
+func rv2i(rv reflect.Value) interface{} {
+	// We tap into implememtation details from
+	// the source go stdlib reflect/value.go, and trims the implementation.
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	return *(*interface{})(unsafe.Pointer(&unsafeIntf{typ: urv.typ, word: rv2ptr(urv)}))
+}
+
+func rvIsNil(rv reflect.Value) bool {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	if urv.flag&unsafeFlagIndir != 0 {
+		return *(*unsafe.Pointer)(urv.ptr) == nil
+	}
+	return urv.ptr == nil
+}
+
+func rvSetSliceLen(rv reflect.Value, length int) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	(*unsafeString)(urv.ptr).Len = length
+}
+
+func rvZeroAddrK(t reflect.Type, k reflect.Kind) (rv reflect.Value) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	urv.flag = uintptr(k) | unsafeFlagIndir | unsafeFlagAddr
+	urv.typ = ((*unsafeIntf)(unsafe.Pointer(&t))).word
+	urv.ptr = unsafe_New(urv.typ)
+	return
+}
+
+func rvConvert(v reflect.Value, t reflect.Type) (rv reflect.Value) {
+	uv := (*unsafeReflectValue)(unsafe.Pointer(&v))
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*urv = *uv
+	urv.typ = ((*unsafeIntf)(unsafe.Pointer(&t))).word
+	return
+}
+
+func rt2id(rt reflect.Type) uintptr {
+	return uintptr(((*unsafeIntf)(unsafe.Pointer(&rt))).word)
+}
+
+func i2rtid(i interface{}) uintptr {
+	return uintptr(((*unsafeIntf)(unsafe.Pointer(&i))).typ)
+}
+
+// --------------------------
+
+func isEmptyValue(v reflect.Value, tinfos *TypeInfos, deref, checkStruct bool) bool {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&v))
+	if urv.flag == 0 {
+		return true
+	}
+	switch v.Kind() {
+	case reflect.Invalid:
+		return true
+	case reflect.String:
+		return (*unsafeString)(urv.ptr).Len == 0
+	case reflect.Slice:
+		return (*unsafeSlice)(urv.ptr).Len == 0
+	case reflect.Bool:
+		return !*(*bool)(urv.ptr)
+	case reflect.Int:
+		return *(*int)(urv.ptr) == 0
+	case reflect.Int8:
+		return *(*int8)(urv.ptr) == 0
+	case reflect.Int16:
+		return *(*int16)(urv.ptr) == 0
+	case reflect.Int32:
+		return *(*int32)(urv.ptr) == 0
+	case reflect.Int64:
+		return *(*int64)(urv.ptr) == 0
+	case reflect.Uint:
+		return *(*uint)(urv.ptr) == 0
+	case reflect.Uint8:
+		return *(*uint8)(urv.ptr) == 0
+	case reflect.Uint16:
+		return *(*uint16)(urv.ptr) == 0
+	case reflect.Uint32:
+		return *(*uint32)(urv.ptr) == 0
+	case reflect.Uint64:
+		return *(*uint64)(urv.ptr) == 0
+	case reflect.Uintptr:
+		return *(*uintptr)(urv.ptr) == 0
+	case reflect.Float32:
+		return *(*float32)(urv.ptr) == 0
+	case reflect.Float64:
+		return *(*float64)(urv.ptr) == 0
+	case reflect.Interface:
+		isnil := urv.ptr == nil || *(*unsafe.Pointer)(urv.ptr) == nil
+		if deref {
+			if isnil {
+				return true
+			}
+			return isEmptyValue(v.Elem(), tinfos, deref, checkStruct)
+		}
+		return isnil
+	case reflect.Ptr:
+		// isnil := urv.ptr == nil // (not sufficient, as a pointer value encodes the type)
+		isnil := urv.ptr == nil || *(*unsafe.Pointer)(urv.ptr) == nil
+		if deref {
+			if isnil {
+				return true
+			}
+			return isEmptyValue(v.Elem(), tinfos, deref, checkStruct)
+		}
+		return isnil
+	case reflect.Struct:
+		return isEmptyStruct(v, tinfos, deref, checkStruct)
+	case reflect.Map, reflect.Array, reflect.Chan:
+		return v.Len() == 0
+	}
+	return false
+}
+
+// --------------------------
+
+// atomicXXX is expected to be 2 words (for symmetry with atomic.Value)
+//
+// Note that we do not atomically load/store length and data pointer separately,
+// as this could lead to some races. Instead, we atomically load/store cappedSlice.
+//
+// Note: with atomic.(Load|Store)Pointer, we MUST work with an unsafe.Pointer directly.
+
+// ----------------------
+type atomicTypeInfoSlice struct {
+	v unsafe.Pointer // *[]rtid2ti
+	_ uint64         // padding (atomicXXX expected to be 2 words)
+}
+
+func (x *atomicTypeInfoSlice) load() (s []rtid2ti) {
+	x2 := atomic.LoadPointer(&x.v)
+	if x2 != nil {
+		s = *(*[]rtid2ti)(x2)
+	}
+

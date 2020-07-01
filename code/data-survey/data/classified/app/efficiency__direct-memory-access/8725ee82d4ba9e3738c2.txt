@@ -1,0 +1,235 @@
+Module: github.com/ugorji/go/codec
+Version: v1.1.7
+
+Package: github.com/ugorji/go/codec
+File: helper_unsafe.go
+Line: 336
+
+Imported (possibly among others) by: grafana/loki
+
+Label 1 (What is happening?): direct-memory-access
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.i)
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return
+}
+func (n *decNaked) ri() (v reflect.Value) {
+	v = defUnsafeDecNakedWrapper.ri
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.i)
+	return
+}
+func (n *decNaked) rf() (v reflect.Value) {
+	v = defUnsafeDecNakedWrapper.rf
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.f)
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+// atomicXXX is expected to be 2 words (for symmetry with atomic.Value)
+//
+// Note that we do not atomically load/store length and data pointer separately,
+// as this could lead to some races. Instead, we atomically load/store cappedSlice.
+//
+// Note: with atomic.(Load|Store)Pointer, we MUST work with an unsafe.Pointer directly.
+
+// ----------------------
+type atomicTypeInfoSlice struct {
+	v unsafe.Pointer // *[]rtid2ti
+	_ uint64         // padding (atomicXXX expected to be 2 words)
+}
+
+func (x *atomicTypeInfoSlice) load() (s []rtid2ti) {
+	x2 := atomic.LoadPointer(&x.v)
+	if x2 != nil {
+		s = *(*[]rtid2ti)(x2)
+	}
+	return
+}
+
+func (x *atomicTypeInfoSlice) store(p []rtid2ti) {
+	atomic.StorePointer(&x.v, unsafe.Pointer(&p))
+}
+
+// --------------------------
+type atomicRtidFnSlice struct {
+	v unsafe.Pointer // *[]codecRtidFn
+	_ uint64         // padding (atomicXXX expected to be 2 words) (make 1 word so JsonHandle fits)
+}
+
+func (x *atomicRtidFnSlice) load() (s []codecRtidFn) {
+	x2 := atomic.LoadPointer(&x.v)
+	if x2 != nil {
+		s = *(*[]codecRtidFn)(x2)
+	}
+	return
+}
+
+func (x *atomicRtidFnSlice) store(p []codecRtidFn) {
+	atomic.StorePointer(&x.v, unsafe.Pointer(&p))
+}
+
+// --------------------------
+type atomicClsErr struct {
+	v unsafe.Pointer // *clsErr
+	_ uint64         // padding (atomicXXX expected to be 2 words)
+}
+
+func (x *atomicClsErr) load() (e clsErr) {
+	x2 := (*clsErr)(atomic.LoadPointer(&x.v))
+	if x2 != nil {
+		e = *x2
+	}
+	return
+}
+
+func (x *atomicClsErr) store(p clsErr) {
+	atomic.StorePointer(&x.v, unsafe.Pointer(&p))
+}
+
+// --------------------------
+
+// to create a reflect.Value for each member field of decNaked,
+// we first create a global decNaked, and create reflect.Value
+// for them all.
+// This way, we have the flags and type in the reflect.Value.
+// Then, when a reflect.Value is called, we just copy it,
+// update the ptr to the decNaked's, and return it.
+
+type unsafeDecNakedWrapper struct {
+	decNaked
+	ru, ri, rf, rl, rs, rb, rt reflect.Value // mapping to the primitives above
+}
+
+func (n *unsafeDecNakedWrapper) init() {
+	n.ru = rv4i(&n.u).Elem()
+	n.ri = rv4i(&n.i).Elem()
+	n.rf = rv4i(&n.f).Elem()
+	n.rl = rv4i(&n.l).Elem()
+	n.rs = rv4i(&n.s).Elem()
+	n.rt = rv4i(&n.t).Elem()
+	n.rb = rv4i(&n.b).Elem()
+	// n.rr[] = rv4i(&n.)
+}
+
+var defUnsafeDecNakedWrapper unsafeDecNakedWrapper
+
+func init() {
+	defUnsafeDecNakedWrapper.init()
+}
+
+func (n *decNaked) ru() (v reflect.Value) {
+	v = defUnsafeDecNakedWrapper.ru
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.u)
+	return
+}
+func (n *decNaked) ri() (v reflect.Value) {
+	v = defUnsafeDecNakedWrapper.ri
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.i)
+	return
+}
+func (n *decNaked) rf() (v reflect.Value) {
+	v = defUnsafeDecNakedWrapper.rf
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.f)
+	return
+}
+func (n *decNaked) rl() (v reflect.Value) {
+	v = defUnsafeDecNakedWrapper.rl
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.l)
+	return
+}
+func (n *decNaked) rs() (v reflect.Value) {
+	v = defUnsafeDecNakedWrapper.rs
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.s)
+	return
+}
+func (n *decNaked) rt() (v reflect.Value) {
+	v = defUnsafeDecNakedWrapper.rt
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.t)
+	return
+}
+func (n *decNaked) rb() (v reflect.Value) {
+	v = defUnsafeDecNakedWrapper.rb
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.b)
+	return
+}
+
+// --------------------------
+func rvSetBytes(rv reflect.Value, v []byte) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*[]byte)(urv.ptr) = v
+}
+
+func rvSetString(rv reflect.Value, v string) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*string)(urv.ptr) = v
+}
+
+func rvSetBool(rv reflect.Value, v bool) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*bool)(urv.ptr) = v
+}
+
+func rvSetTime(rv reflect.Value, v time.Time) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*time.Time)(urv.ptr) = v
+}
+
+func rvSetFloat32(rv reflect.Value, v float32) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*float32)(urv.ptr) = v
+}
+
+func rvSetFloat64(rv reflect.Value, v float64) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*float64)(urv.ptr) = v
+}
+
+func rvSetInt(rv reflect.Value, v int) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int)(urv.ptr) = v
+}
+
+func rvSetInt8(rv reflect.Value, v int8) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int8)(urv.ptr) = v
+}
+
+func rvSetInt16(rv reflect.Value, v int16) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int16)(urv.ptr) = v
+}
+
+func rvSetInt32(rv reflect.Value, v int32) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int32)(urv.ptr) = v
+}
+
+func rvSetInt64(rv reflect.Value, v int64) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*int64)(urv.ptr) = v
+}
+
+func rvSetUint(rv reflect.Value, v uint) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*uint)(urv.ptr) = v
+}
+
+func rvSetUintptr(rv reflect.Value, v uintptr) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*uintptr)(urv.ptr) = v
+}
+
+func rvSetUint8(rv reflect.Value, v uint8) {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	*(*uint8)(urv.ptr) = v
+}
+
+func rvSetUint16(rv reflect.Value, v uint16) {
+

@@ -1,0 +1,205 @@
+Module: github.com/aliyun/alibaba-cloud-sdk-go
+Version: v0.0.0-20190329064014-6e358769c32a
+
+Package: github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses
+File: json_parser.go
+Line: 262
+
+Imported (possibly among others) by: hashicorp/terraform
+
+Label 1 (What is happening?): conversion-struct-basic
+Label 2 (For what purpose?): generics
+
+--------------------------------------------------------------
+Snippet line:
+
+func (decoder *nullableFuzzyFloat32Decoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+type nullableFuzzyFloat32Decoder struct {
+}
+
+func (decoder *nullableFuzzyFloat32Decoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	var str string
+	switch valueType {
+	case jsoniter.NumberValue:
+		*((*float32)(ptr)) = iter.ReadFloat32()
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+func (decoder *nullableFuzzyStringDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	switch valueType {
+	case jsoniter.NumberValue:
+		var number json.Number
+		iter.ReadVal(&number)
+		*((*string)(ptr)) = string(number)
+	case jsoniter.StringValue:
+		*((*string)(ptr)) = iter.ReadString()
+	case jsoniter.BoolValue:
+		*((*string)(ptr)) = strconv.FormatBool(iter.ReadBool())
+	case jsoniter.NilValue:
+		iter.ReadNil()
+		*((*string)(ptr)) = ""
+	default:
+		iter.ReportError("fuzzyStringDecoder", "not number or string or bool")
+	}
+}
+
+type fuzzyBoolDecoder struct {
+}
+
+func (decoder *fuzzyBoolDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	switch valueType {
+	case jsoniter.BoolValue:
+		*((*bool)(ptr)) = iter.ReadBool()
+	case jsoniter.NumberValue:
+		var number json.Number
+		iter.ReadVal(&number)
+		num, err := number.Int64()
+		if err != nil {
+			iter.ReportError("fuzzyBoolDecoder", "get value from json.number failed")
+		}
+		if num == 0 {
+			*((*bool)(ptr)) = false
+		} else {
+			*((*bool)(ptr)) = true
+		}
+	case jsoniter.StringValue:
+		strValue := strings.ToLower(iter.ReadString())
+		if strValue == "true" {
+			*((*bool)(ptr)) = true
+		} else if strValue == "false" || strValue == "" {
+			*((*bool)(ptr)) = false
+		} else {
+			iter.ReportError("fuzzyBoolDecoder", "unsupported bool value: "+strValue)
+		}
+	case jsoniter.NilValue:
+		iter.ReadNil()
+		*((*bool)(ptr)) = false
+	default:
+		iter.ReportError("fuzzyBoolDecoder", "not number or string or nil")
+	}
+}
+
+type nullableFuzzyIntegerDecoder struct {
+	fun func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator)
+}
+
+func (decoder *nullableFuzzyIntegerDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	var str string
+	switch valueType {
+	case jsoniter.NumberValue:
+		var number json.Number
+		iter.ReadVal(&number)
+		str = string(number)
+	case jsoniter.StringValue:
+		str = iter.ReadString()
+		// support empty string
+		if str == "" {
+			str = "0"
+		}
+	case jsoniter.BoolValue:
+		if iter.ReadBool() {
+			str = "1"
+		} else {
+			str = "0"
+		}
+	case jsoniter.NilValue:
+		iter.ReadNil()
+		str = "0"
+	default:
+		iter.ReportError("fuzzyIntegerDecoder", "not number or string")
+	}
+	newIter := iter.Pool().BorrowIterator([]byte(str))
+	defer iter.Pool().ReturnIterator(newIter)
+	isFloat := strings.IndexByte(str, '.') != -1
+	decoder.fun(isFloat, ptr, newIter)
+	if newIter.Error != nil && newIter.Error != io.EOF {
+		iter.Error = newIter.Error
+	}
+}
+
+type nullableFuzzyFloat32Decoder struct {
+}
+
+func (decoder *nullableFuzzyFloat32Decoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	var str string
+	switch valueType {
+	case jsoniter.NumberValue:
+		*((*float32)(ptr)) = iter.ReadFloat32()
+	case jsoniter.StringValue:
+		str = iter.ReadString()
+		// support empty string
+		if str == "" {
+			*((*float32)(ptr)) = 0
+			return
+		}
+		newIter := iter.Pool().BorrowIterator([]byte(str))
+		defer iter.Pool().ReturnIterator(newIter)
+		*((*float32)(ptr)) = newIter.ReadFloat32()
+		if newIter.Error != nil && newIter.Error != io.EOF {
+			iter.Error = newIter.Error
+		}
+	case jsoniter.BoolValue:
+		// support bool to float32
+		if iter.ReadBool() {
+			*((*float32)(ptr)) = 1
+		} else {
+			*((*float32)(ptr)) = 0
+		}
+	case jsoniter.NilValue:
+		iter.ReadNil()
+		*((*float32)(ptr)) = 0
+	default:
+		iter.ReportError("nullableFuzzyFloat32Decoder", "not number or string")
+	}
+}
+
+type nullableFuzzyFloat64Decoder struct {
+}
+
+func (decoder *nullableFuzzyFloat64Decoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	valueType := iter.WhatIsNext()
+	var str string
+	switch valueType {
+	case jsoniter.NumberValue:
+		*((*float64)(ptr)) = iter.ReadFloat64()
+	case jsoniter.StringValue:
+		str = iter.ReadString()
+		// support empty string
+		if str == "" {
+			*((*float64)(ptr)) = 0
+			return
+		}
+		newIter := iter.Pool().BorrowIterator([]byte(str))
+		defer iter.Pool().ReturnIterator(newIter)
+		*((*float64)(ptr)) = newIter.ReadFloat64()
+		if newIter.Error != nil && newIter.Error != io.EOF {
+			iter.Error = newIter.Error
+		}
+	case jsoniter.BoolValue:
+		// support bool to float64
+		if iter.ReadBool() {
+			*((*float64)(ptr)) = 1
+		} else {
+			*((*float64)(ptr)) = 0
+		}
+	case jsoniter.NilValue:
+		// support empty string
+		iter.ReadNil()
+		*((*float64)(ptr)) = 0
+	default:
+		iter.ReportError("nullableFuzzyFloat64Decoder", "not number or string")
+	}
+}
+

@@ -1,0 +1,35 @@
+Module: k8s.io/apimachinery
+Version: v0.0.0
+
+Package: k8s.io/apimachinery/pkg/apis/meta/v1beta1
+File: conversion.go
+Line: 37
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): conversion-struct-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+	out.Items = *(*[]v1.PartialObjectMetadata)(unsafe.Pointer(&in.Items))
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+// Convert_v1beta1_PartialObjectMetadataList_To_v1_PartialObjectMetadataList allows converting PartialObjectMetadataList between versions
+func Convert_v1beta1_PartialObjectMetadataList_To_v1_PartialObjectMetadataList(in *PartialObjectMetadataList, out *v1.PartialObjectMetadataList, s conversion.Scope) error {
+	out.ListMeta = in.ListMeta
+	out.Items = *(*[]v1.PartialObjectMetadata)(unsafe.Pointer(&in.Items))
+	return nil
+}
+
+// Convert_v1_PartialObjectMetadataList_To_v1beta1_PartialObjectMetadataList allows converting PartialObjectMetadataList between versions
+func Convert_v1_PartialObjectMetadataList_To_v1beta1_PartialObjectMetadataList(in *v1.PartialObjectMetadataList, out *PartialObjectMetadataList, s conversion.Scope) error {
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

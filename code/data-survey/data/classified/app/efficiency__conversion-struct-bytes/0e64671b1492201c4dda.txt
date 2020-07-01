@@ -1,0 +1,35 @@
+Module: k8s.io/kube-aggregator
+Version: v0.0.0
+
+Package: k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1
+File: zz_generated.conversion.go
+Line: 217
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): conversion-struct-bytes
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+	out.CABundle = *(*[]byte)(unsafe.Pointer(&in.CABundle))
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+	out.Group = in.Group
+	out.Version = in.Version
+	out.InsecureSkipTLSVerify = in.InsecureSkipTLSVerify
+	out.CABundle = *(*[]byte)(unsafe.Pointer(&in.CABundle))
+	out.GroupPriorityMinimum = in.GroupPriorityMinimum
+	out.VersionPriority = in.VersionPriority
+	return nil
+}
+
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

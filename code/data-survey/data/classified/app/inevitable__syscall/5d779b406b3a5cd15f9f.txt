@@ -1,0 +1,63 @@
+Module: github.com/jessevdk/go-flags
+Version: v1.4.0
+
+Package: github.com/jessevdk/go-flags
+File: termsize.go
+Line: 22
+
+Imported (possibly among others) by: grafana/loki
+
+Label 1 (What is happening?): syscall
+Label 2 (For what purpose?): inevitable
+
+--------------------------------------------------------------
+Snippet line:
+
+			uintptr(unsafe.Pointer(&ws)))
+
+--------------------------------------------------------------
++/- 5 lines context:
+
+	if tIOCGWINSZ != 0 {
+		syscall.Syscall(syscall.SYS_IOCTL,
+			uintptr(0),
+			uintptr(tIOCGWINSZ),
+			uintptr(unsafe.Pointer(&ws)))
+
+		return int(ws.col)
+	}
+
+	return 80
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+// +build !windows,!plan9,!solaris,!appengine
+
+package flags
+
+import (
+	"syscall"
+	"unsafe"
+)
+
+type winsize struct {
+	row, col       uint16
+	xpixel, ypixel uint16
+}
+
+func getTerminalColumns() int {
+	ws := winsize{}
+
+	if tIOCGWINSZ != 0 {
+		syscall.Syscall(syscall.SYS_IOCTL,
+			uintptr(0),
+			uintptr(tIOCGWINSZ),
+			uintptr(unsafe.Pointer(&ws)))
+
+		return int(ws.col)
+	}
+
+	return 80
+}
+
