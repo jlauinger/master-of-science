@@ -7,7 +7,7 @@ Line: 1385
 
 Imported (possibly among others) by: gorgonia/gorgonia
 
-Label 1 (What is happening?): delegate
+Label 1 (What is happening?): syscall
 Label 2 (For what purpose?): no-gc
 
 --------------------------------------------------------------

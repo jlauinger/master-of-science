@@ -8,7 +8,7 @@ Line: 27
 Imported (possibly among others) by: elastic/beats
 
 Label 1 (What is happening?): unused
-Label 2 (For what purpose?): generics
+Label 2 (For what purpose?): unused
 
 --------------------------------------------------------------
 Snippet line:

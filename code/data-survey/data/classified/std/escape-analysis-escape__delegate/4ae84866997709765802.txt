@@ -7,7 +7,7 @@ Line: 336
 
 Imported (possibly among others) by: kubernetes/kubernetes
 
-Label 1 (What is happening?): escape-analysis-escape
+Label 1 (What is happening?): delegate
 Label 2 (For what purpose?): escape-analysis-escape
 
 --------------------------------------------------------------

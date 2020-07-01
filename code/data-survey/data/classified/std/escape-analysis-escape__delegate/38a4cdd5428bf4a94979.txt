@@ -7,8 +7,8 @@ Line: 334
 
 Imported (possibly among others) by: kubernetes/kubernetes
 
-Label 1 (What is happening?): escape-analysis-escape
-Label 2 (For what purpose?): memory
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): escape-analysis-escape
 
 --------------------------------------------------------------
 Snippet line:

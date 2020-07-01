@@ -7,7 +7,7 @@ Line: 1380
 
 Imported (possibly among others) by: elastic/beats
 
-Label 1 (What is happening?): syscall
+Label 1 (What is happening?): pointer-arithmetic-memory-layout
 Label 2 (For what purpose?): layout-control
 
 --------------------------------------------------------------

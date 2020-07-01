@@ -8,7 +8,7 @@ Line: 726
 Imported (possibly among others) by: kubernetes/kubernetes
 
 Label 1 (What is happening?): unused
-Label 2 (For what purpose?): types
+Label 2 (For what purpose?): unused
 
 --------------------------------------------------------------
 Snippet line:
