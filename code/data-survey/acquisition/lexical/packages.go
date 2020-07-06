@@ -74,10 +74,15 @@ func GetProjectPackages(project *ProjectData) ([]*PackageData, error) {
 		var modulePath, moduleVersion, moduleRegistry string
 		var moduleIsIndirect bool
 
-		if pkg.Module == nil {
+		if pkg.Standard {
 			modulePath = "std"
 			moduleVersion = "std"
 			moduleRegistry = "std"
+			moduleIsIndirect = false
+		} else if pkg.Module == nil {
+			modulePath = "unknown"
+			moduleVersion = "unknown"
+			moduleRegistry = "unknown"
 			moduleIsIndirect = false
 		} else {
 			modulePath = pkg.Module.Path
