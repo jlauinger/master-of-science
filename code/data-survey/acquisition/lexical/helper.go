@@ -26,7 +26,7 @@ func getRegistryFromImportPath(importPath string) string {
 	pathComponents := strings.Split(importPath, "/")
 
 	if len(pathComponents) <= 1 {
-		return "std"
+		return pathComponents[0]
 	}
 
 	var registryComponents []string
