@@ -36,7 +36,7 @@ func CheckModule(dataDir string) {
 			project.RootModule = strings.TrimSuffix(string(output), "\n")
 			project.UsesModules = true
 		} else {
-			project.RootModule = ""
+			project.RootModule = "no-mod"
 			project.UsesModules = false
 		}
 
