@@ -117,6 +117,10 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			return nil, err
 		}
 
+		if pkg.ImportPath == "runtime/cgo" {
+			continue
+		}
+
 		var modulePath, moduleVersion, moduleRegistry string
 		var moduleIsIndirect bool
 
