@@ -15,5 +15,5 @@ var Eval2Cmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(Eval2Cmd)
+	analyzeCmd.AddCommand(Eval2Cmd)
 }
