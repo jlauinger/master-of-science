@@ -18,7 +18,7 @@ var linterFindingsFileHeaderWritten = false
 var errorConditionsFile *os.File
 var errorConditionsFileHeaderWritten = false
 
-func openPackagesFile(packagesFilename string) error {
+func OpenPackagesFile(packagesFilename string) error {
 	var err error
 	packagesFile, err = os.OpenFile(packagesFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	return err
@@ -48,13 +48,13 @@ func openLinterFindingsFile(linterFilename string) error {
 	return err
 }
 
-func openErrorConditionsFile(errorsFilename string) error {
+func OpenErrorConditionsFile(errorsFilename string) error {
 	var err error
 	errorConditionsFile, err = os.OpenFile(errorsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	return err
 }
 
-func closeFiles() {
+func CloseFiles() {
 	if packagesFile != nil {
 		packagesFile.Close()
 	}

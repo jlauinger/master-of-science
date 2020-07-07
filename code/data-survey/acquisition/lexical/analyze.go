@@ -9,16 +9,16 @@ func AnalyzeGrep(offset, length int, dataDir string, skipProjects []string, doCo
 	grepFindingsFilename := fmt.Sprintf("%s/lexical/grep_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
 	errorsFilename := fmt.Sprintf("%s/lexical/errors_grep_%d_%d.csv", dataDir, offset, offset + length - 1)
 
-	if err := openPackagesFile(packagesFilename); err != nil {
+	if err := OpenPackagesFile(packagesFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
 	if err := openGrepFindingsFile(grepFindingsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	if err := openErrorConditionsFile(errorsFilename); err != nil {
+	if err := OpenErrorConditionsFile(errorsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	defer closeFiles()
+	defer CloseFiles()
 
 	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, true, operatorGrepAnalysis)
 }
@@ -47,10 +47,10 @@ func AnalyzeVet(offset, length int, dataDir string, skipProjects []string, doCop
 	if err := openVetFindingsFile(vetFindingsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	if err := openErrorConditionsFile(errorsFilename); err != nil {
+	if err := OpenErrorConditionsFile(errorsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	defer closeFiles()
+	defer CloseFiles()
 
 	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, false, operatorVetAnalysis)
 }
@@ -69,10 +69,10 @@ func AnalyzeGosec(offset, length int, dataDir string, skipProjects []string, doC
 	if err := openGosecFindingsFile(gosecFindingsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	if err := openErrorConditionsFile(errorsFilename); err != nil {
+	if err := OpenErrorConditionsFile(errorsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	defer closeFiles()
+	defer CloseFiles()
 
 	commonAnalysis(offset, length, dataDir, skipProjects, doCopy, copyDestination, false, operatorGosecAnalysis)
 }
@@ -91,10 +91,10 @@ func AnalyzeLinter(offset, length int, dataDir string, skipProjects []string) {
 	if err := openLinterFindingsFile(linterFindingsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	if err := openErrorConditionsFile(errorsFilename); err != nil {
+	if err := OpenErrorConditionsFile(errorsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	defer closeFiles()
+	defer CloseFiles()
 
 	commonAnalysis(offset, length, dataDir, skipProjects, false, "", false, operatorLinterAnalysis)
 }

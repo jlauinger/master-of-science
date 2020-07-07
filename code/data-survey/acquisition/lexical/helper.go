@@ -22,7 +22,7 @@ func Min(x, y int) int {
 	return x
 }
 
-func getRegistryFromImportPath(importPath string) string {
+func GetRegistryFromImportPath(importPath string) string {
 	pathComponents := strings.Split(importPath, "/")
 
 	if len(pathComponents) <= 1 {

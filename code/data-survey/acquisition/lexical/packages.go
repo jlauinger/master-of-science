@@ -87,7 +87,7 @@ func GetProjectPackages(project *ProjectData) ([]*PackageData, error) {
 		} else {
 			modulePath = pkg.Module.Path
 			moduleVersion = pkg.Module.Version
-			moduleRegistry = getRegistryFromImportPath(pkg.Module.Path)
+			moduleRegistry = GetRegistryFromImportPath(pkg.Module.Path)
 			moduleIsIndirect = pkg.Module.Indirect
 		}
 
