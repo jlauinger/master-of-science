@@ -154,7 +154,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			GoFiles:          pkg.GoFiles,
 			Imports:          pkg.Imports,
 			Deps:             pkg.Deps,
-			HopCount:         9999999999999999999,
+			HopCount:         9999999999,
 		})
 	}
 
