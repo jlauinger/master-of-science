@@ -194,6 +194,8 @@ func analyzeDepTree(project *lexical.ProjectData, packages []*lexical.PackageDat
 		}
 	}
 
+	rootPackages := make([]*lexical.PackageData, 0)
+
 	for pkgPath, getsImported := range packagesGetImported {
 		if getsImported {
 			continue
@@ -203,8 +205,29 @@ func analyzeDepTree(project *lexical.ProjectData, packages []*lexical.PackageDat
 			continue
 		}
 
-		if pkg.ModulePath != project.RootModule {
-			fmt.Printf("    ROOT PKG: %s (%s)\n", pkg.ImportPath, pkg.ModulePath)
+		rootPackages = append(rootPackages, pkg)
+	}
+
+	for _, pkg := range rootPackages {
+		printTree(pkg, packagesMap, 0)
+	}
+}
+
+func printTree(pkg *lexical.PackageData, packagesMap map[string]*lexical.PackageData, hopCount int) {
+	printIndent(hopCount)
+	fmt.Printf("%s (%s) %d\n", pkg.ImportPath, pkg.ModulePath, hopCount)
+
+	for _, childPath := range pkg.Imports {
+		child, ok := packagesMap[childPath]
+		if !ok {
+			fmt.Printf("ERROR fetching child path %s\n", childPath)
 		}
+		printTree(child, packagesMap, hopCount + 1)
+	}
+}
+
+func printIndent(indent int) {
+	for i := 0; i < indent; i++ {
+		fmt.Printf("  ")
 	}
 }
