@@ -29,26 +29,27 @@ type ProjectData struct {
 }
 
 type PackageData struct {
-	Name             string    `csv:"name"`
-	ImportPath       string    `csv:"import_path"`
-	Dir              string    `csv:"dir"`
-	IsStandard       bool      `csv:"is_standard"`
-	IsDepOnly        bool      `csv:"is_dep_only"`
-	NumberOfGoFiles  int       `csv:"number_of_go_files"`
-	Loc              int       `csv:"loc"`
-	ByteSize         int       `csv:"byte_size"`
+	Name            string `csv:"name"`
+	ImportPath      string `csv:"import_path"`
+	Dir             string `csv:"dir"`
+	IsStandard      bool   `csv:"is_standard"`
+	IsDepOnly       bool   `csv:"is_dep_only"`
+	NumberOfGoFiles int    `csv:"number_of_go_files"`
+	Loc             int    `csv:"loc"`
+	ByteSize        int    `csv:"byte_size"`
 
-	ModulePath       string    `csv:"module_path"`
-	ModuleVersion    string    `csv:"module_version"`
-	ModuleRegistry   string    `csv:"module_registry"`
-	ModuleIsIndirect bool      `csv:"module_is_indirect"`
+	ModulePath       string `csv:"module_path"`
+	ModuleVersion    string `csv:"module_version"`
+	ModuleRegistry   string `csv:"module_registry"`
+	ModuleIsIndirect bool   `csv:"module_is_indirect"`
 
-	ProjectName      string    `csv:"project_name"`
+	ProjectName string `csv:"project_name"`
 
-	GoFiles          []string  `csv:"package_files"`
-	Imports          []string  `csv:"package_imports"`
-	Deps             []string  `csv:"package_deps"`
-	HopCount         int       `csv:"package_hop_count"`
+	GoFiles     []string `csv:"package_files"`
+	Imports     []string `csv:"package_imports"`
+	Deps        []string `csv:"package_deps"`
+	HopCount    int      `csv:"package_hop_count"`
+	ImportStack []string `csv:"package_import_stack"`
 }
 
 type GrepFindingData struct {
@@ -182,7 +183,7 @@ type GoListOutputPackage struct {
 
 	// Dependency information
 	Imports      []string          // import paths used by this package
-	ImportMap    map[string]string // map from source import to ImportPath (identity entries omitted)
+	ImportMap    map[string]string // map from source import to ImportStack (identity entries omitted)
 	Deps         []string          // all (recursively) imported dependencies
 	TestImports  []string          // imports from TestGoFiles
 	XTestImports []string          // imports from XTestGoFiles

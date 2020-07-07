@@ -213,30 +213,13 @@ func analyzeDepTree(packages []*lexical.PackageData) {
 		rootPackages = append(rootPackages, pkg)
 	}
 
-	hopCountStore = make(map[string]int, len(packages))
 	analyzeHopCountBFS(rootPackages, packagesMap)
-}
-
-var hopCountStore map[string]int
-
-func getHopCountFromStore(pkgPath string) int {
-	hopCount, ok := hopCountStore[pkgPath]
-	if !ok {
-		return 99999
-	}
-	return hopCount
-}
-
-func updateHopCountInStore(pkgPath string, hopCount int) {
-	oldHopCount, ok := hopCountStore[pkgPath]
-	if !ok || oldHopCount > hopCount {
-		hopCountStore[pkgPath] = hopCount
-	}
 }
 
 func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[string]*lexical.PackageData) {
 	type PackageAndPotentialHopCount struct {
 		PotentialHopCount int
+		ImportStack       []string
 		Pkg               *lexical.PackageData
 	}
 
@@ -256,13 +239,10 @@ func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[str
 			break
 		}
 
-		if len(queue) == 1 {
-			queueItem = queue[0]
-		} else {
-			queueItem, queue = queue[0], queue[1:]
-		}
+		queueItem, queue = queue[0], queue[1:]
 
 		queueItem.Pkg.HopCount = queueItem.PotentialHopCount
+		queueItem.Pkg.ImportStack = queueItem.ImportStack
 		seen[queueItem.Pkg.ImportPath] = true
 
 		for _, childPath := range queueItem.Pkg.Imports {
@@ -277,25 +257,10 @@ func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[str
 			if !ok {
 				queue = append(queue, PackageAndPotentialHopCount{
 					PotentialHopCount: queueItem.PotentialHopCount + 1,
+					ImportStack:       append(queueItem.ImportStack, child.ImportPath),
 					Pkg:               child,
 				})
 			}
 		}
-	}
-}
-
-func analyzeHopCount(pkg *lexical.PackageData, packagesMap map[string]*lexical.PackageData, hopCount int) {
-	updateHopCountInStore(pkg.ImportPath, hopCount)
-
-	for _, childPath := range pkg.Imports {
-		if childPath == "C" {
-			continue
-		}
-		child, ok := packagesMap[childPath]
-		if !ok {
-			fmt.Printf("ERROR fetching child path %s\n", childPath)
-		}
-
-		analyzeHopCount(child, packagesMap, hopCount + 1)
 	}
 }
