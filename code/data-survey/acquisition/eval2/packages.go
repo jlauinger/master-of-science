@@ -32,6 +32,7 @@ func Run(dataDir string, offset, length int) {
 	for projectIdx, project := range projects[offset:offset+length] {
 		if !project.UsesModules {
 			fmt.Printf("skipping %s because it does not use modules\n", project.Name)
+			continue
 		}
 
 		fmt.Printf("%d/%d (#%d): Analyzing %s\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
@@ -84,6 +85,8 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 	dec := json.NewDecoder(bytes.NewReader(jsonOutput))
 	packages := make([]*lexical.PackageData, 0, 500)
 
+	packagesSeen := make(map[string]bool)
+
 	for {
 		var pkg lexical.GoListOutputPackage
 
@@ -95,7 +98,12 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			return nil, err
 		}
 
-		fmt.Printf("  %s\n", pkg.ImportPath)
+		_, ok := packagesSeen[pkg.ImportPath]
+		if ok {
+			fmt.Printf("  DUPLICATE: %s\n", pkg.ImportPath)
+		}
+
+		packagesSeen[pkg.ImportPath] = true
 
 		/*var modulePath, moduleVersion, moduleRegistry string
 		var moduleIsIndirect bool
