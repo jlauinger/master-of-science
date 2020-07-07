@@ -212,11 +212,10 @@ func analyzeDepTree(packages []*lexical.PackageData) {
 		rootPackages = append(rootPackages, pkg)
 	}
 
+	hopCountStore = make(map[string]int, len(packages))
 	for _, rootPkg := range rootPackages {
 		analyzeHopCount(rootPkg, packagesMap, 0)
 	}
-
-	hopCountStore = make(map[string]int, len(packages))
 	for _, pkg := range packages {
 		pkg.HopCount = getHopCountFromStore(pkg.ImportPath)
 	}
