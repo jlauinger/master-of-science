@@ -24,6 +24,8 @@ type ProjectData struct {
 	UpdatedAt      DateTime `csv:"project_updated_at"`
 	Size           int      `csv:"project_size"`
 	CheckoutPath   string   `csv:"project_checkout_path"`
+	UsesModules    bool     `csv:"project_uses_modules"`
+	RootModule     string   `csv:"project_root_module"`
 }
 
 type PackageData struct {
