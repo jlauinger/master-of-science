@@ -1,6 +1,40 @@
-# Go Dependency Checker Implementation
+# Identification and analysis of unsafe.Pointer usages in open-source Go code: Implementation
 
-## Project Scraper
+## Data Access
+
+Jupyter Notebook Server aus dem TU Netz erreichbar:
+
+[http://vm6.rbg.informatik.tu-darmstadt.de/notebooks](http://vm6.rbg.informatik.tu-darmstadt.de/notebooks)
+
+HTTP Basic Auth:
+
+ - Benutzer: `johannes`
+ - Passwort: `Syp9393`
+ 
+Jupyter Server Passwort, falls benötigt: `admin`
+
+Die Daten liegen auf dem Server im Verzeichnis `/root/data`
+
+Code zum Laden der CSV-Daten:
+
+```python
+projects_df = pd.read_csv('/root/data/projects.csv',
+                         parse_dates=['project_created_at', 'project_last_pushed_at', 'project_updated_at'])
+
+grep_df = pd.read_csv('/root/data/lexical/grep_findings_0_499.csv')
+package_df = pd.read_csv('/root/data/packages_0_499.csv')
+
+vet_df = pd.read_csv('/root/data/lexical/vet_findings_0_499.csv')
+gosec_df = pd.read_csv('/root/data/lexical/gosec_findings_0_499.csv')
+ast_df = pd.read_csv('/root/data/ast/ast_findings_0_499.csv')
+function_df = pd.read_csv('/root/data/ast/functions_0_499.csv')
+statement_df = pd.read_csv('/root/data/ast/statements_0_499.csv')
+```
+
+
+## Notes
+
+### Project Scraper
 
 This Go program fetches the top 500 most popular Go projects from Github. Using the Github search, these projects
 can be found at this search link:
@@ -28,7 +62,7 @@ The projects contain huge repositories including:
  - Hashicorp Vault (Ansible secrets manager)
 
 
-## Github GraphQL API request
+### Github GraphQL API request
 
 Enter this on https://developer.github.com/v4/explorer
 
@@ -52,8 +86,7 @@ query {
 }
 ```
 
-
-## Use grep to find out how many unsafe.Pointers exist in module dependencies
+### Use grep to find out how many unsafe.Pointers exist in module dependencies
 
 ```
 for dir in $(go mod vendor -v 2>&1 | grep -v "#" | sort | uniq); do 
