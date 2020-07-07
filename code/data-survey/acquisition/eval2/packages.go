@@ -154,7 +154,6 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			GoFiles:          pkg.GoFiles,
 			Imports:          pkg.Imports,
 			Deps:             pkg.Deps,
-			HopCount:         9999999999,
 		})
 	}
 
@@ -213,21 +212,36 @@ func analyzeDepTree(packages []*lexical.PackageData) {
 		rootPackages = append(rootPackages, pkg)
 	}
 
+	packagesHopCountMap := make(map[string]int, len(packages))
+
 	for _, pkg := range rootPackages {
-		analyzeHopCount(pkg, packagesMap, 0)
+		analyzeHopCount(pkg, &packagesMap, &packagesHopCountMap, 0)
+	}
+
+	for _, pkg := range packages {
+		hopCount, ok := packagesHopCountMap[pkg.ImportPath]
+		if !ok {
+			pkg.HopCount = 0
+		} else {
+			pkg.HopCount = hopCount
+		}
 	}
 }
 
-func analyzeHopCount(pkg *lexical.PackageData, packagesMap map[string]*lexical.PackageData, hopCount int) {
-	if pkg.HopCount > hopCount {
-		pkg.HopCount = hopCount
+func analyzeHopCount(pkg *lexical.PackageData, packagesMap *map[string]*lexical.PackageData, packagesHopCountMap *map[string]int, hopCount int) {
+	previousCount, ok := (*packagesHopCountMap)[pkg.ImportPath]
+	if !ok || previousCount > hopCount {
+		(*packagesHopCountMap)[pkg.ImportPath] = hopCount
 	}
 
 	for _, childPath := range pkg.Imports {
-		child, ok := packagesMap[childPath]
+		if childPath == "C" {
+			continue
+		}
+		child, ok := (*packagesMap)[childPath]
 		if !ok {
 			fmt.Printf("ERROR fetching child path %s\n", childPath)
 		}
-		analyzeHopCount(child, packagesMap, hopCount + 1)
+		analyzeHopCount(child, packagesMap, packagesHopCountMap, hopCount + 1)
 	}
 }
