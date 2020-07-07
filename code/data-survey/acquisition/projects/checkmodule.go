@@ -5,6 +5,7 @@ import (
 	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 func CheckModule(dataDir string) {
@@ -25,7 +26,7 @@ func CheckModule(dataDir string) {
 
 		output, err := cmd.Output()
 		if err == nil {
-			rootModule = string(output)
+			rootModule = strings.TrimSuffix(string(output), "\n")
 			usesModules = true
 		} else {
 			rootModule = ""
