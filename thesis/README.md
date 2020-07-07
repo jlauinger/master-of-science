@@ -1,4 +1,4 @@
-# Identify Unsafe Usages in Go Code
+# Identification and analysis of unsafe.Pointer usages in open-source Go code
 
 ![CI](https://github.com/stg-tud/thesis-2020-Lauinger/workflows/CI/badge.svg)
 
@@ -17,15 +17,15 @@ unsafe usages in Go projects - similar to cargo-geiger. Based on this tool, the 
 evaluate how common unsafe usages in Go are and try to analyze if vulnerabilities caused
 by unsafe usages exist.
 
-[0] ​ https://github.com/anderejd/cargo-geiger
-[1] ​ https://golang.org/cmd/vet/
+[0] ​ https://github.com/anderejd/cargo-geiger  
+[1] ​ https://golang.org/cmd/vet/  
 [2] Larochelle, D., & Evans, D. (2001). Statically detecting likely buffer overflow
-    vulnerabilities. In ​ 10th USENIX Security Symposium ​ .
+    vulnerabilities. In ​ 10th USENIX Security Symposium.  
 [3] Alnaeli, S. M., Sarnowski, M., Aman, M. S., Abdelgawad, A., & Yelamarthi, K. (2017).
     Source Code Vulnerabilities in IoT Software Systems. ​ Advances in Science, Technology and
-    Engineering Systems Journal ​ , ​ 2 ​ (3), 1502-1507.
+    Engineering Systems Journal ​ , ​ 2 ​ (3), 1502-1507.  
 [4] Wang, C., Zhang, M., Jiang, Y., Zhang, H., Xing, Z., & Gu, M. Escape from Escape
-    Analysis of Golang. ICSE 2020.
+    Analysis of Golang. ICSE 2020.  
 
 
 ## Important Links

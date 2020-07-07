@@ -1,0 +1,71 @@
+% This file was created by tikzplotlib v0.9.2.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+x grid style={white!69.0196078431373!black},
+xmin=0, xmax=5200,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ymin=-0.65, ymax=6.65,
+ytick style={color=black},
+ytick={0,1,2,3,4,5,6},
+yticklabels={reflect.StringHeader,unsafe.Alignof,unsafe.Offsetof,reflect.SliceHeader,unsafe.Sizeof,uintptr,unsafe.Pointer}
+]
+\draw[draw=none,fill=color0] (axis cs:0,-0.4) rectangle (axis cs:7,0.4);
+\addlegendimage{ybar,ybar legend,draw=none,fill=color0};
+
+\draw[draw=none,fill=color0] (axis cs:0,0.6) rectangle (axis cs:11,1.4);
+\draw[draw=none,fill=color0] (axis cs:0,1.6) rectangle (axis cs:41,2.4);
+\draw[draw=none,fill=color0] (axis cs:0,2.6) rectangle (axis cs:78,3.4);
+\draw[draw=none,fill=color0] (axis cs:0,3.6) rectangle (axis cs:555,4.4);
+\draw[draw=none,fill=color0] (axis cs:0,4.6) rectangle (axis cs:3271,5.4);
+\draw[draw=none,fill=color0] (axis cs:0,5.6) rectangle (axis cs:4663,6.4);
+\draw (axis cs:57,-0.1) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 7};
+\draw (axis cs:61,0.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 11};
+\draw (axis cs:91,1.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 41};
+\draw (axis cs:128,2.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 78};
+\draw (axis cs:605,3.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 555};
+\draw (axis cs:3321,4.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 3271};
+\draw (axis cs:4713,5.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 4663};
+\end{axis}
+
+\end{tikzpicture}

@@ -1,0 +1,106 @@
+% This file was created by tikzplotlib v0.9.2.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+x grid style={white!69.0196078431373!black},
+xmin=0, xmax=5200,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ymin=-0.65, ymax=11.65,
+ytick style={color=black},
+ytick={0,1,2,3,4,5,6,7,8,9,10,11},
+yticklabels={go.elastic.co,go.bug.st,go.uber.org,go.opentelemetry.io,gopkg.in,go.etcd.io,bazil.org,gorgonia.org,golang.org/x,std,k8s.io,github.com}
+]
+\draw[draw=none,fill=color0] (axis cs:0,-0.4) rectangle (axis cs:15,0.4);
+\addlegendimage{ybar,ybar legend,draw=none,fill=color0};
+
+\draw[draw=none,fill=color0] (axis cs:0,0.6) rectangle (axis cs:16,1.4);
+\draw[draw=none,fill=color0] (axis cs:0,1.6) rectangle (axis cs:23,2.4);
+\draw[draw=none,fill=color0] (axis cs:0,2.6) rectangle (axis cs:34,3.4);
+\draw[draw=none,fill=color0] (axis cs:0,3.6) rectangle (axis cs:37,4.4);
+\draw[draw=none,fill=color0] (axis cs:0,4.6) rectangle (axis cs:45,5.4);
+\draw[draw=none,fill=color0] (axis cs:0,5.6) rectangle (axis cs:86,6.4);
+\draw[draw=none,fill=color0] (axis cs:0,6.6) rectangle (axis cs:232,7.4);
+\draw[draw=none,fill=color0] (axis cs:0,7.6) rectangle (axis cs:416,8.4);
+\draw[draw=none,fill=color0] (axis cs:0,8.6) rectangle (axis cs:855,9.4);
+\draw[draw=none,fill=color0] (axis cs:0,9.6) rectangle (axis cs:2135,10.4);
+\draw[draw=none,fill=color0] (axis cs:0,10.6) rectangle (axis cs:4676,11.4);
+\draw (axis cs:65,-0.1) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 15};
+\draw (axis cs:66,0.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 16};
+\draw (axis cs:73,1.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 23};
+\draw (axis cs:84,2.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 34};
+\draw (axis cs:87,3.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 37};
+\draw (axis cs:95,4.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 45};
+\draw (axis cs:136,5.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 86};
+\draw (axis cs:282,6.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 232};
+\draw (axis cs:466,7.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 416};
+\draw (axis cs:905,8.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 855};
+\draw (axis cs:2185,9.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 2135};
+\draw (axis cs:4726,10.9) node[
+  scale=0.5,
+  anchor=base west,
+  text=blue,
+  rotate=0.0
+]{\bfseries 4676};
+\end{axis}
+
+\end{tikzpicture}
