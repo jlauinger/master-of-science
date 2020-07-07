@@ -45,11 +45,11 @@ type PackageData struct {
 
 	ProjectName string `csv:"project_name"`
 
-	GoFiles     []string `csv:"package_files"`
-	Imports     []string `csv:"package_imports"`
-	Deps        []string `csv:"package_deps"`
+	GoFiles     []string `csv:"-"`
+	Imports     []string `csv:"-"`
+	Deps        []string `csv:"-"`
 	HopCount    int      `csv:"package_hop_count"`
-	ImportStack []string `csv:"package_import_stack"`
+	ImportStack []string `csv:"-"`
 }
 
 type GrepFindingData struct {
