@@ -48,6 +48,7 @@ type PackageData struct {
 	GoFiles          []string  `csv:"package_files"`
 	Imports          []string  `csv:"package_imports"`
 	Deps             []string  `csv:"package_deps"`
+	HopCount         int       `csv:"package_hop_count"`
 }
 
 type GrepFindingData struct {

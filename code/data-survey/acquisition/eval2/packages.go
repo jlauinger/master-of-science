@@ -79,7 +79,11 @@ func analyzeProject(project *lexical.ProjectData) error {
 		}
 	}
 
-	analyzeDepTree(project, packages)
+	analyzeDepTree(packages)
+
+	for _, pkg := range packages {
+		fmt.Printf("%s (%s): %d\n", pkg.ImportPath, pkg.ModulePath, pkg.HopCount)
+	}
 
 	writePackages(packages)
 
@@ -150,6 +154,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			GoFiles:          pkg.GoFiles,
 			Imports:          pkg.Imports,
 			Deps:             pkg.Deps,
+			HopCount:         9999999999999999999,
 		})
 	}
 
@@ -175,7 +180,7 @@ func writePackages(packages []*lexical.PackageData) {
 	}
 }
 
-func analyzeDepTree(project *lexical.ProjectData, packages []*lexical.PackageData) {
+func analyzeDepTree(packages []*lexical.PackageData) {
 	packagesGetImported := make(map[string]bool, len(packages))
 	packagesMap := make(map[string]*lexical.PackageData, len(packages))
 
@@ -209,25 +214,20 @@ func analyzeDepTree(project *lexical.ProjectData, packages []*lexical.PackageDat
 	}
 
 	for _, pkg := range rootPackages {
-		printTree(pkg, packagesMap, 0)
+		analyzeHopCount(pkg, packagesMap, 0)
 	}
 }
 
-func printTree(pkg *lexical.PackageData, packagesMap map[string]*lexical.PackageData, hopCount int) {
-	printIndent(hopCount)
-	fmt.Printf("%s (%s) %d\n", pkg.ImportPath, pkg.ModulePath, hopCount)
+func analyzeHopCount(pkg *lexical.PackageData, packagesMap map[string]*lexical.PackageData, hopCount int) {
+	if pkg.HopCount > hopCount {
+		pkg.HopCount = hopCount
+	}
 
 	for _, childPath := range pkg.Imports {
 		child, ok := packagesMap[childPath]
 		if !ok {
 			fmt.Printf("ERROR fetching child path %s\n", childPath)
 		}
-		printTree(child, packagesMap, hopCount + 1)
-	}
-}
-
-func printIndent(indent int) {
-	for i := 0; i < indent; i++ {
-		fmt.Printf("  ")
+		analyzeHopCount(child, packagesMap, hopCount + 1)
 	}
 }
