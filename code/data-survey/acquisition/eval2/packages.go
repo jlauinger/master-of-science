@@ -186,6 +186,9 @@ func analyzeDepTree(project *lexical.ProjectData, packages []*lexical.PackageDat
 
 	for _, pkg := range packages {
 		for _, childPath := range pkg.Imports {
+			if childPath == "C" {
+				continue
+			}
 			child := packagesMap[childPath]
 			packagesGetImported[child.ImportPath] = true
 		}
@@ -195,9 +198,13 @@ func analyzeDepTree(project *lexical.ProjectData, packages []*lexical.PackageDat
 		if getsImported {
 			continue
 		}
-
 		pkg := packagesMap[pkgPath]
+		if pkg.ImportPath == "runtime/cgo" {
+			continue
+		}
 
-		fmt.Printf("    ROOT PKG: %s (%s)\n", pkg.ImportPath, pkg.ModulePath)
+		if pkg.ModulePath != project.RootModule {
+			fmt.Printf("    ROOT PKG: %s (%s)\n", pkg.ImportPath, pkg.ModulePath)
+		}
 	}
 }
