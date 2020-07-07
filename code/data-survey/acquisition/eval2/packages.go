@@ -154,6 +154,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			GoFiles:          pkg.GoFiles,
 			Imports:          pkg.Imports,
 			Deps:             pkg.Deps,
+			HopCount:         9999999,
 		})
 	}
 
@@ -212,27 +213,22 @@ func analyzeDepTree(packages []*lexical.PackageData) {
 		rootPackages = append(rootPackages, pkg)
 	}
 
-	packagesHopCountMap := make(map[string]int, len(packages))
+	for _, rootPkg := range rootPackages {
+		packagesHopCountMap := analyzeHopCount(rootPkg, &packagesMap, 0)
 
-	for _, pkg := range rootPackages {
-		analyzeHopCount(pkg, &packagesMap, &packagesHopCountMap, 0)
-	}
-
-	for _, pkg := range packages {
-		hopCount, ok := packagesHopCountMap[pkg.ImportPath]
-		if !ok {
-			pkg.HopCount = 0
-		} else {
-			pkg.HopCount = hopCount
+		for pkgPath, hopCount := range packagesHopCountMap {
+			pkg := packagesMap[pkgPath]
+			if pkg.HopCount > hopCount {
+				pkg.HopCount = hopCount
+			}
 		}
 	}
 }
 
-func analyzeHopCount(pkg *lexical.PackageData, packagesMap *map[string]*lexical.PackageData, packagesHopCountMap *map[string]int, hopCount int) {
-	previousCount, ok := (*packagesHopCountMap)[pkg.ImportPath]
-	if !ok || previousCount > hopCount {
-		(*packagesHopCountMap)[pkg.ImportPath] = hopCount
-	}
+func analyzeHopCount(pkg *lexical.PackageData, packagesMap *map[string]*lexical.PackageData, hopCount int) map[string]int {
+	packagesHopCountMap := make(map[string]int, 0)
+
+	packagesHopCountMap[pkg.ImportPath] = hopCount
 
 	for _, childPath := range pkg.Imports {
 		if childPath == "C" {
@@ -242,6 +238,16 @@ func analyzeHopCount(pkg *lexical.PackageData, packagesMap *map[string]*lexical.
 		if !ok {
 			fmt.Printf("ERROR fetching child path %s\n", childPath)
 		}
-		analyzeHopCount(child, packagesMap, packagesHopCountMap, hopCount + 1)
+
+		childPackagesHopCountMap := analyzeHopCount(child, packagesMap, hopCount + 1)
+
+		for newPkgPath, newHopCount := range childPackagesHopCountMap {
+			oldHopCount, ok := packagesHopCountMap[newPkgPath]
+			if !ok || oldHopCount > newHopCount {
+				packagesHopCountMap[newPkgPath] = newHopCount
+			}
+		}
 	}
+
+	return packagesHopCountMap
 }
