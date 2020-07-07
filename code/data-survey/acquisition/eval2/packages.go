@@ -154,6 +154,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			GoFiles:          pkg.GoFiles,
 			Imports:          pkg.Imports,
 			Deps:             pkg.Deps,
+			HopCount:         -1,
 		})
 	}
 
@@ -213,12 +214,7 @@ func analyzeDepTree(packages []*lexical.PackageData) {
 	}
 
 	hopCountStore = make(map[string]int, len(packages))
-	for _, rootPkg := range rootPackages {
-		analyzeHopCount(rootPkg, packagesMap, 0)
-	}
-	for _, pkg := range packages {
-		pkg.HopCount = getHopCountFromStore(pkg.ImportPath)
-	}
+	analyzeHopCountBFS(rootPackages, packagesMap)
 }
 
 var hopCountStore map[string]int
@@ -235,6 +231,50 @@ func updateHopCountInStore(pkgPath string, hopCount int) {
 	oldHopCount, ok := hopCountStore[pkgPath]
 	if !ok || oldHopCount > hopCount {
 		hopCountStore[pkgPath] = hopCount
+	}
+}
+
+func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[string]*lexical.PackageData) {
+	type PackageAndPotentialHopCount struct {
+		PotentialHopCount int
+		Pkg               *lexical.PackageData
+	}
+
+	queue := make([]PackageAndPotentialHopCount, 0)
+
+	for _, rootPkg := range rootPackages {
+		queue = append(queue, PackageAndPotentialHopCount{
+			PotentialHopCount: 0,
+			Pkg:               rootPkg,
+		})
+	}
+
+	var queueItem PackageAndPotentialHopCount
+	for {
+		if len(queue) == 0 {
+			break
+		}
+
+		if len(queue) == 1 {
+			queueItem = queue[0]
+		} else {
+			queueItem, queue = queue[0], queue[1:]
+		}
+
+		queueItem.Pkg.HopCount = queueItem.PotentialHopCount
+
+		for _, childPath := range queueItem.Pkg.Imports {
+			child, ok := packagesMap[childPath]
+			if !ok {
+				panic("child not found")
+			}
+			if child.HopCount == -1 {
+				queue = append(queue, PackageAndPotentialHopCount{
+					PotentialHopCount: queueItem.PotentialHopCount + 1,
+					Pkg:               child,
+				})
+			}
+		}
 	}
 }
 
