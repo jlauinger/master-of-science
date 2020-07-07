@@ -81,9 +81,14 @@ func analyzeProject(project *lexical.ProjectData) error {
 
 	analyzeDepTree(packages)
 
+	maximumHopCount := 0
 	for _, pkg := range packages {
 		fmt.Printf("%s (%s): %d\n", pkg.ImportPath, pkg.ModulePath, pkg.HopCount)
+		if pkg.HopCount > maximumHopCount {
+			maximumHopCount = pkg.HopCount
+		}
 	}
+	fmt.Printf("\n\nMaximum seen hop count: %d\n", maximumHopCount)
 
 	writePackages(packages)
 
