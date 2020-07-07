@@ -10,7 +10,7 @@ var Eval2Cmd = &cobra.Command{
 	Short: "run second wave evaluation",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		eval2.Run(dataDir, offset, length)
+		eval2.Run(dataDir, offset, length, skipProjects)
 	},
 }
 

@@ -9,7 +9,7 @@ import (
 	"os/exec"
 )
 
-func Run(dataDir string, offset, length int) {
+func Run(dataDir string, offset, length int, skipProjects []string) {
 	packagesFilename := fmt.Sprintf("%s/packages_%d_%d.csv", dataDir, offset, offset + length - 1)
 	errorsFilename := fmt.Sprintf("%s/lexical/errors_grep_%d_%d.csv", dataDir, offset, offset + length - 1)
 
@@ -29,9 +29,19 @@ func Run(dataDir string, offset, length int) {
 		fmt.Printf("ERROR: %v\n", err)
 	}
 
+	skipProjectMap := make(map[string]struct{}, len(skipProjects))
+	for _, skipProject := range skipProjects {
+		skipProjectMap[skipProject] = struct{}{}
+	}
+
 	for projectIdx, project := range projects[offset:offset+length] {
+		if _, ok := skipProjectMap[project.Name]; ok {
+			fmt.Printf("%d/%d (#%d): Skipping %s as requested\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
+			continue
+		}
+
 		if !project.UsesModules {
-			fmt.Printf("skipping %s because it does not use modules\n", project.Name)
+			fmt.Printf("%d/%d (#%d): Skipping %s because it does not use modules\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
 			continue
 		}
 
