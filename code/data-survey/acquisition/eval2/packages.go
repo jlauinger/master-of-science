@@ -79,6 +79,8 @@ func analyzeProject(project *lexical.ProjectData) error {
 		}
 	}
 
+	analyzeDepTree(project, packages)
+
 	writePackages(packages)
 
 	return nil
@@ -95,8 +97,6 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 	dec := json.NewDecoder(bytes.NewReader(jsonOutput))
 	packages := make([]*lexical.PackageData, 0, 500)
 
-	packagesSeen := make(map[string]bool)
-
 	for {
 		var pkg lexical.GoListOutputPackage
 
@@ -108,14 +108,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			return nil, err
 		}
 
-		_, ok := packagesSeen[pkg.ImportPath]
-		if ok {
-			fmt.Printf("  DUPLICATE: %s\n", pkg.ImportPath)
-		}
-
-		packagesSeen[pkg.ImportPath] = true
-
-		/*var modulePath, moduleVersion, moduleRegistry string
+		var modulePath, moduleVersion, moduleRegistry string
 		var moduleIsIndirect bool
 
 		if pkg.Standard {
@@ -128,11 +121,16 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			moduleVersion = "unknown"
 			moduleRegistry = "unknown"
 			moduleIsIndirect = false
-		} else {
+		} else if pkg.Module.Replace == nil {
 			modulePath = pkg.Module.Path
 			moduleVersion = pkg.Module.Version
 			moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Path)
 			moduleIsIndirect = pkg.Module.Indirect
+		} else {
+			modulePath = pkg.Module.Replace.Path
+			moduleVersion = pkg.Module.Replace.Version
+			moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Replace.Path)
+			moduleIsIndirect = pkg.Module.Replace.Indirect
 		}
 
 		packages = append(packages, &lexical.PackageData{
@@ -150,7 +148,9 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			ModuleIsIndirect: moduleIsIndirect,
 			ProjectName:      project.Name,
 			GoFiles:          pkg.GoFiles,
-		})*/
+			Imports:          pkg.Imports,
+			Deps:             pkg.Deps,
+		})
 	}
 
 	return packages, nil
@@ -172,5 +172,32 @@ func writePackages(packages []*lexical.PackageData) {
 			fmt.Println("SAVING ERROR!")
 			continue
 		}
+	}
+}
+
+func analyzeDepTree(project *lexical.ProjectData, packages []*lexical.PackageData) {
+	packagesGetImported := make(map[string]bool, len(packages))
+	packagesMap := make(map[string]*lexical.PackageData, len(packages))
+
+	for _, pkg := range packages {
+		packagesGetImported[pkg.ImportPath] = false
+		packagesMap[pkg.ImportPath] = pkg
+	}
+
+	for _, pkg := range packages {
+		for _, childPath := range pkg.Imports {
+			child := packagesMap[childPath]
+			packagesGetImported[child.ImportPath] = true
+		}
+	}
+
+	for pkgPath, getsImported := range packagesGetImported {
+		if getsImported {
+			continue
+		}
+
+		pkg := packagesMap[pkgPath]
+
+		fmt.Printf("    ROOT PKG: %s (%s)\n", pkg.ImportPath, pkg.ModulePath)
 	}
 }

@@ -29,23 +29,25 @@ type ProjectData struct {
 }
 
 type PackageData struct {
-	Name               string   `csv:"name"`
-	ImportPath         string   `csv:"import_path"`
-	Dir                string   `csv:"dir"`
-	IsStandard         bool     `csv:"is_standard"`
-	IsDepOnly          bool     `csv:"is_dep_only"`
-	NumberOfGoFiles    int      `csv:"number_of_go_files"`
-	Loc                int      `csv:"loc"`
-	ByteSize           int      `csv:"byte_size"`
+	Name             string    `csv:"name"`
+	ImportPath       string    `csv:"import_path"`
+	Dir              string    `csv:"dir"`
+	IsStandard       bool      `csv:"is_standard"`
+	IsDepOnly        bool      `csv:"is_dep_only"`
+	NumberOfGoFiles  int       `csv:"number_of_go_files"`
+	Loc              int       `csv:"loc"`
+	ByteSize         int       `csv:"byte_size"`
 
-	ModulePath         string   `csv:"module_path"`
-	ModuleVersion      string   `csv:"module_version"`
-	ModuleRegistry     string   `csv:"module_registry"`
-	ModuleIsIndirect   bool     `csv:"module_is_indirect"`
+	ModulePath       string    `csv:"module_path"`
+	ModuleVersion    string    `csv:"module_version"`
+	ModuleRegistry   string    `csv:"module_registry"`
+	ModuleIsIndirect bool      `csv:"module_is_indirect"`
 
-	ProjectName        string   `csv:"project_name"`
+	ProjectName      string    `csv:"project_name"`
 
-	GoFiles            []string `csv:"-"`
+	GoFiles          []string  `csv:"package_files"`
+	Imports          []string  `csv:"package_imports"`
+	Deps             []string  `csv:"package_deps"`
 }
 
 type GrepFindingData struct {
