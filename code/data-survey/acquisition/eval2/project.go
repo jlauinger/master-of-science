@@ -32,9 +32,9 @@ func analyzeProject(project *lexical.ProjectData) error {
 	}
 	fillPackageLOC(packages, fileToLineCountMap, fileToByteCountMap)
 
-	rootPackages := analyzeDepTree(packages)
+	analyzeDepTree(packages)
 
-	geigerPackages(project, packages, rootPackages)
+	geigerPackages(project, packages)
 
 	writePackages(packages)
 
