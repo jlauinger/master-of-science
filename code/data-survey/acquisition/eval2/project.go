@@ -36,6 +36,12 @@ func analyzeProject(project *lexical.ProjectData) error {
 
 	geigerPackages(project, packages)
 
+	projectUnsafeSum := 0
+	for _, pkg := range packages {
+		projectUnsafeSum += pkg.UnsafeSum
+	}
+	fmt.Printf("total project unsafe sum: %d\n", projectUnsafeSum)
+
 	writePackages(packages)
 
 	return nil

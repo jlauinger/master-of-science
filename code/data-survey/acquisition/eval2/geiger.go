@@ -37,7 +37,9 @@ func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData) {
 
 		pkgsMap[parsedPkg.PkgPath].UnsafeSum = localUnsafeSum
 
-		fmt.Printf("%s: total %d\n", parsedPkg.PkgPath, localUnsafeSum)
+		if localUnsafeSum > 0 {
+			fmt.Printf("%s: total %d\n", parsedPkg.PkgPath, localUnsafeSum)
+		}
 	}
 }
 
