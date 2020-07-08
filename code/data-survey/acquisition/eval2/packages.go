@@ -9,92 +9,6 @@ import (
 	"os/exec"
 )
 
-func Run(dataDir string, offset, length int, skipProjects []string) {
-	packagesFilename := fmt.Sprintf("%s/packages_%d_%d.csv", dataDir, offset, offset + length - 1)
-	errorsFilename := fmt.Sprintf("%s/lexical/errors_grep_%d_%d.csv", dataDir, offset, offset + length - 1)
-
-	if err := lexical.OpenPackagesFile(packagesFilename); err != nil {
-		fmt.Printf("ERROR: %v\n", err)
-	}
-	if err := lexical.OpenErrorConditionsFile(errorsFilename); err != nil {
-		fmt.Printf("ERROR: %v\n", err)
-	}
-	defer lexical.CloseFiles()
-
-	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
-
-	fmt.Println("reading projects data...")
-	projects, err := lexical.ReadProjects(projectsFilename)
-	if err != nil {
-		fmt.Printf("ERROR: %v\n", err)
-	}
-
-	skipProjectMap := make(map[string]struct{}, len(skipProjects))
-	for _, skipProject := range skipProjects {
-		skipProjectMap[skipProject] = struct{}{}
-	}
-
-	for projectIdx, project := range projects[offset:offset+length] {
-		if _, ok := skipProjectMap[project.Name]; ok {
-			fmt.Printf("%d/%d (#%d): Skipping %s as requested\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
-			continue
-		}
-
-		if !project.UsesModules {
-			fmt.Printf("%d/%d (#%d): Skipping %s because it does not use modules\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
-			continue
-		}
-
-		fmt.Printf("%d/%d (#%d): Analyzing %s\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
-
-		err := analyzeProject(project)
-		if err != nil {
-			_ = lexical.WriteErrorCondition(lexical.ErrorConditionData{
-				Stage:             "project",
-				ProjectName:       project.Name,
-				PackageImportPath: "",
-				FileName:          "",
-				Message:           err.Error(),
-			})
-			fmt.Println("SAVING ERROR!")
-			continue
-		}
-	}
-}
-
-func analyzeProject(project *lexical.ProjectData) error {
-	packages, err := GetProjectPackages(project)
-	if err != nil {
-		return err
-	}
-
-	fullFilenames := make([]string, 0, 500)
-	fileToPackageMap := map[string]*lexical.PackageData{}
-
-	for _, pkg := range packages {
-		for _, file := range pkg.GoFiles {
-			fullFilename := fmt.Sprintf("%s/%s", pkg.Dir, file)
-			fullFilenames = append(fullFilenames, fullFilename)
-			fileToPackageMap[fullFilename] = pkg
-		}
-	}
-
-	analyzeDepTree(packages)
-
-	maximumHopCount := 0
-	for _, pkg := range packages {
-		fmt.Printf("%s (%s): %d\n", pkg.ImportPath, pkg.ModulePath, pkg.HopCount)
-		if pkg.HopCount > maximumHopCount {
-			maximumHopCount = pkg.HopCount
-		}
-	}
-	fmt.Printf("\n\nMaximum seen hop count: %d\n", maximumHopCount)
-
-	writePackages(packages)
-
-	return nil
-}
-
 func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, error) {
 	fmt.Println("  identifying relevant packages...")
 
@@ -117,30 +31,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			return nil, err
 		}
 
-		var modulePath, moduleVersion, moduleRegistry string
-		var moduleIsIndirect bool
-
-		if pkg.Standard {
-			modulePath = "std"
-			moduleVersion = "std"
-			moduleRegistry = "std"
-			moduleIsIndirect = false
-		} else if pkg.Module == nil {
-			modulePath = "unknown"
-			moduleVersion = "unknown"
-			moduleRegistry = "unknown"
-			moduleIsIndirect = false
-		} else if pkg.Module.Replace == nil {
-			modulePath = pkg.Module.Path
-			moduleVersion = pkg.Module.Version
-			moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Path)
-			moduleIsIndirect = pkg.Module.Indirect
-		} else {
-			modulePath = pkg.Module.Replace.Path
-			moduleVersion = pkg.Module.Replace.Version
-			moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Replace.Path)
-			moduleIsIndirect = pkg.Module.Replace.Indirect
-		}
+		modulePath, moduleVersion, moduleRegistry, moduleIsIndirect := getModuleData(pkg)
 
 		packages = append(packages, &lexical.PackageData{
 			Name:             pkg.Name,
@@ -166,6 +57,46 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 	return packages, nil
 }
 
+func getModuleData(pkg lexical.GoListOutputPackage) (modulePath, moduleVersion, moduleRegistry string, moduleIsIndirect bool) {
+	if pkg.Standard {
+		modulePath = "std"
+		moduleVersion = "std"
+		moduleRegistry = "std"
+		moduleIsIndirect = false
+	} else if pkg.Module == nil {
+		modulePath = "unknown"
+		moduleVersion = "unknown"
+		moduleRegistry = "unknown"
+		moduleIsIndirect = false
+	} else if pkg.Module.Replace == nil {
+		modulePath = pkg.Module.Path
+		moduleVersion = pkg.Module.Version
+		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Path)
+		moduleIsIndirect = pkg.Module.Indirect
+	} else {
+		modulePath = pkg.Module.Replace.Path
+		moduleVersion = pkg.Module.Replace.Version
+		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Replace.Path)
+		moduleIsIndirect = pkg.Module.Replace.Indirect
+	}
+	return
+}
+
+func fillPackageLOC(packages []*lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
+	for _, pkg := range packages {
+		var loc, byteSize int
+
+		for _, file := range pkg.GoFiles {
+			fullFilename := fmt.Sprintf("%s/%s", pkg.Dir, file)
+			loc += fileToLineCountMap[fullFilename]
+			byteSize += fileToByteCountMap[fullFilename]
+		}
+
+		pkg.Loc = loc
+		pkg.ByteSize = byteSize
+	}
+}
+
 func writePackages(packages []*lexical.PackageData) {
 	fmt.Println("  writing package results to disk...")
 
@@ -181,91 +112,6 @@ func writePackages(packages []*lexical.PackageData) {
 			})
 			fmt.Println("SAVING ERROR!")
 			continue
-		}
-	}
-}
-
-func analyzeDepTree(packages []*lexical.PackageData) {
-	packagesGetImported := make(map[string]bool, len(packages))
-	packagesMap := make(map[string]*lexical.PackageData, len(packages))
-
-	for _, pkg := range packages {
-		packagesGetImported[pkg.ImportPath] = false
-		packagesMap[pkg.ImportPath] = pkg
-	}
-
-	for _, pkg := range packages {
-		for _, childPath := range pkg.Imports {
-			if childPath == "C" {
-				continue
-			}
-			child := packagesMap[childPath]
-			packagesGetImported[child.ImportPath] = true
-		}
-	}
-
-	rootPackages := make([]*lexical.PackageData, 0)
-
-	for pkgPath, getsImported := range packagesGetImported {
-		if getsImported {
-			continue
-		}
-		pkg := packagesMap[pkgPath]
-		if pkg.ImportPath == "runtime/cgo" {
-			continue
-		}
-
-		rootPackages = append(rootPackages, pkg)
-	}
-
-	analyzeHopCountBFS(rootPackages, packagesMap)
-}
-
-func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[string]*lexical.PackageData) {
-	type PackageAndPotentialHopCount struct {
-		PotentialHopCount int
-		ImportStack       []string
-		Pkg               *lexical.PackageData
-	}
-
-	queue := make([]PackageAndPotentialHopCount, 0)
-	seen := make(map[string]bool, 0)
-
-	for _, rootPkg := range rootPackages {
-		queue = append(queue, PackageAndPotentialHopCount{
-			PotentialHopCount: 0,
-			Pkg:               rootPkg,
-		})
-	}
-
-	var queueItem PackageAndPotentialHopCount
-	for {
-		if len(queue) == 0 {
-			break
-		}
-
-		queueItem, queue = queue[0], queue[1:]
-
-		queueItem.Pkg.HopCount = queueItem.PotentialHopCount
-		queueItem.Pkg.ImportStack = queueItem.ImportStack
-		seen[queueItem.Pkg.ImportPath] = true
-
-		for _, childPath := range queueItem.Pkg.Imports {
-			if childPath == "C" {
-				continue
-			}
-			child, ok := packagesMap[childPath]
-			if !ok {
-				panic("child not found")
-			}
-			_, ok = seen[child.ImportPath]
-			if !ok {
-				queue = append(queue, PackageAndPotentialHopCount{
-					PotentialHopCount: queueItem.PotentialHopCount + 1,
-					ImportStack:       append(queueItem.ImportStack, child.ImportPath),
-					Pkg:               child,
-				})
-			}
 		}
 	}
 }
