@@ -26,16 +26,15 @@ func analyzeProject(project *lexical.ProjectData) error {
 	if err != nil {
 		return err
 	}
-
-
 	fileToByteCountMap, err := countBytes(fullFilenames)
 	if err != nil {
 		return err
 	}
-
 	fillPackageLOC(packages, fileToLineCountMap, fileToByteCountMap)
 
-	analyzeDepTree(packages)
+	rootPackages := analyzeDepTree(packages)
+
+	geigerPackages(project, packages, rootPackages)
 
 	writePackages(packages)
 

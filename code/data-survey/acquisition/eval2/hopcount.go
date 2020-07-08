@@ -2,7 +2,7 @@ package eval2
 
 import "github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
 
-func analyzeDepTree(packages []*lexical.PackageData) {
+func analyzeDepTree(packages []*lexical.PackageData) []*lexical.PackageData {
 	packagesGetImported := make(map[string]bool, len(packages))
 	packagesMap := make(map[string]*lexical.PackageData, len(packages))
 
@@ -36,6 +36,8 @@ func analyzeDepTree(packages []*lexical.PackageData) {
 	}
 
 	analyzeHopCountBFS(rootPackages, packagesMap)
+
+	return rootPackages
 }
 
 func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[string]*lexical.PackageData) {

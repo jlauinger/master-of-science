@@ -50,6 +50,8 @@ type PackageData struct {
 	Deps        []string `csv:"-"`
 	HopCount    int      `csv:"package_hop_count"`
 	ImportStack []string `csv:"-"`
+
+	UnsafeSum   int      `csv:"package_unsafe_sum"`
 }
 
 type GrepFindingData struct {
