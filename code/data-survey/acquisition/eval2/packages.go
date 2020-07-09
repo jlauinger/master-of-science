@@ -58,7 +58,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 	return packages, nil
 }
 
-func getModuleData(pkg lexical.GoListOutputPackage, project lexical.ProjectData) (modulePath, moduleVersion, moduleRegistry string, moduleIsIndirect bool) {
+func getModuleData(pkg lexical.GoListOutputPackage, project *lexical.ProjectData) (modulePath, moduleVersion, moduleRegistry string, moduleIsIndirect bool) {
 	if pkg.Standard {
 		modulePath = "std"
 		moduleVersion = "std"
