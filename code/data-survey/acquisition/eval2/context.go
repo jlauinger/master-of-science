@@ -13,6 +13,10 @@ func getCodeLine(parsedPkg *packages.Package, n ast.Node) string {
 	file := parsedPkg.Fset.File(n.Pos())
 	lineNumber := file.Position(n.Pos()).Line  // 1-based
 
+	if lineNumber > file.LineCount() {
+		return "invalid-line-number"
+	}
+
 	startLine := lineNumber
 	endLine := lexical.Min(file.LineCount(), lineNumber + 1)
 
@@ -43,6 +47,10 @@ func getCodeLine(parsedPkg *packages.Package, n ast.Node) string {
 func getCodeContext(parsedPkg *packages.Package, n ast.Node) string {
 	file := parsedPkg.Fset.File(n.Pos())
 	lineNumber := file.Position(n.Pos()).Line  // 1-based
+
+	if lineNumber > file.LineCount() {
+		return "invalid-line-number"
+	}
 
 	startLine := lexical.Max(1, lineNumber - 5)
 	endLine := lexical.Min(file.LineCount(), lineNumber + 6)
