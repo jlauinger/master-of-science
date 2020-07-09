@@ -40,7 +40,7 @@ func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, f
 	// sum up the dependencies using the package hash map and a cache
 	seen := make(map[string]bool)
 	for _, pkg := range pkgs {
-		sumUpDependencies(pkg, pkgsMap, seen)
+		sumUpDependencies(pkg, pkgsMap, &seen)
 	}
 }
 
@@ -267,8 +267,8 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 	}
 }
 
-func sumUpDependencies(pkg *lexical.PackageData, pkgsMap map[string]*lexical.PackageData, seen map[string]bool) {
-	_, ok := seen[pkg.ImportPath]
+func sumUpDependencies(pkg *lexical.PackageData, pkgsMap map[string]*lexical.PackageData, seen *map[string]bool) {
+	_, ok := (*seen)[pkg.ImportPath]
 	if ok {
 		return
 	}
@@ -288,7 +288,7 @@ func sumUpDependencies(pkg *lexical.PackageData, pkgsMap map[string]*lexical.Pac
 		pkg.UnsafeSumWithDependencies += child.UnsafeSumWithDependencies
 	}
 
-	seen[pkg.ImportPath] = true
+	(*seen)[pkg.ImportPath] = true
 }
 
 /*func getTotalUnsafeCounts(parsedPkg *packages.Package, seen *map[*packages.Package]bool, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) TotalPackageCounts {
