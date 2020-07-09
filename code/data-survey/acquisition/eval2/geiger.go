@@ -31,16 +31,9 @@ func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, f
 		panic("error loading packages")
 	}
 
-	// count each package on its own
 	for _, parsedPkg := range parsedPkgs {
 		pkg := pkgsMap[parsedPkg.PkgPath]
 		geigerSinglePackage(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
-	}
-
-	// sum up the dependencies using the package hash map and a cache
-	seen := make(map[string]bool)
-	for _, pkg := range pkgs {
-		sumUpDependencies(pkg, pkgsMap, &seen)
 	}
 }
 
@@ -266,61 +259,3 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 		fmt.Println("SAVING ERROR!")
 	}
 }
-
-func sumUpDependencies(pkg *lexical.PackageData, pkgsMap map[string]*lexical.PackageData, seen *map[string]bool) {
-	_, ok := (*seen)[pkg.ImportPath]
-	if ok {
-		return
-	}
-
-	pkg.UnsafeSumWithDependencies = pkg.UnsafeSum
-
-	for _, childPath := range pkg.Imports {
-		if childPath == "C" {
-			continue
-		}
-		child, ok := pkgsMap[childPath]
-		if !ok {
-			panic("child not found")
-		}
-		sumUpDependencies(child, pkgsMap, seen)
-
-		pkg.UnsafeSumWithDependencies += child.UnsafeSumWithDependencies
-	}
-
-	(*seen)[pkg.ImportPath] = true
-}
-
-/*func getTotalUnsafeCounts(parsedPkg *packages.Package, seen *map[*packages.Package]bool, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) TotalPackageCounts {
-	_, ok := (*seen)[parsedPkg]
-	if ok {
-		return TotalPackageCounts{}
-	}
-	(*seen)[parsedPkg] = true
-
-	unsafeCounts := geigerSinglePackage(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
-
-	totalCounts := TotalPackageCounts{
-		UnsafePointerTotal:  unsafeCounts.UnsafeAlignofLocal,
-		UnsafeSizeofTotal:   unsafeCounts.UnsafeSizeofLocal,
-		UnsafeOffsetofTotal: unsafeCounts.UnsafeOffsetofLocal,
-		UnsafeAlignofTotal:  unsafeCounts.UnsafeAlignofLocal,
-		SliceHeaderTotal:    unsafeCounts.SliceHeaderLocal,
-		StringHeaderTotal:   unsafeCounts.StringHeaderLocal,
-		UintptrTotal:        unsafeCounts.UintptrLocal,
-	}
-
-	for _, child := range parsedPkg.Imports {
-		totalCountsChild := getTotalUnsafeCounts(child, seen, pkg, fileToLineCountMap, fileToByteCountMap)
-
-		totalCounts.UnsafePointerTotal += totalCountsChild.UnsafePointerTotal
-		totalCounts.UnsafeSizeofTotal += totalCountsChild.UnsafeSizeofTotal
-		totalCounts.UnsafeOffsetofTotal += totalCountsChild.UnsafeOffsetofTotal
-		totalCounts.UnsafeAlignofTotal += totalCountsChild.UnsafeAlignofTotal
-		totalCounts.SliceHeaderTotal += totalCountsChild.SliceHeaderTotal
-		totalCounts.StringHeaderTotal += totalCountsChild.StringHeaderTotal
-		totalCounts.UintptrTotal += totalCountsChild.UintptrTotal
-	}
-
-	return totalCounts
-}*/

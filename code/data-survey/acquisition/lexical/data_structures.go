@@ -52,7 +52,6 @@ type PackageData struct {
 	HopCount    int      `csv:"package_hop_count"`
 
 	UnsafeSum                  int  `csv:"package_unsafe_sum"`
-	UnsafeSumWithDependencies  int  `csv:"package_unsafe_sum_with_dependencies"`
 
 	UnsafePointerSum        int  `csv:"package_geiger_unsafe_pointer_sum"`
 	UnsafePointerVariable   int  `csv:"package_geiger_unsafe_pointer_variable"`
