@@ -6,7 +6,7 @@ import (
 )
 
 func analyzeHopCounts(packages []*lexical.PackageData) []*lexical.PackageData {
-	fmt.Println("  analyzing dependency structure and hop counts")
+	fmt.Println("  analyzing dependency structure and hop counts...")
 
 	packagesGetImported := make(map[string]bool, len(packages))
 	packagesMap := make(map[string]*lexical.PackageData, len(packages))

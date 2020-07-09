@@ -93,7 +93,7 @@ func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, f
 }
 
 func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) LocalPackageCounts {
-	cachedCounts, ok := packageUnsafeCountsCache[parsedPkg]
+	cachedCounts, ok := packageUnsafeCountsCache[parsedPkg.Name]
 	if ok {
 		return cachedCounts
 	}
@@ -234,7 +234,7 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 			}
 		}
 
-		//writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
+		writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
 
 		return true
 	})
@@ -272,12 +272,12 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 			}
 		}
 
-		//writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
+		writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
 
 		return true
 	})
 
-	packageUnsafeCountsCache[parsedPkg] = localPackageCounts
+	packageUnsafeCountsCache[parsedPkg.Name] = localPackageCounts
 
 	return localPackageCounts
 }
@@ -293,8 +293,8 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 	nodePosition := parsedPkg.Fset.Position(n.Pos())
 
 	err := lexical.WriteGeigerFinding(lexical.GeigerFindingData{
-		Text:              getCodeLine(parsedPkg, n),
-		Context:           getCodeContext(parsedPkg, n),
+		Text:              "", //getCodeLine(parsedPkg, n),
+		Context:           "", //getCodeContext(parsedPkg, n),
 		LineNumber:        nodePosition.Line,
 		Column:            nodePosition.Column,
 		AbsoluteOffset:    nodePosition.Offset,
