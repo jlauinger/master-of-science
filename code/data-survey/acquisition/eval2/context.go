@@ -26,8 +26,8 @@ func getCodeContext(parsedPkg *packages.Package, n ast.Node) (string, string) {
 	startLine := lexical.Max(1, lineNumber - 5)
 	endLine := lexical.Min(len(fileLines), lineNumber + 6)
 
-	text := strings.Trim(fileLines[lineNumber - 1], "\n\t")
-	context := strings.Join(fileLines[startLine - 1 : endLine], "\n")
+	text := strings.Trim(fileLines[lineNumber-1], "\n\t")
+	context := strings.Join(fileLines[startLine-1:endLine-1], "\n")
 
 	return text, context
 }
