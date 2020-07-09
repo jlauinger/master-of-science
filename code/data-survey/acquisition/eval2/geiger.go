@@ -273,7 +273,12 @@ func sumUpDependencies(pkg *lexical.PackageData, pkgsMap map[string]*lexical.Pac
 		return
 	}
 
+	pkg.UnsafeSumWithDependencies = pkg.UnsafeSum
+
 	for _, childPath := range pkg.Imports {
+		if childPath == "C" {
+			continue
+		}
 		child, ok := pkgsMap[childPath]
 		if !ok {
 			panic("child not found")
