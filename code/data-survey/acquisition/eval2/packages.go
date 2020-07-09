@@ -7,6 +7,7 @@ import (
 	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
 	"io"
 	"os/exec"
+	"strings"
 )
 
 func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, error) {
@@ -31,7 +32,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 			return nil, err
 		}
 
-		modulePath, moduleVersion, moduleRegistry, moduleIsIndirect := getModuleData(pkg)
+		modulePath, moduleVersion, moduleRegistry, moduleIsIndirect := getModuleData(pkg, project)
 
 		packages = append(packages, &lexical.PackageData{
 			Name:             pkg.Name,
@@ -57,7 +58,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 	return packages, nil
 }
 
-func getModuleData(pkg lexical.GoListOutputPackage) (modulePath, moduleVersion, moduleRegistry string, moduleIsIndirect bool) {
+func getModuleData(pkg lexical.GoListOutputPackage, project lexical.ProjectData) (modulePath, moduleVersion, moduleRegistry string, moduleIsIndirect bool) {
 	if pkg.Standard {
 		modulePath = "std"
 		moduleVersion = "std"
@@ -70,15 +71,28 @@ func getModuleData(pkg lexical.GoListOutputPackage) (modulePath, moduleVersion, 
 		moduleIsIndirect = false
 	} else if pkg.Module.Replace == nil {
 		modulePath = pkg.Module.Path
-		moduleVersion = pkg.Module.Version
+		if pkg.Module.Version != "" {
+			moduleVersion = pkg.Module.Version
+		} else if pkg.Module.Path == project.RootModule || strings.HasPrefix(pkg.Module.Path, "./") {
+			moduleVersion = "project"
+		} else {
+			moduleVersion = "unknown"
+		}
 		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Path)
 		moduleIsIndirect = pkg.Module.Indirect
 	} else {
 		modulePath = pkg.Module.Replace.Path
-		moduleVersion = pkg.Module.Replace.Version
+		if pkg.Module.Replace.Version != "" {
+			moduleVersion = pkg.Module.Replace.Version
+		} else if pkg.Module.Replace.Path == project.RootModule || strings.HasPrefix(pkg.Module.Replace.Path, "./") {
+			moduleVersion = "project"
+		} else {
+			moduleVersion = "unknown"
+		}
 		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Replace.Path)
 		moduleIsIndirect = pkg.Module.Replace.Indirect
 	}
+
 	return
 }
 
