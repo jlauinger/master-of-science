@@ -38,6 +38,55 @@ func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, f
 		localUnsafeSum := sumUp(localUnsafeCounts)
 
 		pkg.UnsafeSum = localUnsafeSum
+
+		pkg.UnsafePointerSum = localUnsafeCounts.UnsafePointerLocal
+		pkg.UnsafePointerAssignment = localUnsafeCounts.UnsafePointerAssignment
+		pkg.UnsafePointerCall = localUnsafeCounts.UnsafePointerCall
+		pkg.UnsafePointerParameter = localUnsafeCounts.UnsafePointerParameter
+		pkg.UnsafePointerVariable = localUnsafeCounts.UnsafePointerVariable
+		pkg.UnsafePointerOther = localUnsafeCounts.UnsafePointerOther
+
+		pkg.UnsafeSizeofSum = localUnsafeCounts.UnsafeSizeofLocal
+		pkg.UnsafeSizeofAssignment = localUnsafeCounts.UnsafeSizeofAssignment
+		pkg.UnsafeSizeofCall = localUnsafeCounts.UnsafeSizeofCall
+		pkg.UnsafeSizeofParameter = localUnsafeCounts.UnsafeSizeofParameter
+		pkg.UnsafeSizeofVariable = localUnsafeCounts.UnsafeSizeofVariable
+		pkg.UnsafeSizeofOther = localUnsafeCounts.UnsafeSizeofOther
+
+		pkg.UnsafeOffsetofSum = localUnsafeCounts.UnsafeOffsetofLocal
+		pkg.UnsafeOffsetofAssignment = localUnsafeCounts.UnsafeOffsetofAssignment
+		pkg.UnsafeOffsetofCall = localUnsafeCounts.UnsafeOffsetofCall
+		pkg.UnsafeOffsetofParameter = localUnsafeCounts.UnsafeOffsetofParameter
+		pkg.UnsafeOffsetofVariable = localUnsafeCounts.UnsafeOffsetofVariable
+		pkg.UnsafeOffsetofOther = localUnsafeCounts.UnsafeOffsetofOther
+
+		pkg.UnsafeAlignofSum = localUnsafeCounts.UnsafeAlignofLocal
+		pkg.UnsafeAlignofAssignment = localUnsafeCounts.UnsafeAlignofAssignment
+		pkg.UnsafeAlignofCall = localUnsafeCounts.UnsafeAlignofCall
+		pkg.UnsafeAlignofParameter = localUnsafeCounts.UnsafeAlignofParameter
+		pkg.UnsafeAlignofVariable = localUnsafeCounts.UnsafeAlignofVariable
+		pkg.UnsafeAlignofOther = localUnsafeCounts.UnsafeAlignofOther
+
+		pkg.SliceHeaderSum = localUnsafeCounts.SliceHeaderLocal
+		pkg.SliceHeaderAssignment = localUnsafeCounts.SliceHeaderAssignment
+		pkg.SliceHeaderCall = localUnsafeCounts.SliceHeaderCall
+		pkg.SliceHeaderParameter = localUnsafeCounts.SliceHeaderParameter
+		pkg.SliceHeaderVariable = localUnsafeCounts.SliceHeaderVariable
+		pkg.SliceHeaderOther = localUnsafeCounts.SliceHeaderOther
+
+		pkg.StringHeaderSum = localUnsafeCounts.StringHeaderLocal
+		pkg.StringHeaderAssignment = localUnsafeCounts.StringHeaderAssignment
+		pkg.StringHeaderCall = localUnsafeCounts.StringHeaderCall
+		pkg.StringHeaderParameter = localUnsafeCounts.StringHeaderParameter
+		pkg.StringHeaderVariable = localUnsafeCounts.StringHeaderVariable
+		pkg.StringHeaderOther = localUnsafeCounts.StringHeaderOther
+
+		pkg.UintptrSum = localUnsafeCounts.UintptrLocal
+		pkg.UintptrAssignment = localUnsafeCounts.UintptrAssignment
+		pkg.UintptrCall = localUnsafeCounts.UintptrCall
+		pkg.UintptrParameter = localUnsafeCounts.UintptrParameter
+		pkg.UintptrVariable = localUnsafeCounts.UintptrVariable
+		pkg.UintptrOther = localUnsafeCounts.UintptrOther
 	}
 }
 
@@ -241,7 +290,7 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 
 	nodePosition := parsedPkg.Fset.Position(n.Pos())
 
-	err := lexical.WriteGeigerFinding(GeigerFindingData{
+	err := lexical.WriteGeigerFinding(lexical.GeigerFindingData{
 		Text:              getCodeLine(parsedPkg, n),
 		Context:           getCodeContext(parsedPkg, n),
 		LineNumber:        nodePosition.Line,

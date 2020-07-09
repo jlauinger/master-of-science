@@ -2,7 +2,6 @@ package lexical
 
 import (
 	"github.com/gocarina/gocsv"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/eval2"
 	"os"
 )
 
@@ -112,12 +111,12 @@ func WritePackage(module PackageData) error {
 	}
 }
 
-func WriteGeigerFinding(geigerFinding eval2.GeigerFindingData) error {
+func WriteGeigerFinding(geigerFinding GeigerFindingData) error {
 	if geigerFindingsFileHeaderWritten {
-		return gocsv.MarshalWithoutHeaders([]eval2.GeigerFindingData{geigerFinding}, geigerFindingsFile)
+		return gocsv.MarshalWithoutHeaders([]GeigerFindingData{geigerFinding}, geigerFindingsFile)
 	} else {
 		geigerFindingsFileHeaderWritten = true
-		return gocsv.Marshal([]eval2.GeigerFindingData{geigerFinding}, geigerFindingsFile)
+		return gocsv.Marshal([]GeigerFindingData{geigerFinding}, geigerFindingsFile)
 	}
 }
 
