@@ -93,7 +93,7 @@ func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, f
 }
 
 func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) LocalPackageCounts {
-	cachedCounts, ok := packageUnsafeCountsCache[parsedPkg.Name]
+	cachedCounts, ok := packageUnsafeCountsCache[parsedPkg]
 	if ok {
 		return cachedCounts
 	}
@@ -272,16 +272,16 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 				contextType = "other"
 				localPackageCounts.UintptrOther++
 			}
+		}
 
-			if matchType != "unknown" {
-				writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
-			}
+		if matchType != "unknown" {
+			writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
 		}
 
 		return true
 	})
 
-	packageUnsafeCountsCache[parsedPkg.Name] = localPackageCounts
+	packageUnsafeCountsCache[parsedPkg] = localPackageCounts
 
 	return localPackageCounts
 }
