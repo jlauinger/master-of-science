@@ -32,8 +32,10 @@ func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, f
 	}
 
 	for _, parsedPkg := range parsedPkgs {
-		pkg := pkgsMap[parsedPkg.PkgPath]
-		geigerSinglePackage(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
+		pkg, ok := pkgsMap[parsedPkg.PkgPath]
+		if ok {
+			geigerSinglePackage(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
+		}
 	}
 }
 
