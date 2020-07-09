@@ -4,85 +4,30 @@ import (
 	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
 	"go/ast"
 	"golang.org/x/tools/go/packages"
-	"io"
-	"os"
+	"io/ioutil"
 	"strings"
 )
 
-func getCodeLine(parsedPkg *packages.Package, n ast.Node) string {
-	file := parsedPkg.Fset.File(n.Pos())
+func getCodeContext(parsedPkg *packages.Package, n ast.Node) (string, string) {
 	nodePosition := parsedPkg.Fset.File(n.Pos()).Position(n.Pos())
 	lineNumber := nodePosition.Line  // 1-based
-
-	if lineNumber > file.LineCount() {
-		return "invalid-line-number"
-	}
-
-	startLine := lineNumber
-	endLine := lexical.Min(file.LineCount(), lineNumber + 1)
-
-	start := file.Position(file.LineStart(startLine)).Offset
-	end := file.Position(file.LineStart(endLine)).Offset
-	if endLine == file.LineCount() {
-		end = file.Size()
-	}
-	length := end - start
-
 	filename := nodePosition.Filename
 
-	f, err := os.Open(filename)
+	fileData, err := ioutil.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
-	_, err = f.Seek(int64(start), 0)
-	if err != nil {
-		panic(err)
-	}
-	line := make([]byte, length)
-	_, err = io.ReadAtLeast(f, line, length)
-	if err != nil {
-		panic(err)
-	}
+	fileLines := strings.Split(string(fileData), "\n")
 
-	return strings.Trim(string(line), "\n\t ")
-}
-
-func getCodeContext(parsedPkg *packages.Package, n ast.Node) string {
-	file := parsedPkg.Fset.File(n.Pos())
-	nodePosition := parsedPkg.Fset.File(n.Pos()).Position(n.Pos())
-	lineNumber := nodePosition.Line  // 1-based
-
-	if lineNumber > file.LineCount() {
-		return "invalid-line-number"
+	if lineNumber > len(fileLines) {
+		return "invalid-line-number", "invalid-line-number"
 	}
 
 	startLine := lexical.Max(1, lineNumber - 5)
-	endLine := lexical.Min(file.LineCount(), lineNumber + 6)
+	endLine := lexical.Min(len(fileLines), lineNumber + 6)
 
-	start := file.Position(file.LineStart(startLine)).Offset
-	end := file.Position(file.LineStart(endLine)).Offset
-	if endLine == file.LineCount() {
-		end = file.Size()
-	}
-	length := end - start
+	text := strings.Trim(fileLines[lineNumber - 1], "\n\t")
+	context := strings.Join(fileLines[startLine - 1 : endLine], "\n")
 
-	filename := nodePosition.Filename
-
-	f, err := os.Open(filename)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	_, err = f.Seek(int64(start), 0)
-	if err != nil {
-		panic(err)
-	}
-	line := make([]byte, length)
-	_, err = io.ReadAtLeast(f, line, length)
-	if err != nil {
-		panic(err)
-	}
-
-	return strings.Trim(string(line), "\n\t ")
+	return text, context
 }

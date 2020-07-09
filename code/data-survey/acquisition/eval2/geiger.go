@@ -296,9 +296,11 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 
 	nodePosition := parsedPkg.Fset.File(n.Pos()).Position(n.Pos())
 
+	text, context := getCodeContext(parsedPkg, n)
+
 	err := lexical.WriteGeigerFinding(lexical.GeigerFindingData{
-		Text:              getCodeLine(parsedPkg, n),
-		Context:           getCodeContext(parsedPkg, n),
+		Text:              text,
+		Context:           context,
 		LineNumber:        nodePosition.Line,
 		Column:            nodePosition.Column,
 		AbsoluteOffset:    nodePosition.Offset,
