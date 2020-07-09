@@ -1,7 +1,5 @@
 package eval2
 
-import "golang.org/x/tools/go/packages"
-
 type TotalPackageCounts struct {
 	UnsafePointerTotal    	int
 	UnsafeSizeofTotal		int
@@ -63,8 +61,3 @@ type LocalPackageCounts struct {
 	UintptrOther      int
 }
 
-var packageUnsafeCountsCache map[*packages.Package]LocalPackageCounts
-
-func initCache() {
-	packageUnsafeCountsCache = map[*packages.Package]LocalPackageCounts{}
-}

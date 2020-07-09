@@ -8,7 +8,7 @@ import (
 func Run(dataDir string, offset, length int, skipProjects []string) {
 	packagesFilename := fmt.Sprintf("%s/packages_%d_%d.csv", dataDir, offset, offset + length - 1)
 	geigerFilename := fmt.Sprintf("%s/geiger/geiger_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
-	errorsFilename := fmt.Sprintf("%s/lexical/errors_grep_%d_%d.csv", dataDir, offset, offset + length - 1)
+	errorsFilename := fmt.Sprintf("%s/geiger/errors_geiger_%d_%d.csv", dataDir, offset, offset + length - 1)
 
 	if err := lexical.OpenPackagesFile(packagesFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)

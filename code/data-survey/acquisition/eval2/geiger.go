@@ -31,75 +31,14 @@ func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, f
 		panic("error loading packages")
 	}
 
-	initCache()
-
 	for _, parsedPkg := range parsedPkgs {
 		pkg := pkgsMap[parsedPkg.PkgPath]
-
-		localUnsafeCounts := getUnsafeCounts(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
-		localUnsafeSum := sumUp(localUnsafeCounts)
-
-		pkg.UnsafeSum = localUnsafeSum
-
-		pkg.UnsafePointerSum = localUnsafeCounts.UnsafePointerLocal
-		pkg.UnsafePointerAssignment = localUnsafeCounts.UnsafePointerAssignment
-		pkg.UnsafePointerCall = localUnsafeCounts.UnsafePointerCall
-		pkg.UnsafePointerParameter = localUnsafeCounts.UnsafePointerParameter
-		pkg.UnsafePointerVariable = localUnsafeCounts.UnsafePointerVariable
-		pkg.UnsafePointerOther = localUnsafeCounts.UnsafePointerOther
-
-		pkg.UnsafeSizeofSum = localUnsafeCounts.UnsafeSizeofLocal
-		pkg.UnsafeSizeofAssignment = localUnsafeCounts.UnsafeSizeofAssignment
-		pkg.UnsafeSizeofCall = localUnsafeCounts.UnsafeSizeofCall
-		pkg.UnsafeSizeofParameter = localUnsafeCounts.UnsafeSizeofParameter
-		pkg.UnsafeSizeofVariable = localUnsafeCounts.UnsafeSizeofVariable
-		pkg.UnsafeSizeofOther = localUnsafeCounts.UnsafeSizeofOther
-
-		pkg.UnsafeOffsetofSum = localUnsafeCounts.UnsafeOffsetofLocal
-		pkg.UnsafeOffsetofAssignment = localUnsafeCounts.UnsafeOffsetofAssignment
-		pkg.UnsafeOffsetofCall = localUnsafeCounts.UnsafeOffsetofCall
-		pkg.UnsafeOffsetofParameter = localUnsafeCounts.UnsafeOffsetofParameter
-		pkg.UnsafeOffsetofVariable = localUnsafeCounts.UnsafeOffsetofVariable
-		pkg.UnsafeOffsetofOther = localUnsafeCounts.UnsafeOffsetofOther
-
-		pkg.UnsafeAlignofSum = localUnsafeCounts.UnsafeAlignofLocal
-		pkg.UnsafeAlignofAssignment = localUnsafeCounts.UnsafeAlignofAssignment
-		pkg.UnsafeAlignofCall = localUnsafeCounts.UnsafeAlignofCall
-		pkg.UnsafeAlignofParameter = localUnsafeCounts.UnsafeAlignofParameter
-		pkg.UnsafeAlignofVariable = localUnsafeCounts.UnsafeAlignofVariable
-		pkg.UnsafeAlignofOther = localUnsafeCounts.UnsafeAlignofOther
-
-		pkg.SliceHeaderSum = localUnsafeCounts.SliceHeaderLocal
-		pkg.SliceHeaderAssignment = localUnsafeCounts.SliceHeaderAssignment
-		pkg.SliceHeaderCall = localUnsafeCounts.SliceHeaderCall
-		pkg.SliceHeaderParameter = localUnsafeCounts.SliceHeaderParameter
-		pkg.SliceHeaderVariable = localUnsafeCounts.SliceHeaderVariable
-		pkg.SliceHeaderOther = localUnsafeCounts.SliceHeaderOther
-
-		pkg.StringHeaderSum = localUnsafeCounts.StringHeaderLocal
-		pkg.StringHeaderAssignment = localUnsafeCounts.StringHeaderAssignment
-		pkg.StringHeaderCall = localUnsafeCounts.StringHeaderCall
-		pkg.StringHeaderParameter = localUnsafeCounts.StringHeaderParameter
-		pkg.StringHeaderVariable = localUnsafeCounts.StringHeaderVariable
-		pkg.StringHeaderOther = localUnsafeCounts.StringHeaderOther
-
-		pkg.UintptrSum = localUnsafeCounts.UintptrLocal
-		pkg.UintptrAssignment = localUnsafeCounts.UintptrAssignment
-		pkg.UintptrCall = localUnsafeCounts.UintptrCall
-		pkg.UintptrParameter = localUnsafeCounts.UintptrParameter
-		pkg.UintptrVariable = localUnsafeCounts.UintptrVariable
-		pkg.UintptrOther = localUnsafeCounts.UintptrOther
+		geigerSinglePackage(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
 	}
 }
 
-func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) LocalPackageCounts {
-	cachedCounts, ok := packageUnsafeCountsCache[parsedPkg]
-	if ok {
-		return cachedCounts
-	}
-
+func geigerSinglePackage(parsedPkg *packages.Package, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
 	inspectResult := inspector.New(parsedPkg.Syntax)
-	localPackageCounts := LocalPackageCounts{}
 
 	seenSelectorExprs := map[*ast.SelectorExpr]bool{}
 	inspectResult.WithStack([]ast.Node{(*ast.SelectorExpr)(nil)}, func(n ast.Node, push bool, stack []ast.Node) bool {
@@ -114,123 +53,123 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 		contextType := "unknown"
 
 		if isUnsafePointer(node) {
-			localPackageCounts.UnsafePointerLocal++
+			pkg.UnsafePointerSum++
 			matchType = "unsafe.Pointer"
 			if isInAssignment(stack) {
 				contextType = "assignment"
-				localPackageCounts.UnsafePointerAssignment++
+				pkg.UnsafePointerAssignment++
 			} else if isArgument(stack) {
 				contextType = "call"
-				localPackageCounts.UnsafePointerCall++
+				pkg.UnsafePointerCall++
 			} else if isParameter(stack) {
 				contextType = "parameter"
-				localPackageCounts.UnsafePointerParameter++
+				pkg.UnsafePointerParameter++
 			} else if isInVariableDefinition(stack) {
 				contextType = "variable"
-				localPackageCounts.UnsafePointerVariable++
+				pkg.UnsafePointerVariable++
 			} else {
 				contextType = "other"
-				localPackageCounts.UnsafePointerOther++
+				pkg.UnsafePointerOther++
 			}
 		}
 		if isUnsafeSizeof(node) {
-			localPackageCounts.UnsafeSizeofLocal++
+			pkg.UnsafeSizeofSum++
 			matchType = "unsafe.Sizeof"
 			if isInAssignment(stack) {
 				contextType = "assignment"
-				localPackageCounts.UnsafeSizeofAssignment++
+				pkg.UnsafeSizeofAssignment++
 			} else if isArgument(stack) {
 				contextType = "call"
-				localPackageCounts.UnsafeSizeofCall++
+				pkg.UnsafeSizeofCall++
 			} else if isParameter(stack) {
 				contextType = "parameter"
-				localPackageCounts.UnsafeSizeofParameter++
+				pkg.UnsafeSizeofParameter++
 			} else if isInVariableDefinition(stack) {
 				contextType = "variable"
-				localPackageCounts.UnsafeSizeofVariable++
+				pkg.UnsafeSizeofVariable++
 			} else {
 				contextType = "other"
-				localPackageCounts.UnsafeSizeofOther++
+				pkg.UnsafeSizeofOther++
 			}
 		}
 		if isUnsafeOffsetof(node) {
-			localPackageCounts.UnsafeOffsetofLocal++
+			pkg.UnsafeOffsetofSum++
 			matchType = "unsafe.Offsetof"
 			if isInAssignment(stack) {
 				contextType = "assignment"
-				localPackageCounts.UnsafeOffsetofAssignment++
+				pkg.UnsafeOffsetofAssignment++
 			} else if isArgument(stack) {
 				contextType = "call"
-				localPackageCounts.UnsafeOffsetofCall++
+				pkg.UnsafeOffsetofCall++
 			} else if isParameter(stack) {
 				contextType = "parameter"
-				localPackageCounts.UnsafeOffsetofParameter++
+				pkg.UnsafeOffsetofParameter++
 			} else if isInVariableDefinition(stack) {
 				contextType = "variable"
-				localPackageCounts.UnsafeOffsetofVariable++
+				pkg.UnsafeOffsetofVariable++
 			} else {
 				contextType = "other"
-				localPackageCounts.UnsafeOffsetofOther++
+				pkg.UnsafeOffsetofOther++
 			}
 		}
 		if isUnsafeAlignof(node) {
-			localPackageCounts.UnsafeAlignofLocal++
+			pkg.UnsafeAlignofSum++
 			matchType = "unsafe.Alignof"
 			if isInAssignment(stack) {
 				contextType = "assignment"
-				localPackageCounts.UnsafeAlignofAssignment++
+				pkg.UnsafeAlignofAssignment++
 			} else if isArgument(stack) {
 				contextType = "call"
-				localPackageCounts.UnsafeAlignofCall++
+				pkg.UnsafeAlignofCall++
 			} else if isParameter(stack) {
 				contextType = "parameter"
-				localPackageCounts.UnsafeAlignofParameter++
+				pkg.UnsafeAlignofParameter++
 			} else if isInVariableDefinition(stack) {
 				contextType = "variable"
-				localPackageCounts.UnsafeAlignofVariable++
+				pkg.UnsafeAlignofVariable++
 			} else {
 				contextType = "other"
-				localPackageCounts.UnsafeAlignofOther++
+				pkg.UnsafeAlignofOther++
 			}
 		}
 		if isReflectSliceHeader(node) {
-			localPackageCounts.SliceHeaderLocal++
+			pkg.SliceHeaderSum++
 			matchType = "reflect.SliceHeader"
 			if isInAssignment(stack) {
 				contextType = "assignment"
-				localPackageCounts.SliceHeaderAssignment++
+				pkg.SliceHeaderAssignment++
 			} else if isArgument(stack) {
 				contextType = "call"
-				localPackageCounts.SliceHeaderCall++
+				pkg.SliceHeaderCall++
 			} else if isParameter(stack) {
 				contextType = "parameter"
-				localPackageCounts.SliceHeaderParameter++
+				pkg.SliceHeaderParameter++
 			} else if isInVariableDefinition(stack) {
 				contextType = "variable"
-				localPackageCounts.SliceHeaderVariable++
+				pkg.SliceHeaderVariable++
 			} else {
 				contextType = "other"
-				localPackageCounts.SliceHeaderOther++
+				pkg.SliceHeaderOther++
 			}
 		}
 		if isReflectStringHeader(node) {
-			localPackageCounts.StringHeaderLocal++
+			pkg.StringHeaderSum++
 			matchType = "reflect.StringHeader"
 			if isInAssignment(stack) {
 				contextType = "assignment"
-				localPackageCounts.StringHeaderAssignment++
+				pkg.StringHeaderAssignment++
 			} else if isArgument(stack) {
 				contextType = "call"
-				localPackageCounts.StringHeaderCall++
+				pkg.StringHeaderCall++
 			} else if isParameter(stack) {
 				contextType = "parameter"
-				localPackageCounts.StringHeaderParameter++
+				pkg.StringHeaderParameter++
 			} else if isInVariableDefinition(stack) {
 				contextType = "variable"
-				localPackageCounts.StringHeaderVariable++
+				pkg.StringHeaderVariable++
 			} else {
 				contextType = "other"
-				localPackageCounts.StringHeaderOther++
+				pkg.StringHeaderOther++
 			}
 		}
 
@@ -254,23 +193,23 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 		contextType := "unknown"
 
 		if isUintptr(node) {
-			localPackageCounts.UintptrLocal++
+			pkg.UintptrSum++
 			matchType = "uintptr"
 			if isInAssignment(stack) {
 				contextType = "assignment"
-				localPackageCounts.UintptrAssignment++
+				pkg.UintptrAssignment++
 			} else if isArgument(stack) {
 				contextType = "call"
-				localPackageCounts.UintptrCall++
+				pkg.UintptrCall++
 			} else if isParameter(stack) {
 				contextType = "parameter"
-				localPackageCounts.UintptrParameter++
+				pkg.UintptrParameter++
 			} else if isInVariableDefinition(stack) {
 				contextType = "variable"
-				localPackageCounts.UintptrVariable++
+				pkg.UintptrVariable++
 			} else {
 				contextType = "other"
-				localPackageCounts.UintptrOther++
+				pkg.UintptrOther++
 			}
 		}
 
@@ -281,14 +220,8 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 		return true
 	})
 
-	packageUnsafeCountsCache[parsedPkg] = localPackageCounts
-
-	return localPackageCounts
-}
-
-func sumUp(counts LocalPackageCounts) int {
-	return counts.UnsafePointerLocal + counts.UnsafeSizeofLocal + counts.UnsafeOffsetofLocal +
-		counts.UnsafeAlignofLocal + counts.StringHeaderLocal + counts.SliceHeaderLocal + counts.UintptrLocal
+	pkg.UnsafeSum = pkg.UnsafePointerSum + pkg.UnsafeSizeofSum + pkg.UnsafeOffsetofSum +
+		pkg.UnsafeAlignofSum + pkg.StringHeaderSum + pkg.SliceHeaderSum + pkg.UintptrSum
 }
 
 func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData, matchType, contextType string,
@@ -327,14 +260,14 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 	}
 }
 
-func getTotalUnsafeCounts(parsedPkg *packages.Package, seen *map[*packages.Package]bool, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) TotalPackageCounts {
+/*func getTotalUnsafeCounts(parsedPkg *packages.Package, seen *map[*packages.Package]bool, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) TotalPackageCounts {
 	_, ok := (*seen)[parsedPkg]
 	if ok {
 		return TotalPackageCounts{}
 	}
 	(*seen)[parsedPkg] = true
 
-	unsafeCounts := getUnsafeCounts(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
+	unsafeCounts := geigerSinglePackage(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
 
 	totalCounts := TotalPackageCounts{
 		UnsafePointerTotal:  unsafeCounts.UnsafeAlignofLocal,
@@ -359,4 +292,4 @@ func getTotalUnsafeCounts(parsedPkg *packages.Package, seen *map[*packages.Packa
 	}
 
 	return totalCounts
-}
+}*/
