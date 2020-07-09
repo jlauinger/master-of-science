@@ -11,7 +11,8 @@ import (
 
 func getCodeLine(parsedPkg *packages.Package, n ast.Node) string {
 	file := parsedPkg.Fset.File(n.Pos())
-	lineNumber := file.Position(n.Pos()).Line  // 1-based
+	nodePosition := parsedPkg.Fset.File(n.Pos()).Position(n.Pos())
+	lineNumber := nodePosition.Line  // 1-based
 
 	if lineNumber > file.LineCount() {
 		return "invalid-line-number"
@@ -27,7 +28,7 @@ func getCodeLine(parsedPkg *packages.Package, n ast.Node) string {
 	}
 	length := end - start
 
-	filename := file.Name()
+	filename := nodePosition.Filename
 
 	f, err := os.Open(filename)
 	if err != nil {
@@ -49,7 +50,8 @@ func getCodeLine(parsedPkg *packages.Package, n ast.Node) string {
 
 func getCodeContext(parsedPkg *packages.Package, n ast.Node) string {
 	file := parsedPkg.Fset.File(n.Pos())
-	lineNumber := file.Position(n.Pos()).Line  // 1-based
+	nodePosition := parsedPkg.Fset.File(n.Pos()).Position(n.Pos())
+	lineNumber := nodePosition.Line  // 1-based
 
 	if lineNumber > file.LineCount() {
 		return "invalid-line-number"
@@ -65,7 +67,7 @@ func getCodeContext(parsedPkg *packages.Package, n ast.Node) string {
 	}
 	length := end - start
 
-	filename := file.Name()
+	filename := nodePosition.Filename
 
 	f, err := os.Open(filename)
 	if err != nil {

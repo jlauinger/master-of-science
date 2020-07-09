@@ -294,7 +294,7 @@ func sumUp(counts LocalPackageCounts) int {
 func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData, matchType, contextType string,
 	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
-	nodePosition := parsedPkg.Fset.Position(n.Pos())
+	nodePosition := parsedPkg.Fset.File(n.Pos()).Position(n.Pos())
 
 	err := lexical.WriteGeigerFinding(lexical.GeigerFindingData{
 		Text:              getCodeLine(parsedPkg, n),
