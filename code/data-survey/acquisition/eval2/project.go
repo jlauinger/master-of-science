@@ -32,11 +32,17 @@ func analyzeProject(project *lexical.ProjectData) error {
 	}
 	fillPackageLOC(packages, fileToLineCountMap, fileToByteCountMap)
 
-	analyzeDepTree(packages)
+	analyzeHopCounts(packages)
 
 	geigerPackages(project, packages, fileToLineCountMap, fileToByteCountMap)
 
 	writePackages(packages)
+
+	projectSum := 0
+	for _, pkg := range packages {
+		projectSum += pkg.UnsafeSum
+	}
+	fmt.Printf("  unsafe sum: %d\n", projectSum)
 
 	return nil
 }

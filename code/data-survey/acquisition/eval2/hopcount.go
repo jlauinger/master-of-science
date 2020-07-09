@@ -1,8 +1,13 @@
 package eval2
 
-import "github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+import (
+	"fmt"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+)
 
-func analyzeDepTree(packages []*lexical.PackageData) []*lexical.PackageData {
+func analyzeHopCounts(packages []*lexical.PackageData) []*lexical.PackageData {
+	fmt.Println("  analyzing dependency structure and hop counts")
+
 	packagesGetImported := make(map[string]bool, len(packages))
 	packagesMap := make(map[string]*lexical.PackageData, len(packages))
 

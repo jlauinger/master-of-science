@@ -9,6 +9,8 @@ import (
 )
 
 func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
+	fmt.Println("  parsing packages and counting unsafe using geiger...")
+
 	pkgsMap := make(map[string]*lexical.PackageData)
 	for _, pkg := range pkgs {
 		pkgsMap[pkg.ImportPath] = pkg
@@ -232,7 +234,7 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 			}
 		}
 
-		writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
+		//writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
 
 		return true
 	})
@@ -270,7 +272,7 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 			}
 		}
 
-		writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
+		//writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
 
 		return true
 	})

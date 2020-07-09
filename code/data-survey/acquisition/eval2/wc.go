@@ -8,7 +8,7 @@ import (
 )
 
 func countLines(files []string) (map[string]int, error) {
-	fmt.Println("  running wc to count LOC")
+	fmt.Println("  running wc to count LOC...")
 
 	args := []string{"-l"}
 	args = append(args, files...)
