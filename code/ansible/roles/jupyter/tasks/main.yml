@@ -81,5 +81,6 @@
       - pandas
       - sklearn
       - nltk
+      - seaborn
     virtualenv: /root/jupyter/venv
   tags: jupyter
