@@ -319,14 +319,14 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 	}
 }
 
-func getTotalUnsafeCounts(pkg *packages.Package, seen *map[*packages.Package]bool) TotalPackageCounts {
-	_, ok := (*seen)[pkg]
+func getTotalUnsafeCounts(parsedPkg *packages.Package, seen *map[*packages.Package]bool, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) TotalPackageCounts {
+	_, ok := (*seen)[parsedPkg]
 	if ok {
 		return TotalPackageCounts{}
 	}
-	(*seen)[pkg] = true
+	(*seen)[parsedPkg] = true
 
-	unsafeCounts := getUnsafeCounts(pkg)
+	unsafeCounts := getUnsafeCounts(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
 
 	totalCounts := TotalPackageCounts{
 		UnsafePointerTotal:  unsafeCounts.UnsafeAlignofLocal,
@@ -338,8 +338,8 @@ func getTotalUnsafeCounts(pkg *packages.Package, seen *map[*packages.Package]boo
 		UintptrTotal:        unsafeCounts.UintptrLocal,
 	}
 
-	for _, child := range pkg.Imports {
-		totalCountsChild := getTotalUnsafeCounts(child, seen)
+	for _, child := range parsedPkg.Imports {
+		totalCountsChild := getTotalUnsafeCounts(child, seen, pkg, fileToLineCountMap, fileToByteCountMap)
 
 		totalCounts.UnsafePointerTotal += totalCountsChild.UnsafePointerTotal
 		totalCounts.UnsafeSizeofTotal += totalCountsChild.UnsafeSizeofTotal
