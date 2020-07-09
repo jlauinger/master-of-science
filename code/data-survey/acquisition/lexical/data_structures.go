@@ -48,10 +48,59 @@ type PackageData struct {
 	GoFiles     []string `csv:"-"`
 	Imports     []string `csv:"-"`
 	Deps        []string `csv:"-"`
-	HopCount    int      `csv:"package_hop_count"`
 	ImportStack []string `csv:"-"`
+	HopCount    int      `csv:"package_hop_count"`
 
-	UnsafeSum   int      `csv:"package_unsafe_sum"`
+	UnsafeSum               int  `csv:"package_unsafe_sum"`
+
+	UnsafePointerLocal      int  `csv:"package_geiger_unsafe_pointer_sum"`
+	UnsafePointerVariable   int  `csv:"package_geiger_unsafe_pointer_variable"`
+	UnsafePointerParameter  int  `csv:"package_geiger_unsafe_pointer_parameter"`
+	UnsafePointerAssignment int  `csv:"package_geiger_unsafe_pointer_assignment"`
+	UnsafePointerCall       int  `csv:"package_geiger_unsafe_pointer_call"`
+	UnsafePointerOther      int  `csv:"package_geiger_unsafe_pointer_other"`
+
+	UnsafeSizeofLocal      int  `csv:"package_geiger_unsafe_sizeof_sum"`
+	UnsafeSizeofVariable   int  `csv:"package_geiger_unsafe_sizeof_variable"`
+	UnsafeSizeofParameter  int  `csv:"package_geiger_unsafe_sizeof_parameter"`
+	UnsafeSizeofAssignment int  `csv:"package_geiger_unsafe_sizeof_assignment"`
+	UnsafeSizeofCall       int  `csv:"package_geiger_unsafe_sizeof_call"`
+	UnsafeSizeofOther      int  `csv:"package_geiger_unsafe_sizeof_other"`
+
+	UnsafeOffsetofLocal      int  `csv:"package_geiger_unsafe_offsetof_sum"`
+	UnsafeOffsetofVariable   int  `csv:"package_geiger_unsafe_offsetof_variable"`
+	UnsafeOffsetofParameter  int  `csv:"package_geiger_unsafe_offsetof_parameter"`
+	UnsafeOffsetofAssignment int  `csv:"package_geiger_unsafe_offsetof_assignment"`
+	UnsafeOffsetofCall       int  `csv:"package_geiger_unsafe_offsetof_call"`
+	UnsafeOffsetofOther      int  `csv:"package_geiger_unsafe_offsetof_other"`
+
+	UnsafeAlignofLocal      int  `csv:"package_geiger_unsafe_alignof_sum"`
+	UnsafeAlignofVariable   int  `csv:"package_geiger_unsafe_alignof_variable"`
+	UnsafeAlignofParameter  int  `csv:"package_geiger_unsafe_alignof_parameter"`
+	UnsafeAlignofAssignment int  `csv:"package_geiger_unsafe_alignof_assignment"`
+	UnsafeAlignofCall       int  `csv:"package_geiger_unsafe_alignof_call"`
+	UnsafeAlignofOther      int  `csv:"package_geiger_unsafe_alignof_other"`
+
+	SliceHeaderLocal      int  `csv:"package_geiger_slice_header_sum"`
+	SliceHeaderVariable   int  `csv:"package_geiger_slice_header_variable"`
+	SliceHeaderParameter  int  `csv:"package_geiger_slice_header_parameter"`
+	SliceHeaderAssignment int  `csv:"package_geiger_slice_header_assignment"`
+	SliceHeaderCall       int  `csv:"package_geiger_slice_header_call"`
+	SliceHeaderOther      int  `csv:"package_geiger_slice_header_other"`
+
+	StringHeaderLocal      int  `csv:"package_geiger_string_header_sum"`
+	StringHeaderVariable   int  `csv:"package_geiger_string_header_variable"`
+	StringHeaderParameter  int  `csv:"package_geiger_string_header_parameter"`
+	StringHeaderAssignment int  `csv:"package_geiger_string_header_assignment"`
+	StringHeaderCall       int  `csv:"package_geiger_string_header_call"`
+	StringHeaderOther      int  `csv:"package_geiger_string_header_other"`
+
+	UintptrLocal      int  `csv:"package_geiger_uintptr_sum"`
+	UintptrVariable   int  `csv:"package_geiger_uintptr_variable"`
+	UintptrParameter  int  `csv:"package_geiger_uintptr_parameter"`
+	UintptrAssignment int  `csv:"package_geiger_uintptr_assignment"`
+	UintptrCall       int  `csv:"package_geiger_uintptr_call"`
+	UintptrOther      int  `csv:"package_geiger_uintptr_other"`
 }
 
 type GrepFindingData struct {

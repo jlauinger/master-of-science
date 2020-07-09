@@ -34,13 +34,7 @@ func analyzeProject(project *lexical.ProjectData) error {
 
 	analyzeDepTree(packages)
 
-	geigerPackages(project, packages)
-
-	projectUnsafeSum := 0
-	for _, pkg := range packages {
-		projectUnsafeSum += pkg.UnsafeSum
-	}
-	fmt.Printf("total project unsafe sum: %d\n", projectUnsafeSum)
+	geigerPackages(project, packages, fileToLineCountMap, fileToByteCountMap)
 
 	writePackages(packages)
 
