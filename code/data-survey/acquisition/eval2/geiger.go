@@ -234,7 +234,9 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 			}
 		}
 
-		writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
+		if matchType != "unknown" {
+			writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
+		}
 
 		return true
 	})
@@ -270,9 +272,11 @@ func getUnsafeCounts(parsedPkg *packages.Package, pkg *lexical.PackageData, file
 				contextType = "other"
 				localPackageCounts.UintptrOther++
 			}
-		}
 
-		writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
+			if matchType != "unknown" {
+				writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
+			}
+		}
 
 		return true
 	})
@@ -293,8 +297,8 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 	nodePosition := parsedPkg.Fset.Position(n.Pos())
 
 	err := lexical.WriteGeigerFinding(lexical.GeigerFindingData{
-		Text:              "", //getCodeLine(parsedPkg, n),
-		Context:           "", //getCodeContext(parsedPkg, n),
+		Text:              getCodeLine(parsedPkg, n),
+		Context:           getCodeContext(parsedPkg, n),
 		LineNumber:        nodePosition.Line,
 		Column:            nodePosition.Column,
 		AbsoluteOffset:    nodePosition.Offset,
