@@ -22,6 +22,9 @@ func getCodeLine(parsedPkg *packages.Package, n ast.Node) string {
 
 	start := file.Position(file.LineStart(startLine)).Offset
 	end := file.Position(file.LineStart(endLine)).Offset
+	if endLine == file.LineCount() {
+		end = file.Size()
+	}
 	length := end - start
 
 	filename := file.Name()
@@ -57,6 +60,9 @@ func getCodeContext(parsedPkg *packages.Package, n ast.Node) string {
 
 	start := file.Position(file.LineStart(startLine)).Offset
 	end := file.Position(file.LineStart(endLine)).Offset
+	if endLine == file.LineCount() {
+		end = file.Size()
+	}
 	length := end - start
 
 	filename := file.Name()
