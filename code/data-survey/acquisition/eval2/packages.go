@@ -71,26 +71,28 @@ func getModuleData(pkg lexical.GoListOutputPackage, project *lexical.ProjectData
 		moduleIsIndirect = false
 	} else if pkg.Module.Replace == nil {
 		modulePath = pkg.Module.Path
+		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Path)
+		moduleIsIndirect = pkg.Module.Indirect
 		if pkg.Module.Version != "" {
 			moduleVersion = pkg.Module.Version
 		} else if pkg.Module.Path == project.RootModule || strings.HasPrefix(pkg.Module.Path, "./") {
 			moduleVersion = "project"
+			moduleRegistry = lexical.GetRegistryFromImportPath(project.RootModule)
 		} else {
 			moduleVersion = "unknown"
 		}
-		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Path)
-		moduleIsIndirect = pkg.Module.Indirect
 	} else {
 		modulePath = pkg.Module.Replace.Path
+		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Replace.Path)
+		moduleIsIndirect = pkg.Module.Replace.Indirect
 		if pkg.Module.Replace.Version != "" {
 			moduleVersion = pkg.Module.Replace.Version
 		} else if pkg.Module.Replace.Path == project.RootModule || strings.HasPrefix(pkg.Module.Replace.Path, "./") {
 			moduleVersion = "project"
+			moduleRegistry = lexical.GetRegistryFromImportPath(project.RootModule)
 		} else {
 			moduleVersion = "unknown"
 		}
-		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Replace.Path)
-		moduleIsIndirect = pkg.Module.Replace.Indirect
 	}
 
 	return
