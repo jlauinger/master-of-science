@@ -243,6 +243,7 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 		FileLoc:           fileToLineCountMap[nodePosition.Filename],
 		FileByteSize:      fileToByteCountMap[nodePosition.Filename],
 		PackageImportPath: pkg.ImportPath,
+		PackageDir:        pkg.Dir,
 		ModulePath:        pkg.ModulePath,
 		ModuleVersion:     pkg.ModuleVersion,
 		ProjectName:       pkg.ProjectName,

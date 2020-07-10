@@ -116,6 +116,7 @@ type GeigerFindingData struct {
 	FileLoc              int    `csv:"file_loc"`
 	FileByteSize         int    `csv:"file_byte_size"`
 	PackageImportPath    string `csv:"package_import_path"`
+	PackageDir           string `csv:"package_dir"`
 	ModulePath           string `csv:"module_path"`
 	ModuleVersion        string `csv:"module_version"`
 	ProjectName          string `csv:"project_name"`
