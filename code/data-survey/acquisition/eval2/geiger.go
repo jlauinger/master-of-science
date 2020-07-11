@@ -6,6 +6,7 @@ import (
 	"go/ast"
 	"golang.org/x/tools/go/ast/inspector"
 	"golang.org/x/tools/go/packages"
+	"strings"
 )
 
 func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
@@ -229,7 +230,13 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 
 	nodePosition := parsedPkg.Fset.File(n.Pos()).Position(n.Pos())
 	text, context := getCodeContext(parsedPkg, n)
-	filename := nodePosition.Filename[len(pkg.Dir)+1:]
+
+	var filename string
+	if strings.Contains(filename, ".cache/go-build") {
+		filename = nodePosition.Filename
+	} else {
+		filename = nodePosition.Filename[len(pkg.Dir)+1:]
+	}
 
 	err := lexical.WriteGeigerFinding(lexical.GeigerFindingData{
 		Text:              text,
