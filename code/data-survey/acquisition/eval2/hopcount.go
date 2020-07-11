@@ -54,7 +54,7 @@ func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[str
 	}
 
 	queue := make([]PackageAndPotentialHopCount, 0)
-	seen := make(map[string]bool, 0)
+	seen := make(map[*lexical.PackageData]bool, 0)
 
 	for _, rootPkg := range rootPackages {
 		queue = append(queue, PackageAndPotentialHopCount{
@@ -76,7 +76,7 @@ func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[str
 		// set hop count and mark package as seen in BFS
 		queueItem.Pkg.HopCount = queueItem.PotentialHopCount
 		queueItem.Pkg.ImportStack = queueItem.ImportStack
-		seen[queueItem.Pkg.ImportPath] = true
+		seen[queueItem.Pkg] = true
 
 		for _, childPath := range queueItem.Pkg.Imports {
 			// ignore the Cgo import
@@ -87,7 +87,7 @@ func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[str
 			if !ok {
 				panic("child not found")
 			}
-			_, ok = seen[child.ImportPath]
+			_, ok = seen[child]
 			if !ok {
 				// push unseen children to the back of the queue
 				queue = append(queue, PackageAndPotentialHopCount{
