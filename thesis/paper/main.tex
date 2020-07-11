@@ -1,0 +1,180 @@
+\documentclass[conference,compsoc]{IEEEtran}
+
+% *** CITATION PACKAGES ***
+%
+\ifCLASSOPTIONcompsoc
+  % IEEE Computer Society needs nocompress option
+  % requires cite.sty v4.0 or later (November 2003)
+  \usepackage[nocompress]{cite}
+\else
+  % normal IEEE
+  \usepackage{cite}
+\fi
+
+% *** PDF, URL AND HYPERLINK PACKAGES ***
+%
+\usepackage{url}
+% url.sty was written by Donald Arseneau. It provides better support for
+% handling and breaking URLs. url.sty is already installed on most LaTeX
+% systems. The latest version and documentation can be obtained at:
+% http://www.ctan.org/pkg/url
+% Basically, \url{my_url_here}.
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+%\usepackage[hyphens]{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nolist]{acronym}
+\usepackage{amssymb}
+\usepackage{blindtext}
+\usepackage{enumitem}
+\usepackage{makecell}
+\usepackage{listing}
+\usepackage{tabularx}
+\usepackage{enumitem} % Add labels for RQs defined in enumerated list
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{positioning, fit} % positioning enables relative positions in tikz, fit enable to create groups of nodes
+
+\definecolor{verylightgray}{RGB}{240,240,240}
+\definecolor{fuchsia}{rgb}{1.0, 0.0, 1.0}
+
+%% Tikz
+\usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage{pgfplots}
+\DeclareUnicodeCharacter{2212}{−}
+\usepgfplotslibrary{groupplots,dateplot}
+\usetikzlibrary{patterns,shapes.arrows}
+\pgfplotsset{compat=newest}
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\newcommand{\todo}[1]{{\color{red}\textbf{Todo: #1}}}
+\newcommand{\new}[1]{{\color{blue}#1}}
+%\newcommand{\footurl}[1]{{\footnote{\url{#1}}}}
+\newcommand{\footurl}[1]{{\footnote{#1}}}
+
+\newcommand{\jl}[1]{{\color{fuchsia}\textbf{Johannes:} #1}}
+\newcommand{\lb}[1]{{\color{red}\textbf{Lars:} #1}}
+\newcommand{\aw}[1]{{\color{green!60!black}\textbf{Anna:} #1}}
+
+\newcommand{\checkNum}[1]{{\color{red}#1}}
+
+
+\begin{document}
+%
+% paper title
+% Titles are generally capitalized except for words such as a, an, and, as,
+% at, but, by, for, in, nor, of, on, or, the, to and up, which are usually
+% not capitalized unless they are the first or last word of the title.
+% Linebreaks \\ can be used within to get better formatting as desired.
+% Do not put math or special symbols in the title.
+\title{An Empirical Study of Prevalence, Purpose, and Dangers\\ of Unsafe Go Code in the Wild}
+
+
+% conference papers do not typically use \thanks and this command
+% is locked out in conference mode. If really needed, such as for
+% the acknowledgment of grants, issue a \IEEEoverridecommandlockouts
+% after \documentclass
+
+% for over three affiliations, or if they all won't fit within the width
+% of the page (and note that there is less available width in this regard for
+% compsoc conferences compared to traditional conferences), use this
+% alternative format:
+% 
+\author{
+\IEEEauthorblockN{
+A A\IEEEauthorrefmark{2},
+B B\IEEEauthorrefmark{1},
+C C\IEEEauthorrefmark{1}, 
+Mira Mezini\IEEEauthorrefmark{1}
+}
+\IEEEauthorblockA{
+Technical University of Darmstadt, D-64289 Darmstadt, Germany\\
+}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}
+E-mail: \{A, B , C, mezini\}@cs.tu-darmstadt.de \\
+}
+\IEEEauthorblockA{\IEEEauthorrefmark{2}
+E-mail: A@cs.tu-darmstadt.de \\
+}
+}
+
+\input{macros.tex}
+
+% use for special paper notices
+%\IEEEspecialpapernotice{(Invited Paper)}
+
+% make the title area
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract
+\begin{abstract}
+\input{00_abstract}
+\end{abstract}
+
+% no keywords
+
+% For peer review papers, you can put extra information on the cover
+% page as needed:
+% \ifCLASSOPTIONpeerreview
+% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
+% \fi
+%
+% For peerreview papers, this IEEEtran command inserts a page break and
+% creates the second title. It will be ignored for other modes.
+\IEEEpeerreviewmaketitle
+
+
+\input{01_intro}
+\input{02_background}
+\input{03_related_work}
+\input{04_implementation}
+\input{05_evaluation}
+\input{06_exploits}
+\input{07_tools}
+\input{08_discussion}
+\input{09_conclusion}
+
+% conference papers do not normally have an appendix
+
+% use section* for acknowledgment
+\ifCLASSOPTIONcompsoc
+  % The Computer Society usually uses the plural form
+  \section*{Acknowledgments}
+\else
+  % regular IEEE prefers the singular form
+  \section*{Acknowledgment}
+\fi
+
+\input{10_acks}
+
+
+% trigger a \newpage just before the given reference
+% number - used to balance the columns on the last page
+% adjust value as needed - may need to be readjusted if
+% the document is modified later
+%\IEEEtriggeratref{8}
+% The "triggered" command can be changed if desired:
+%\IEEEtriggercmd{\enlargethispage{-5in}}
+
+% references section
+
+% can use a bibliography generated by BibTeX as a .bbl file
+% BibTeX documentation can be easily obtained at:
+% http://mirror.ctan.org/biblio/bibtex/contrib/doc/
+% The IEEEtran BibTeX style support page is at:
+% http://www.michaelshell.org/tex/ieeetran/bibtex/
+\bibliographystyle{IEEEtran}
+% argument is your BibTeX string definitions and bibliography database(s)
+\bibliography{IEEEabrv,references}
+
+% that's all folks
+\end{document}

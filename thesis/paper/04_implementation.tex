@@ -1,0 +1,31 @@
+\section{Methodology and Implementation}
+\label{sec:impl}
+
+The goal of our study is to understand how \unsafe{}~is used in open-source projects and the implications on the security of Go applications. 
+To achieve this aim, we answer the following research questions:
+
+\begin{enumerate}[label={RQ\arabic*},leftmargin=*] 
+    \item How many projects use \unsafe{} in Go code in their application? \label{rq:prevalApp}
+    \item How many projects introduce \unsafe{} through their dependencies, and from which registries? \label{rq:prevalDeps}
+    \item How deep in the import stack are the most imported \unsafe{} code packages? \label{rq:depsDepth}
+    \item Which \unsafe{} keywords are used most? \label{rq:distTypes}
+    \item What \unsafe{} operations are used in practice, and what is their goal? \label{rq:purpose}
+    \item Are there problems arising from the use of \unsafe{} that can lead to exploitable vulnerabilities? \label{rq:probsUnsafe}
+\end{enumerate}
+
+Later ref to the RQ with the label \ref{rq:probsUnsafe}.
+
+\subsection{Data Set Creation}
+
+To answer our research question, we create a data set of open-source Go code available on GitHub.
+As our research is focused on projects, we decide to crawl the \initalProjs{} most-stared Go projects available on GitHub. 
+To further understand the influence of the dependencies, we selected the applications supporting \textit{go modules}.
+With the introduction of Go \checkNum{1.13}, \textit{go modules} are the way to include dependencies within a Go application with the help of the Go toolchain. 
+Unfortunately, \withoutModules{} of the projects did not yet support go modules and we had to exclude them.
+We further, had to remove \notCompiled{} projects as we couldn't compile those.
+As a result, we end up with \projsAnalyzed{} top-rated Go projects collected from GitHub. 
+
+\aw{Perhaps, we want to include some star stats or similar stats to show that we have relevant Go projects.}
+
+
+\input{gfx/figures/overview.tex}

@@ -1,0 +1,8 @@
+The Go programming language, although aiming to provide memory and thread safety through a strict type system enforced at compile-time, also offers ways to circumvent this safety net through using the unsafe package.
+It allows arbitrary type casts and pointer arithmetic.
+There are legitimate use cases, e.g. low-level memory operations needed in the Go runtime, or increased efficiency due to avoiding unnecessary allocations.
+However, such uses must be done with caution to avoid introducing vulnerabilities common to C programs, like buffer overflows and use-after-free.
+In this work, we contribute a large-scale quantitative study on the usage of unsafe in the \projsAnalyzed{} most popular Go projects on GitHub, including an analysis of \checkNum{1,400} code samples on how unsafe is used and for what purpose.
+We find that \checkNum{5.5\%} of packages used transitively by the projects contain unsafe usages, and \checkNum{38 \%} of projects contain at least one usage that is not part of the standard library.
+Based on the usage patterns found, we present dangers and possible exploit vectors.
+Finally, we present two novel tools for Go developers: \toolUsage{} to count unsafe usages in a package and its dependencies, and \toolSA{} to identify dangerous usage patterns that were previously undetected by existing tools.

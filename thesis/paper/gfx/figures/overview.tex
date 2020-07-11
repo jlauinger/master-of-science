@@ -1,0 +1,30 @@
+\begin{figure*}[!t]
+    \begin{tikzpicture}
+        % Define tikz styles
+        \tikzset{metaGroup/.style={
+            draw = gray, thin, rounded corners,
+        }}
+        \tikzset{inner/.style={
+            font=\tiny,
+        }}
+    
+        % create nodes
+        \node (mark) {\includegraphics[width=11mm]{gfx/figures/mark.png}};
+        \node (checkout) [right=of mark, yshift=10mm, inner] {\initalProjs};
+        \node (goModules) [right= of mark, inner] {- \withoutModules{}};
+        \node (compile) [right=of mark, yshift=-10mm, inner] {- \notCompiled{}};
+        \node (projects) [fit=(checkout)(goModules)(compile)] {};
+        \node (dataSet) [fit=(projects)(mark), metaGroup, label=Data set creation] {};
+        
+        \node (analysis) [right=of dataSet] {analysis};
+        
+        % create connections between components
+        \draw [->] (mark) -- (projects);
+        \draw [->, thin, font=\tiny] (checkout) -- node[anchor=east] {no go modules} (goModules);
+        \draw [->, thin, font=\tiny] (goModules) -- node[anchor=east] {not build} (compile);
+        
+        \draw [->] (dataSet) -- node[anchor=south] {\projsAnalyzed} (analysis);
+    \end{tikzpicture}
+    \caption{Overview of our Methodology and Empirical Results.}
+    \label{fig:overview}
+\end{figure*}

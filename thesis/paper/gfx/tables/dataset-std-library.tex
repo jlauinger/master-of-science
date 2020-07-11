@@ -1,0 +1,32 @@
+\begin{table*}[t]
+    \centering
+    \caption[Labeled unsafe.Pointer usages in standard library samples. Answers \ref{rq:purpose}]%
+        {Labeled unsafe.Pointer usages in standard library samples \newline \tiny ~ \newline \small
+            \underline{no GC}: avoid garbage collector, \underline{typ}: types implementation,
+            \underline{mem}: memory management, \underline{inev}: inevitable use, \underline{eff}: efficiency,
+            \underline{ser}: (de)serialization, \underline{LC}: layout control, \underline{cgo}: CGo mechanics,
+            \underline{EA}: hide from escape analysis, \underline{UU}: unused, \underline{UU}: unnecessary use \newline \tiny ~}
+    \label{tbl:survey-small-results-std}
+    \begin{tabular}{r|ccccccccccc|r}
+                                          & no GC & typ & mem & inev & eff & ser & LC & cgo & EA & UN & UU &   {} \\ \hline
+                                  syscall &   151 &     &     &    3 &     &     &    &     &    &  1 &    &  155 \\
+        \rowcolor{verylightgray}
+                     direct-memory-access &       &  10 &  13 &      &  17 &   2 &  2 &     &    &    &    &   44 \\
+                       pointer-arithmetic &       &   9 &   7 &    2 &   5 &     &  4 &   1 &  1 &    &    &   29 \\
+        \rowcolor{verylightgray}
+                 conversion-struct-struct &       &  20 &   4 &    4 &   1 &   9 &    &   1 &  1 &    &    &   40 \\
+                  conversion-struct-basic &       &     &   3 &    1 &     &   2 &  2 &   1 &    &    &    &    9 \\
+        \rowcolor{verylightgray}
+                        conversion-header &       &   2 &   1 &      &     &     &    &     &    &    &    &    3 \\
+                  conversion-struct-bytes &       &     &     &      &   4 &   8 &    &     &    &    &    &   12 \\
+        \rowcolor{verylightgray}
+                           data-structure &       &   7 &  11 &    1 &     &     &    &   3 &    &    &    &   22 \\
+                                 delegate &       &   4 &  16 &   47 &     &     &    &     &  6 &    &    &   73 \\
+        \rowcolor{verylightgray}
+                          type-reflection &       &   3 &     &      &     &   1 &    &     &    &    &    &    4 \\
+                                   unused &       &     &     &      &     &     &    &     &    &    &  8 &    8 \\
+        \rowcolor{verylightgray}
+                                  comment &       &     &     &      &     &     &    &     &    &    &  1 &    1 \\ \hline
+                                       {} &   151 &  55 &  55 &   58 &  27 &  22 &  8 &   6 &  8 &  1 &  9 &  400 \\
+    \end{tabular}
+\end{table*}

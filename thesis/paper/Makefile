@@ -1,12 +1,12 @@
 all:
-	pdflatex paper
-	#bibtex paper
-	pdflatex paper
-	pdflatex paper
+	pdflatex main
+	bibtex main
+	pdflatex main
+	pdflatex main
 
 open:
-	evince paper.pdf &
+	evince main.pdf &
 
 clean:
-	rm -f paper/*.lol paper/*.lot paper/*.fdb_latexmk paper/*.aux paper/*.bbl paper/*.aux paper/*.synctex.gz paper/*.log paper/*.out paper/*.blg paper/*.lof paper/*.toc paper/*.len paper/*.nav paper/*.snm paper/*.vrb paper/*.backup paper/*.tex~ paper/*.bib~
+	rm -f *.lol *.lot *.fdb_latexmk *.aux *.bbl *.aux *.synctex.gz *.log *.out *.blg *.lof *.toc *.len *.nav *.snm *.vrb *.backup *.tex~ *.bib~
 
