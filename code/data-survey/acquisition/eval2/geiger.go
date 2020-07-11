@@ -232,7 +232,7 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 	text, context := getCodeContext(parsedPkg, n)
 
 	var filename string
-	if strings.Contains(filename, ".cache/go-build") {
+	if strings.Contains(nodePosition.Filename, ".cache/go-build") {
 		filename = nodePosition.Filename
 	} else {
 		filename = nodePosition.Filename[len(pkg.Dir)+1:]
