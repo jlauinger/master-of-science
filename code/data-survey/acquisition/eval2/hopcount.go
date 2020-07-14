@@ -89,7 +89,7 @@ func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[str
 			}
 			_, ok = seen[child]
 			if !ok {
-				// push unseen children to the back of the queue and mark it seen
+				// push unseen child to the back of the queue and mark it seen
 				queue = append(queue, PackageAndPotentialHopCount{
 					PotentialHopCount: queueItem.PotentialHopCount + 1,
 					ImportStack:       append(queueItem.ImportStack, child.ImportPath),
