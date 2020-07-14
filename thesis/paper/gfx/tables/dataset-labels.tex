@@ -1,0 +1,36 @@
+\begin{table*}[!t]
+    \centering
+    \caption[Labeled unsafe.Pointer usages in application code and standard library samples.]%
+    {Labeled unsafe.Pointer usages in application code and standard library samples. Answers~\ref{rq:purpose} \newline \tiny ~ \newline \small
+        \underline{eff}: efficiency, \underline{gen}: generics, \underline{ser}: (de)serialization,
+        \underline{inev}: inevitable use, \underline{SR}: safer reflections, \underline{LC}: layout control,
+        \underline{EA}: hide from escape analysis, \underline{UU}: unused, \underline{doc}: documentation,
+        \underline{no GC}: avoid garbage collector, \underline{typ}: types implementation,
+        \underline{mem}: memory management, \underline{cgo}: CGo mechanics, \underline{UN}: unnecessary use \newline \tiny ~}
+    \label{tbl:dataset-classes}
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{r|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc}
+                                       {} & \multicolumn{2}{c|}{eff} & \multicolumn{2}{c|}{gen} & \multicolumn{2}{c|}{ser} & \multicolumn{2}{c|}{inev} & \multicolumn{2}{c|}{SR} & \multicolumn{2}{c|}{LC} & \multicolumn{2}{c|}{EA} & \multicolumn{2}{c|}{UU} & \multicolumn{2}{c|}{no GC} & \multicolumn{2}{c|}{typ} & \multicolumn{2}{c|}{mem} & \multicolumn{2}{c|}{cgo} & \multicolumn{2}{c|}{UN} & \multicolumn{2}{c}{$\Sigma$} \\ \hline
+                                       {} & app & std & app & std & app & std & app & std & app & std & app & std & app & std & app & std & app & std & app & std & app & std & app & std & app & std & app & std \\ \hline
+                       cast-struct-struct &  396 &   1 &   58 &    &    7 &   9 &    2 &   4 &    2 &    &    1 &    &     &   1 &     &    &     &    &     &  20 &     &   4 &     &   1 &     &    &    466 & 40 \\
+        \rowcolor{verylightgray}
+                        cast-struct-basic &   80 &    &   35 &    &    5 &   2 &     &   1 &     &    &    1 &   2 &     &    &     &    &     &    &     &    &     &   3 &     &   1 &     &    &     121 & 9 \\
+                              cast-header &   26 &    &    8 &    &    3 &    &     &    &     &    &     &    &     &    &     &    &     &    &     &   2 &     &   1 &     &    &     &    &      37 & 3 \\
+        \rowcolor{verylightgray}
+                        cast-struct-bytes &   21 &   4 &    1 &    &   70 &   8 &    1 &    &     &    &    3 &    &     &    &     &    &     &    &     &    &     &    &     &    &     &    &     96 & 12 \\
+                        direct-mem-access &    9 &  17 &   19 &    &     &   2 &    9 &    &    1 &    &    1 &   2 &     &    &     &    &     &    &     &  10 &     &  13 &     &    &     &    &     39 & 44 \\
+        \rowcolor{verylightgray}
+                       pointer-arithmetic &    7 &   5 &    2 &    &    1 &    &     &   2 &     &    &    7 &   4 &    1 &   1 &     &    &     &    &     &   9 &     &   7 &     &   1 &     &    &     18 & 29 \\
+                           data-structure &    7 &    &    5 &    &     &    &    2 &   1 &   22 &    &    1 &    &     &    &    1 &    &     &    &     &   7 &     &  11 &     &   3 &     &    &     38 & 22 \\
+        \rowcolor{verylightgray}
+                                 delegate &    4 &    &   63 &    &    1 &    &   19 &  47 &    1 &    &     &    &     &   6 &     &    &     &    &     &   4 &     &  16 &     &    &     &    &     88 & 73 \\
+                          type-reflection &     &    &   32 &    &     &   1 &     &    &    2 &    &     &    &     &    &     &    &     &    &     &   3 &     &    &     &    &     &    &      34 & 4 \\
+        \rowcolor{verylightgray}
+                                  syscall &     &    &     &    &     &    &   21 &   3 &     &    &     &    &     &    &     &    &     & 151 &     &    &     &    &     &    &     &   1 &    21 & 155 \\
+                                   unused &     &    &     &    &     &    &     &    &     &    &     &    &     &    &   15 &   8 &     &    &     &    &     &    &     &    &     &    &      15 & 8 \\
+        \rowcolor{verylightgray}
+                                  comment &     &    &     &    &     &    &     &    &     &    &     &    &     &    &   23 &   1 &     &    &     &    &     &    &     &    &     &    &      27 & 1 \\ \hline
+                                  $\Sigma$ &   550 & 27 &    223 & 0 &    87 & 22 &    54 & 58 &     28 & 0 &     14 & 8 &      1 & 8 &     39 & 9 &    0 & 151 &     0 & 55 &     0 & 55 &      0 & 6 &      0 & 1 &  1000 & 400 \\
+    \end{tabular}
+    \end{adjustbox}
+\end{table*}

@@ -5,27 +5,31 @@
 The adoption of memory-safe languages for all kinds of different applications has been increasing significantly in the last decade. 
 While environments and languages such as Java, Rust, Nim or Google's Go try to eliminate many bug classes through their language design and/or runtime, they also provide, to varying degrees, escape hatches to perform potentially unsafe operations if explicitly requested.
 These might be used for optimization purposes, for convenience of the programmer, to directly access hardware or to circumvent limitations of the programming language.
-Often enough unsafe code blocks are indirectly introduced through 3rd party libraries \cite{evans2020} and thus not directly obvious to the application developer.
+Often enough unsafe code blocks are indirectly introduced through 3rd party libraries~\cite{evans2020}, and thus, not directly obvious to the application developer.
 Not knowing about the dangers introduced through external dependencies can have severe consequences.
-Thus, developers and administrators need ways to quickly evaluate the potential risks introduced by other code.
+Therefore, developers and administrators need ways to quickly evaluate the potential risks introduced by other code.
 
 For this paper we took a deeper look into Google's Go programming language and the usage of unsafe code blocks within the most popular software projects using it. 
-During this work, we developed two specific tools for developers and security analysts. The first one, called \toolUsage{}, analyzes a project including its dependencies for general usage of unsafe and in which context.
+During this work, we developed two specific tools for developers and security analysts.
+The first one, called \toolUsage{}, analyzes a project including its dependencies for general usage of unsafe and in which context.
 The second one, called \toolSA{}, helps during development by providing meaningful hints to potentially dangerous usages of unsafe and how to avoid them. 
-We analyzed the top \projsAnalyzed{} Go projects on GitHub to see how often unsafe is used in the wild. \aw{I would already mention some of our results here, e.g., We found that AB~\% of the applications make use of unsafe either in the application code or in a dependency.} 
+We analyzed \projsAnalyzed{} of the top 500 most-starred Go projects on GitHub to see how often unsafe is used in the wild. 
+Including their dependencies we analyzed more than \todo{XXX} individual packages for unsafe usage.
+We found that \percentageProjectsWithUnsafe{} projects contain \unsafe{} usages in their first-party packages, and \percentageProjectsAndDependenciesUnsafe{}
+projects contain \unsafe{} usages either in first-party or transitively in imported third-party libraries.
 From there we identified reasons for introducing unsafe in the source code in the first place and also whether it was really necessary.
 Additionally, we provide insights into the dangers and possible exploit vectors to some of the patterns we found in the wild. 
 Thus, we show the severe nature of these bugs.
-Through the course of this work we made over \checkNum{14} pull requests to analyzed projects and libraries, fixing over \checkNum{60} individual potentially dangerous unsafe usages.
+Through the course of this work we made over \numberPRs{} pull requests to analyzed projects and libraries, fixing over \numberBugsFixed{} individual potentially dangerous unsafe usages.
 
 In this paper, we present the following contributions:
 
 \begin{itemize}
-\item We present to the best of our knowledge the first large-scale quantitative evaluation on the usage of unsafe in the \projsAnalyzed{} most popular Go projects on GitHub
-\item We present a novel data set with \checkNum{1,400} labeled occurrences of unsafe code in various contexts of Go projects, providing insight into what is being done and for what purpose
-\item We present novel evidence on how to exploit Go unsafe usages in the wild
 \item We present a novel tool, \toolUsage{}, for detecting and scoring the presence of unsafe in Go projects and their dependencies
 \item We present a novel static code analysis tool, \toolSA{}, to aid developers in identifying potentially problematic unsafe usage in their code base that were previously uncaught with existing tools
+\item We present to the best of our knowledge the first large-scale quantitative evaluation on the usage of unsafe in \projsAnalyzed{} top-starred Go projects on GitHub
+\item We present a novel data set with \checkNum{1,400} labeled occurrences of unsafe code in various contexts of Go projects, providing insight into what is being done and for what purpose
+\item We present novel evidence on how to exploit Go unsafe usages in the wild
 \end{itemize}
 
 The paper is organized as follows:
@@ -34,6 +38,5 @@ Section~\ref{sec:rw} discusses related work.
 In Section~\ref{sec:impl}, we present our methodology and data selection for the large-scale study, as well as our approach to collect and label data.
 Section~\ref{sec:eval} presents the results of our work.
 Section~\ref{sec:exploits} presents potential exploit vectors to some unsafe patterns found in the wild.
-In Section~\ref{sec:tools}, we present our novel tools \toolUsage{} and \toolSA{}.
-Section~\ref{sec:discussion} discusses our approach, including potential threads to validity.
+Section~\ref{sec:discussion} discusses our approach, including potential threads to validity, and the presentation of our novel tools \toolUsage{} and \toolSA{}.
 Section~\ref{sec:concl} concludes the paper and outlines areas of future work.

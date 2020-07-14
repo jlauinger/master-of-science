@@ -1,0 +1,84 @@
+\section{Evaluation}
+\label{sec:eval}
+
+The goal of our study is to understand how \unsafe{} is used in open-source projects, and what the implications of this on the security of Go applications are. 
+To achieve this, we answer the following research questions:
+
+\begin{enumerate}[leftmargin=*,label={RQ\arabic*}]
+    \item How many projects use \unsafe{} in Go code in their application? \label{rq:prevalApp}
+    \item How many projects introduce \unsafe{} through their dependencies? \label{rq:prevalDeps}
+    \item How deep in the import stack are the most imported \unsafe{} code packages? \label{rq:depsDepth}
+    \item Which \unsafe{} keywords are used most? \label{rq:distTypes}
+    \item What \unsafe{} operations are used in practice, and what is their goal? \label{rq:purpose}
+    
+    %\item Are there problems arising from the use of \unsafe{} that can lead to exploitable vulnerabilities? \label{rq:probsUnsafe}
+\end{enumerate}
+
+Figure~\ref{fig:overview} provides an overview of our study methodology.
+
+\input{gfx/figures/overview2.tex}
+
+
+\subsection{Data Set Creation}
+
+To answer our research question, we create a data set of open-source Go code available on GitHub.
+As our research is focused on projects, we decide to crawl the \initalProjs{} most-stared Go projects available on GitHub. 
+To further understand the influence of the dependencies, we selected the applications supporting \textit{go modules}.
+With the introduction of Go \checkNum{1.13}, \textit{go modules} are the way to include dependencies within a Go application with the help of the Go tool chain. 
+Unfortunately, \withoutModules{} of the projects did not yet support Go modules and we had to exclude them.
+We further, had to remove \notCompiled{} projects as we couldn't compile those.
+As a result, we end up with \projsAnalyzed{} top-rated Go projects collected from GitHub. 
+
+\aw{Perhaps, we want to include some star stats or similar stats to show that we have relevant Go projects.}
+
+
+\subsection{Unsafe Usages in Projects and Dependencies}
+
+Answers to \ref{rq:prevalApp} and \ref{rq:prevalDeps}:
+
+\checkNum{3355} of \checkNum{61839} (\checkNum{5.43\%}) transitively imported packages use unsafe. This answers \ref{rq:prevalDeps}
+
+Number of projects: \checkNum{343}
+
+Projects with $\geq 1$ unsafe project package: \checkNum{131} (\checkNum{38.19\%})
+
+Projects with $\geq 1$ unsafe dependency: \checkNum{299} (\checkNum{87.17\%})
+
+Projects with $\geq 1$ unsafe anywhere: \checkNum{312} (\checkNum{90.96\%})
+
+
+\subsection{Import Depth of Unsafe}
+
+Figure~\ref{fig:unsafe-import-depth} shows the number of packages with at least one \unsafe{} usage by its import depth for every project at its own, alongside the distribution for all projects combined. This answers~\ref{rq:depsDepth}
+
+We see that most of the packages are imported early in the import stack with an average import depth of \averageUnsafeImportDepth (standard deviation of \stdUnsafeImportDepth).
+Therefore, these packages can be manually found and evaluated with tolerable effort.
+
+\input{gfx/figures/unsafe-import-depth}
+
+
+\subsection{Types of Unsafe}
+
+To answer~\ref{rq:distTypes}, we show the distribution of the different \unsafe{} token types among the analyzed projects in Figure~\ref{fig:unsafe-tokens-distribution}.
+
+For this figure, we duplicated packages by their name, module, and version. Packages that are imported in different versions by the projects in our data set are therefore counted once per version, because different version have potentially different \unsafe{} usages and coexist in the wild.
+
+\input{gfx/figures/distribution-unsafe-types}
+
+
+\subsection{Purpose of Unsafe in Practice}
+
+To answer~\ref{rq:purpose}, we present a summary of our labeled data set consisting of \checkNum{1,400} code snippets from the \checkNum{10} projects shown in Table~\ref{tbl:dataset-projects} in Table~\ref{tbl:dataset-classes}.
+
+\input{gfx/tables/projects-10}
+
+We select the top \checkNum{10} projects with the most unsafe usages in non-standard library packages.
+These projects, including the revision that we analyzed, are shown in Table~\ref{tbl:dataset-projects}.
+
+From these projects and all their transitive dependencies, we randomly sample \checkNum{1000} application code and \checkNum{400} standard library code snippets. We define application code as all packages that are not part of the Go standard library or the \textit{golang.org/x/sys} module, as this module contains similar abstractions and code usages as the standard library. We split the snippets to analyze whether there is a difference in use between the two.
+
+Then, we identify class labels in two dimensions: what is being done, and for what purpose. Finally, we manually label all \checkNum{1,400} code snippets.
+
+\input{gfx/tables/dataset-labels}
+
+We see that...

@@ -20,6 +20,7 @@
 % http://www.ctan.org/pkg/url
 % Basically, \url{my_url_here}.
 
+\usepackage{adjustbox}
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
@@ -37,20 +38,59 @@
 \usepackage{tabularx}
 \usepackage{enumitem} % Add labels for RQs defined in enumerated list
 \usepackage{amsmath}
-\usepackage{tikz}
-\usetikzlibrary{positioning, fit} % positioning enables relative positions in tikz, fit enable to create groups of nodes
+\usepackage{balance}
 
 \definecolor{verylightgray}{RGB}{240,240,240}
 \definecolor{fuchsia}{rgb}{1.0, 0.0, 1.0}
 
 %% Tikz
 \usepackage{tikz}
+\usetikzlibrary{positioning, fit} % positioning enables relative positions in tikz, fit enable to create groups of nodes
 \usepackage{tikzscale}
 \usepackage{pgfplots}
 \DeclareUnicodeCharacter{2212}{−}
 \usepgfplotslibrary{groupplots,dateplot}
 \usetikzlibrary{patterns,shapes.arrows}
 \pgfplotsset{compat=newest}
+
+%% Listings
+\RequirePackage{listings}
+\lstdefinelanguage{Golang}%
+    {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
+    recover,select,var,const,iota,},%
+    morekeywords=[2]{string,uint,uint8,uint16,uint32,uint64,int,int8,int16,%
+    int32,int64,bool,float32,float64,complex64,complex128,byte,rune,uintptr,%
+    error,interface},%
+    morekeywords=[3]{map,slice,make,new,nil,len,cap,copy,close,true,false,%
+    delete,append,real,imag,complex,chan,},%
+    morekeywords=[4]{for,break,continue,range,go,goto,switch,case,fallthrough,if,%
+    else,default,},%
+    morekeywords=[5]{Println,Printf,Error,Print,},%
+    sensitive=true,%
+    morecomment=[l]{//},%
+    morecomment=[s]{/*}{*/},%
+    morestring=[b]',%
+    morestring=[b]",%
+    morestring=[s]{`}{`},%
+}
+\lstset{
+    frame=none,
+    rulecolor=\color{red},
+    basicstyle=\footnotesize,
+    keywordstyle=\color{blue},
+    numbers=left,
+    numbersep=5pt,
+    showstringspaces=false,
+    stringstyle=\color{darkgreen},
+    tabsize=4,
+    language=Golang,
+    xleftmargin=17pt,
+    framexleftmargin=27pt,
+    framexrightmargin=5pt,
+    framexbottommargin=4pt,
+    breaklines=true,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
 
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
@@ -75,7 +115,7 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{An Empirical Study of Prevalence, Purpose, and Dangers\\ of Unsafe Go Code in the Wild}
+\title{A Study of Prevalence, Purpose, and Dangers\\ of Unsafe Go Code in the Wild}
 
 
 % conference papers do not typically use \thanks and this command
@@ -96,7 +136,7 @@ C C\IEEEauthorrefmark{1},
 Mira Mezini\IEEEauthorrefmark{1}
 }
 \IEEEauthorblockA{
-Technical University of Darmstadt, D-64289 Darmstadt, Germany\\
+Technische Universität Darmstadt, D-64289 Darmstadt, Germany\\
 }
 \IEEEauthorblockA{\IEEEauthorrefmark{1}
 E-mail: \{A, B , C, mezini\}@cs.tu-darmstadt.de \\
@@ -135,13 +175,11 @@ E-mail: A@cs.tu-darmstadt.de \\
 
 \input{01_intro}
 \input{02_background}
-\input{03_related_work}
-\input{04_implementation}
-\input{05_evaluation}
-\input{06_exploits}
-\input{07_tools}
-\input{08_discussion}
-\input{09_conclusion}
+\input{03_implementation}
+\input{04_evaluation}
+\input{05_discussion}
+\input{06_related_work}
+\input{07_conclusion}
 
 % conference papers do not normally have an appendix
 
@@ -154,7 +192,7 @@ E-mail: A@cs.tu-darmstadt.de \\
   \section*{Acknowledgment}
 \fi
 
-\input{10_acks}
+\input{08_acks}
 
 
 % trigger a \newpage just before the given reference
@@ -174,6 +212,7 @@ E-mail: A@cs.tu-darmstadt.de \\
 % http://www.michaelshell.org/tex/ieeetran/bibtex/
 \bibliographystyle{IEEEtran}
 % argument is your BibTeX string definitions and bibliography database(s)
+\balance
 \bibliography{IEEEabrv,references}
 
 % that's all folks

@@ -1,10 +1,41 @@
 \section{Background}
 \label{sec:background}
 
+Paragraph about memory vulnerability patterns and countermeasures in "safe" languages, such as Go.
 
+\subsection{Unsafe Go}
+
+Ways to tell the compiler to ignore the safety net and do what potentially unsafe operations.
+
+Description of \textit{unsafe} stdlib package, and especially \textit{unsafe.Pointer}:
 
 \begin{itemize}
-    \item unsafe in Go example 
-    \item "Def." unsafe in Go  
-    \item One paragraph Go deps (?) as we later rely on deps for our analyses
+    \item cast any pointer to unsafe.Pointer
+    \item cast unsafe.Pointer to any pointer
+    \item cast unsafe.Pointer to uintptr
+    \item cast uintptr to unsafe.Pointer
 \end{itemize}
+
+The first two give arbitrary casts, and the other two give pointer arithmetics.
+
+Example, buggy and unsafe, code snippet to cast a slice in-place:
+
+\begin{lstlisting}[language=Golang, label=lst:unsafe-example, caption=Example buggy unsafe Go code]
+func ToBytes(s string) []byte {
+    strHeader := (*reflect.StringHeader)(unsafe.Pointer(&s))
+    return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+        Data: strHeader.Data,
+        Cap:  strHeader.Len,
+        Len:  strHeader.Len,
+    }))
+}
+\end{lstlisting}
+
+
+\subsection{Go Dependency Management}
+
+Old way: packages, Go Path
+
+New way: modules, registries, \textit{go.mod} file.
+
+Package cache, versions, bad reproducibility, relatively high error rates for dependency resolution.
