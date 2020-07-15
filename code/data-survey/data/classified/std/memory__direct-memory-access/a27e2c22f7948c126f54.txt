@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-		*(*uintptr)(unsafe.Pointer(uintptr(123))) = 2
-
+*(*uintptr)(unsafe.Pointer(uintptr(123))) = 2
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		// an M. Instead of hanging, just crash.
 		// Cannot call split-stack function as there is no G.
 		s := stringStructOf(&badginsignalMsg)
 		write(2, s.str, int32(s.len))
@@ -28,7 +28,6 @@ Snippet line:
 	if !sigsend(uint32(sig)) {
 		// A foreign thread received the signal sig, and the
 		// Go code does not want to handle it.
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

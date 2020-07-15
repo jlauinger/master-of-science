@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*XfrmAddress)(unsafe.Pointer(&b[0:SizeofXfrmAddress][0]))
-
+return (*XfrmAddress)(unsafe.Pointer(&b[0:SizeofXfrmAddress][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		copy(x[0:16], ip.To16()[0:16])
 	}
 }
 
@@ -28,7 +28,6 @@ func DeserializeXfrmAddress(b []byte) *XfrmAddress {
 func (x *XfrmAddress) Serialize() []byte {
 	return (*(*[SizeofXfrmAddress]byte)(unsafe.Pointer(x)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

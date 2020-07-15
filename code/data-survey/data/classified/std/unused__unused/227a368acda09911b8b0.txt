@@ -13,11 +13,11 @@ Label 2 (For what purpose?): unused
 --------------------------------------------------------------
 Snippet line:
 
-	scanframe := func(frame *stkframe, unused unsafe.Pointer) bool {
-
+scanframe := func(frame *stkframe, unused unsafe.Pointer) bool {
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if gp.sched.ctxt != nil {
 		scanblock(uintptr(unsafe.Pointer(&gp.sched.ctxt)), sys.PtrSize, &oneptrmask[0], gcw, &state)
 	}
 
@@ -27,7 +27,6 @@ Snippet line:
 		return true
 	}
 	gentraceback(^uintptr(0), ^uintptr(0), 0, gp, 0, nil, 0x7fffffff, scanframe, nil, 0)
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	*(*uint16)(unsafe.Pointer(&b[4:6][0])) = rr.Header.Type
-
+*(*uint16)(unsafe.Pointer(&b[4:6][0])) = rr.Header.Type
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func (rr *NetlinkRouteRequest) toWireFormat() []byte {
 	b := make([]byte, rr.Header.Len)
@@ -28,7 +28,6 @@ func (rr *NetlinkRouteRequest) toWireFormat() []byte {
 	*(*uint32)(unsafe.Pointer(&b[12:16][0])) = rr.Header.Pid
 	b[16] = byte(rr.Data.Family)
 	return b
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

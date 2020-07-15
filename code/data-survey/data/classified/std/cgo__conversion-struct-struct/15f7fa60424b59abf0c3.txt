@@ -13,11 +13,11 @@ Label 2 (For what purpose?): cgo
 --------------------------------------------------------------
 Snippet line:
 
-		st := (*structtype)(unsafe.Pointer(typ))
-
+st := (*structtype)(unsafe.Pointer(typ))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+				return
 			}
 			size -= checked
 		}
@@ -28,7 +28,6 @@ Snippet line:
 				cgoCheckUsingType(f.typ, src, off, size)
 			}
 			src = add(src, f.typ.size)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

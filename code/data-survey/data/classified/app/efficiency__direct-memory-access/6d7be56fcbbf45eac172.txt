@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.l)
-
+((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.l)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.f)
 	return
 }
 func (n *decNaked) rl() (v reflect.Value) {
@@ -28,7 +28,6 @@ func (n *decNaked) rl() (v reflect.Value) {
 func (n *decNaked) rs() (v reflect.Value) {
 	v = defUnsafeDecNakedWrapper.rs
 	((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.s)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

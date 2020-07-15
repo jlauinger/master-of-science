@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		ids := ((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[idx : idx+count]
-
+ids := ((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[idx : idx+count]
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 	// Copy the list of page ids from the freelist.
 	if count == 0 {
@@ -28,7 +28,6 @@ Snippet line:
 		idsCopy := make([]pgid, count)
 		copy(idsCopy, ids)
 		// Make sure they're sorted.
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

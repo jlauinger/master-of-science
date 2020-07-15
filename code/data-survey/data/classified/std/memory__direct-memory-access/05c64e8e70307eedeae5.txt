@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-		adjustpointer(adjinfo, unsafe.Pointer(&d.fd))
-
+adjustpointer(adjinfo, unsafe.Pointer(&d.fd))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		adjustpointer(adjinfo, unsafe.Pointer(&d.fn))
 		adjustpointer(adjinfo, unsafe.Pointer(&d.sp))
 		adjustpointer(adjinfo, unsafe.Pointer(&d._panic))
 		adjustpointer(adjinfo, unsafe.Pointer(&d.link))
@@ -28,7 +28,6 @@ Snippet line:
 	// Adjust defer argument blocks the same way we adjust active stack frames.
 	// Note: this code is after the loop above, so that if a defer record is
 	// stack allocated, we work on the copy in the new stack.
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

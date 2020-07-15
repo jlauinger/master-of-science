@@ -13,11 +13,11 @@ Label 2 (For what purpose?): cgo
 --------------------------------------------------------------
 Snippet line:
 
-		ts.tls = (*uint64)(unsafe.Pointer(&mp.tls[0]))
-
+ts.tls = (*uint64)(unsafe.Pointer(&mp.tls[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		var ts cgothreadstart
 		if _cgo_thread_start == nil {
 			throw("_cgo_thread_start missing")
 		}
@@ -28,7 +28,6 @@ Snippet line:
 			msanwrite(unsafe.Pointer(&ts), unsafe.Sizeof(ts))
 		}
 		execLock.rlock() // Prevent process clone.
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

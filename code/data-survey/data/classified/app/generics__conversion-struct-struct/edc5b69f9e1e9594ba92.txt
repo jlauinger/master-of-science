@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *jsoniterRawMessageCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 type jsoniterRawMessageCodec struct {
 }
@@ -28,7 +28,6 @@ func (codec *jsoniterRawMessageCodec) Decode(ptr unsafe.Pointer, iter *Iterator)
 
 func (codec *jsoniterRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
 	stream.WriteRaw(string(*((*RawMessage)(ptr))))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

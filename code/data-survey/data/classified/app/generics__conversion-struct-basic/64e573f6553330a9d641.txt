@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		return unsafe.Pointer(ptr), newUnfolderUint32()
-
+return unsafe.Pointer(ptr), newUnfolderUint32()
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return unsafe.Pointer(ptr), newUnfolderArrUint16()
 	case *map[string]uint16:
 		return unsafe.Pointer(ptr), newUnfolderMapUint16()
 
@@ -27,7 +27,6 @@ Snippet line:
 		return unsafe.Pointer(ptr), newUnfolderArrUint32()
 	case *map[string]uint32:
 		return unsafe.Pointer(ptr), newUnfolderMapUint32()
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

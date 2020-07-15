@@ -14,10 +14,10 @@ Label 2 (For what purpose?): memory
 Snippet line:
 
 func parkunlock_c(gp *g, lock unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return false
 	}
 	return true
 }
@@ -28,7 +28,6 @@ func parkunlock_c(gp *g, lock unsafe.Pointer) bool {
 }
 
 // park continuation on g0.
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

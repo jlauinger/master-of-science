@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	h := (*Cmsghdr)(unsafe.Pointer(&b[0]))
-
+h := (*Cmsghdr)(unsafe.Pointer(&b[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	return msgs, nil
 }
 
@@ -28,7 +28,6 @@ func socketControlMessageHeaderAndData(b []byte) (*Cmsghdr, []byte, error) {
 	}
 	return h, b[cmsgAlignOf(SizeofCmsghdr):h.Len], nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofTcPrioMap]byte)(unsafe.Pointer(x)))[:]
-
+return (*(*[SizeofTcPrioMap]byte)(unsafe.Pointer(x)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeTcPrioMap(b []byte) *TcPrioMap {
 	return (*TcPrioMap)(unsafe.Pointer(&b[0:SizeofTcPrioMap][0]))
 }
 
@@ -28,7 +28,6 @@ func (x *TcPrioMap) Serialize() []byte {
 const (
 	TCA_TBF_UNSPEC = iota
 	TCA_TBF_PARMS
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

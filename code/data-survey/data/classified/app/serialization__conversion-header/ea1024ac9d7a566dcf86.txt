@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	hdr.Data = uintptr(t.untyped.(unsafe.Pointer))
-
+hdr.Data = uintptr(t.untyped.(unsafe.Pointer))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// This method is for implementing new key types, for type safety normal
 // access should be done with the From method of the key.
 func (t Label) UnpackString() string {
 	var v string
@@ -28,7 +28,6 @@ func (t Label) UnpackString() string {
 }
 
 // Valid returns true if the Label is a valid one (it has a key).
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

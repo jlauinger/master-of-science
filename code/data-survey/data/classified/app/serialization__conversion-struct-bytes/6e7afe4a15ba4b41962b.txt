@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofVfRate]byte)(unsafe.Pointer(msg)))[:]
-
+return (*(*[SizeofVfRate]byte)(unsafe.Pointer(msg)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeVfRate(b []byte) *VfRate {
 	return (*VfRate)(unsafe.Pointer(&b[0:SizeofVfRate][0]))
 }
 
@@ -28,7 +28,6 @@ func (msg *VfRate) Serialize() []byte {
 // struct ifla_vf_spoofchk {
 //   __u32 vf;
 //   __u32 setting;
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

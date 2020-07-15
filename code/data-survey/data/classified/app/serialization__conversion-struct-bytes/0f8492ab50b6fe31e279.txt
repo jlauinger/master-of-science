@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*VfRssQueryEn)(unsafe.Pointer(&b[0:SizeofVfRssQueryEn][0]))
-
+return (*VfRssQueryEn)(unsafe.Pointer(&b[0:SizeofVfRssQueryEn][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (msg *VfRssQueryEn) Len() int {
 	return SizeofVfRssQueryEn
 }
 
@@ -28,7 +28,6 @@ func DeserializeVfRssQueryEn(b []byte) *VfRssQueryEn {
 func (msg *VfRssQueryEn) Serialize() []byte {
 	return (*(*[SizeofVfRssQueryEn]byte)(unsafe.Pointer(msg)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

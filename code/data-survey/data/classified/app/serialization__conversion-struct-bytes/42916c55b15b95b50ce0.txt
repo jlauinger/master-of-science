@@ -13,18 +13,17 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofNfgenmsg]byte)(unsafe.Pointer(msg)))[:]
-
+return (*(*[SizeofNfgenmsg]byte)(unsafe.Pointer(msg)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeNfgenmsg(b []byte) *Nfgenmsg {
 	return (*Nfgenmsg)(unsafe.Pointer(&b[0:SizeofNfgenmsg][0]))
 }
 
 func (msg *Nfgenmsg) Serialize() []byte {
 	return (*(*[SizeofNfgenmsg]byte)(unsafe.Pointer(msg)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

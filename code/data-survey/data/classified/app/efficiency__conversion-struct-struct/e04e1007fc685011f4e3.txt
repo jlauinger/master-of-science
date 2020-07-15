@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		child.bucket = (*bucket)(unsafe.Pointer(&value[0]))
-
+child.bucket = (*bucket)(unsafe.Pointer(&value[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	// Read-only transactions can point directly at the mmap entry.
 	if b.tx.writable && !unaligned {
 		child.bucket = &bucket{}
 		*child.bucket = *(*bucket)(unsafe.Pointer(&value[0]))
@@ -28,7 +28,6 @@ Snippet line:
 	// Save a reference to the inline page if the bucket is inline.
 	if child.root == 0 {
 		child.page = (*page)(unsafe.Pointer(&value[bucketHeaderSize]))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	var ptr unsafe.Pointer
-
+var ptr unsafe.Pointer
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	_, err = SendmsgN(fd, p, oob, to, flags)
 	return
 }
 
@@ -28,7 +28,6 @@ func SendmsgN(fd int, p, oob []byte, to Sockaddr, flags int) (n int, err error) 
 		var err error
 		ptr, salen, err = to.sockaddr()
 		if err != nil {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.RunAsUser = (*int64)(unsafe.Pointer(in.RunAsUser))
-
+out.RunAsUser = (*int64)(unsafe.Pointer(in.RunAsUser))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	// INFO: in.HostPID opted out of conversion generation
 	// INFO: in.HostIPC opted out of conversion generation
 	// INFO: in.ShareProcessNamespace opted out of conversion generation
 	out.SELinuxOptions = (*v1.SELinuxOptions)(unsafe.Pointer(in.SELinuxOptions))
@@ -28,7 +28,6 @@ Snippet line:
 	out.SupplementalGroups = *(*[]int64)(unsafe.Pointer(&in.SupplementalGroups))
 	out.FSGroup = (*int64)(unsafe.Pointer(in.FSGroup))
 	out.FSGroupChangePolicy = (*v1.PodFSGroupChangePolicy)(unsafe.Pointer(in.FSGroupChangePolicy))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

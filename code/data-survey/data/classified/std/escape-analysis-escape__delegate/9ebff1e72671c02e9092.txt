@@ -13,11 +13,11 @@ Label 2 (For what purpose?): escape-analysis-escape
 --------------------------------------------------------------
 Snippet line:
 
-	hash := t.hasher(noescape(unsafe.Pointer(&key)), uintptr(h.hash0))
-
+hash := t.hasher(noescape(unsafe.Pointer(&key)), uintptr(h.hash0))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		racewritepc(unsafe.Pointer(h), callerpc, funcPC(mapassign_fast32))
 	}
 	if h.flags&hashWriting != 0 {
 		throw("concurrent map writes")
@@ -28,7 +28,6 @@ Snippet line:
 	h.flags ^= hashWriting
 
 	if h.buckets == nil {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

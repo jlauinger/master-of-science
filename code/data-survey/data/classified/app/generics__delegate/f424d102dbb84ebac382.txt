@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (type2 *UnsafeMapType) UnsafeIterate(obj unsafe.Pointer) MapIterator {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	objEFace := unpackEFace(obj)
 	assertType("MapType.Iterate argument 1", type2.ptrRType, objEFace.rtype)
 	return type2.UnsafeIterate(objEFace.data)
 }
@@ -28,7 +28,6 @@ func (type2 *UnsafeMapType) UnsafeIterate(obj unsafe.Pointer) MapIterator {
 		pKeyRType:  type2.pKeyRType,
 		pElemRType: type2.pElemRType,
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

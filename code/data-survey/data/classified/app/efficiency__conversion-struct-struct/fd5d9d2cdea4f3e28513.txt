@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.AccessModes = *(*[]v1.PersistentVolumeAccessMode)(unsafe.Pointer(&in.AccessModes))
-
+out.AccessModes = *(*[]v1.PersistentVolumeAccessMode)(unsafe.Pointer(&in.AccessModes))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func autoConvert_core_PersistentVolumeSpec_To_v1_PersistentVolumeSpec(in *core.PersistentVolumeSpec, out *v1.PersistentVolumeSpec, s conversion.Scope) error {
 	out.Capacity = *(*v1.ResourceList)(unsafe.Pointer(&in.Capacity))
 	if err := Convert_core_PersistentVolumeSource_To_v1_PersistentVolumeSource(&in.PersistentVolumeSource, &out.PersistentVolumeSource, s); err != nil {
 		return err
@@ -28,7 +28,6 @@ Snippet line:
 	out.StorageClassName = in.StorageClassName
 	out.MountOptions = *(*[]string)(unsafe.Pointer(&in.MountOptions))
 	out.VolumeMode = (*v1.PersistentVolumeMode)(unsafe.Pointer(in.VolumeMode))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

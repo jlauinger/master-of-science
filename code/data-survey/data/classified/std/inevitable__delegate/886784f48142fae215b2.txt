@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	atomic.StorePointer(&p.local, unsafe.Pointer(&local[0])) // store-release
-
+atomic.StorePointer(&p.local, unsafe.Pointer(&local[0])) // store-release
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		allPools = append(allPools, p)
 	}
 	// If GOMAXPROCS changes between GCs, we re-allocate the array and lose the old one.
 	size := runtime.GOMAXPROCS(0)
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 func poolCleanup() {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

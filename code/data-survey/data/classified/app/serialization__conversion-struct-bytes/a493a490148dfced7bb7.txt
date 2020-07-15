@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*XfrmLifetimeCfg)(unsafe.Pointer(&b[0:SizeofXfrmLifetimeCfg][0]))
-
+return (*XfrmLifetimeCfg)(unsafe.Pointer(&b[0:SizeofXfrmLifetimeCfg][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (msg *XfrmLifetimeCfg) Len() int {
 	return SizeofXfrmLifetimeCfg
 }
 
@@ -28,7 +28,6 @@ func DeserializeXfrmLifetimeCfg(b []byte) *XfrmLifetimeCfg {
 func (msg *XfrmLifetimeCfg) Serialize() []byte {
 	return (*(*[SizeofXfrmLifetimeCfg]byte)(unsafe.Pointer(msg)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

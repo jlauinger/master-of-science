@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-			memclrNoHeapPointers(unsafe.Pointer(s.base()), s.npages<<_PageShift)
-
+memclrNoHeapPointers(unsafe.Pointer(s.base()), s.npages<<_PageShift)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		s = h.allocSpan(npages, false, spanclass, &memstats.heap_inuse)
 	})
 
 	if s != nil {
@@ -28,7 +28,6 @@ Snippet line:
 	}
 	return s
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

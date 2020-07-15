@@ -13,10 +13,10 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
-
+val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 	xv := reflect.ValueOf(x)
 	ptr := uintptr(a.Ptr)
@@ -28,7 +28,6 @@ Snippet line:
 	}
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

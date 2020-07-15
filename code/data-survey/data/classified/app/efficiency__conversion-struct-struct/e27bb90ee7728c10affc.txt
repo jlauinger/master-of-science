@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Waiting = (*core.ContainerStateWaiting)(unsafe.Pointer(in.Waiting))
-
+out.Waiting = (*core.ContainerStateWaiting)(unsafe.Pointer(in.Waiting))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_core_ContainerPort_To_v1_ContainerPort(in *core.ContainerPort, out *v1.ContainerPort, s conversion.Scope) error {
 	return autoConvert_core_ContainerPort_To_v1_ContainerPort(in, out, s)
 }
 
@@ -27,7 +27,6 @@ func autoConvert_v1_ContainerState_To_core_ContainerState(in *v1.ContainerState,
 	out.Terminated = (*core.ContainerStateTerminated)(unsafe.Pointer(in.Terminated))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

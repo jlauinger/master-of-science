@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	p := (*ifaceHeader)(unsafe.Pointer(&v))
-
+p := (*ifaceHeader)(unsafe.Pointer(&v))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func valueOfBytes(v []byte) Value {
 	p := (*sliceHeader)(unsafe.Pointer(&v))
 	return Value{typ: bytesType, ptr: p.Data, num: uint64(len(v))}
 }
@@ -28,7 +28,6 @@ func valueOfIface(v interface{}) Value {
 
 func (v Value) getString() (x string) {
 	*(*stringHeader)(unsafe.Pointer(&x)) = stringHeader{Data: v.ptr, Len: int(v.num)}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

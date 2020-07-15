@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-		x = unsafe.Pointer(&zeroVal[0])
-
+x = unsafe.Pointer(&zeroVal[0])
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return
 }
 
 func convT32(val uint32) (x unsafe.Pointer) {
@@ -28,7 +28,6 @@ func convT32(val uint32) (x unsafe.Pointer) {
 		*(*uint32)(x) = val
 	}
 	return
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

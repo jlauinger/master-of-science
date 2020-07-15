@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-		tt := (*ptrType)(unsafe.Pointer(v.typ))
-
+tt := (*ptrType)(unsafe.Pointer(v.typ))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		}
 		// The returned value's address is v's value.
 		if ptr == nil {
 			return Value{}
@@ -28,7 +28,6 @@ Snippet line:
 		fl |= flag(typ.Kind())
 		return Value{typ, ptr, fl}
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

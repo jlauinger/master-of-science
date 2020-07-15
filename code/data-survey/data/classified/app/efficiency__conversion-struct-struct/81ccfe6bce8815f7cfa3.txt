@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ShortNames = *(*[]string)(unsafe.Pointer(&in.ShortNames))
-
+out.ShortNames = *(*[]string)(unsafe.Pointer(&in.ShortNames))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func autoConvert_apiextensions_CustomResourceDefinitionNames_To_v1_CustomResourceDefinitionNames(in *apiextensions.CustomResourceDefinitionNames, out *CustomResourceDefinitionNames, s conversion.Scope) error {
 	out.Plural = in.Plural
@@ -28,7 +28,6 @@ func autoConvert_apiextensions_CustomResourceDefinitionNames_To_v1_CustomResourc
 	out.Categories = *(*[]string)(unsafe.Pointer(&in.Categories))
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

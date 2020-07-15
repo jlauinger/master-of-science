@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ResponseStatus = (*metav1.Status)(unsafe.Pointer(in.ResponseStatus))
-
+out.ResponseStatus = (*metav1.Status)(unsafe.Pointer(in.ResponseStatus))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.User = in.User
 	out.ImpersonatedUser = (*authenticationv1.UserInfo)(unsafe.Pointer(in.ImpersonatedUser))
 	out.SourceIPs = *(*[]string)(unsafe.Pointer(&in.SourceIPs))
 	out.UserAgent = in.UserAgent
@@ -28,7 +28,6 @@ Snippet line:
 	out.RequestReceivedTimestamp = in.RequestReceivedTimestamp
 	out.StageTimestamp = in.StageTimestamp
 	out.Annotations = *(*map[string]string)(unsafe.Pointer(&in.Annotations))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

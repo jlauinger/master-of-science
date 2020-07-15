@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *lossyFloat32Encoder) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (encoder *lossyFloat32Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 	stream.WriteFloat32Lossy(*((*float32)(ptr)))
@@ -28,7 +28,6 @@ func (encoder *lossyFloat32Encoder) IsEmpty(ptr unsafe.Pointer) bool {
 
 type lossyFloat64Encoder struct {
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): escape-analysis-escape
 --------------------------------------------------------------
 Snippet line:
 
-	gp._panic = (*_panic)(noescape(unsafe.Pointer(&p)))
-
+gp._panic = (*_panic)(noescape(unsafe.Pointer(&p)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 
 	var p _panic
 	p.arg = e
@@ -28,7 +28,6 @@ Snippet line:
 
 	// By calculating getcallerpc/getcallersp here, we avoid scanning the
 	// gopanic frame (stack scanning is slow...)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

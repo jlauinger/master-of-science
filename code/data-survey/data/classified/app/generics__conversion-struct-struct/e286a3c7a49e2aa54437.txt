@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (h *Header) Bools() []bool      { return *(*[]bool)(unsafe.Pointer(h)) }
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 import "unsafe"
 
@@ -27,7 +27,6 @@ func (h *Header) SetB(i int, x bool) { h.Bools()[i] = x }
 func (h *Header) GetB(i int) bool    { return h.Bools()[i] }
 
 /* int */
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

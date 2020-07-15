@@ -13,18 +13,17 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	decoder.decoder.Decode(unsafe.Pointer(&ptr), iter)
-
+decoder.decoder.Decode(unsafe.Pointer(&ptr), iter)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+type referenceDecoder struct {
 	decoder ValDecoder
 }
 
 func (decoder *referenceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
 	decoder.decoder.Decode(unsafe.Pointer(&ptr), iter)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,18 +13,17 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	return *(*string)(unsafe.Pointer(&b))
-
+return *(*string)(unsafe.Pointer(&b))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return *(*[]byte)(unsafe.Pointer(&s))
 }
 
 // toString performs unholy acts to avoid allocations
 func toString(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

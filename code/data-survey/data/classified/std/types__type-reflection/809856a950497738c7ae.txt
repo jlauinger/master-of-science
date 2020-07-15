@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	ftyp := (*funcType)(unsafe.Pointer(v.Type().(*rtype)))
-
+ftyp := (*funcType)(unsafe.Pointer(v.Type().(*rtype)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	fl := v.flag & (flagRO | flagAddr | flagIndir)
 	fl |= flag(v.typ.Kind())
 	rcvr := Value{v.typ, v.ptr, fl}
 
@@ -28,7 +28,6 @@ Snippet line:
 	// actual code address. (A Go func value is a pointer
 	// to a C function pointer. https://golang.org/s/go11func.)
 	dummy := methodValueCall
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

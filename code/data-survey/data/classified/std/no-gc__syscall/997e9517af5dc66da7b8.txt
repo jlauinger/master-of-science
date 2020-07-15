@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-		_p1 = unsafe.Pointer(&_zero)
-
+_p1 = unsafe.Pointer(&_zero)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	var _p1 unsafe.Pointer
 	if len(dest) > 0 {
 		_p1 = unsafe.Pointer(&dest[0])
@@ -28,7 +28,6 @@ Snippet line:
 	sz = int(r0)
 	if e1 != 0 {
 		err = errnoErr(e1)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

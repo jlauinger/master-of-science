@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	err := getsockopt(fd, level, opt, unsafe.Pointer(&tv), &vallen)
-
+err := getsockopt(fd, level, opt, unsafe.Pointer(&tv), &vallen)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func GetsockoptTimeval(fd, level, opt int) (*Timeval, error) {
 	var tv Timeval
@@ -28,7 +28,6 @@ func GetsockoptTimeval(fd, level, opt int) (*Timeval, error) {
 
 func GetsockoptUint64(fd, level, opt int) (value uint64, err error) {
 	var n uint64
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.MaxProperties = (*int64)(unsafe.Pointer(in.MaxProperties))
-
+out.MaxProperties = (*int64)(unsafe.Pointer(in.MaxProperties))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			}
 		}
 	} else {
 		out.Enum = nil
@@ -28,7 +28,6 @@ Snippet line:
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = new(JSONSchemaPropsOrArray)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

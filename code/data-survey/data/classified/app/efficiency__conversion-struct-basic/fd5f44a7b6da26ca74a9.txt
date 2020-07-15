@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.TailLines = (*int64)(unsafe.Pointer(in.TailLines))
-
+out.TailLines = (*int64)(unsafe.Pointer(in.TailLines))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Follow = in.Follow
 	out.Previous = in.Previous
 	out.SinceSeconds = (*int64)(unsafe.Pointer(in.SinceSeconds))
 	out.SinceTime = (*metav1.Time)(unsafe.Pointer(in.SinceTime))
@@ -27,7 +27,6 @@ Snippet line:
 	out.InsecureSkipTLSVerifyBackend = in.InsecureSkipTLSVerifyBackend
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

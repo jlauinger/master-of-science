@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Capabilities = (*core.Capabilities)(unsafe.Pointer(in.Capabilities))
-
+out.Capabilities = (*core.Capabilities)(unsafe.Pointer(in.Capabilities))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_core_SecretVolumeSource_To_v1_SecretVolumeSource(in *core.SecretVolumeSource, out *v1.SecretVolumeSource, s conversion.Scope) error {
 	return autoConvert_core_SecretVolumeSource_To_v1_SecretVolumeSource(in, out, s)
 }
 
@@ -28,7 +28,6 @@ func autoConvert_v1_SecurityContext_To_core_SecurityContext(in *v1.SecurityConte
 	out.WindowsOptions = (*core.WindowsSecurityContextOptions)(unsafe.Pointer(in.WindowsOptions))
 	out.RunAsUser = (*int64)(unsafe.Pointer(in.RunAsUser))
 	out.RunAsGroup = (*int64)(unsafe.Pointer(in.RunAsGroup))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

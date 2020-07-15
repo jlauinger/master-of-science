@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: value.go
+Line: 2106
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): definition
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+ch  unsafe.Pointer // channel
+--------------------------------------------------------------
++/- 5 lines context:
+
+// A runtimeSelect is a single case passed to rselect.
+// This must match ../runtime/select.go:/runtimeSelect
+type runtimeSelect struct {
+	dir SelectDir      // SelectSend, SelectRecv or SelectDefault
+	typ *rtype         // channel type
+	ch  unsafe.Pointer // channel
+	val unsafe.Pointer // ptr to data (SendDir) or ptr to receive buffer (RecvDir)
+}
+
+// rselect runs a select. It returns the index of the chosen case.
+// If the case was a receive, val is filled in with the received value.
+--------------------------------------------------------------
++/- 100 lines context:
+
+		m = extra
+	} else {
+		for m < i1 {
+			if i0 < 1024 {
+				m += m
+			} else {
+				m += m / 4
+			}
+		}
+	}
+	t := MakeSlice(s.Type(), i1, m)
+	Copy(t, s)
+	return t, i0, i1
+}
+
+// Append appends the values x to a slice s and returns the resulting slice.
+// As in Go, each x's value must be assignable to the slice's element type.
+func Append(s Value, x ...Value) Value {
+	s.mustBe(Slice)
+	s, i0, i1 := grow(s, len(x))
+	for i, j := i0, 0; i < i1; i, j = i+1, j+1 {
+		s.Index(i).Set(x[j])
+	}
+	return s
+}
+
+// AppendSlice appends a slice t to a slice s and returns the resulting slice.
+// The slices s and t must have the same element type.
+func AppendSlice(s, t Value) Value {
+	s.mustBe(Slice)
+	t.mustBe(Slice)
+	typesMustMatch("reflect.AppendSlice", s.Type().Elem(), t.Type().Elem())
+	s, i0, i1 := grow(s, t.Len())
+	Copy(s.Slice(i0, i1), t)
+	return s
+}
+
+// Copy copies the contents of src into dst until either
+// dst has been filled or src has been exhausted.
+// It returns the number of elements copied.
+// Dst and src each must have kind Slice or Array, and
+// dst and src must have the same element type.
+//
+// As a special case, src can have kind String if the element type of dst is kind Uint8.
+func Copy(dst, src Value) int {
+	dk := dst.kind()
+	if dk != Array && dk != Slice {
+		panic(&ValueError{"reflect.Copy", dk})
+	}
+	if dk == Array {
+		dst.mustBeAssignable()
+	}
+	dst.mustBeExported()
+
+	sk := src.kind()
+	var stringCopy bool
+	if sk != Array && sk != Slice {
+		stringCopy = sk == String && dst.typ.Elem().Kind() == Uint8
+		if !stringCopy {
+			panic(&ValueError{"reflect.Copy", sk})
+		}
+	}
+	src.mustBeExported()
+
+	de := dst.typ.Elem()
+	if !stringCopy {
+		se := src.typ.Elem()
+		typesMustMatch("reflect.Copy", de, se)
+	}
+
+	var ds, ss sliceHeader
+	if dk == Array {
+		ds.Data = dst.ptr
+		ds.Len = dst.Len()
+		ds.Cap = ds.Len
+	} else {
+		ds = *(*sliceHeader)(dst.ptr)
+	}
+	if sk == Array {
+		ss.Data = src.ptr
+		ss.Len = src.Len()
+		ss.Cap = ss.Len
+	} else if sk == Slice {
+		ss = *(*sliceHeader)(src.ptr)
+	} else {
+		sh := *(*stringHeader)(src.ptr)
+		ss.Data = sh.Data
+		ss.Len = sh.Len
+		ss.Cap = sh.Len
+	}
+
+	return typedslicecopy(de.common(), ds, ss)
+}
+
+// A runtimeSelect is a single case passed to rselect.
+// This must match ../runtime/select.go:/runtimeSelect
+type runtimeSelect struct {
+	dir SelectDir      // SelectSend, SelectRecv or SelectDefault
+	typ *rtype         // channel type
+	ch  unsafe.Pointer // channel
+	val unsafe.Pointer // ptr to data (SendDir) or ptr to receive buffer (RecvDir)
+}
+
+// rselect runs a select. It returns the index of the chosen case.
+// If the case was a receive, val is filled in with the received value.
+// The conventional OK bool indicates whether the receive corresponds
+// to a sent value.
+//go:noescape
+func rselect([]runtimeSelect) (chosen int, recvOK bool)
+
+// A SelectDir describes the communication direction of a select case.
+type SelectDir int
+
+// NOTE: These values must match ../runtime/select.go:/selectDir.
+
+const (
+	_             SelectDir = iota
+	SelectSend              // case Chan <- Send
+	SelectRecv              // case <-Chan:
+	SelectDefault           // default
+)
+
+// A SelectCase describes a single case in a select operation.
+// The kind of case depends on Dir, the communication direction.
+//
+// If Dir is SelectDefault, the case represents a default case.
+// Chan and Send must be zero Values.
+//
+// If Dir is SelectSend, the case represents a send operation.
+// Normally Chan's underlying value must be a channel, and Send's underlying value must be
+// assignable to the channel's element type. As a special case, if Chan is a zero Value,
+// then the case is ignored, and the field Send will also be ignored and may be either zero
+// or non-zero.
+//
+// If Dir is SelectRecv, the case represents a receive operation.
+// Normally Chan's underlying value must be a channel and Send must be a zero Value.
+// If Chan is a zero Value, then the case is ignored, but Send must still be a zero Value.
+// When a receive operation is selected, the received Value is returned by Select.
+//
+type SelectCase struct {
+	Dir  SelectDir // direction of case
+	Chan Value     // channel to use (for send or receive)
+	Send Value     // value to send (for send)
+}
+
+// Select executes a select operation described by the list of cases.
+// Like the Go select statement, it blocks until at least one of the cases
+// can proceed, makes a uniform pseudo-random choice,
+// and then executes that case. It returns the index of the chosen case
+// and, if that case was a receive operation, the value received and a
+// boolean indicating whether the value corresponds to a send on the channel
+// (as opposed to a zero value received because the channel is closed).
+func Select(cases []SelectCase) (chosen int, recv Value, recvOK bool) {
+	// NOTE: Do not trust that caller is not modifying cases data underfoot.
+	// The range is safe because the caller cannot modify our copy of the len
+	// and each iteration makes its own copy of the value c.
+	runcases := make([]runtimeSelect, len(cases))
+	haveDefault := false
+	for i, c := range cases {
+		rc := &runcases[i]
+		rc.dir = c.Dir
+		switch c.Dir {
+		default:
+			panic("reflect.Select: invalid Dir")
+
+		case SelectDefault: // default
+			if haveDefault {
+				panic("reflect.Select: multiple default cases")
+			}
+			haveDefault = true
+			if c.Chan.IsValid() {
+				panic("reflect.Select: default case has Chan value")
+			}
+			if c.Send.IsValid() {
+				panic("reflect.Select: default case has Send value")
+			}
+
+		case SelectSend:
+			ch := c.Chan
+			if !ch.IsValid() {
+				break
+			}
+			ch.mustBe(Chan)
+			ch.mustBeExported()
+			tt := (*chanType)(unsafe.Pointer(ch.typ))
+			if ChanDir(tt.dir)&SendDir == 0 {
+				panic("reflect.Select: SendDir case using recv-only channel")
+			}
+			rc.ch = ch.pointer()
+			rc.typ = &tt.rtype
+			v := c.Send
+			if !v.IsValid() {
+				panic("reflect.Select: SendDir case missing Send value")
+			}
+			v.mustBeExported()
+			v = v.assignTo("reflect.Select", tt.elem, nil)
+			if v.flag&flagIndir != 0 {
+				rc.val = v.ptr
+			} else {
+				rc.val = unsafe.Pointer(&v.ptr)
+

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofTcMirred]byte)(unsafe.Pointer(x)))[:]
-
+return (*(*[SizeofTcMirred]byte)(unsafe.Pointer(x)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeTcMirred(b []byte) *TcMirred {
 	return (*TcMirred)(unsafe.Pointer(&b[0:SizeofTcMirred][0]))
 }
 
@@ -28,7 +28,6 @@ func (x *TcMirred) Serialize() []byte {
 const (
 	TCA_TUNNEL_KEY_UNSPEC = iota
 	TCA_TUNNEL_KEY_TM
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

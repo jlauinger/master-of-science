@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.SELinuxOptions = (*core.SELinuxOptions)(unsafe.Pointer(in.SELinuxOptions))
-
+out.SELinuxOptions = (*core.SELinuxOptions)(unsafe.Pointer(in.SELinuxOptions))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_core_PodReadinessGate_To_v1_PodReadinessGate(in *core.PodReadinessGate, out *v1.PodReadinessGate, s conversion.Scope) error {
 	return autoConvert_core_PodReadinessGate_To_v1_PodReadinessGate(in, out, s)
 }
 
@@ -28,7 +28,6 @@ func autoConvert_v1_PodSecurityContext_To_core_PodSecurityContext(in *v1.PodSecu
 	out.RunAsGroup = (*int64)(unsafe.Pointer(in.RunAsGroup))
 	out.RunAsNonRoot = (*bool)(unsafe.Pointer(in.RunAsNonRoot))
 	out.SupplementalGroups = *(*[]int64)(unsafe.Pointer(&in.SupplementalGroups))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

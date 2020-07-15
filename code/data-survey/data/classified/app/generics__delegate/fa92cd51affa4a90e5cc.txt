@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *numericMapKeyEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 type numericMapKeyEncoder struct {
 	encoder ValEncoder
@@ -27,7 +27,6 @@ func (encoder *numericMapKeyEncoder) Encode(ptr unsafe.Pointer, stream *Stream) 
 	encoder.encoder.Encode(ptr, stream)
 	stream.writeByte('"')
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

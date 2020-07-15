@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Args = *(*[]string)(unsafe.Pointer(&in.Args))
-
+out.Args = *(*[]string)(unsafe.Pointer(&in.Args))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func autoConvert_core_Container_To_v1_Container(in *core.Container, out *v1.Container, s conversion.Scope) error {
 	out.Name = in.Name
@@ -28,7 +28,6 @@ func autoConvert_core_Container_To_v1_Container(in *core.Container, out *v1.Cont
 	out.EnvFrom = *(*[]v1.EnvFromSource)(unsafe.Pointer(&in.EnvFrom))
 	out.Env = *(*[]v1.EnvVar)(unsafe.Pointer(&in.Env))
 	if err := Convert_core_ResourceRequirements_To_v1_ResourceRequirements(&in.Resources, &out.Resources, s); err != nil {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

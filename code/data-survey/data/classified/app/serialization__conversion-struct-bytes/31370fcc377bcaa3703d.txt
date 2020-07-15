@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*IfAddrmsg)(unsafe.Pointer(&b[0:unix.SizeofIfAddrmsg][0]))
-
+return (*IfAddrmsg)(unsafe.Pointer(&b[0:unix.SizeofIfAddrmsg][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// 	Index     uint32
 // }
 // SizeofIfAddrmsg     = 0x8
 
@@ -28,7 +28,6 @@ func DeserializeIfAddrmsg(b []byte) *IfAddrmsg {
 func (msg *IfAddrmsg) Serialize() []byte {
 	return (*(*[unix.SizeofIfAddrmsg]byte)(unsafe.Pointer(msg)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

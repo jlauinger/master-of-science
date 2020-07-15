@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (u *unfolderMapString) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func newUnfoldMapKeyString() *unfoldMapKeyString {
 	return _singletonUnfoldMapKeyString
@@ -27,7 +27,6 @@ func (u *unfolderMapString) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
 	ctx.unfolder.push(newUnfoldMapStartString())
 	ctx.ptr.push(ptr)
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

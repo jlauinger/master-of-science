@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofVfMac]byte)(unsafe.Pointer(msg)))[:]
-
+return (*(*[SizeofVfMac]byte)(unsafe.Pointer(msg)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeVfMac(b []byte) *VfMac {
 	return (*VfMac)(unsafe.Pointer(&b[0:SizeofVfMac][0]))
 }
 
@@ -28,7 +28,6 @@ func (msg *VfMac) Serialize() []byte {
 // struct ifla_vf_vlan {
 //   __u32 vf;
 //   __u32 vlan; /* 0 - 4095, 0 disables VLAN filter */
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.VolumeMounts = *(*[]v1.VolumeMount)(unsafe.Pointer(&in.VolumeMounts))
-
+out.VolumeMounts = *(*[]v1.VolumeMount)(unsafe.Pointer(&in.VolumeMounts))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.EnvFrom = *(*[]v1.EnvFromSource)(unsafe.Pointer(&in.EnvFrom))
 	out.Env = *(*[]v1.EnvVar)(unsafe.Pointer(&in.Env))
 	if err := Convert_core_ResourceRequirements_To_v1_ResourceRequirements(&in.Resources, &out.Resources, s); err != nil {
 		return err
@@ -28,7 +28,6 @@ Snippet line:
 	out.ReadinessProbe = (*v1.Probe)(unsafe.Pointer(in.ReadinessProbe))
 	out.StartupProbe = (*v1.Probe)(unsafe.Pointer(in.StartupProbe))
 	out.Lifecycle = (*v1.Lifecycle)(unsafe.Pointer(in.Lifecycle))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

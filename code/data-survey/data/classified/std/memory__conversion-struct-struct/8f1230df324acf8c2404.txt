@@ -14,10 +14,10 @@ Label 2 (For what purpose?): memory
 Snippet line:
 
 func (f *fixalloc) free(p unsafe.Pointer) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	f.nchunk -= uint32(f.size)
 	f.inuse += f.size
 	return v
 }
@@ -28,7 +28,6 @@ func (f *fixalloc) free(p unsafe.Pointer) {
 	v.next = f.list
 	f.list = v
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

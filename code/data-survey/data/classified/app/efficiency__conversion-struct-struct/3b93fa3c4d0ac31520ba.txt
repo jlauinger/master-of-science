@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.DownwardAPI = (*v1.DownwardAPIProjection)(unsafe.Pointer(in.DownwardAPI))
-
+out.DownwardAPI = (*v1.DownwardAPIProjection)(unsafe.Pointer(in.DownwardAPI))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return autoConvert_v1_VolumeProjection_To_core_VolumeProjection(in, out, s)
 }
 
 func autoConvert_core_VolumeProjection_To_v1_VolumeProjection(in *core.VolumeProjection, out *v1.VolumeProjection, s conversion.Scope) error {
@@ -28,7 +28,6 @@ func autoConvert_core_VolumeProjection_To_v1_VolumeProjection(in *core.VolumePro
 		in, out := &in.ServiceAccountToken, &out.ServiceAccountToken
 		*out = new(v1.ServiceAccountTokenProjection)
 		if err := Convert_core_ServiceAccountTokenProjection_To_v1_ServiceAccountTokenProjection(*in, *out, s); err != nil {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

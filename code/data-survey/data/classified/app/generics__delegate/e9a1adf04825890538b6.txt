@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (decoder *ifaceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 type ifaceDecoder struct {
 	valType *reflect2.UnsafeIFaceType
@@ -28,7 +28,6 @@ func (decoder *ifaceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
 		return
 	}
 	obj := decoder.valType.UnsafeIndirect(ptr)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

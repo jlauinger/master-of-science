@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	return encoder.encoder.IsEmpty(unsafe.Pointer(&ptr))
-
+return encoder.encoder.IsEmpty(unsafe.Pointer(&ptr))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+type onePtrEncoder struct {
 	encoder ValEncoder
 }
 
@@ -28,7 +28,6 @@ func (encoder *onePtrEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 func (encoder *onePtrEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 	encoder.encoder.Encode(unsafe.Pointer(&ptr), stream)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

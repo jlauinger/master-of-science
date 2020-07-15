@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-	_, _, e1 := Syscall(SYS_PIVOT_ROOT, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), 0)
-
+_, _, e1 := Syscall(SYS_PIVOT_ROOT, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), 0)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	var _p1 *byte
 	_p1, err = BytePtrFromString(putold)
 	if err != nil {
 		return
@@ -28,7 +28,6 @@ Snippet line:
 	}
 	return
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

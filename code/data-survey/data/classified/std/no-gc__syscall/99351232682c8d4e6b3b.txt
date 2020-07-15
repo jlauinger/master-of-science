@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-	RawSyscall(SYS_WRITE, uintptr(pipe), uintptr(unsafe.Pointer(&err1)), unsafe.Sizeof(err1))
-
+RawSyscall(SYS_WRITE, uintptr(pipe), uintptr(unsafe.Pointer(&err1)), unsafe.Sizeof(err1))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		uintptr(unsafe.Pointer(&argv[0])),
 		uintptr(unsafe.Pointer(&envv[0])))
 
 childerror:
@@ -27,7 +27,6 @@ childerror:
 		RawSyscall(SYS_EXIT, 253, 0, 0)
 	}
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

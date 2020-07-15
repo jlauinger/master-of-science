@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-	s := (*slice)(unsafe.Pointer(&b))
-
+s := (*slice)(unsafe.Pointer(&b))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func stringHash(s string, seed uintptr) uintptr {
 	return strhash(noescape(unsafe.Pointer(&s)), seed)
 }
 
@@ -28,7 +28,6 @@ func bytesHash(b []byte, seed uintptr) uintptr {
 
 func int32Hash(i uint32, seed uintptr) uintptr {
 	return memhash32(noescape(unsafe.Pointer(&i)), seed)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

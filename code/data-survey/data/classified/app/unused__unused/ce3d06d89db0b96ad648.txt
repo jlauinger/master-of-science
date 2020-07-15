@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (encoder emptyArrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return &arrayEncoder{arrayType, encoder}
 }
 
 type emptyArrayEncoder struct{}
@@ -28,7 +28,6 @@ func (encoder emptyArrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 
 func (encoder emptyArrayEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 	return true
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

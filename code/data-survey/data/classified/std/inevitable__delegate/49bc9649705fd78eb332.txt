@@ -13,10 +13,10 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		scanblock(uintptr(unsafe.Pointer(&gp.sched.ctxt)), sys.PtrSize, &oneptrmask[0], gcw, &state)
-
+scanblock(uintptr(unsafe.Pointer(&gp.sched.ctxt)), sys.PtrSize, &oneptrmask[0], gcw, &state)
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 	// Scan the saved context register. This is effectively a live
 	// register that gets moved back and forth between the
@@ -28,7 +28,6 @@ Snippet line:
 	// Scan the stack. Accumulate a list of stack objects.
 	scanframe := func(frame *stkframe, unused unsafe.Pointer) bool {
 		scanframeworker(frame, &state, gcw)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-		(*valp)[0] = unsafe.Pointer(t)
-
+(*valp)[0] = unsafe.Pointer(t)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	for _, ptab := range md.ptab {
 		symName := resolveNameOff(unsafe.Pointer(md.types), ptab.name)
 		t := (*_type)(unsafe.Pointer(md.types)).typeOff(ptab.typ)
 		var val interface{}
@@ -28,7 +28,6 @@ Snippet line:
 		if t.kind&kindMask == kindFunc {
 			name = "." + name
 		}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

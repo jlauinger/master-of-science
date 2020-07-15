@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	h := (*Cmsghdr)(unsafe.Pointer(&b[0]))
-
+h := (*Cmsghdr)(unsafe.Pointer(&b[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// UnixRights encodes a set of open file descriptors into a socket
 // control message for sending to another process.
 func UnixRights(fds ...int) []byte {
 	datalen := len(fds) * 4
@@ -28,7 +28,6 @@ func UnixRights(fds ...int) []byte {
 	h.SetLen(CmsgLen(datalen))
 	for i, fd := range fds {
 		*(*int32)(h.data(4 * uintptr(i))) = int32(fd)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

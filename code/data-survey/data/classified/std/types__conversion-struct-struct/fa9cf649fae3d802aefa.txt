@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	prototype := *(**funcType)(unsafe.Pointer(&ifunc))
-
+prototype := *(**funcType)(unsafe.Pointer(&ifunc))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		panic("reflect.FuncOf: last arg of variadic func must be slice")
 	}
 
 	// Make a func type.
@@ -28,7 +28,6 @@ Snippet line:
 	var ft *funcType
 	var args []*rtype
 	switch {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

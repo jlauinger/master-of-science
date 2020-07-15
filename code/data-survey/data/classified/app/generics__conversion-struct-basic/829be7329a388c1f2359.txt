@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		field = *(*string)(unsafe.Pointer(&fieldBytes))
-
+field = *(*string)(unsafe.Pointer(&fieldBytes))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (decoder *generalStructDecoder) decodeOneField(ptr unsafe.Pointer, iter *Iterator) {
 	var field string
 	var fieldDecoder *structFieldDecoder
 	if iter.cfg.objectFieldMustBeSimpleString {
@@ -28,7 +28,6 @@ Snippet line:
 			fieldDecoder = decoder.fields[strings.ToLower(field)]
 		}
 	} else {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

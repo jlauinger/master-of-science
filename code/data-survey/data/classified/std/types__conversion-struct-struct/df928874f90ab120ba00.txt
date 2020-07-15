@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-		v := (*funcType)(unsafe.Pointer(V))
-
+v := (*funcType)(unsafe.Pointer(V))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		// Otherwise continue test for identical underlying type.
 		return V.chanDir() == T.chanDir() && haveIdenticalType(T.Elem(), V.Elem(), cmpTags)
 
 	case Func:
@@ -28,7 +28,6 @@ Snippet line:
 		}
 		for i := 0; i < t.NumIn(); i++ {
 			if !haveIdenticalType(t.In(i), v.In(i), cmpTags) {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

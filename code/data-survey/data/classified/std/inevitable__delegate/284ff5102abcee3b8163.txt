@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
-
+err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func GetsockoptUcred(fd, level, opt int) (*Ucred, error) {
 	var value Ucred
@@ -28,7 +28,6 @@ func GetsockoptUcred(fd, level, opt int) (*Ucred, error) {
 
 func SetsockoptIPMreqn(fd, level, opt int, mreq *IPMreqn) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), unsafe.Sizeof(*mreq))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

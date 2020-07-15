@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	u.initStatePtr(ctx, unsafe.Pointer(v.Pointer()))
-
+u.initStatePtr(ctx, unsafe.Pointer(v.Pointer()))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		ru.initState(ctx, v)
 	}
 }
 
@@ -28,7 +28,6 @@ func (u *unfolderStruct) initState(ctx *unfoldCtx, v reflect.Value) {
 func (u *unfolderStruct) initStatePtr(ctx *unfoldCtx, ptr unsafe.Pointer) {
 	ctx.ptr.push(ptr)
 	ctx.unfolder.push(u)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

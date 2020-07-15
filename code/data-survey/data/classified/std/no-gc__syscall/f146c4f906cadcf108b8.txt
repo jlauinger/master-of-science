@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-	var _p1 unsafe.Pointer
-
+var _p1 unsafe.Pointer
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	var _p0 *byte
 	_p0, err = BytePtrFromString(path)
 	if err != nil {
 		return
@@ -28,7 +28,6 @@ Snippet line:
 	} else {
 		_p1 = unsafe.Pointer(&_zero)
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

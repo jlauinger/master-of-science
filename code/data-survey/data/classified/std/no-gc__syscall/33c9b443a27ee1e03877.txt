@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-	_, _, errno := Syscall(fcntl64Syscall, fd, uintptr(cmd), uintptr(unsafe.Pointer(lk)))
-
+_, _, errno := Syscall(fcntl64Syscall, fd, uintptr(cmd), uintptr(unsafe.Pointer(lk)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// systems by flock_linux_32bit.go to be SYS_FCNTL64.
 var fcntl64Syscall uintptr = SYS_FCNTL
 
 // FcntlFlock performs a fcntl syscall for the F_GETLK, F_SETLK or F_SETLKW command.
@@ -28,7 +28,6 @@ func FcntlFlock(fd uintptr, cmd int, lk *Flock_t) error {
 	}
 	return errno
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

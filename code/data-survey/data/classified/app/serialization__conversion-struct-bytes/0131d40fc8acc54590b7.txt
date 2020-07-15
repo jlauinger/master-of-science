@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofTcGen]byte)(unsafe.Pointer(x)))[:]
-
+return (*(*[SizeofTcGen]byte)(unsafe.Pointer(x)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeTcGen(b []byte) *TcGen {
 	return (*TcGen)(unsafe.Pointer(&b[0:SizeofTcGen][0]))
 }
 
@@ -28,7 +28,6 @@ func (x *TcGen) Serialize() []byte {
 // #define tc_gen \
 //   __u32                 index; \
 //   __u32                 capab; \
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

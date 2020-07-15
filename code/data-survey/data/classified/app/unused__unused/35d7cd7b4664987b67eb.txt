@@ -14,9 +14,9 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (type2 *safeType) PackEFace(ptr unsafe.Pointer) interface{} {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (type2 *safeType) Type1() reflect.Type {
 	return type2.Type
@@ -28,7 +28,6 @@ func (type2 *safeType) PackEFace(ptr unsafe.Pointer) interface{} {
 
 func (type2 *safeType) Implements(thatType Type) bool {
 	return type2.Type.Implements(thatType.Type1())
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

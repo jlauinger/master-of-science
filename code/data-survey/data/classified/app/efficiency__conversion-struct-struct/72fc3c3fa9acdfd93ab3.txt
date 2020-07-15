@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.PortworxVolume = (*core.PortworxVolumeSource)(unsafe.Pointer(in.PortworxVolume))
-
+out.PortworxVolume = (*core.PortworxVolumeSource)(unsafe.Pointer(in.PortworxVolume))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			return err
 		}
 	} else {
 		out.Projected = nil
@@ -28,7 +28,6 @@ Snippet line:
 	out.CSI = (*core.CSIVolumeSource)(unsafe.Pointer(in.CSI))
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

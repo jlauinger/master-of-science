@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.NFS = (*v1.NFSVolumeSource)(unsafe.Pointer(in.NFS))
-
+out.NFS = (*v1.NFSVolumeSource)(unsafe.Pointer(in.NFS))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func autoConvert_core_PersistentVolumeSource_To_v1_PersistentVolumeSource(in *core.PersistentVolumeSource, out *v1.PersistentVolumeSource, s conversion.Scope) error {
 	out.GCEPersistentDisk = (*v1.GCEPersistentDiskVolumeSource)(unsafe.Pointer(in.GCEPersistentDisk))
 	out.AWSElasticBlockStore = (*v1.AWSElasticBlockStoreVolumeSource)(unsafe.Pointer(in.AWSElasticBlockStore))
 	out.HostPath = (*v1.HostPathVolumeSource)(unsafe.Pointer(in.HostPath))
@@ -28,7 +28,6 @@ Snippet line:
 	out.ISCSI = (*v1.ISCSIPersistentVolumeSource)(unsafe.Pointer(in.ISCSI))
 	out.FlexVolume = (*v1.FlexPersistentVolumeSource)(unsafe.Pointer(in.FlexVolume))
 	out.Cinder = (*v1.CinderPersistentVolumeSource)(unsafe.Pointer(in.Cinder))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

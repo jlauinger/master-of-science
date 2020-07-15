@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ControllerPublishSecretRef = (*v1.SecretReference)(unsafe.Pointer(in.ControllerPublishSecretRef))
-
+out.ControllerPublishSecretRef = (*v1.SecretReference)(unsafe.Pointer(in.ControllerPublishSecretRef))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Driver = in.Driver
 	out.VolumeHandle = in.VolumeHandle
 	out.ReadOnly = in.ReadOnly
 	out.FSType = in.FSType
@@ -28,7 +28,6 @@ Snippet line:
 	out.ControllerExpandSecretRef = (*v1.SecretReference)(unsafe.Pointer(in.ControllerExpandSecretRef))
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

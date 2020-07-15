@@ -13,10 +13,10 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	info := (*SndRcvInfo)(unsafe.Pointer(&b[0]))
-
+info := (*SndRcvInfo)(unsafe.Pointer(&b[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (c *SCTPSndRcvInfoWrappedConn) Write(b []byte) (int, error) {
 	if len(b) < int(sndRcvInfoSize) {
@@ -28,7 +28,6 @@ func (c *SCTPSndRcvInfoWrappedConn) Write(b []byte) (int, error) {
 }
 
 func (c *SCTPSndRcvInfoWrappedConn) Read(b []byte) (int, error) {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

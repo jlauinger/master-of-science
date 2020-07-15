@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	_, err := bpfCall(cmd, unsafe.Pointer(attr), unsafe.Sizeof(*attr))
-
+_, err := bpfCall(cmd, unsafe.Pointer(attr), unsafe.Sizeof(*attr))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return newBPFFD(uint32(fd)), nil
 	}
 }
 
@@ -28,7 +28,6 @@ func bpfProgAlter(cmd int, attr *bpfProgAlterAttr) error {
 
 func bpfMapCreate(attr *bpfMapCreateAttr) (*bpfFD, error) {
 	fd, err := bpfCall(_MapCreate, unsafe.Pointer(attr), unsafe.Sizeof(*attr))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

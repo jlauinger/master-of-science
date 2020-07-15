@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.RuntimeClassName = (*string)(unsafe.Pointer(in.RuntimeClassName))
-
+out.RuntimeClassName = (*string)(unsafe.Pointer(in.RuntimeClassName))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.PriorityClassName = in.PriorityClassName
 	out.Priority = (*int32)(unsafe.Pointer(in.Priority))
 	out.PreemptionPolicy = (*v1.PreemptionPolicy)(unsafe.Pointer(in.PreemptionPolicy))
 	out.DNSConfig = (*v1.PodDNSConfig)(unsafe.Pointer(in.DNSConfig))
@@ -28,7 +28,6 @@ Snippet line:
 	out.TopologySpreadConstraints = *(*[]v1.TopologySpreadConstraint)(unsafe.Pointer(&in.TopologySpreadConstraints))
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

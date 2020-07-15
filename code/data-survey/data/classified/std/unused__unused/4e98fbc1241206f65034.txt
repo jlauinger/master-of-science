@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func raceReleaseMerge(addr unsafe.Pointer) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+const raceenabled = false
 
 func raceAcquire(addr unsafe.Pointer) {
 }
@@ -27,7 +27,6 @@ func raceReleaseMerge(addr unsafe.Pointer) {
 
 func raceReadRange(addr unsafe.Pointer, len int) {
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

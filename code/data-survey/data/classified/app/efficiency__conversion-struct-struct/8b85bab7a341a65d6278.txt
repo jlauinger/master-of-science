@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Overhead = *(*core.ResourceList)(unsafe.Pointer(&in.Overhead))
-
+out.Overhead = *(*core.ResourceList)(unsafe.Pointer(&in.Overhead))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.DNSConfig = (*core.PodDNSConfig)(unsafe.Pointer(in.DNSConfig))
 	out.ReadinessGates = *(*[]core.PodReadinessGate)(unsafe.Pointer(&in.ReadinessGates))
 	out.RuntimeClassName = (*string)(unsafe.Pointer(in.RuntimeClassName))
 	out.EnableServiceLinks = (*bool)(unsafe.Pointer(in.EnableServiceLinks))
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 func autoConvert_core_PodSpec_To_v1_PodSpec(in *core.PodSpec, out *v1.PodSpec, s conversion.Scope) error {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

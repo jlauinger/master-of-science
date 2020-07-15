@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-		mv := (*maptype)(unsafe.Pointer(v))
-
+mv := (*maptype)(unsafe.Pointer(v))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			}
 		}
 		return true
 	case kindMap:
@@ -28,7 +28,6 @@ Snippet line:
 		pt := (*ptrtype)(unsafe.Pointer(t))
 		pv := (*ptrtype)(unsafe.Pointer(v))
 		return typesEqual(pt.elem, pv.elem, seen)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

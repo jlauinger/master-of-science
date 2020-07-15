@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-			pp := (*RawSockaddrL2TPIP)(unsafe.Pointer(rsa))
-
+pp := (*RawSockaddrL2TPIP)(unsafe.Pointer(rsa))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			return nil, err
 		}
 
 		switch proto {
@@ -28,7 +28,6 @@ Snippet line:
 			for i := 0; i < len(sa.Addr); i++ {
 				sa.Addr[i] = pp.Addr[i]
 			}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

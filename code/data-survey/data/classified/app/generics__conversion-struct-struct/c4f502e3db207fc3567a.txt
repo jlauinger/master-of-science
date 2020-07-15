@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
-
+urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
 	*(*uintptr)(urv.ptr) = uintptr(f.d.d.DecodeUint(uintBitsize))
 }
 
@@ -28,7 +28,6 @@ func (f *decFnInfo) kUint8(rv reflect.Value) {
 
 func (f *decFnInfo) kUint16(rv reflect.Value) {
 	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

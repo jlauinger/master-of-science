@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	return ((*[0x7FFFFFF]leafPageElement)(unsafe.Pointer(&p.ptr)))[:]
-
+return ((*[0x7FFFFFF]leafPageElement)(unsafe.Pointer(&p.ptr)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// leafPageElements retrieves a list of leaf nodes.
 func (p *page) leafPageElements() []leafPageElement {
 	if p.count == 0 {
 		return nil
@@ -28,7 +28,6 @@ func (p *page) leafPageElements() []leafPageElement {
 // branchPageElement retrieves the branch node by index
 func (p *page) branchPageElement(index uint16) *branchPageElement {
 	return &((*[0x7FFFFFF]branchPageElement)(unsafe.Pointer(&p.ptr)))[index]
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

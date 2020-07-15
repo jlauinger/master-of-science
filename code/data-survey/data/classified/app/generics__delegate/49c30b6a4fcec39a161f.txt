@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *dereferenceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	} else {
 		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), stream)
 	}
 }
@@ -28,7 +28,6 @@ func (encoder *dereferenceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 		return true
 	}
 	return encoder.ValueEncoder.IsEmpty(dePtr)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

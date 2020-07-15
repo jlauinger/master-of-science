@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		ptr := unsafe.Pointer(&shdr)
-
+ptr := unsafe.Pointer(&shdr)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			Data: uintptr(a.Header.Ptr),
 			Len:  a.Header.L,
 			Cap:  a.Header.C,
 		}
@@ -28,7 +28,6 @@ Snippet line:
 
 	}
 	return a.v
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

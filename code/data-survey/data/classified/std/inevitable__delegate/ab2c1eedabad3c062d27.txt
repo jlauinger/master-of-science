@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		defer atomic.StorePointer(&disableSplice, unsafe.Pointer(p))
-
+defer atomic.StorePointer(&disableSplice, unsafe.Pointer(p))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return -1, -1, "pipe2", err
 	}
 
 	if p == nil {
@@ -28,7 +28,6 @@ Snippet line:
 		if _, _, errno := syscall.Syscall(unix.FcntlSyscall, uintptr(fds[0]), syscall.F_GETPIPE_SZ, 0); errno != 0 {
 			*p = true
 			destroyTempPipe(fds[0], fds[1])
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

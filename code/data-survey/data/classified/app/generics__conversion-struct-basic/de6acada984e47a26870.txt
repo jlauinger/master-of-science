@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *uint64Codec) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (codec *uint64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
 	stream.WriteUint64(*((*uint64)(ptr)))
@@ -28,7 +28,6 @@ func (codec *uint64Codec) IsEmpty(ptr unsafe.Pointer) bool {
 
 type float32Codec struct {
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

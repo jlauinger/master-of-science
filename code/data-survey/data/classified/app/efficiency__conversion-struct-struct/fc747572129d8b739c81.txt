@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ResourceFieldRef = (*v1.ResourceFieldSelector)(unsafe.Pointer(in.ResourceFieldRef))
-
+out.ResourceFieldRef = (*v1.ResourceFieldSelector)(unsafe.Pointer(in.ResourceFieldRef))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return autoConvert_v1_EnvVarSource_To_core_EnvVarSource(in, out, s)
 }
 
 func autoConvert_core_EnvVarSource_To_v1_EnvVarSource(in *core.EnvVarSource, out *v1.EnvVarSource, s conversion.Scope) error {
@@ -27,7 +27,6 @@ func autoConvert_core_EnvVarSource_To_v1_EnvVarSource(in *core.EnvVarSource, out
 	out.SecretKeyRef = (*v1.SecretKeySelector)(unsafe.Pointer(in.SecretKeyRef))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

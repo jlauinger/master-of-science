@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	return *(*string)(unsafe.Pointer(&b))
-
+return *(*string)(unsafe.Pointer(&b))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	return false
 }
 
@@ -28,7 +28,6 @@ func unsafeString(b []byte) string {
 func unsafeBytes(s string) []byte {
 	sh := *((*reflect.SliceHeader)(unsafe.Pointer(&s)))
 	return *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Cap}))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

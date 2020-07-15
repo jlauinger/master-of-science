@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	if *(*unsafe.Pointer)(ptr) == nil {
-
+if *(*unsafe.Pointer)(ptr) == nil {
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	keyEncoder  ValEncoder
 	elemEncoder ValEncoder
 }
 
@@ -28,7 +28,6 @@ func (encoder *sortKeysMapEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 	}
 	stream.WriteObjectStart()
 	mapIter := encoder.mapType.UnsafeIterate(ptr)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

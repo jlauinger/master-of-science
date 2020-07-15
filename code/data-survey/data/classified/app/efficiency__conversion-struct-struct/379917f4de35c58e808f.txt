@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.RBD = (*core.RBDVolumeSource)(unsafe.Pointer(in.RBD))
-
+out.RBD = (*core.RBDVolumeSource)(unsafe.Pointer(in.RBD))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Secret = (*core.SecretVolumeSource)(unsafe.Pointer(in.Secret))
 	out.NFS = (*core.NFSVolumeSource)(unsafe.Pointer(in.NFS))
 	out.ISCSI = (*core.ISCSIVolumeSource)(unsafe.Pointer(in.ISCSI))
 	out.Glusterfs = (*core.GlusterfsVolumeSource)(unsafe.Pointer(in.Glusterfs))
@@ -28,7 +28,6 @@ Snippet line:
 	out.CephFS = (*core.CephFSVolumeSource)(unsafe.Pointer(in.CephFS))
 	out.Flocker = (*core.FlockerVolumeSource)(unsafe.Pointer(in.Flocker))
 	out.DownwardAPI = (*core.DownwardAPIVolumeSource)(unsafe.Pointer(in.DownwardAPI))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

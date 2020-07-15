@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-		RawSyscall(SYS_WRITE, uintptr(p[1]), uintptr(unsafe.Pointer(&err2)), unsafe.Sizeof(err2))
-
+RawSyscall(SYS_WRITE, uintptr(p[1]), uintptr(unsafe.Pointer(&err2)), unsafe.Sizeof(err2))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		if sys.Unshareflags&CLONE_NEWUSER == 0 {
 			if err := writeUidGidMappings(pid, sys); err != nil {
 				err2 = err.(Errno)
 			}
@@ -28,7 +28,6 @@ Snippet line:
 
 	return pid, 0
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

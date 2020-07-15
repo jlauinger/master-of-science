@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *directAnyCodec) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return
 	}
 	any.WriteTo(stream)
 }
@@ -26,7 +26,6 @@ func (codec *directAnyCodec) IsEmpty(ptr unsafe.Pointer) bool {
 	any := *(*Any)(ptr)
 	return any.Size() == 0
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

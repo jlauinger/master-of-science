@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	a := (*unix.RtAttr)(unsafe.Pointer(&b[0]))
-
+a := (*unix.RtAttr)(unsafe.Pointer(&b[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	return attrs, nil
 }
 
@@ -28,7 +28,6 @@ func netlinkRouteAttrAndValue(b []byte) (*unix.RtAttr, []byte, int, error) {
 	}
 	return a, b[unix.SizeofRtAttr:], rtaAlignOf(int(a.Len)), nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

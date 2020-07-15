@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-		_p1 = unsafe.Pointer(&buf[0])
-
+_p1 = unsafe.Pointer(&buf[0])
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if err != nil {
 		return
 	}
 	var _p1 unsafe.Pointer
@@ -28,7 +28,6 @@ Snippet line:
 	}
 	r0, _, e1 := Syscall6(SYS_READLINKAT, uintptr(dirfd), uintptr(unsafe.Pointer(_p0)), uintptr(_p1), uintptr(len(buf)), 0, 0)
 	n = int(r0)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

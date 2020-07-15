@@ -14,9 +14,9 @@ Label 2 (For what purpose?): efficiency
 Snippet line:
 
 func (sa *SockaddrInet4) sockaddr() (unsafe.Pointer, _Socklen, error) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func Mkfifo(path string, mode uint32) (err error) {
 	return Mknod(path, mode|S_IFIFO, 0)
@@ -28,7 +28,6 @@ func (sa *SockaddrInet4) sockaddr() (unsafe.Pointer, _Socklen, error) {
 	}
 	sa.raw.Family = AF_INET
 	p := (*[2]byte)(unsafe.Pointer(&sa.raw.Port))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

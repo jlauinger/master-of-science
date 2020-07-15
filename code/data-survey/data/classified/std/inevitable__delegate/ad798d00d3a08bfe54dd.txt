@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		fn = unsafe.Pointer(funcPC(nilfunc))
-
+fn = unsafe.Pointer(funcPC(nilfunc))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func gostartcallfn(gobuf *gobuf, fv *funcval) {
 	var fn unsafe.Pointer
 	if fv != nil {
 		fn = unsafe.Pointer(fv.fn)
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 // isShrinkStackSafe returns whether it's safe to attempt to shrink
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

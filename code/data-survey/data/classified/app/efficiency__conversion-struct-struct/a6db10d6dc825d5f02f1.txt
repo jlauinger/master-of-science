@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Users = *(*[]string)(unsafe.Pointer(&in.Users))
-
+out.Users = *(*[]string)(unsafe.Pointer(&in.Users))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return autoConvert_audit_PolicyList_To_v1_PolicyList(in, out, s)
 }
 
 func autoConvert_v1_PolicyRule_To_audit_PolicyRule(in *PolicyRule, out *audit.PolicyRule, s conversion.Scope) error {
@@ -28,7 +28,6 @@ func autoConvert_v1_PolicyRule_To_audit_PolicyRule(in *PolicyRule, out *audit.Po
 	out.Resources = *(*[]audit.GroupResources)(unsafe.Pointer(&in.Resources))
 	out.Namespaces = *(*[]string)(unsafe.Pointer(&in.Namespaces))
 	out.NonResourceURLs = *(*[]string)(unsafe.Pointer(&in.NonResourceURLs))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

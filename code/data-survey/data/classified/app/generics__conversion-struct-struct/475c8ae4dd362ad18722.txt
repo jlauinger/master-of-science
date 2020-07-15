@@ -13,10 +13,10 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		ptr := unsafe.Pointer(arrPtr)
-
+ptr := unsafe.Pointer(arrPtr)
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 	case structform.BoolType:
 		idx := len(ctx.valueBuffer.arrays)
@@ -27,7 +27,6 @@ Snippet line:
 		unfolder := newUnfolderArrBool()
 
 		return to, ptr, unfolder
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

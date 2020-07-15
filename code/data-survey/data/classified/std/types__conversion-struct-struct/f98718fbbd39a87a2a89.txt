@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-			repr = append(repr, (*sliceType)(unsafe.Pointer(t)).elem.String()...)
-
+repr = append(repr, (*sliceType)(unsafe.Pointer(t)).elem.String()...)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		if i > 0 {
 			repr = append(repr, ", "...)
 		}
 		if ft.IsVariadic() && i == int(ft.inCount)-1 {
@@ -28,7 +28,6 @@ Snippet line:
 		}
 	}
 	repr = append(repr, ')')
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

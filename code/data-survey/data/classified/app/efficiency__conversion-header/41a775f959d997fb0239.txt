@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
-
+al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if al.top == len(al.nptrs)-1 {
 		al.top = 0
 		al.nptrs = make([]LValue, al.size)
 		al.nheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.nptrs))
@@ -27,7 +27,6 @@ Snippet line:
 	fptr := (*float64)(unsafe.Pointer(al.fheader.Data + uintptr(al.top)*unsafe.Sizeof(_fv)))
 	e := *(*LValue)(unsafe.Pointer(al.nheader.Data + uintptr(al.top)*unsafe.Sizeof(_uv)))
 	al.top++
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

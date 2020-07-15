@@ -14,9 +14,9 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (type2 *safeType) UnsafeIndirect(ptr unsafe.Pointer) interface{} {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (type2 *safeType) Indirect(obj interface{}) interface{} {
 	return reflect.Indirect(reflect.ValueOf(obj)).Interface()
@@ -28,7 +28,6 @@ func (type2 *safeType) UnsafeIndirect(ptr unsafe.Pointer) interface{} {
 
 func (type2 *safeType) LikePtr() bool {
 	panic("does not support unsafe operation")
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	return (*mergeInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
-
+return (*mergeInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 func atomicStoreMarshalInfo(p **marshalInfo, v *marshalInfo) {
 	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
 }
@@ -28,7 +28,6 @@ func atomicStoreMergeInfo(p **mergeInfo, v *mergeInfo) {
 	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
 }
 func atomicLoadDiscardInfo(p **discardInfo) *discardInfo {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

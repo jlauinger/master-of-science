@@ -14,9 +14,9 @@ Label 2 (For what purpose?): memory
 Snippet line:
 
 func (a *traceAlloc) alloc(n uintptr) unsafe.Pointer {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (p traceAllocBlockPtr) ptr() *traceAllocBlock   { return (*traceAllocBlock)(unsafe.Pointer(p)) }
 func (p *traceAllocBlockPtr) set(x *traceAllocBlock) { *p = traceAllocBlockPtr(unsafe.Pointer(x)) }
@@ -28,7 +28,6 @@ func (a *traceAlloc) alloc(n uintptr) unsafe.Pointer {
 		if n > uintptr(len(a.head.ptr().data)) {
 			throw("trace: alloc too large")
 		}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

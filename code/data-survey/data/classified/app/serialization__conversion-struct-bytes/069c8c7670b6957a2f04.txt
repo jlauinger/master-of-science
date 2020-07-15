@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	mi := (*ipv6Mtuinfo)(unsafe.Pointer(&b[0]))
-
+mi := (*ipv6Mtuinfo)(unsafe.Pointer(&b[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	m.MarshalHeader(iana.ProtocolIPv6, sysIPV6_PATHMTU, sizeofIPv6Mtuinfo)
 	return m.Next(sizeofIPv6Mtuinfo)
 }
 
@@ -28,7 +28,6 @@ func parsePathMTU(cm *ControlMessage, b []byte) {
 	}
 	copy(cm.Dst, mi.Addr.Addr[:])
 	cm.IfIndex = int(mi.Addr.Scope_id)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

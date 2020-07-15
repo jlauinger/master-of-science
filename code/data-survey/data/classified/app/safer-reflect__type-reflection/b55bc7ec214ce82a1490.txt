@@ -14,9 +14,9 @@ Label 2 (For what purpose?): safer-reflect
 Snippet line:
 
 func assertType(where string, expectRType unsafe.Pointer, actualRType unsafe.Pointer) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (type2 *unsafeType) LikePtr() bool {
 	return false
@@ -28,7 +28,6 @@ func assertType(where string, expectRType unsafe.Pointer, actualRType unsafe.Poi
 		(*iface)(unsafe.Pointer(&expectType)).data = expectRType
 		actualType := reflect.TypeOf(0)
 		(*iface)(unsafe.Pointer(&actualType)).data = actualRType
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

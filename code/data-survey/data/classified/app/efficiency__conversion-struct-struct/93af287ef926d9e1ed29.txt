@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Hard = *(*core.ResourceList)(unsafe.Pointer(&in.Hard))
-
+out.Hard = *(*core.ResourceList)(unsafe.Pointer(&in.Hard))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_core_ResourceQuotaList_To_v1_ResourceQuotaList(in *core.ResourceQuotaList, out *v1.ResourceQuotaList, s conversion.Scope) error {
 	return autoConvert_core_ResourceQuotaList_To_v1_ResourceQuotaList(in, out, s)
 }
 
@@ -27,7 +27,6 @@ func autoConvert_v1_ResourceQuotaSpec_To_core_ResourceQuotaSpec(in *v1.ResourceQ
 	out.ScopeSelector = (*core.ScopeSelector)(unsafe.Pointer(in.ScopeSelector))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

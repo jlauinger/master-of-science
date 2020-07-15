@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	buf := (*[maxAllocSize]byte)(unsafe.Pointer(n))
-
+buf := (*[maxAllocSize]byte)(unsafe.Pointer(n))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	vsize uint32
 }
 
 // key returns a byte slice of the node key.
@@ -28,7 +28,6 @@ func (n *leafPageElement) key() []byte {
 
 // value returns a byte slice of the node value.
 func (n *leafPageElement) value() []byte {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

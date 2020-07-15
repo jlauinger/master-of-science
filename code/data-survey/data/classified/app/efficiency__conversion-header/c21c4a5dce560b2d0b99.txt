@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		slice := (*reflect.SliceHeader)(unsafe.Pointer(&data))
-
+slice := (*reflect.SliceHeader)(unsafe.Pointer(&data))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+//  data2, _, _ := handle.ZeroCopyReadPacketData()  // invalidates bytes in data1
 func (p *Handle) ZeroCopyReadPacketData() (data []byte, ci gopacket.CaptureInfo, err error) {
 	p.mu.Lock()
 	err = p.getNextBufPtrLocked(&ci)
@@ -28,7 +28,6 @@ func (p *Handle) ZeroCopyReadPacketData() (data []byte, ci gopacket.CaptureInfo,
 		slice.Cap = ci.CaptureLength
 	}
 	p.mu.Unlock()
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

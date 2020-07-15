@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		return unsafe.Pointer(ptr), newUnfolderArrFloat64()
-
+return unsafe.Pointer(ptr), newUnfolderArrFloat64()
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return unsafe.Pointer(ptr), newUnfolderMapFloat32()
 
 	case *float64:
 		return unsafe.Pointer(ptr), newUnfolderFloat64()
@@ -28,7 +28,6 @@ Snippet line:
 
 	default:
 		return nil, nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

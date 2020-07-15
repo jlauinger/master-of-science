@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *structEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+type structFieldTo struct {
 	encoder *structFieldEncoder
 	toName  string
 }
@@ -28,7 +28,6 @@ func (encoder *structEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 	for _, field := range encoder.fields {
 		if field.encoder.omitempty && field.encoder.IsEmpty(ptr) {
 			continue
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

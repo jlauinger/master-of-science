@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (decoder *numericMapKeyDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 type numericMapKeyDecoder struct {
 	decoder ValDecoder
@@ -28,7 +28,6 @@ func (decoder *numericMapKeyDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) 
 		iter.ReportError("ReadMapCB", `expect ", but found `+string([]byte{c}))
 		return
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

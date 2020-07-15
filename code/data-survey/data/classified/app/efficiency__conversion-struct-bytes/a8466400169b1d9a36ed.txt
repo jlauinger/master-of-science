@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	return *(*string)(unsafe.Pointer(&b))
-
+return *(*string)(unsafe.Pointer(&b))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	bytes.Buffer
 }
 
 func (r *reusableBuilder) unsafeString() string {
@@ -28,7 +28,6 @@ func (r *reusableBuilder) unsafeString() string {
 func (r *reusableBuilder) reset() *bytes.Buffer {
 	r.Reset()
 	return &r.Buffer
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

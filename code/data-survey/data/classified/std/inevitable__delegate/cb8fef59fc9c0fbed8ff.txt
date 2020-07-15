@@ -14,10 +14,10 @@ Label 2 (For what purpose?): inevitable
 Snippet line:
 
 func sighandler(sig uint32, info *siginfo, ctxt unsafe.Pointer, gp *g) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+//
 // The garbage collector may have stopped the world, so write barriers
 // are not allowed.
 //
@@ -28,7 +28,6 @@ func sighandler(sig uint32, info *siginfo, ctxt unsafe.Pointer, gp *g) {
 
 	if sig == _SIGPROF {
 		sigprof(c.sigpc(), c.sigsp(), c.siglr(), gp, _g_.m)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

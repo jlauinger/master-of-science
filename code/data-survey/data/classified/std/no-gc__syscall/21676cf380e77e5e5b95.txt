@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-			if fd1, _, err1 = RawSyscall6(SYS_OPENAT, uintptr(dirfd), uintptr(unsafe.Pointer(&psetgroups[0])), uintptr(O_WRONLY), 0, 0, 0); err1 != 0 {
-
+if fd1, _, err1 = RawSyscall6(SYS_OPENAT, uintptr(dirfd), uintptr(unsafe.Pointer(&psetgroups[0])), uintptr(O_WRONLY), 0, 0, 0); err1 != 0 {
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			goto childerror
 		}
 
 		if sys.Unshareflags&CLONE_NEWUSER != 0 && sys.GidMappings != nil {
@@ -28,7 +28,6 @@ Snippet line:
 			r1, _, err1 = RawSyscall(SYS_WRITE, uintptr(fd1), uintptr(unsafe.Pointer(&setgroups[0])), uintptr(len(setgroups)))
 			if err1 != 0 {
 				goto childerror
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

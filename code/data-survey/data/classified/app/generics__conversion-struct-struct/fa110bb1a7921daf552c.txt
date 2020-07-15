@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	m := *((*map[string]uint)(unsafe.Pointer(&ptr)))
-
+m := *((*map[string]uint)(unsafe.Pointer(&ptr)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	ptr := unsafe.Pointer(v.Pointer())
 	if ptr == nil {
 		return nil
 	}
@@ -28,7 +28,6 @@ Snippet line:
 			return err
 		}
 		if err = C.OnUint(v); err != nil {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

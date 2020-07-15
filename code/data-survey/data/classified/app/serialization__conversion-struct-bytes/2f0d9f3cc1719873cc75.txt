@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*TcSkbEdit)(unsafe.Pointer(&b[0:SizeofTcSkbEdit][0]))
-
+return (*TcSkbEdit)(unsafe.Pointer(&b[0:SizeofTcSkbEdit][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (x *TcSkbEdit) Len() int {
 	return SizeofTcSkbEdit
 }
 
@@ -28,7 +28,6 @@ func DeserializeSkbEdit(b []byte) *TcSkbEdit {
 func (x *TcSkbEdit) Serialize() []byte {
 	return (*(*[SizeofTcSkbEdit]byte)(unsafe.Pointer(x)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

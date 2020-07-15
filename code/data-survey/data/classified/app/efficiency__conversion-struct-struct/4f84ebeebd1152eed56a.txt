@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.RequestObject = (*runtime.Unknown)(unsafe.Pointer(in.RequestObject))
-
+out.RequestObject = (*runtime.Unknown)(unsafe.Pointer(in.RequestObject))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		}
 	} else {
 		out.ObjectRef = nil
 	}
@@ -28,7 +28,6 @@ Snippet line:
 	out.StageTimestamp = in.StageTimestamp
 	out.Annotations = *(*map[string]string)(unsafe.Pointer(&in.Annotations))
 	return nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

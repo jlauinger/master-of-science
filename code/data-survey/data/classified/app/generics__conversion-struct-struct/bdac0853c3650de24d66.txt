@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (h *Header) Float64s() []float64     { return *(*[]float64)(unsafe.Pointer(h)) }
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (h *Header) SetF32(i int, x float32) { h.Float32s()[i] = x }
 func (h *Header) GetF32(i int) float32    { return h.Float32s()[i] }
 
 /* float64 */
@@ -27,7 +27,6 @@ func (h *Header) SetF64(i int, x float64) { h.Float64s()[i] = x }
 func (h *Header) GetF64(i int) float64    { return h.Float64s()[i] }
 
 /* complex64 */
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	hdr := (*reflect.StringHeader)(unsafe.Pointer(&v))
-
+hdr := (*reflect.StringHeader)(unsafe.Pointer(&v))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// value that was passed to that constructor.
 // This method is for implementing new key types, for type safety normal
 // access should be done with the From method of the key.
 func (t Label) UnpackString() string {
@@ -27,7 +27,6 @@ func (t Label) UnpackString() string {
 	hdr.Len = int(t.packed)
 	return *(*string)(unsafe.Pointer(hdr))
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

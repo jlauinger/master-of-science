@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (decoder *sliceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+type sliceDecoder struct {
 	sliceType   *reflect2.UnsafeSliceType
 	elemDecoder ValDecoder
 }
@@ -28,7 +28,6 @@ func (decoder *sliceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
 		iter.Error = fmt.Errorf("%v: %s", decoder.sliceType, iter.Error.Error())
 	}
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

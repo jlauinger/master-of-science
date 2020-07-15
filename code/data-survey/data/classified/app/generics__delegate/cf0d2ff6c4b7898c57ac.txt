@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *dynamicMapKeyEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+type dynamicMapKeyEncoder struct {
 	ctx     *ctx
 	valType reflect2.Type
 }
@@ -28,7 +28,6 @@ func (encoder *dynamicMapKeyEncoder) Encode(ptr unsafe.Pointer, stream *Stream) 
 }
 
 func (encoder *dynamicMapKeyEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

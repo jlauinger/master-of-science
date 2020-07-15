@@ -13,10 +13,10 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	tt := (*structType)(unsafe.Pointer(t))
-
+tt := (*structType)(unsafe.Pointer(t))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (t *rtype) NumField() int {
 	if t.Kind() != Struct {
@@ -28,7 +28,6 @@ func (t *rtype) NumField() int {
 
 func (t *rtype) NumIn() int {
 	if t.Kind() != Func {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

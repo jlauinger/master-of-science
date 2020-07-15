@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (h *Header) Int8s() []int8       { return *(*[]int8)(unsafe.Pointer(h)) }
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (h *Header) SetI(i int, x int) { h.Ints()[i] = x }
 func (h *Header) GetI(i int) int    { return h.Ints()[i] }
 
 /* int8 */
@@ -27,7 +27,6 @@ func (h *Header) SetI8(i int, x int8) { h.Int8s()[i] = x }
 func (h *Header) GetI8(i int) int8    { return h.Int8s()[i] }
 
 /* int16 */
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

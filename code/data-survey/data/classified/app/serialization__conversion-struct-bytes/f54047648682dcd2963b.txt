@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-			raw := (*unix.InotifyEvent)(unsafe.Pointer(&buf[offset]))
-
+raw := (*unix.InotifyEvent)(unsafe.Pointer(&buf[offset]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		var offset uint32
 		// We don't know how many events we just read into the buffer
 		// While the offset points to at least one whole event...
 		for offset <= uint32(n-unix.SizeofInotifyEvent) {
@@ -28,7 +28,6 @@ Snippet line:
 			nameLen := uint32(raw.Len)
 
 			if mask&unix.IN_Q_OVERFLOW != 0 {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

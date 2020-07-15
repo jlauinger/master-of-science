@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-			(*[1 << 20]uintptr)(unsafe.Pointer(pcbuf))[n] = pc
-
+(*[1 << 20]uintptr)(unsafe.Pointer(pcbuf))[n] = pc
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	for _, pc := range cgoPCs {
 		if pc == 0 || n >= max {
 			break
 		}
@@ -28,7 +28,6 @@ Snippet line:
 			if cgoSymbolizer == nil {
 				print("non-Go function at pc=", hex(pc), "\n")
 			} else {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

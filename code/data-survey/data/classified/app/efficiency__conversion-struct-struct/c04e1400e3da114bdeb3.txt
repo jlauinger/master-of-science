@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.SecretRef = (*core.LocalObjectReference)(unsafe.Pointer(in.SecretRef))
-
+out.SecretRef = (*core.LocalObjectReference)(unsafe.Pointer(in.SecretRef))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func autoConvert_v1_FlexVolumeSource_To_core_FlexVolumeSource(in *v1.FlexVolumeSource, out *core.FlexVolumeSource, s conversion.Scope) error {
 	out.Driver = in.Driver
@@ -27,7 +27,6 @@ func autoConvert_v1_FlexVolumeSource_To_core_FlexVolumeSource(in *v1.FlexVolumeS
 	out.Options = *(*map[string]string)(unsafe.Pointer(&in.Options))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

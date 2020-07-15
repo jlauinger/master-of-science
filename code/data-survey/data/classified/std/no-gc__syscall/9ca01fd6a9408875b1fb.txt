@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-		_p0 = unsafe.Pointer(&_zero)
-
+_p0 = unsafe.Pointer(&_zero)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Setdomainname(p []byte) (err error) {
 	var _p0 unsafe.Pointer
 	if len(p) > 0 {
 		_p0 = unsafe.Pointer(&p[0])
@@ -28,7 +28,6 @@ Snippet line:
 	if e1 != 0 {
 		err = errnoErr(e1)
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

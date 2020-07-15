@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Tolerations = *(*[]core.Toleration)(unsafe.Pointer(&in.Tolerations))
-
+out.Tolerations = *(*[]core.Toleration)(unsafe.Pointer(&in.Tolerations))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.ImagePullSecrets = *(*[]core.LocalObjectReference)(unsafe.Pointer(&in.ImagePullSecrets))
 	out.Hostname = in.Hostname
 	out.Subdomain = in.Subdomain
 	out.Affinity = (*core.Affinity)(unsafe.Pointer(in.Affinity))
@@ -28,7 +28,6 @@ Snippet line:
 	out.Priority = (*int32)(unsafe.Pointer(in.Priority))
 	out.DNSConfig = (*core.PodDNSConfig)(unsafe.Pointer(in.DNSConfig))
 	out.ReadinessGates = *(*[]core.PodReadinessGate)(unsafe.Pointer(&in.ReadinessGates))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

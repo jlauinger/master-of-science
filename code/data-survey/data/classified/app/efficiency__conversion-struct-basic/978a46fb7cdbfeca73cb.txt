@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.MinItems = (*int64)(unsafe.Pointer(in.MinItems))
-
+out.MinItems = (*int64)(unsafe.Pointer(in.MinItems))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.ExclusiveMinimum = in.ExclusiveMinimum
 	out.MaxLength = (*int64)(unsafe.Pointer(in.MaxLength))
 	out.MinLength = (*int64)(unsafe.Pointer(in.MinLength))
 	out.Pattern = in.Pattern
@@ -28,7 +28,6 @@ Snippet line:
 	if in.Enum != nil {
 		in, out := &in.Enum, &out.Enum
 		*out = make([]apiextensions.JSON, len(*in))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

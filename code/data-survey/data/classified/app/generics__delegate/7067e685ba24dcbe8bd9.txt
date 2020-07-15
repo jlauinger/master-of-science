@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (u *unfolderInt32) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func newUnfolderInt32() *unfolderInt32 {
 	return _singletonUnfolderInt32
@@ -28,7 +28,6 @@ func (u *unfolderInt32) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
 }
 
 func (u *unfolderInt32) cleanup(ctx *unfoldCtx) {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

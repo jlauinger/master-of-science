@@ -13,11 +13,11 @@ Label 2 (For what purpose?): escape-analysis-escape
 --------------------------------------------------------------
 Snippet line:
 
-	return interhash(noescape(unsafe.Pointer(&i)), seed)
-
+return interhash(noescape(unsafe.Pointer(&i)), seed)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func ifaceHash(i interface {
 	F()
@@ -28,7 +28,6 @@ func ifaceHash(i interface {
 const hashRandomBytes = sys.PtrSize / 4 * 64
 
 // used in asm_{386,amd64,arm64}.s to seed the hash function
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (decoder *sliceDecoder) doDecode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if iter.Error != nil && iter.Error != io.EOF {
 		iter.Error = fmt.Errorf("%v: %s", decoder.sliceType, iter.Error.Error())
 	}
 }
@@ -28,7 +28,6 @@ func (decoder *sliceDecoder) doDecode(ptr unsafe.Pointer, iter *Iterator) {
 	if c == 'n' {
 		iter.skipThreeBytes('u', 'l', 'l')
 		sliceType.UnsafeSetNil(ptr)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

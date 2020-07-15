@@ -13,11 +13,11 @@ Label 2 (For what purpose?): escape-analysis-escape
 --------------------------------------------------------------
 Snippet line:
 
-	tracebackdefers(gp, adjustframe, noescape(unsafe.Pointer(adjinfo)))
-
+tracebackdefers(gp, adjustframe, noescape(unsafe.Pointer(adjinfo)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 
 	// Adjust defer argument blocks the same way we adjust active stack frames.
 	// Note: this code is after the loop above, so that if a defer record is
@@ -28,7 +28,6 @@ Snippet line:
 func adjustpanics(gp *g, adjinfo *adjustinfo) {
 	// Panics are on stack and already adjusted.
 	// Update pointer to head of list in G.
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

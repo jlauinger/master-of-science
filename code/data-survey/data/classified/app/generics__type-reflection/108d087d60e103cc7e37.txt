@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		case func(unsafe.Pointer) unsafe.Pointer:
-
+case func(unsafe.Pointer) unsafe.Pointer:
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	case UnsafePointer:
 		var f0 func(unsafe.Pointer) unsafe.Pointer
 		var f1 func(unsafe.Pointer) (unsafe.Pointer, error)
 
@@ -28,7 +28,6 @@ Snippet line:
 			f1 = f
 		default:
 			return errors.Errorf("Cannot map fn of %T to array", fn)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

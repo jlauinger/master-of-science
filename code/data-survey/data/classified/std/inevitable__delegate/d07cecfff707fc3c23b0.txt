@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), SizeofIPv6Mreq)
-
+return setsockopt(fd, level, opt, unsafe.Pointer(mreq), SizeofIPv6Mreq)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func SetsockoptIPMreq(fd, level, opt int, mreq *IPMreq) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), SizeofIPMreq)
 }
 
@@ -28,7 +28,6 @@ func SetsockoptIPv6Mreq(fd, level, opt int, mreq *IPv6Mreq) (err error) {
 func SetsockoptICMPv6Filter(fd, level, opt int, filter *ICMPv6Filter) error {
 	return setsockopt(fd, level, opt, unsafe.Pointer(filter), SizeofICMPv6Filter)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

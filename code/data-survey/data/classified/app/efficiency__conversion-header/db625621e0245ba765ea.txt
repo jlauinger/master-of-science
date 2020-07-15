@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
-
+bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 // Sum64String computes the 64-bit xxHash digest of s.
 // It may be faster than Sum64([]byte(s)) by avoiding a copy.
@@ -28,7 +28,6 @@ func Sum64String(s string) uint64 {
 	bh.Cap = len(s)
 	return Sum64(b)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

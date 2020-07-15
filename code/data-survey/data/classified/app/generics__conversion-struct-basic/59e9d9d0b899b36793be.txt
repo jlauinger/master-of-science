@@ -13,10 +13,10 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		ptr := unsafe.Pointer(mapPtr)
-
+ptr := unsafe.Pointer(mapPtr)
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 	case structform.Float64Type:
 		idx := len(ctx.valueBuffer.mapPrimitive)
@@ -28,7 +28,6 @@ Snippet line:
 		return to, ptr, unfolder
 
 	case structform.Int16Type:
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

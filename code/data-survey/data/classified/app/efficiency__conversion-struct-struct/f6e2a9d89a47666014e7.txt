@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Assigned = (*v1.NodeConfigSource)(unsafe.Pointer(in.Assigned))
-
+out.Assigned = (*v1.NodeConfigSource)(unsafe.Pointer(in.Assigned))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_v1_NodeConfigStatus_To_core_NodeConfigStatus(in *v1.NodeConfigStatus, out *core.NodeConfigStatus, s conversion.Scope) error {
 	return autoConvert_v1_NodeConfigStatus_To_core_NodeConfigStatus(in, out, s)
 }
 
@@ -28,7 +28,6 @@ func autoConvert_core_NodeConfigStatus_To_v1_NodeConfigStatus(in *core.NodeConfi
 	out.Error = in.Error
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

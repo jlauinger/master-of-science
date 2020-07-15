@@ -14,9 +14,9 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (codec *anyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 type anyCodec struct {
 	valType reflect2.Type
@@ -28,7 +28,6 @@ func (codec *anyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
 
 func (codec *anyCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
 	obj := codec.valType.UnsafeIndirect(ptr)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

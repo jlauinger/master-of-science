@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: type.go
+Line: 185
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): pointer-arithmetic
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+func resolveNameOff(ptrInModule unsafe.Pointer, off nameOff) name {
+--------------------------------------------------------------
++/- 5 lines context:
+
+		racerelease(unsafe.Pointer(&reflectOffs.lock))
+	}
+	unlock(&reflectOffs.lock)
+}
+
+func resolveNameOff(ptrInModule unsafe.Pointer, off nameOff) name {
+	if off == 0 {
+		return name{}
+	}
+	base := uintptr(ptrInModule)
+	for md := &firstmoduledata; md != nil; md = md.next {
+--------------------------------------------------------------
++/- 100 lines context:
+
+		return &(*u)(unsafe.Pointer(t)).u
+	case kindArray:
+		type u struct {
+			arraytype
+			u uncommontype
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case kindChan:
+		type u struct {
+			chantype
+			u uncommontype
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case kindMap:
+		type u struct {
+			maptype
+			u uncommontype
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case kindInterface:
+		type u struct {
+			interfacetype
+			u uncommontype
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	default:
+		type u struct {
+			_type
+			u uncommontype
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	}
+}
+
+func (t *_type) name() string {
+	if t.tflag&tflagNamed == 0 {
+		return ""
+	}
+	s := t.string()
+	i := len(s) - 1
+	for i >= 0 && s[i] != '.' {
+		i--
+	}
+	return s[i+1:]
+}
+
+// pkgpath returns the path of the package where t was defined, if
+// available. This is not the same as the reflect package's PkgPath
+// method, in that it returns the package path for struct and interface
+// types, not just named types.
+func (t *_type) pkgpath() string {
+	if u := t.uncommon(); u != nil {
+		return t.nameOff(u.pkgpath).name()
+	}
+	switch t.kind & kindMask {
+	case kindStruct:
+		st := (*structtype)(unsafe.Pointer(t))
+		return st.pkgPath.name()
+	case kindInterface:
+		it := (*interfacetype)(unsafe.Pointer(t))
+		return it.pkgpath.name()
+	}
+	return ""
+}
+
+// reflectOffs holds type offsets defined at run time by the reflect package.
+//
+// When a type is defined at run time, its *rtype data lives on the heap.
+// There are a wide range of possible addresses the heap may use, that
+// may not be representable as a 32-bit offset. Moreover the GC may
+// one day start moving heap memory, in which case there is no stable
+// offset that can be defined.
+//
+// To provide stable offsets, we add pin *rtype objects in a global map
+// and treat the offset as an identifier. We use negative offsets that
+// do not overlap with any compile-time module offsets.
+//
+// Entries are created by reflect.addReflectOff.
+var reflectOffs struct {
+	lock mutex
+	next int32
+	m    map[int32]unsafe.Pointer
+	minv map[unsafe.Pointer]int32
+}
+
+func reflectOffsLock() {
+	lock(&reflectOffs.lock)
+	if raceenabled {
+		raceacquire(unsafe.Pointer(&reflectOffs.lock))
+	}
+}
+
+func reflectOffsUnlock() {
+	if raceenabled {
+		racerelease(unsafe.Pointer(&reflectOffs.lock))
+	}
+	unlock(&reflectOffs.lock)
+}
+
+func resolveNameOff(ptrInModule unsafe.Pointer, off nameOff) name {
+	if off == 0 {
+		return name{}
+	}
+	base := uintptr(ptrInModule)
+	for md := &firstmoduledata; md != nil; md = md.next {
+		if base >= md.types && base < md.etypes {
+			res := md.types + uintptr(off)
+			if res > md.etypes {
+				println("runtime: nameOff", hex(off), "out of range", hex(md.types), "-", hex(md.etypes))
+				throw("runtime: name offset out of range")
+			}
+			return name{(*byte)(unsafe.Pointer(res))}
+		}
+	}
+
+	// No module found. see if it is a run time name.
+	reflectOffsLock()
+	res, found := reflectOffs.m[int32(off)]
+	reflectOffsUnlock()
+	if !found {
+		println("runtime: nameOff", hex(off), "base", hex(base), "not in ranges:")
+		for next := &firstmoduledata; next != nil; next = next.next {
+			println("\ttypes", hex(next.types), "etypes", hex(next.etypes))
+		}
+		throw("runtime: name offset base pointer out of range")
+	}
+	return name{(*byte)(res)}
+}
+
+func (t *_type) nameOff(off nameOff) name {
+	return resolveNameOff(unsafe.Pointer(t), off)
+}
+
+func resolveTypeOff(ptrInModule unsafe.Pointer, off typeOff) *_type {
+	if off == 0 {
+		return nil
+	}
+	base := uintptr(ptrInModule)
+	var md *moduledata
+	for next := &firstmoduledata; next != nil; next = next.next {
+		if base >= next.types && base < next.etypes {
+			md = next
+			break
+		}
+	}
+	if md == nil {
+		reflectOffsLock()
+		res := reflectOffs.m[int32(off)]
+		reflectOffsUnlock()
+		if res == nil {
+			println("runtime: typeOff", hex(off), "base", hex(base), "not in ranges:")
+			for next := &firstmoduledata; next != nil; next = next.next {
+				println("\ttypes", hex(next.types), "etypes", hex(next.etypes))
+			}
+			throw("runtime: type offset base pointer out of range")
+		}
+		return (*_type)(res)
+	}
+	if t := md.typemap[off]; t != nil {
+		return t
+	}
+	res := md.types + uintptr(off)
+	if res > md.etypes {
+		println("runtime: typeOff", hex(off), "out of range", hex(md.types), "-", hex(md.etypes))
+		throw("runtime: type offset out of range")
+	}
+	return (*_type)(unsafe.Pointer(res))
+}
+
+func (t *_type) typeOff(off typeOff) *_type {
+	return resolveTypeOff(unsafe.Pointer(t), off)
+}
+
+func (t *_type) textOff(off textOff) unsafe.Pointer {
+	base := uintptr(unsafe.Pointer(t))
+	var md *moduledata
+	for next := &firstmoduledata; next != nil; next = next.next {
+		if base >= next.types && base < next.etypes {
+			md = next
+			break
+		}
+	}
+	if md == nil {
+		reflectOffsLock()
+		res := reflectOffs.m[int32(off)]
+		reflectOffsUnlock()
+		if res == nil {
+			println("runtime: textOff", hex(off), "base", hex(base), "not in ranges:")
+			for next := &firstmoduledata; next != nil; next = next.next {
+				println("\ttypes", hex(next.types), "etypes", hex(next.etypes))
+			}
+			throw("runtime: text offset base pointer out of range")
+		}
+		return res
+	}
+	res := uintptr(0)
+
+	// The text, or instruction stream is generated as one large buffer.  The off (offset) for a method is
+	// its offset within this buffer.  If the total text size gets too large, there can be issues on platforms like ppc64 if
+	// the target of calls are too far for the call instruction.  To resolve the large text issue, the text is split
+

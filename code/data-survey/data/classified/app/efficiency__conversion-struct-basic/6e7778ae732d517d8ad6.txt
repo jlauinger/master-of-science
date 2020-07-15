@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.StorageClassName = (*string)(unsafe.Pointer(in.StorageClassName))
-
+out.StorageClassName = (*string)(unsafe.Pointer(in.StorageClassName))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Selector = (*metav1.LabelSelector)(unsafe.Pointer(in.Selector))
 	if err := Convert_core_ResourceRequirements_To_v1_ResourceRequirements(&in.Resources, &out.Resources, s); err != nil {
 		return err
 	}
@@ -27,7 +27,6 @@ Snippet line:
 	out.DataSource = (*v1.TypedLocalObjectReference)(unsafe.Pointer(in.DataSource))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

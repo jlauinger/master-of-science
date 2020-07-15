@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-			b = (*[maxAllocSize]byte)(unsafe.Pointer(&b[0]))[:]
-
+b = (*[maxAllocSize]byte)(unsafe.Pointer(&b[0]))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		// then we need to reallocate the byte array pointer.
 		//
 		// See: https://github.com/boltdb/bolt/pull/335
 		klen, vlen := len(item.key), len(item.value)
@@ -28,7 +28,6 @@ Snippet line:
 		// Write data for the element to the end of the page.
 		copy(b[0:], item.key)
 		b = b[klen:]
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -14,10 +14,10 @@ Label 2 (For what purpose?): inevitable
 Snippet line:
 
 func selectnbrecv2(elem unsafe.Pointer, received *bool, c *hchan) (selected bool) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+//		... foo
 //	} else {
 //		... bar
 //	}
@@ -27,7 +27,6 @@ func selectnbrecv2(elem unsafe.Pointer, received *bool, c *hchan) (selected bool
 	selected, *received = chanrecv(c, elem, false)
 	return
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *sortKeysMapEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	stream.WriteObjectEnd()
 	stream.cfg.ReturnStream(subStream)
 	stream.cfg.ReturnIterator(subIter)
 }
@@ -28,7 +28,6 @@ func (encoder *sortKeysMapEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 }
 
 type encodedKeyValues []encodedKV
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

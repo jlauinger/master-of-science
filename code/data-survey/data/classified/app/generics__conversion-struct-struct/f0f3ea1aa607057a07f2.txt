@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *jsonNumberCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 type jsonNumberCodec struct {
 }
@@ -28,7 +28,6 @@ func (codec *jsonNumberCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
 		*((*json.Number)(ptr)) = json.Number(iter.ReadString())
 	case NilValue:
 		iter.skipFourBytes('n', 'u', 'l', 'l')
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

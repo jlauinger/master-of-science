@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.RunAsGroup = (*int64)(unsafe.Pointer(in.RunAsGroup))
-
+out.RunAsGroup = (*int64)(unsafe.Pointer(in.RunAsGroup))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	// INFO: in.HostIPC opted out of conversion generation
 	// INFO: in.ShareProcessNamespace opted out of conversion generation
 	out.SELinuxOptions = (*v1.SELinuxOptions)(unsafe.Pointer(in.SELinuxOptions))
 	out.WindowsOptions = (*v1.WindowsSecurityContextOptions)(unsafe.Pointer(in.WindowsOptions))
@@ -28,7 +28,6 @@ Snippet line:
 	out.FSGroup = (*int64)(unsafe.Pointer(in.FSGroup))
 	out.Sysctls = *(*[]v1.Sysctl)(unsafe.Pointer(&in.Sysctls))
 	return nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

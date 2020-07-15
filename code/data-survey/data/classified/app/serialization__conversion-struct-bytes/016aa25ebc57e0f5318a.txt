@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofVfVlan]byte)(unsafe.Pointer(msg)))[:]
-
+return (*(*[SizeofVfVlan]byte)(unsafe.Pointer(msg)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeVfVlan(b []byte) *VfVlan {
 	return (*VfVlan)(unsafe.Pointer(&b[0:SizeofVfVlan][0]))
 }
 
@@ -28,7 +28,6 @@ func (msg *VfVlan) Serialize() []byte {
 // struct ifla_vf_tx_rate {
 //   __u32 vf;
 //   __u32 rate; /* Max TX bandwidth in Mbps, 0 disables throttling */
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

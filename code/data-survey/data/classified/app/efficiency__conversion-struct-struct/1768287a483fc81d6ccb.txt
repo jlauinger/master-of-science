@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Ports = *(*[]core.ContainerPort)(unsafe.Pointer(&in.Ports))
-
+out.Ports = *(*[]core.ContainerPort)(unsafe.Pointer(&in.Ports))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Name = in.Name
 	out.Image = in.Image
 	out.Command = *(*[]string)(unsafe.Pointer(&in.Command))
 	out.Args = *(*[]string)(unsafe.Pointer(&in.Args))
@@ -28,7 +28,6 @@ Snippet line:
 	if err := Convert_v1_ResourceRequirements_To_core_ResourceRequirements(&in.Resources, &out.Resources, s); err != nil {
 		return err
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

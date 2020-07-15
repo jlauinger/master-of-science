@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	fieldPtr := unsafe.Pointer(deReferenced)
-
+fieldPtr := unsafe.Pointer(deReferenced)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	isEmbeddedPtrNil, converted := encoder.ValueEncoder.(IsEmbeddedPtrNil)
 	if !converted {
 		return false
@@ -28,7 +28,6 @@ Snippet line:
 
 type referenceEncoder struct {
 	encoder ValEncoder
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *jsonNumberCodec) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	} else {
 		stream.WriteRaw(string(number))
 	}
 }
@@ -28,7 +28,6 @@ func (codec *jsonNumberCodec) IsEmpty(ptr unsafe.Pointer) bool {
 
 type jsoniterNumberCodec struct {
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

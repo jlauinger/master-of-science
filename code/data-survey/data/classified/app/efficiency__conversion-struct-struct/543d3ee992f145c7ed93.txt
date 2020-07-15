@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Required = *(*[]string)(unsafe.Pointer(&in.Required))
-
+out.Required = *(*[]string)(unsafe.Pointer(&in.Required))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	} else {
 		out.Enum = nil
 	}
 	out.MaxProperties = (*int64)(unsafe.Pointer(in.MaxProperties))
@@ -28,7 +28,6 @@ Snippet line:
 		*out = new(apiextensions.JSONSchemaPropsOrArray)
 		if err := Convert_v1_JSONSchemaPropsOrArray_To_apiextensions_JSONSchemaPropsOrArray(*in, *out, s); err != nil {
 			return err
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	atomic.CompareAndSwapPointer(&m.p, nil, (unsafe.Pointer)(w))
-
+atomic.CompareAndSwapPointer(&m.p, nil, (unsafe.Pointer)(w))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (m *atomicNilMessage) Init(mi *MessageInfo) *messageReflectWrapper {
 	if p := atomic.LoadPointer(&m.p); p != nil {
 		return (*messageReflectWrapper)(p)
 	}
@@ -25,7 +25,6 @@ Snippet line:
 	atomic.CompareAndSwapPointer(&m.p, nil, (unsafe.Pointer)(w))
 	return (*messageReflectWrapper)(atomic.LoadPointer(&m.p))
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

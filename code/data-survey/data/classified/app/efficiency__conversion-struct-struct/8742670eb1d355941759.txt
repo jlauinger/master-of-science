@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Ingress = *(*[]core.LoadBalancerIngress)(unsafe.Pointer(&in.Ingress))
-
+out.Ingress = *(*[]core.LoadBalancerIngress)(unsafe.Pointer(&in.Ingress))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_core_LoadBalancerIngress_To_v1_LoadBalancerIngress(in *core.LoadBalancerIngress, out *v1.LoadBalancerIngress, s conversion.Scope) error {
 	return autoConvert_core_LoadBalancerIngress_To_v1_LoadBalancerIngress(in, out, s)
 }
 
@@ -28,7 +28,6 @@ func autoConvert_v1_LoadBalancerStatus_To_core_LoadBalancerStatus(in *v1.LoadBal
 
 func autoConvert_core_LoadBalancerStatus_To_v1_LoadBalancerStatus(in *core.LoadBalancerStatus, out *v1.LoadBalancerStatus, s conversion.Scope) error {
 	out.Ingress = *(*[]v1.LoadBalancerIngress)(unsafe.Pointer(&in.Ingress))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

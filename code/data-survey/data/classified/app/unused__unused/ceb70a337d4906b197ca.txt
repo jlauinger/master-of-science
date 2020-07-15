@@ -14,9 +14,9 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (decoder *lazyErrorDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 type lazyErrorDecoder struct {
 	err error
@@ -28,7 +28,6 @@ func (decoder *lazyErrorDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
 			iter.Error = decoder.err
 		}
 	} else {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

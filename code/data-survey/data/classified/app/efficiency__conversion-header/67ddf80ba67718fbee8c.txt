@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
-
+sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	typ  unsafe.Pointer
 	word unsafe.Pointer
 }
 
@@ -27,7 +27,6 @@ func Str2Bytes(s string) []byte {
 	b := *(*[]byte)(unsafe.Pointer(&bh))
 	return b
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

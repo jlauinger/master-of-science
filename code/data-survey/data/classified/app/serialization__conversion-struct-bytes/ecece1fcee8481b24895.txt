@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofTcNetemCorrupt]byte)(unsafe.Pointer(x)))[:]
-
+return (*(*[SizeofTcNetemCorrupt]byte)(unsafe.Pointer(x)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeTcNetemCorrupt(b []byte) *TcNetemCorrupt {
 	return (*TcNetemCorrupt)(unsafe.Pointer(&b[0:SizeofTcNetemCorrupt][0]))
 }
 
@@ -28,7 +28,6 @@ func (x *TcNetemCorrupt) Serialize() []byte {
 // struct tc_tbf_qopt {
 //   struct tc_ratespec rate;
 //   struct tc_ratespec peakrate;
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

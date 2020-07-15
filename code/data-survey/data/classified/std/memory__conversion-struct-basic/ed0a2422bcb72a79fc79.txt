@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-		dumpint(uint64(uintptr(unsafe.Pointer(mp))))
-
+dumpint(uint64(uintptr(unsafe.Pointer(mp))))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func dumpms() {
 	for mp := allm; mp != nil; mp = mp.alllink {
@@ -27,7 +27,6 @@ func dumpms() {
 		dumpint(mp.procid)
 	}
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

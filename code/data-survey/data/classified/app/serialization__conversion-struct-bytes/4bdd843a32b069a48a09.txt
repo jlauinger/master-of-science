@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofXfrmEncapTmpl]byte)(unsafe.Pointer(msg)))[:]
-
+return (*(*[SizeofXfrmEncapTmpl]byte)(unsafe.Pointer(msg)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeXfrmEncapTmpl(b []byte) *XfrmEncapTmpl {
 	return (*XfrmEncapTmpl)(unsafe.Pointer(&b[0:SizeofXfrmEncapTmpl][0]))
 }
 
@@ -28,7 +28,6 @@ func (msg *XfrmEncapTmpl) Serialize() []byte {
 // struct xfrm_usersa_flush {
 //    __u8 proto;
 // };
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

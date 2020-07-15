@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Containers = *(*[]v1.Container)(unsafe.Pointer(&in.Containers))
-
+out.Containers = *(*[]v1.Container)(unsafe.Pointer(&in.Containers))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		}
 	} else {
 		out.Volumes = nil
 	}
@@ -28,7 +28,6 @@ Snippet line:
 	out.TerminationGracePeriodSeconds = (*int64)(unsafe.Pointer(in.TerminationGracePeriodSeconds))
 	out.ActiveDeadlineSeconds = (*int64)(unsafe.Pointer(in.ActiveDeadlineSeconds))
 	out.DNSPolicy = v1.DNSPolicy(in.DNSPolicy)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Namespaces = *(*[]string)(unsafe.Pointer(&in.Namespaces))
-
+out.Namespaces = *(*[]string)(unsafe.Pointer(&in.Namespaces))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Level = Level(in.Level)
 	out.Users = *(*[]string)(unsafe.Pointer(&in.Users))
 	out.UserGroups = *(*[]string)(unsafe.Pointer(&in.UserGroups))
 	out.Verbs = *(*[]string)(unsafe.Pointer(&in.Verbs))
@@ -27,7 +27,6 @@ Snippet line:
 	out.OmitStages = *(*[]Stage)(unsafe.Pointer(&in.OmitStages))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

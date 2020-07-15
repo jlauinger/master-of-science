@@ -13,10 +13,10 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	return (*[1 << 16]method)(add(unsafe.Pointer(t), uintptr(t.moff), "t.mcount > 0"))[:t.mcount:t.mcount]
-
+return (*[1 << 16]method)(add(unsafe.Pointer(t), uintptr(t.moff), "t.mcount > 0"))[:t.mcount:t.mcount]
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (t *uncommonType) methods() []method {
 	if t.mcount == 0 {
@@ -28,7 +28,6 @@ func (t *uncommonType) methods() []method {
 func (t *uncommonType) exportedMethods() []method {
 	if t.xcount == 0 {
 		return nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

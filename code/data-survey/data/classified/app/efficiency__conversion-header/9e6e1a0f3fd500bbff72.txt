@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-			sh := (*reflect.SliceHeader)(unsafe.Pointer(e.Addr().Pointer()))
-
+sh := (*reflect.SliceHeader)(unsafe.Pointer(e.Addr().Pointer()))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	for i := 0; i < layers; i++ {
 		el := retVal.Index(i)
 		inner := reflect.MakeSlice(reflect.SliceOf(reflect.SliceOf(typ)), rows, rows)
 		for j := 0; j < rows; j++ {
@@ -28,7 +28,6 @@ Snippet line:
 			sh.Cap = cols
 		}
 		sh := (*reflect.SliceHeader)(unsafe.Pointer(el.Addr().Pointer()))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

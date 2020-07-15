@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *dynamicEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (encoder *dynamicEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 	obj := encoder.valType.UnsafeIndirect(ptr)
 	stream.WriteVal(obj)
 }
@@ -28,7 +28,6 @@ func (encoder *dynamicEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 
 type efaceDecoder struct {
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

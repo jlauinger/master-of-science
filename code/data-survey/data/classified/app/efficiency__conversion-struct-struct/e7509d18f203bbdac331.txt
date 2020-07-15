@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Taints = *(*[]core.Taint)(unsafe.Pointer(&in.Taints))
-
+out.Taints = *(*[]core.Taint)(unsafe.Pointer(&in.Taints))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func autoConvert_v1_NodeSpec_To_core_NodeSpec(in *v1.NodeSpec, out *core.NodeSpec, s conversion.Scope) error {
 	// WARNING: in.PodCIDR requires manual conversion: does not exist in peer-type
 	out.PodCIDRs = *(*[]string)(unsafe.Pointer(&in.PodCIDRs))
 	out.ProviderID = in.ProviderID
@@ -27,7 +27,6 @@ Snippet line:
 	out.DoNotUseExternalID = in.DoNotUseExternalID
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-		return &(*structTypeUncommon)(unsafe.Pointer(t)).u
-
+return &(*structTypeUncommon)(unsafe.Pointer(t)).u
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if t.tflag&tflagUncommon == 0 {
 		return nil
 	}
 	switch t.Kind() {
@@ -28,7 +28,6 @@ Snippet line:
 			ptrType
 			u uncommonType
 		}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

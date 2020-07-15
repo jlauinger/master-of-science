@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Images = *(*[]v1.ContainerImage)(unsafe.Pointer(&in.Images))
-
+out.Images = *(*[]v1.ContainerImage)(unsafe.Pointer(&in.Images))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return err
 	}
 	if err := Convert_core_NodeSystemInfo_To_v1_NodeSystemInfo(&in.NodeInfo, &out.NodeInfo, s); err != nil {
 		return err
@@ -28,7 +28,6 @@ Snippet line:
 	out.Config = (*v1.NodeConfigStatus)(unsafe.Pointer(in.Config))
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

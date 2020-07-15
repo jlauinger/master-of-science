@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ReadinessGates = *(*[]v1.PodReadinessGate)(unsafe.Pointer(&in.ReadinessGates))
-
+out.ReadinessGates = *(*[]v1.PodReadinessGate)(unsafe.Pointer(&in.ReadinessGates))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.HostAliases = *(*[]v1.HostAlias)(unsafe.Pointer(&in.HostAliases))
 	out.PriorityClassName = in.PriorityClassName
 	out.Priority = (*int32)(unsafe.Pointer(in.Priority))
 	out.PreemptionPolicy = (*v1.PreemptionPolicy)(unsafe.Pointer(in.PreemptionPolicy))
@@ -28,7 +28,6 @@ Snippet line:
 	out.EnableServiceLinks = (*bool)(unsafe.Pointer(in.EnableServiceLinks))
 	out.TopologySpreadConstraints = *(*[]v1.TopologySpreadConstraint)(unsafe.Pointer(&in.TopologySpreadConstraints))
 	return nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

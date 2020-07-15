@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	*a = *(*uint32)(unsafe.Pointer(&(*f)[0]))
-
+*a = *(*uint32)(unsafe.Pointer(&(*f)[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 }
 
 // uint32 decodes a pair of uint32s into a and b.
@@ -28,7 +28,6 @@ func (f *fields) uint32(a, b *uint32) {
 }
 
 // uint32 decodes a pair of uint32s into a and b, if cond is true.
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

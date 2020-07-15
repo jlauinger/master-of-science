@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	return m.trie.Get(*(*[]byte)(unsafe.Pointer(&key)))
-
+return m.trie.Get(*(*[]byte)(unsafe.Pointer(&key)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (m *SortedMap) Contains(key string) bool {
 	return m.trie.Contains(*(*[]byte)(unsafe.Pointer(&key)))
 }
 
@@ -28,7 +28,6 @@ func (m *SortedMap) Get(key string) (value interface{}, ok bool) {
 func (m *SortedMap) Set(key string, value interface{}) {
 	m.trie.Set([]byte(key), value)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

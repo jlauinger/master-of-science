@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*BridgeVlanInfo)(unsafe.Pointer(&b[0:SizeofBridgeVlanInfo][0]))
-
+return (*BridgeVlanInfo)(unsafe.Pointer(&b[0:SizeofBridgeVlanInfo][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (b *BridgeVlanInfo) Serialize() []byte {
 	return (*(*[SizeofBridgeVlanInfo]byte)(unsafe.Pointer(b)))[:]
 }
 
@@ -28,7 +28,6 @@ func DeserializeBridgeVlanInfo(b []byte) *BridgeVlanInfo {
 func (b *BridgeVlanInfo) PortVID() bool {
 	return b.Flags&BRIDGE_VLAN_INFO_PVID > 0
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

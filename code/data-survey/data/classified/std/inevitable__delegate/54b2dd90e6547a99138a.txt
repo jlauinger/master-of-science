@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		write(2, unsafe.Pointer(&failthreadcreate[0]), int32(len(failthreadcreate)))
-
+write(2, unsafe.Pointer(&failthreadcreate[0]), int32(len(failthreadcreate)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		write(2, unsafe.Pointer(&failallocatestack[0]), int32(len(failallocatestack)))
 		exit(1)
 	}
 	ret := clone(cloneFlags, unsafe.Pointer(uintptr(stack)+stacksize), nil, nil, fn)
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 var failallocatestack = []byte("runtime: failed to allocate stack for the new OS thread\n")
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

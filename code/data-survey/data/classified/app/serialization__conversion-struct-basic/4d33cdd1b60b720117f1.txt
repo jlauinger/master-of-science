@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	ret.AlgKeyLen = *(*uint32)(unsafe.Pointer(&b[64]))
-
+ret.AlgKeyLen = *(*uint32)(unsafe.Pointer(&b[64]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func DeserializeXfrmAlgoAEAD(b []byte) *XfrmAlgoAEAD {
 	ret := XfrmAlgoAEAD{}
@@ -27,7 +27,6 @@ func DeserializeXfrmAlgoAEAD(b []byte) *XfrmAlgoAEAD {
 	ret.AlgKey = b[72:ret.Len()]
 	return &ret
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

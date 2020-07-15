@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofTcConnmark]byte)(unsafe.Pointer(x)))[:]
-
+return (*(*[SizeofTcConnmark]byte)(unsafe.Pointer(x)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeTcConnmark(b []byte) *TcConnmark {
 	return (*TcConnmark)(unsafe.Pointer(&b[0:SizeofTcConnmark][0]))
 }
 
@@ -28,7 +28,6 @@ func (x *TcConnmark) Serialize() []byte {
 const (
 	TCA_ACT_MIRRED = 8
 )
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

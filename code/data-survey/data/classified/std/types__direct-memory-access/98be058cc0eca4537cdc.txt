@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-		*(*unsafe.Pointer)(insertk) = kmem
-
+*(*unsafe.Pointer)(insertk) = kmem
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 
 	// store new key/elem at insert position
 	if t.indirectkey() {
@@ -28,7 +28,6 @@ Snippet line:
 	if t.indirectelem() {
 		vmem := newobject(t.elem)
 		*(*unsafe.Pointer)(elem) = vmem
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

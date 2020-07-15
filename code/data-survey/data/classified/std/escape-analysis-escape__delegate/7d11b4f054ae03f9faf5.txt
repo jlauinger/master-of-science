@@ -13,11 +13,11 @@ Label 2 (For what purpose?): escape-analysis-escape
 --------------------------------------------------------------
 Snippet line:
 
-	*(*unsafe.Pointer)(unsafe.Pointer(&dispatchF)) = noescape(unsafe.Pointer(&dispatchFV))
-
+*(*unsafe.Pointer)(unsafe.Pointer(&dispatchF)) = noescape(unsafe.Pointer(&dispatchFV))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// debugCallWrap pushes a defer to recover from panics in debug calls
 // and then calls the dispatching function at PC dispatch.
 func debugCallWrap(dispatch uintptr) {
 	var dispatchF func()
@@ -28,7 +28,6 @@ func debugCallWrap(dispatch uintptr) {
 	defer func() {
 		if !ok {
 			err := recover()
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

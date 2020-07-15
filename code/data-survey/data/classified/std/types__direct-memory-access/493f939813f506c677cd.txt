@@ -14,10 +14,10 @@ Label 2 (For what purpose?): types
 Snippet line:
 
 func efaceeq(t *_type, x, y unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func nilinterequal(p, q unsafe.Pointer) bool {
 	x := *(*eface)(p)
 	y := *(*eface)(q)
 	return x._type == y._type && efaceeq(x._type, x.data, y.data)
@@ -28,7 +28,6 @@ func efaceeq(t *_type, x, y unsafe.Pointer) bool {
 	}
 	eq := t.equal
 	if eq == nil {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

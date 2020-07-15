@@ -13,10 +13,10 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		raceacquire(unsafe.Pointer(&trace.shutdownSema))
-
+raceacquire(unsafe.Pointer(&trace.shutdownSema))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 	// The world is started but we've set trace.shutdown, so new tracing can't start.
 	// Wait for the trace reader to flush pending buffers and stop.
@@ -28,7 +28,6 @@ Snippet line:
 	// The lock protects us from races with StartTrace/StopTrace because they do stop-the-world.
 	lock(&trace.lock)
 	for _, p := range allp[:cap(allp)] {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

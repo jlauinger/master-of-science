@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-			decoder.ValueDecoder.Decode(*((*unsafe.Pointer)(ptr)), iter)
-
+decoder.ValueDecoder.Decode(*((*unsafe.Pointer)(ptr)), iter)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			newPtr := decoder.ValueType.UnsafeNew()
 			decoder.ValueDecoder.Decode(newPtr, iter)
 			*((*unsafe.Pointer)(ptr)) = newPtr
 		} else {
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 type dereferenceDecoder struct {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

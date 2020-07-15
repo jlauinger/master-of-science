@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.XListMapKeys = *(*[]string)(unsafe.Pointer(&in.XListMapKeys))
-
+out.XListMapKeys = *(*[]string)(unsafe.Pointer(&in.XListMapKeys))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		out.Example = nil
 	}
 	out.XPreserveUnknownFields = (*bool)(unsafe.Pointer(in.XPreserveUnknownFields))
 	out.XEmbeddedResource = in.XEmbeddedResource
@@ -27,7 +27,6 @@ Snippet line:
 	out.XMapType = (*string)(unsafe.Pointer(in.XMapType))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

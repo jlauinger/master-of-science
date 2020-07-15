@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		atomic.StorepNoWB(unsafe.Pointer(&pd.wt.f), nil) // full memory barrier between store to wd and load of wg in netpollunblock
-
+atomic.StorepNoWB(unsafe.Pointer(&pd.wt.f), nil) // full memory barrier between store to wd and load of wg in netpollunblock
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if write {
 		if pd.wd <= 0 || pd.wt.f == nil && !read {
 			throw("runtime: inconsistent write deadline")
 		}
@@ -28,7 +28,6 @@ Snippet line:
 	unlock(&pd.lock)
 	if rg != nil {
 		netpollgoready(rg, 0)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

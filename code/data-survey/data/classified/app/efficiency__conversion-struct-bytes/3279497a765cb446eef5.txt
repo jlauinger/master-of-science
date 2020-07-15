@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	return (*page)(unsafe.Pointer(&b[id*pgid(db.pageSize)]))
-
+return (*page)(unsafe.Pointer(&b[id*pgid(db.pageSize)]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return (*page)(unsafe.Pointer(&db.data[pos]))
 }
 
 // pageInBuffer retrieves a page reference from a given byte array based on the current page size.
@@ -28,7 +28,6 @@ func (db *DB) pageInBuffer(b []byte, id pgid) *page {
 // meta retrieves the current meta page reference.
 func (db *DB) meta() *meta {
 	// We have to return the meta with the highest txid which doesn't fail
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

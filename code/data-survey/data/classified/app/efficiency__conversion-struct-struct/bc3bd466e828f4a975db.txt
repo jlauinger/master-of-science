@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	meta := (*unix.PerfEventMmapPage)(unsafe.Pointer(&mmap[0]))
-
+meta := (*unix.PerfEventMmapPage)(unsafe.Pointer(&mmap[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 	// This relies on the fact that we allocate an extra metadata page,
 	// and that the struct is smaller than an OS page.
@@ -28,7 +28,6 @@ Snippet line:
 		fd:         fd,
 		cpu:        cpu,
 		mmap:       mmap,
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

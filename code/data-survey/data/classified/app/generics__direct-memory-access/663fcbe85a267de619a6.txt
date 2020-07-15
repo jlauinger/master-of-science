@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		isnil := urv.ptr == nil || *(*unsafe.Pointer)(urv.ptr) == nil
-
+isnil := urv.ptr == nil || *(*unsafe.Pointer)(urv.ptr) == nil
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	case reflect.Float32:
 		return *(*float32)(urv.ptr) == 0
 	case reflect.Float64:
 		return *(*float64)(urv.ptr) == 0
@@ -28,7 +28,6 @@ Snippet line:
 				return true
 			}
 			return isEmptyValue(v.Elem(), tinfos, deref, checkStruct)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

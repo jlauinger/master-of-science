@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	_, err = bpfCall(_ObjGetInfoByFD, unsafe.Pointer(&attr), unsafe.Sizeof(attr))
-
+_, err = bpfCall(_ObjGetInfoByFD, unsafe.Pointer(&attr), unsafe.Sizeof(attr))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	attr := bpfObjGetInfoByFDAttr{
 		fd:      value,
 		infoLen: uint32(size),
 		info:    newPtr(info),
@@ -28,7 +28,6 @@ Snippet line:
 
 func bpfGetProgInfoByFD(fd *bpfFD) (*bpfProgInfo, error) {
 	var info bpfProgInfo
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

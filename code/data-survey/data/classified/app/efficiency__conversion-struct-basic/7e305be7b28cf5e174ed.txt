@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-			**v = *(*string)(unsafe.Pointer(&d))
-
+**v = *(*string)(unsafe.Pointer(&d))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			if *v == nil {
 				*v = new(string)
 			}
 			// we do minus one to remove the last quote
@@ -28,7 +28,6 @@ Snippet line:
 		// is nil
 		case 'n':
 			dec.cursor++
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

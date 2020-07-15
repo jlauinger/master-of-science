@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	sa = (*sockaddrInet6)(unsafe.Pointer(&gsr.Source))
-
+sa = (*sockaddrInet6)(unsafe.Pointer(&gsr.Source))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (gsr *groupSourceReq) setSourceGroup(grp, src net.IP) {
 	sa := (*sockaddrInet6)(unsafe.Pointer(&gsr.Group))
@@ -26,7 +26,6 @@ func (gsr *groupSourceReq) setSourceGroup(grp, src net.IP) {
 	sa.Family = syscall.AF_INET6
 	copy(sa.Addr[:], src)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

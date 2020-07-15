@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	ptr, err := bpfCall(_ObjGet, unsafe.Pointer(&bpfPinObjAttr{
-
+ptr, err := bpfCall(_ObjGet, unsafe.Pointer(&bpfPinObjAttr{
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}), 16)
 	return errors.Wrapf(err, "pin object %s", fileName)
 }
 
@@ -28,7 +28,6 @@ func bpfGetObject(fileName string) (*bpfFD, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "get object %s", fileName)
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

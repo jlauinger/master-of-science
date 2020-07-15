@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*TcU32Key)(unsafe.Pointer(&b[0:SizeofTcU32Key][0]))
-
+return (*TcU32Key)(unsafe.Pointer(&b[0:SizeofTcU32Key][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (msg *TcU32Key) Len() int {
 	return SizeofTcU32Key
 }
 
@@ -28,7 +28,6 @@ func DeserializeTcU32Key(b []byte) *TcU32Key {
 func (x *TcU32Key) Serialize() []byte {
 	return (*(*[SizeofTcU32Key]byte)(unsafe.Pointer(x)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

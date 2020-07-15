@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.SecretRef = (*v1.SecretReference)(unsafe.Pointer(in.SecretRef))
-
+out.SecretRef = (*v1.SecretReference)(unsafe.Pointer(in.SecretRef))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func autoConvert_core_ScaleIOPersistentVolumeSource_To_v1_ScaleIOPersistentVolumeSource(in *core.ScaleIOPersistentVolumeSource, out *v1.ScaleIOPersistentVolumeSource, s conversion.Scope) error {
 	out.Gateway = in.Gateway
@@ -28,7 +28,6 @@ func autoConvert_core_ScaleIOPersistentVolumeSource_To_v1_ScaleIOPersistentVolum
 	out.StoragePool = in.StoragePool
 	out.StorageMode = in.StorageMode
 	out.VolumeName = in.VolumeName
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

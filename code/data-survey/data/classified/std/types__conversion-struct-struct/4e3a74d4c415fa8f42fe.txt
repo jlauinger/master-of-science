@@ -13,10 +13,10 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	tt := (*funcType)(unsafe.Pointer(t))
-
+tt := (*funcType)(unsafe.Pointer(t))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (t *rtype) In(i int) Type {
 	if t.Kind() != Func {
@@ -28,7 +28,6 @@ func (t *rtype) In(i int) Type {
 
 func (t *rtype) Key() Type {
 	if t.Kind() != Map {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

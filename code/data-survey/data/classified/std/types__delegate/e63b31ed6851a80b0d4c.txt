@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: value.go
+Line: 1164
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+k = unsafe.Pointer(&key.ptr)
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+	var k unsafe.Pointer
+	if key.flag&flagIndir != 0 {
+		k = key.ptr
+	} else {
+		k = unsafe.Pointer(&key.ptr)
+	}
+	e := mapaccess(v.typ, v.pointer(), k)
+	if e == nil {
+		return Value{}
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+// IsValid reports whether v represents a value.
+// It returns false if v is the zero Value.
+// If IsValid returns false, all other methods except String panic.
+// Most functions and methods never return an invalid Value.
+// If one does, its documentation states the conditions explicitly.
+func (v Value) IsValid() bool {
+	return v.flag != 0
+}
+
+// IsZero reports whether v is the zero value for its type.
+// It panics if the argument is invalid.
+func (v Value) IsZero() bool {
+	switch v.kind() {
+	case Bool:
+		return !v.Bool()
+	case Int, Int8, Int16, Int32, Int64:
+		return v.Int() == 0
+	case Uint, Uint8, Uint16, Uint32, Uint64, Uintptr:
+		return v.Uint() == 0
+	case Float32, Float64:
+		return math.Float64bits(v.Float()) == 0
+	case Complex64, Complex128:
+		c := v.Complex()
+		return math.Float64bits(real(c)) == 0 && math.Float64bits(imag(c)) == 0
+	case Array:
+		for i := 0; i < v.Len(); i++ {
+			if !v.Index(i).IsZero() {
+				return false
+			}
+		}
+		return true
+	case Chan, Func, Interface, Map, Ptr, Slice, UnsafePointer:
+		return v.IsNil()
+	case String:
+		return v.Len() == 0
+	case Struct:
+		for i := 0; i < v.NumField(); i++ {
+			if !v.Field(i).IsZero() {
+				return false
+			}
+		}
+		return true
+	default:
+		// This should never happens, but will act as a safeguard for
+		// later, as a default value doesn't makes sense here.
+		panic(&ValueError{"reflect.Value.IsZero", v.Kind()})
+	}
+}
+
+// Kind returns v's Kind.
+// If v is the zero Value (IsValid returns false), Kind returns Invalid.
+func (v Value) Kind() Kind {
+	return v.kind()
+}
+
+// Len returns v's length.
+// It panics if v's Kind is not Array, Chan, Map, Slice, or String.
+func (v Value) Len() int {
+	k := v.kind()
+	switch k {
+	case Array:
+		tt := (*arrayType)(unsafe.Pointer(v.typ))
+		return int(tt.len)
+	case Chan:
+		return chanlen(v.pointer())
+	case Map:
+		return maplen(v.pointer())
+	case Slice:
+		// Slice is bigger than a word; assume flagIndir.
+		return (*sliceHeader)(v.ptr).Len
+	case String:
+		// String is bigger than a word; assume flagIndir.
+		return (*stringHeader)(v.ptr).Len
+	}
+	panic(&ValueError{"reflect.Value.Len", v.kind()})
+}
+
+// MapIndex returns the value associated with key in the map v.
+// It panics if v's Kind is not Map.
+// It returns the zero Value if key is not found in the map or if v represents a nil map.
+// As in Go, the key's value must be assignable to the map's key type.
+func (v Value) MapIndex(key Value) Value {
+	v.mustBe(Map)
+	tt := (*mapType)(unsafe.Pointer(v.typ))
+
+	// Do not require key to be exported, so that DeepEqual
+	// and other programs can use all the keys returned by
+	// MapKeys as arguments to MapIndex. If either the map
+	// or the key is unexported, though, the result will be
+	// considered unexported. This is consistent with the
+	// behavior for structs, which allow read but not write
+	// of unexported fields.
+	key = key.assignTo("reflect.Value.MapIndex", tt.key, nil)
+
+	var k unsafe.Pointer
+	if key.flag&flagIndir != 0 {
+		k = key.ptr
+	} else {
+		k = unsafe.Pointer(&key.ptr)
+	}
+	e := mapaccess(v.typ, v.pointer(), k)
+	if e == nil {
+		return Value{}
+	}
+	typ := tt.elem
+	fl := (v.flag | key.flag).ro()
+	fl |= flag(typ.Kind())
+	return copyVal(typ, fl, e)
+}
+
+// MapKeys returns a slice containing all the keys present in the map,
+// in unspecified order.
+// It panics if v's Kind is not Map.
+// It returns an empty slice if v represents a nil map.
+func (v Value) MapKeys() []Value {
+	v.mustBe(Map)
+	tt := (*mapType)(unsafe.Pointer(v.typ))
+	keyType := tt.key
+
+	fl := v.flag.ro() | flag(keyType.Kind())
+
+	m := v.pointer()
+	mlen := int(0)
+	if m != nil {
+		mlen = maplen(m)
+	}
+	it := mapiterinit(v.typ, m)
+	a := make([]Value, mlen)
+	var i int
+	for i = 0; i < len(a); i++ {
+		key := mapiterkey(it)
+		if key == nil {
+			// Someone deleted an entry from the map since we
+			// called maplen above. It's a data race, but nothing
+			// we can do about it.
+			break
+		}
+		a[i] = copyVal(keyType, fl, key)
+		mapiternext(it)
+	}
+	return a[:i]
+}
+
+// A MapIter is an iterator for ranging over a map.
+// See Value.MapRange.
+type MapIter struct {
+	m  Value
+	it unsafe.Pointer
+}
+
+// Key returns the key of the iterator's current map entry.
+func (it *MapIter) Key() Value {
+	if it.it == nil {
+		panic("MapIter.Key called before Next")
+	}
+	if mapiterkey(it.it) == nil {
+		panic("MapIter.Key called on exhausted iterator")
+	}
+
+	t := (*mapType)(unsafe.Pointer(it.m.typ))
+	ktype := t.key
+	return copyVal(ktype, it.m.flag.ro()|flag(ktype.Kind()), mapiterkey(it.it))
+}
+
+// Value returns the value of the iterator's current map entry.
+func (it *MapIter) Value() Value {
+	if it.it == nil {
+		panic("MapIter.Value called before Next")
+	}
+	if mapiterkey(it.it) == nil {
+		panic("MapIter.Value called on exhausted iterator")
+	}
+
+	t := (*mapType)(unsafe.Pointer(it.m.typ))
+	vtype := t.elem
+	return copyVal(vtype, it.m.flag.ro()|flag(vtype.Kind()), mapiterelem(it.it))
+}
+
+// Next advances the map iterator and reports whether there is another
+// entry. It returns false when the iterator is exhausted; subsequent
+// calls to Key, Value, or Next will panic.
+func (it *MapIter) Next() bool {
+	if it.it == nil {
+		it.it = mapiterinit(it.m.typ, it.m.pointer())
+	} else {
+		if mapiterkey(it.it) == nil {
+			panic("MapIter.Next called on exhausted iterator")
+		}
+		mapiternext(it.it)
+	}
+	return mapiterkey(it.it) != nil
+}
+
+// MapRange returns a range iterator for a map.
+// It panics if v's Kind is not Map.
+//
+// Call Next to advance the iterator, and Key/Value to access each entry.
+// Next returns false when the iterator is exhausted.
+// MapRange follows the same iteration semantics as a range statement.
+

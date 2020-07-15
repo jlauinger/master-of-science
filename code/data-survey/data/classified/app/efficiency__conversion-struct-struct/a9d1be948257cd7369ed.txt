@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	*lmts = *(*XfrmStateLimits)(unsafe.Pointer(lft))
-
+*lmts = *(*XfrmStateLimits)(unsafe.Pointer(lft))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	lft.SoftUseExpiresSeconds = lmts.TimeUseSoft
 	lft.HardUseExpiresSeconds = lmts.TimeUseHard
 }
 
@@ -28,7 +28,6 @@ func lftToLimits(lft *nl.XfrmLifetimeCfg, lmts *XfrmStateLimits) {
 func curToStats(cur *nl.XfrmLifetimeCur, wstats *nl.XfrmStats, stats *XfrmStateStats) {
 	stats.Bytes = cur.Bytes
 	stats.Packets = cur.Packets
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

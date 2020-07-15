@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (encoder *emptyStructEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 type emptyStructEncoder struct {
 }
@@ -28,7 +28,6 @@ func (encoder *emptyStructEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 
 func (encoder *emptyStructEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 	return false
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

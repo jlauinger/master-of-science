@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *directMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	} else {
 		stream.Write(bytes)
 	}
 }
@@ -28,7 +28,6 @@ func (encoder *directMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 
 type textMarshalerEncoder struct {
 	valType       reflect2.Type
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-		fh := (*fileHandle)(unsafe.Pointer(&buf[0]))
-
+fh := (*fileHandle)(unsafe.Pointer(&buf[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	// only be 32 bytes.
 	size := uint32(32 + unsafe.Sizeof(fileHandle{}))
 	didResize := false
 	for {
@@ -28,7 +28,6 @@ Snippet line:
 		if err == EOVERFLOW {
 			if didResize {
 				// We shouldn't need to resize more than once
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

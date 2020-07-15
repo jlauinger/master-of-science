@@ -14,9 +14,9 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (encoder emptyArrayEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (encoder emptyArrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 	stream.WriteEmptyArray()
@@ -28,7 +28,6 @@ func (encoder emptyArrayEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 
 type arrayEncoder struct {
 	arrayType   *reflect2.UnsafeArrayType
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

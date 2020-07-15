@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *int32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if !iter.ReadNil() {
 		*((*int32)(ptr)) = iter.ReadInt32()
 	}
 }
@@ -28,7 +28,6 @@ func (codec *int32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
 
 func (codec *int32Codec) IsEmpty(ptr unsafe.Pointer) bool {
 	return *((*int32)(ptr)) == 0
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

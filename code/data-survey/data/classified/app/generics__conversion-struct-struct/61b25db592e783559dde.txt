@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *jsoniterRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (codec *jsoniterRawMessageCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
 	*((*RawMessage)(ptr)) = RawMessage(iter.SkipAndReturnBytes())
@@ -28,7 +28,6 @@ func (codec *jsoniterRawMessageCodec) Encode(ptr unsafe.Pointer, stream *Stream)
 
 func (codec *jsoniterRawMessageCodec) IsEmpty(ptr unsafe.Pointer) bool {
 	return len(*((*RawMessage)(ptr))) == 0
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

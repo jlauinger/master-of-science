@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	entryHdr := (*entryHdr)(unsafe.Pointer(&entryHdrBuf[0]))
-
+entryHdr := (*entryHdr)(unsafe.Pointer(&entryHdrBuf[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if !match {
 		return
 	}
 	var entryHdrBuf [ENTRY_HDR_SIZE]byte
@@ -28,7 +28,6 @@ Snippet line:
 	copy(slot[idx:], slot[idx+1:])
 	seg.slotLens[slotId]--
 	seg.entryCount--
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

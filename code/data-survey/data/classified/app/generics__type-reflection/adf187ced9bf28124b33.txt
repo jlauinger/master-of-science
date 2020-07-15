@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func makeMapPtr(ctx *unfoldCtx, l int, bt structform.BaseType) (interface{}, unsafe.Pointer, ptrUnfolder) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	default:
 		return nil, errTODO()
 	}
 }
@@ -28,7 +28,6 @@ func makeMapPtr(ctx *unfoldCtx, l int, bt structform.BaseType) (interface{}, uns
 	case structform.AnyType:
 		idx := len(ctx.valueBuffer.mapAny)
 		ctx.valueBuffer.mapAny = append(ctx.valueBuffer.mapAny, nil)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

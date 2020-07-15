@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		retVal[i] = *(*[]float64)(unsafe.Pointer(hdr))
-
+retVal[i] = *(*[]float64)(unsafe.Pointer(hdr))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		hdr := &reflect.SliceHeader{
 			Data: uintptr(unsafe.Pointer(&data[start])),
 			Len:  cols,
 			Cap:  cols,
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 // Tensor3F64 converts a *Dense into  a [][][]float64.
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.APIGroup = (*string)(unsafe.Pointer(in.APIGroup))
-
+out.APIGroup = (*string)(unsafe.Pointer(in.APIGroup))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_core_TopologySpreadConstraint_To_v1_TopologySpreadConstraint(in *core.TopologySpreadConstraint, out *v1.TopologySpreadConstraint, s conversion.Scope) error {
 	return autoConvert_core_TopologySpreadConstraint_To_v1_TopologySpreadConstraint(in, out, s)
 }
 
@@ -27,7 +27,6 @@ func autoConvert_v1_TypedLocalObjectReference_To_core_TypedLocalObjectReference(
 	out.Name = in.Name
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

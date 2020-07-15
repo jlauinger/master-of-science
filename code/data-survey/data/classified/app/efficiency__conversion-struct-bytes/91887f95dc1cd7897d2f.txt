@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	nameBuf := (*[unsafe.Sizeof(dirent.Name)]byte)(unsafe.Pointer(&dirent.Name[0]))
-
+nameBuf := (*[unsafe.Sizeof(dirent.Name)]byte)(unsafe.Pointer(&dirent.Name[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	"unsafe"
 )
 
 func direntNamlen(dirent *syscall.Dirent) uint64 {
@@ -28,7 +28,6 @@ func direntNamlen(dirent *syscall.Dirent) uint64 {
 	if limit > nameBufLen {
 		limit = nameBufLen
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

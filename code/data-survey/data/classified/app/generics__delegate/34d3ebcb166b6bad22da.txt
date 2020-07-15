@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *structFieldEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	field        reflect2.StructField
 	fieldEncoder ValEncoder
 	omitempty    bool
 }
@@ -28,7 +28,6 @@ func (encoder *structFieldEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 	if stream.Error != nil && stream.Error != io.EOF {
 		stream.Error = fmt.Errorf("%s: %s", encoder.field.Name(), stream.Error.Error())
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

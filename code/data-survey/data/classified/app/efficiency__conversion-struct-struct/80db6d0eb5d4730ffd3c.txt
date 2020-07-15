@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Secret = (*v1.SecretProjection)(unsafe.Pointer(in.Secret))
-
+out.Secret = (*v1.SecretProjection)(unsafe.Pointer(in.Secret))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_v1_VolumeProjection_To_core_VolumeProjection(in *v1.VolumeProjection, out *core.VolumeProjection, s conversion.Scope) error {
 	return autoConvert_v1_VolumeProjection_To_core_VolumeProjection(in, out, s)
 }
 
@@ -28,7 +28,6 @@ func autoConvert_core_VolumeProjection_To_v1_VolumeProjection(in *core.VolumePro
 	if in.ServiceAccountToken != nil {
 		in, out := &in.ServiceAccountToken, &out.ServiceAccountToken
 		*out = new(v1.ServiceAccountTokenProjection)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

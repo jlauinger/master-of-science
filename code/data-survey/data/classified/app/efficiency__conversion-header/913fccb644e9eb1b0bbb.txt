@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	dst := (*sliceHeader)(unsafe.Pointer(&b))
-
+dst := (*sliceHeader)(unsafe.Pointer(&b))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// The caller must treat returned slice as immutable.
 //
 // WARNING: Use carefully. The returned result must not leak to the end user.
 func UnsafeBytes(s string) (b []byte) {
@@ -28,7 +28,6 @@ func UnsafeBytes(s string) (b []byte) {
 	dst.Cap = src.Len
 	return b
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

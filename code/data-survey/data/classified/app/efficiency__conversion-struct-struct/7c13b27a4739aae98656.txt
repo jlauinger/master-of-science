@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.HostPath = (*core.HostPathVolumeSource)(unsafe.Pointer(in.HostPath))
-
+out.HostPath = (*core.HostPathVolumeSource)(unsafe.Pointer(in.HostPath))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_core_VolumeProjection_To_v1_VolumeProjection(in *core.VolumeProjection, out *v1.VolumeProjection, s conversion.Scope) error {
 	return autoConvert_core_VolumeProjection_To_v1_VolumeProjection(in, out, s)
 }
 
@@ -28,7 +28,6 @@ func autoConvert_v1_VolumeSource_To_core_VolumeSource(in *v1.VolumeSource, out *
 	out.AWSElasticBlockStore = (*core.AWSElasticBlockStoreVolumeSource)(unsafe.Pointer(in.AWSElasticBlockStore))
 	out.GitRepo = (*core.GitRepoVolumeSource)(unsafe.Pointer(in.GitRepo))
 	out.Secret = (*core.SecretVolumeSource)(unsafe.Pointer(in.Secret))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -1,0 +1,58 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20190412213103-97732733099d
+
+Package: golang.org/x/sys/unix
+File: race0.go
+Line: 21
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): unused
+Label 2 (For what purpose?): unused
+
+--------------------------------------------------------------
+Snippet line:
+
+func raceReadRange(addr unsafe.Pointer, len int) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+}
+
+func raceReleaseMerge(addr unsafe.Pointer) {
+}
+
+func raceReadRange(addr unsafe.Pointer, len int) {
+}
+
+func raceWriteRange(addr unsafe.Pointer, len int) {
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Copyright 2012 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// +build aix darwin,!race linux,!race freebsd,!race netbsd openbsd solaris dragonfly
+
+package unix
+
+import (
+	"unsafe"
+)
+
+const raceenabled = false
+
+func raceAcquire(addr unsafe.Pointer) {
+}
+
+func raceReleaseMerge(addr unsafe.Pointer) {
+}
+
+func raceReadRange(addr unsafe.Pointer, len int) {
+}
+
+func raceWriteRange(addr unsafe.Pointer, len int) {
+}
+

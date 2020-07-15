@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-		v := (*structType)(unsafe.Pointer(V))
-
+v := (*structType)(unsafe.Pointer(V))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	case Ptr, Slice:
 		return haveIdenticalType(T.Elem(), V.Elem(), cmpTags)
 
 	case Struct:
@@ -28,7 +28,6 @@ Snippet line:
 		}
 		if t.pkgPath.name() != v.pkgPath.name() {
 			return false
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

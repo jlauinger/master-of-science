@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.MaxItems = (*int64)(unsafe.Pointer(in.MaxItems))
-
+out.MaxItems = (*int64)(unsafe.Pointer(in.MaxItems))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Minimum = (*float64)(unsafe.Pointer(in.Minimum))
 	out.ExclusiveMinimum = in.ExclusiveMinimum
 	out.MaxLength = (*int64)(unsafe.Pointer(in.MaxLength))
 	out.MinLength = (*int64)(unsafe.Pointer(in.MinLength))
@@ -28,7 +28,6 @@ Snippet line:
 	out.MultipleOf = (*float64)(unsafe.Pointer(in.MultipleOf))
 	if in.Enum != nil {
 		in, out := &in.Enum, &out.Enum
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

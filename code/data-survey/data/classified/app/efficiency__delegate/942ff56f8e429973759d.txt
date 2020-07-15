@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	err := ev.ioctlPointer(unix.PERF_EVENT_IOC_QUERY_BPF, unsafe.Pointer(&buf[0]))
-
+err := ev.ioctlPointer(unix.PERF_EVENT_IOC_QUERY_BPF, unsafe.Pointer(&buf[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if err := ev.ok(); err != nil {
 		return nil, err
 	}
 	buf := make([]uint32, 2+max)
@@ -28,7 +28,6 @@ Snippet line:
 	}
 	count := buf[1]
 	fds := make([]uint32, count)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

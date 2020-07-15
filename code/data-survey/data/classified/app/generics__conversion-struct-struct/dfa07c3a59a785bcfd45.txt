@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	ptr := unsafe.Pointer(v.Pointer())
-
+ptr := unsafe.Pointer(v.Pointer())
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	return
 }
 
@@ -28,7 +28,6 @@ func foldMapInlineUint8(C *foldContext, v reflect.Value) (err error) {
 	}
 
 	m := *((*map[string]uint8)(unsafe.Pointer(&ptr)))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

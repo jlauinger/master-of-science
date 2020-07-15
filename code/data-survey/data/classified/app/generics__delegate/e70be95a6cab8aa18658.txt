@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (decoder *referenceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 type referenceDecoder struct {
 	decoder ValDecoder
@@ -25,7 +25,6 @@ type referenceDecoder struct {
 func (decoder *referenceDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
 	decoder.decoder.Decode(unsafe.Pointer(&ptr), iter)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

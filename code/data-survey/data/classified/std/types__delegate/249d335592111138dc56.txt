@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	var p unsafe.Pointer
-
+var p unsafe.Pointer
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if ChanDir(tt.dir)&SendDir == 0 {
 		panic("reflect: send on recv-only channel")
 	}
 	x.mustBeExported()
@@ -28,7 +28,6 @@ Snippet line:
 	} else {
 		p = unsafe.Pointer(&x.ptr)
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

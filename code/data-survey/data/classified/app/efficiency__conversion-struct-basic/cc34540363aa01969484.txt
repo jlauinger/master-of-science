@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Minimum = (*float64)(unsafe.Pointer(in.Minimum))
-
+out.Minimum = (*float64)(unsafe.Pointer(in.Minimum))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	} else {
 		out.Default = nil
 	}
 	out.Maximum = (*float64)(unsafe.Pointer(in.Maximum))
@@ -28,7 +28,6 @@ Snippet line:
 	out.MinLength = (*int64)(unsafe.Pointer(in.MinLength))
 	out.Pattern = in.Pattern
 	out.MaxItems = (*int64)(unsafe.Pointer(in.MaxItems))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

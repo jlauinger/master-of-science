@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.TargetWWNs = *(*[]string)(unsafe.Pointer(&in.TargetWWNs))
-
+out.TargetWWNs = *(*[]string)(unsafe.Pointer(&in.TargetWWNs))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_v1_FCVolumeSource_To_core_FCVolumeSource(in *v1.FCVolumeSource, out *core.FCVolumeSource, s conversion.Scope) error {
 	return autoConvert_v1_FCVolumeSource_To_core_FCVolumeSource(in, out, s)
 }
 
@@ -28,7 +28,6 @@ func autoConvert_core_FCVolumeSource_To_v1_FCVolumeSource(in *core.FCVolumeSourc
 	out.ReadOnly = in.ReadOnly
 	out.WWIDs = *(*[]string)(unsafe.Pointer(&in.WWIDs))
 	return nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

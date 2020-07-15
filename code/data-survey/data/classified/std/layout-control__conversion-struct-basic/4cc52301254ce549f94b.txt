@@ -13,11 +13,11 @@ Label 2 (For what purpose?): layout-control
 --------------------------------------------------------------
 Snippet line:
 
-	*(*uint16)(unsafe.Pointer(&sa.raw[0])) = AF_PPPOX
-
+*(*uint16)(unsafe.Pointer(&sa.raw[0])) = AF_PPPOX
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	if len(sa.Dev) > IFNAMSIZ-1 {
 		return nil, 0, EINVAL
 	}
@@ -28,7 +28,6 @@ Snippet line:
 	// 32-bit aligned and some architectures don't allow unaligned
 	// access.
 	//
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

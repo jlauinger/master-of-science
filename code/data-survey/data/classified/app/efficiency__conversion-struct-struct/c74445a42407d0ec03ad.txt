@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		out.DryRun = *(*[]string)(unsafe.Pointer(&values))
-
+out.DryRun = *(*[]string)(unsafe.Pointer(&values))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		}
 	} else {
 		out.PropagationPolicy = nil
 	}
@@ -28,7 +28,6 @@ Snippet line:
 	}
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		return unsafe.Pointer(at)
-
+return unsafe.Pointer(at)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	case *int64:
 		return unsafe.Pointer(at)
 	case *uint:
 		return unsafe.Pointer(at)
@@ -28,7 +28,6 @@ Snippet line:
 	case *uint32:
 		return unsafe.Pointer(at)
 	case *uint64:
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

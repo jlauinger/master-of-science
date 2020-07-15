@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (type2 *UnsafeIFaceType) UnsafeIsNil(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	objEFace := unpackEFace(obj)
 	assertType("Type.IsNil argument 1", type2.ptrRType, objEFace.rtype)
 	return type2.UnsafeIsNil(objEFace.data)
 }
@@ -28,7 +28,6 @@ func (type2 *UnsafeIFaceType) UnsafeIsNil(ptr unsafe.Pointer) bool {
 	}
 	iface := (*iface)(ptr)
 	if iface.itab == nil {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

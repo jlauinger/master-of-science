@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	var p unsafe.Pointer
-
+var p unsafe.Pointer
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func SetsockoptLinger(fd, level, opt int, l *Linger) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(l), SizeofLinger)
 }
 
@@ -28,7 +28,6 @@ func SetsockoptString(fd, level, opt int, s string) (err error) {
 	}
 	return setsockopt(fd, level, opt, p, uintptr(len(s)))
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

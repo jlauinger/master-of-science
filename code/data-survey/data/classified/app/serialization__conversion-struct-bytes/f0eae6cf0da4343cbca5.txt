@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	b := (*[sizeofICMPv6Filter]byte)(unsafe.Pointer(f))[:sizeofICMPv6Filter]
-
+b := (*[sizeofICMPv6Filter]byte)(unsafe.Pointer(f))[:sizeofICMPv6Filter]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	return (*ICMPFilter)(unsafe.Pointer(&b[0])), nil
 }
 
@@ -28,7 +28,6 @@ func (so *sockOpt) setICMPFilter(c *socket.Conn, f *ICMPFilter) error {
 
 func (so *sockOpt) getMTUInfo(c *socket.Conn) (*net.Interface, int, error) {
 	b := make([]byte, so.Len)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

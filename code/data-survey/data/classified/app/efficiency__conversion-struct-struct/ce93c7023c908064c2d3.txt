@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ExpirationTimestamp = (*v1.Time)(unsafe.Pointer(in.ExpirationTimestamp))
-
+out.ExpirationTimestamp = (*v1.Time)(unsafe.Pointer(in.ExpirationTimestamp))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	// WARNING: in.Interactive requires manual conversion: does not exist in peer-type
 	return nil
 }
 
@@ -28,7 +28,6 @@ func autoConvert_v1beta1_ExecCredentialStatus_To_clientauthentication_ExecCreden
 	out.ClientKeyData = in.ClientKeyData
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

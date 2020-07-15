@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	err := ioctl(fd, req, uintptr(unsafe.Pointer(value)))
-
+err := ioctl(fd, req, uintptr(unsafe.Pointer(value)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// IoctlSetTermios performs an ioctl on fd with a *Termios.
 //
 // The req value will usually be TCSETA or TIOCSETA.
 func IoctlSetTermios(fd int, req uint, value *Termios) error {
@@ -28,7 +28,6 @@ func IoctlSetTermios(fd int, req uint, value *Termios) error {
 }
 
 // IoctlGetInt performs an ioctl operation which gets an integer value
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

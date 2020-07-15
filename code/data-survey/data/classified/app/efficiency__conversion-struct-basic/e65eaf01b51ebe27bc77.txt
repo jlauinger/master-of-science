@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.XListType = (*string)(unsafe.Pointer(in.XListType))
-
+out.XListType = (*string)(unsafe.Pointer(in.XListType))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	out.XPreserveUnknownFields = (*bool)(unsafe.Pointer(in.XPreserveUnknownFields))
 	out.XEmbeddedResource = in.XEmbeddedResource
 	out.XIntOrString = in.XIntOrString
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 func autoConvert_v1beta1_JSONSchemaPropsOrArray_To_apiextensions_JSONSchemaPropsOrArray(in *JSONSchemaPropsOrArray, out *apiextensions.JSONSchemaPropsOrArray, s conversion.Scope) error {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

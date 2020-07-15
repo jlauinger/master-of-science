@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ScaleIO = (*v1.ScaleIOVolumeSource)(unsafe.Pointer(in.ScaleIO))
-
+out.ScaleIO = (*v1.ScaleIOVolumeSource)(unsafe.Pointer(in.ScaleIO))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		}
 	} else {
 		out.Projected = nil
 	}
@@ -27,7 +27,6 @@ Snippet line:
 	out.CSI = (*v1.CSIVolumeSource)(unsafe.Pointer(in.CSI))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

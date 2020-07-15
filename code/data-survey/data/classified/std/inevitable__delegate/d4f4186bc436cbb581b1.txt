@@ -14,10 +14,10 @@ Label 2 (For what purpose?): inevitable
 Snippet line:
 
 func resolveReflectText(ptr unsafe.Pointer) textOff {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 // resolveReflectText adds a function pointer to the reflection lookup map in
 // the runtime. It returns a new textOff that can be used to refer to the
@@ -28,7 +28,6 @@ func resolveReflectText(ptr unsafe.Pointer) textOff {
 
 type nameOff int32 // offset to a name
 type typeOff int32 // offset to an *rtype
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

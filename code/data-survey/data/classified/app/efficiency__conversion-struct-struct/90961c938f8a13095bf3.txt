@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-			retVal = append(retVal, *(*[]uint)(unsafe.Pointer(hdr)))
-
+retVal = append(retVal, *(*[]uint)(unsafe.Pointer(hdr)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			hdr := &reflect.SliceHeader{
 				Data: uintptr(unsafe.Pointer(&data[i])),
 				Len:  stride,
 				Cap:  stride,
@@ -28,7 +28,6 @@ Snippet line:
 		return retVal, nil
 
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

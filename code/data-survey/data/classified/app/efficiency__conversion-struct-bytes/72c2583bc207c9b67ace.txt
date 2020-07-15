@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-			ptr = (*[maxAllocSize]byte)(unsafe.Pointer(&ptr[sz]))
-
+ptr = (*[maxAllocSize]byte)(unsafe.Pointer(&ptr[sz]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+				break
 			}
 
 			// Otherwise move offset forward and move pointer to next chunk.
@@ -28,7 +28,6 @@ Snippet line:
 
 	// Ignore file sync if flag is set on DB.
 	if !tx.db.NoSync || IgnoreNoSync {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,10 +13,10 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		bytes := *(*[]byte)(unsafe.Pointer(&arg))
-
+bytes := *(*[]byte)(unsafe.Pointer(&arg))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 // Encode
 func (je *DefaultEncoder) Encode(subject string, v interface{}) ([]byte, error) {
@@ -28,7 +28,6 @@ func (je *DefaultEncoder) Encode(subject string, v interface{}) ([]byte, error) 
 		return arg, nil
 	case bool:
 		if arg {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

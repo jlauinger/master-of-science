@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (type2 *safeSliceType) UnsafeGetIndex(obj unsafe.Pointer, index int) unsafe.Pointer {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	ptr := reflect.New(elem.Type())
 	ptr.Elem().Set(elem)
 	return ptr.Interface()
 }
@@ -28,7 +28,6 @@ func (type2 *safeSliceType) UnsafeGetIndex(obj unsafe.Pointer, index int) unsafe
 
 func (type2 *safeSliceType) MakeSlice(length int, cap int) interface{} {
 	val := reflect.MakeSlice(type2.Type, length, cap)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

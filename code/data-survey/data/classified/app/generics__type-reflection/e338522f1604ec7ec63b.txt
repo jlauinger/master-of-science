@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		case func(unsafe.Pointer, unsafe.Pointer) unsafe.Pointer:
-
+case func(unsafe.Pointer, unsafe.Pointer) unsafe.Pointer:
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		dt := data.UnsafePointers()
 		rt := retVal.UnsafePointers()
 		switch f := fn.(type) {
 		case func([]unsafe.Pointer) unsafe.Pointer:
@@ -28,7 +28,6 @@ Snippet line:
 			return errors.Errorf(reductionErrMsg, fn)
 		}
 		return nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

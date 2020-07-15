@@ -13,10 +13,10 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	copy(b[68:72], (*(*[4]byte)(unsafe.Pointer(&msg.AlgTruncLen)))[:])
-
+copy(b[68:72], (*(*[4]byte)(unsafe.Pointer(&msg.AlgTruncLen)))[:])
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (msg *XfrmAlgoAuth) Serialize() []byte {
 	b := make([]byte, msg.Len())
@@ -28,7 +28,6 @@ func (msg *XfrmAlgoAuth) Serialize() []byte {
 }
 
 // struct xfrm_algo_aead {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-				argp := (*[100]uintptr)(unsafe.Pointer(frame.argp))
-
+argp := (*[100]uintptr)(unsafe.Pointer(frame.argp))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+				file, line := funcline(f, tracepc)
 				if name == "runtime.gopanic" {
 					name = "panic"
 				}
@@ -28,7 +28,6 @@ Snippet line:
 						print(", ...")
 						break
 					}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

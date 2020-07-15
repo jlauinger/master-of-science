@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Portals = *(*[]string)(unsafe.Pointer(&in.Portals))
-
+out.Portals = *(*[]string)(unsafe.Pointer(&in.Portals))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.IQN = in.IQN
 	out.Lun = in.Lun
 	out.ISCSIInterface = in.ISCSIInterface
 	out.FSType = in.FSType
@@ -28,7 +28,6 @@ Snippet line:
 	out.SecretRef = (*v1.SecretReference)(unsafe.Pointer(in.SecretRef))
 	out.InitiatorName = (*string)(unsafe.Pointer(in.InitiatorName))
 	return nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

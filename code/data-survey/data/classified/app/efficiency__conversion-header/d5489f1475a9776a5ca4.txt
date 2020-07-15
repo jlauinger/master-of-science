@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	return *(*string)(unsafe.Pointer(&sx))
-
+return *(*string)(unsafe.Pointer(&sx))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return ""
 	}
 
 	bx := (*unsafeSlice)(unsafe.Pointer(&v))
@@ -28,7 +28,6 @@ Snippet line:
 func bytesView(v string) []byte {
 	if len(v) == 0 {
 		return zeroByteSlice
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

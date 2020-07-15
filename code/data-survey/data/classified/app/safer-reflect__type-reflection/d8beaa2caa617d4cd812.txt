@@ -13,11 +13,11 @@ Label 2 (For what purpose?): safer-reflect
 --------------------------------------------------------------
 Snippet line:
 
-		(*iface)(unsafe.Pointer(&actualType)).data = actualRType
-
+(*iface)(unsafe.Pointer(&actualType)).data = actualRType
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func assertType(where string, expectRType unsafe.Pointer, actualRType unsafe.Pointer) {
 	if expectRType != actualRType {
 		expectType := reflect.TypeOf(0)
 		(*iface)(unsafe.Pointer(&expectType)).data = expectRType
@@ -26,7 +26,6 @@ Snippet line:
 		panic(where + ": expect " + expectType.String() + ", actual " + actualType.String())
 	}
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

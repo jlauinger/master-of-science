@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		return unsafe.Pointer(ptr), newUnfolderArrIfc()
-
+return unsafe.Pointer(ptr), newUnfolderArrIfc()
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func lookupGoTypeUnfolder(to interface{}) (unsafe.Pointer, ptrUnfolder) {
 	switch ptr := to.(type) {
 	case *interface{}:
 		return unsafe.Pointer(ptr), newUnfolderIfc()
@@ -28,7 +28,6 @@ Snippet line:
 
 	case *bool:
 		return unsafe.Pointer(ptr), newUnfolderBool()
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

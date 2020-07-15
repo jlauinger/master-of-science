@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (u *unfolderArrFloat64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func newUnfoldArrStartFloat64() *unfoldArrStartFloat64 {
 	return _singletonUnfoldArrStartFloat64
@@ -28,7 +28,6 @@ func (u *unfolderArrFloat64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
 	ctx.idx.push(0)
 	ctx.ptr.push(ptr)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

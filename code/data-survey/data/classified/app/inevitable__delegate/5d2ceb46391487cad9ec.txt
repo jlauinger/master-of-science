@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		_, err = bpfCall(_ProgTestRun, unsafe.Pointer(&attr), unsafe.Sizeof(attr))
-
+_, err = bpfCall(_ProgTestRun, unsafe.Pointer(&attr), unsafe.Sizeof(attr))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			fd:         fd,
 			dataSizeIn: uint32(len(in)),
 			dataIn:     newPtr(unsafe.Pointer(&in[0])),
 		}
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 func (p *Program) testRun(in []byte, repeat int) (uint32, []byte, time.Duration, error) {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

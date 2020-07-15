@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	copy((*(*[SizeofTcU32Sel]byte)(unsafe.Pointer(x)))[:], b)
-
+copy((*(*[SizeofTcU32Sel]byte)(unsafe.Pointer(x)))[:], b)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return SizeofTcU32Sel + int(msg.Nkeys)*SizeofTcU32Key
 }
 
 func DeserializeTcU32Sel(b []byte) *TcU32Sel {
@@ -28,7 +28,6 @@ func DeserializeTcU32Sel(b []byte) *TcU32Sel {
 	for i = 0; i < x.Nkeys; i++ {
 		x.Keys = append(x.Keys, *DeserializeTcU32Key(b[next:]))
 		next += SizeofTcU32Key
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

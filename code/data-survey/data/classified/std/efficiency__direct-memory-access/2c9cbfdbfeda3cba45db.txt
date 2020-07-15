@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-						*(*unsafe.Pointer)(dst.k) = *(*unsafe.Pointer)(k)
-
+*(*unsafe.Pointer)(dst.k) = *(*unsafe.Pointer)(k)
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 				// Copy key.
 				if t.key.ptrdata != 0 && writeBarrier.enabled {
@@ -28,7 +28,6 @@ Snippet line:
 						// Give up and call typedmemmove.
 						typedmemmove(t.key, dst.k, k)
 					}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

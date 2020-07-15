@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (encoder *structEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if stream.Error != nil && stream.Error != io.EOF {
 		stream.Error = fmt.Errorf("%v.%s", encoder.typ, stream.Error.Error())
 	}
 }
@@ -28,7 +28,6 @@ func (encoder *structEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 
 type emptyStructEncoder struct {
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

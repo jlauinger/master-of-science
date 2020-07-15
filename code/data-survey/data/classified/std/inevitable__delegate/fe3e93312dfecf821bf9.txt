@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	err = ptrace(PTRACE_GETEVENTMSG, pid, 0, uintptr(unsafe.Pointer(&data)))
-
+err = ptrace(PTRACE_GETEVENTMSG, pid, 0, uintptr(unsafe.Pointer(&data)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return ptrace(PTRACE_SETOPTIONS, pid, 0, uintptr(options))
 }
 
 func PtraceGetEventMsg(pid int) (msg uint, err error) {
@@ -28,7 +28,6 @@ func PtraceGetEventMsg(pid int) (msg uint, err error) {
 }
 
 func PtraceCont(pid int, signal int) (err error) {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

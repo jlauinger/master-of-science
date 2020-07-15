@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-				Data: uintptr(unsafe.Pointer(&data[start])),
-
+Data: uintptr(unsafe.Pointer(&data[start])),
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	for i := range retVal {
 		retVal[i] = make([][]int16, rows)
 		for j := range retVal[i] {
 			start := i*layerStride + j*rowStride
@@ -28,7 +28,6 @@ Snippet line:
 			}
 			retVal[i][j] = *(*[]int16)(unsafe.Pointer(hdr))
 		}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

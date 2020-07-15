@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (encoder *lazyErrorEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	} else if stream.Error == nil {
 		stream.Error = encoder.err
 	}
 }
@@ -28,7 +28,6 @@ func (encoder *lazyErrorEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 
 type placeholderDecoder struct {
 	decoder ValDecoder
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-		pp := (*RawSockaddrVM)(unsafe.Pointer(rsa))
-
+pp := (*RawSockaddrVM)(unsafe.Pointer(rsa))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			sa.Addr[i] = pp.Addr[i]
 		}
 		return sa, nil
 
@@ -28,7 +28,6 @@ Snippet line:
 			Port: pp.Port,
 		}
 		return sa, nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

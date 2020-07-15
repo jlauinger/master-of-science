@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ExternalDocs = (*apiextensions.ExternalDocumentation)(unsafe.Pointer(in.ExternalDocs))
-
+out.ExternalDocs = (*apiextensions.ExternalDocumentation)(unsafe.Pointer(in.ExternalDocs))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			(*out)[key] = *newVal
 		}
 	} else {
 		out.Definitions = nil
@@ -28,7 +28,6 @@ Snippet line:
 		*out = new(apiextensions.JSON)
 		if err := Convert_v1beta1_JSON_To_apiextensions_JSON(*in, *out, s); err != nil {
 			return err
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

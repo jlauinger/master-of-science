@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	h := (*cmsghdr)(unsafe.Pointer(&m[0]))
-
+h := (*cmsghdr)(unsafe.Pointer(&m[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// the head on m.
 func (m ControlMessage) MarshalHeader(lvl, typ, dataLen int) error {
 	if len(m) < controlHeaderLen() {
 		return errors.New("short message")
@@ -28,7 +28,6 @@ func (m ControlMessage) MarshalHeader(lvl, typ, dataLen int) error {
 }
 
 // ParseHeader parses and returns the header fields of the control
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofTcTbfQopt]byte)(unsafe.Pointer(x)))[:]
-
+return (*(*[SizeofTcTbfQopt]byte)(unsafe.Pointer(x)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeTcTbfQopt(b []byte) *TcTbfQopt {
 	return (*TcTbfQopt)(unsafe.Pointer(&b[0:SizeofTcTbfQopt][0]))
 }
 
@@ -28,7 +28,6 @@ func (x *TcTbfQopt) Serialize() []byte {
 const (
 	TCA_HTB_UNSPEC = iota
 	TCA_HTB_PARMS
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

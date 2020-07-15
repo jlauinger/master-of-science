@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		sa := (*sockaddrInet6)(unsafe.Pointer(&m.Data(sizeofSockaddrInet6)[0]))
-
+sa := (*sockaddrInet6)(unsafe.Pointer(&m.Data(sizeofSockaddrInet6)[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func marshalNextHop(b []byte, cm *ControlMessage) []byte {
 	m := socket.ControlMessage(b)
@@ -27,7 +27,6 @@ func marshalNextHop(b []byte, cm *ControlMessage) []byte {
 	}
 	return m.Next(sizeofSockaddrInet6)
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

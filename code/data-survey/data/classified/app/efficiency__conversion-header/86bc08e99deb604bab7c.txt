@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
-
+b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 		// Create a slice to write into of needed size and advance
 		// byte pointer for next iteration.
@@ -28,7 +28,6 @@ Snippet line:
 			Cap:  sz,
 		}))
 		bp += uintptr(sz)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

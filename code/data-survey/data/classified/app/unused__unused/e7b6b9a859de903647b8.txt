@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (type2 *safeMapType) UnsafeMakeMap(cap int) unsafe.Pointer {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	ptr := reflect.New(type2.Type)
 	ptr.Elem().Set(reflect.MakeMap(type2.Type))
 	return ptr.Interface()
 }
@@ -28,7 +28,6 @@ func (type2 *safeMapType) UnsafeMakeMap(cap int) unsafe.Pointer {
 
 func (type2 *safeMapType) SetIndex(obj interface{}, key interface{}, elem interface{}) {
 	keyVal := reflect.ValueOf(key)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.TerminationGracePeriodSeconds = (*int64)(unsafe.Pointer(in.TerminationGracePeriodSeconds))
-
+out.TerminationGracePeriodSeconds = (*int64)(unsafe.Pointer(in.TerminationGracePeriodSeconds))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	out.InitContainers = *(*[]core.Container)(unsafe.Pointer(&in.InitContainers))
 	out.Containers = *(*[]core.Container)(unsafe.Pointer(&in.Containers))
 	out.EphemeralContainers = *(*[]core.EphemeralContainer)(unsafe.Pointer(&in.EphemeralContainers))
@@ -28,7 +28,6 @@ Snippet line:
 	out.NodeSelector = *(*map[string]string)(unsafe.Pointer(&in.NodeSelector))
 	out.ServiceAccountName = in.ServiceAccountName
 	// INFO: in.DeprecatedServiceAccount opted out of conversion generation
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

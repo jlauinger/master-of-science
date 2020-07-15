@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-		buf := (*[maxAllocSize]byte)(unsafe.Pointer(p))[:tx.db.pageSize]
-
+buf := (*[maxAllocSize]byte)(unsafe.Pointer(p))[:tx.db.pageSize]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		// These are allocated using make() instead of the page pool.
 		if int(p.overflow) != 0 {
 			continue
 		}
@@ -28,7 +28,6 @@ Snippet line:
 		for i := range buf {
 			buf[i] = 0
 		}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ConfigMap = (*v1.ConfigMapVolumeSource)(unsafe.Pointer(in.ConfigMap))
-
+out.ConfigMap = (*v1.ConfigMapVolumeSource)(unsafe.Pointer(in.ConfigMap))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.CephFS = (*v1.CephFSVolumeSource)(unsafe.Pointer(in.CephFS))
 	out.Flocker = (*v1.FlockerVolumeSource)(unsafe.Pointer(in.Flocker))
 	out.DownwardAPI = (*v1.DownwardAPIVolumeSource)(unsafe.Pointer(in.DownwardAPI))
 	out.FC = (*v1.FCVolumeSource)(unsafe.Pointer(in.FC))
@@ -28,7 +28,6 @@ Snippet line:
 	out.PhotonPersistentDisk = (*v1.PhotonPersistentDiskVolumeSource)(unsafe.Pointer(in.PhotonPersistentDisk))
 	if in.Projected != nil {
 		in, out := &in.Projected, &out.Projected
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		f.copyall(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[1:])
-
+f.copyall(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[1:])
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		p.count = uint16(lenids)
 		f.copyall(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[:])
 	} else {
 		p.count = 0xFFFF
@@ -27,7 +27,6 @@ Snippet line:
 
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

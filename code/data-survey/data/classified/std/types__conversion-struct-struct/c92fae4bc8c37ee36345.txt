@@ -13,10 +13,10 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	tt := (*arrayType)(unsafe.Pointer(t))
-
+tt := (*arrayType)(unsafe.Pointer(t))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (t *rtype) Len() int {
 	if t.Kind() != Array {
@@ -28,7 +28,6 @@ func (t *rtype) Len() int {
 
 func (t *rtype) NumField() int {
 	if t.Kind() != Struct {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

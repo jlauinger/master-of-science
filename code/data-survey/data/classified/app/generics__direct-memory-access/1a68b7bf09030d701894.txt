@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *sortKeysMapEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	mapType     *reflect2.UnsafeMapType
 	keyEncoder  ValEncoder
 	elemEncoder ValEncoder
 }
@@ -28,7 +28,6 @@ func (encoder *sortKeysMapEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 		return
 	}
 	stream.WriteObjectStart()
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

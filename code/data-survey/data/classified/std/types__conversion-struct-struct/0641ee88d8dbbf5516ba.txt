@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	prototype := *(**sliceType)(unsafe.Pointer(&islice))
-
+prototype := *(**sliceType)(unsafe.Pointer(&islice))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		}
 	}
 
 	// Make a slice type.
@@ -28,7 +28,6 @@ Snippet line:
 	slice.str = resolveReflectName(newName(s, "", false))
 	slice.hash = fnv1(typ.hash, '[')
 	slice.elem = typ
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

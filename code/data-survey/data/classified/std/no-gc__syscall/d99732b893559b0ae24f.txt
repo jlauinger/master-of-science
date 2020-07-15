@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-	var p unsafe.Pointer
-
+var p unsafe.Pointer
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 // Klogset wraps the sys_syslog system call; it sets console_loglevel to
 // the value specified by arg and passes a dummy pointer to bufp.
@@ -28,7 +28,6 @@ func Klogset(typ int, arg int) (err error) {
 		return errnoErr(errno)
 	}
 	return nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -14,10 +14,10 @@ Label 2 (For what purpose?): inevitable
 Snippet line:
 
 func MapErrUnsafePointer(fn func(unsafe.Pointer) (unsafe.Pointer, error), a []unsafe.Pointer) (err error) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		}
 	}
 	return
 }
@@ -28,7 +28,6 @@ func MapErrUnsafePointer(fn func(unsafe.Pointer) (unsafe.Pointer, error), a []un
 			return
 		}
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	n := &((*[0x7FFFFFF]leafPageElement)(unsafe.Pointer(&p.ptr)))[index]
-
+n := &((*[0x7FFFFFF]leafPageElement)(unsafe.Pointer(&p.ptr)))[index]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return (*meta)(unsafe.Pointer(&p.ptr))
 }
 
 // leafPageElement retrieves the leaf node by index
@@ -28,7 +28,6 @@ func (p *page) leafPageElement(index uint16) *leafPageElement {
 
 // leafPageElements retrieves a list of leaf nodes.
 func (p *page) leafPageElements() []leafPageElement {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

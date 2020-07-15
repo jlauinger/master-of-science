@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.AzureDisk = (*core.AzureDiskVolumeSource)(unsafe.Pointer(in.AzureDisk))
-
+out.AzureDisk = (*core.AzureDiskVolumeSource)(unsafe.Pointer(in.AzureDisk))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Flocker = (*core.FlockerVolumeSource)(unsafe.Pointer(in.Flocker))
 	out.FlexVolume = (*core.FlexPersistentVolumeSource)(unsafe.Pointer(in.FlexVolume))
 	out.AzureFile = (*core.AzureFilePersistentVolumeSource)(unsafe.Pointer(in.AzureFile))
 	out.VsphereVolume = (*core.VsphereVirtualDiskVolumeSource)(unsafe.Pointer(in.VsphereVolume))
@@ -28,7 +28,6 @@ Snippet line:
 	out.ScaleIO = (*core.ScaleIOPersistentVolumeSource)(unsafe.Pointer(in.ScaleIO))
 	out.Local = (*core.LocalVolumeSource)(unsafe.Pointer(in.Local))
 	out.StorageOS = (*core.StorageOSPersistentVolumeSource)(unsafe.Pointer(in.StorageOS))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

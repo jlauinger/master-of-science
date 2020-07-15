@@ -13,18 +13,17 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofIfaCacheInfo]byte)(unsafe.Pointer(msg)))[:]
-
+return (*(*[SizeofIfaCacheInfo]byte)(unsafe.Pointer(msg)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeIfaCacheInfo(b []byte) *IfaCacheInfo {
 	return (*IfaCacheInfo)(unsafe.Pointer(&b[0:SizeofIfaCacheInfo][0]))
 }
 
 func (msg *IfaCacheInfo) Serialize() []byte {
 	return (*(*[SizeofIfaCacheInfo]byte)(unsafe.Pointer(msg)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

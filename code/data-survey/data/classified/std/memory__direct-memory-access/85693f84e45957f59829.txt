@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-		if t.elem == unsafe.Pointer(addr) {
-
+if t.elem == unsafe.Pointer(addr) {
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	s.prev = nil
 
 	var last *sudog
 	pt := &root.treap
@@ -28,7 +28,6 @@ Snippet line:
 				// Substitute s in t's place in treap.
 				*pt = s
 				s.ticket = t.ticket
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

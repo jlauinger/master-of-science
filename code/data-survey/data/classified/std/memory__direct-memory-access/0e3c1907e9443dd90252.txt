@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-		*(*uintptr)(unsafe.Pointer(&b.tags[wt])) = uintptr(unsafe.Pointer(*tagPtr))
-
+*(*uintptr)(unsafe.Pointer(&b.tags[wt])) = uintptr(unsafe.Pointer(*tagPtr))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	// value we copied when scanning b.tags (heap-allocated).
 	// We arrange that the store here is always overwriting a nil,
 	// so there is no need for a deletion barrier on b.tags[wt].
 	wt := int(bw.tagCount() % uint32(len(b.tags)))
@@ -28,7 +28,6 @@ Snippet line:
 	// Main record.
 	// It has to fit in a contiguous section of the slice, so if it doesn't fit at the end,
 	// leave a rewind marker (0) and start over at the beginning of the slice.
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

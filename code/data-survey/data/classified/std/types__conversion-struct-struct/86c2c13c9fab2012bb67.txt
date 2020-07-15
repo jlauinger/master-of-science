@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	tt := (*mapType)(unsafe.Pointer(v.typ))
-
+tt := (*mapType)(unsafe.Pointer(v.typ))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// in unspecified order.
 // It panics if v's Kind is not Map.
 // It returns an empty slice if v represents a nil map.
 func (v Value) MapKeys() []Value {
@@ -28,7 +28,6 @@ func (v Value) MapKeys() []Value {
 	fl := v.flag.ro() | flag(keyType.Kind())
 
 	m := v.pointer()
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		msanread(unsafe.Pointer(&b[0]), uintptr(len(b)))
-
+msanread(unsafe.Pointer(&b[0]), uintptr(len(b)))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			uintptr(len(b)),
 			getcallerpc(),
 			funcPC(slicebytetostringtmp))
 	}
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 func stringtoslicebyte(buf *tmpBuf, s string) []byte {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

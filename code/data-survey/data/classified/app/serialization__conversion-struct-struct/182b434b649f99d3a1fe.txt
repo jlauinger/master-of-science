@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*TcPrioMap)(unsafe.Pointer(&b[0:SizeofTcPrioMap][0]))
-
+return (*TcPrioMap)(unsafe.Pointer(&b[0:SizeofTcPrioMap][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (msg *TcPrioMap) Len() int {
 	return SizeofTcPrioMap
 }
 
@@ -28,7 +28,6 @@ func DeserializeTcPrioMap(b []byte) *TcPrioMap {
 func (x *TcPrioMap) Serialize() []byte {
 	return (*(*[SizeofTcPrioMap]byte)(unsafe.Pointer(x)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

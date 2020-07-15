@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Priority = (*int32)(unsafe.Pointer(in.Priority))
-
+out.Priority = (*int32)(unsafe.Pointer(in.Priority))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Affinity = (*core.Affinity)(unsafe.Pointer(in.Affinity))
 	out.SchedulerName = in.SchedulerName
 	out.Tolerations = *(*[]core.Toleration)(unsafe.Pointer(&in.Tolerations))
 	out.HostAliases = *(*[]core.HostAlias)(unsafe.Pointer(&in.HostAliases))
@@ -28,7 +28,6 @@ Snippet line:
 	out.RuntimeClassName = (*string)(unsafe.Pointer(in.RuntimeClassName))
 	out.EnableServiceLinks = (*bool)(unsafe.Pointer(in.EnableServiceLinks))
 	out.PreemptionPolicy = (*core.PreemptionPolicy)(unsafe.Pointer(in.PreemptionPolicy))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

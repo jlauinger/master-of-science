@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*VfTxRate)(unsafe.Pointer(&b[0:SizeofVfTxRate][0]))
-
+return (*VfTxRate)(unsafe.Pointer(&b[0:SizeofVfTxRate][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (msg *VfTxRate) Len() int {
 	return SizeofVfTxRate
 }
 
@@ -28,7 +28,6 @@ func DeserializeVfTxRate(b []byte) *VfTxRate {
 func (msg *VfTxRate) Serialize() []byte {
 	return (*(*[SizeofVfTxRate]byte)(unsafe.Pointer(msg)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

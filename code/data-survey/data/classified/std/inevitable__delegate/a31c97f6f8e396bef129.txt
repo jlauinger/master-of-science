@@ -13,10 +13,10 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		n := write(netpollBreakWr, unsafe.Pointer(&b), 1)
-
+n := write(netpollBreakWr, unsafe.Pointer(&b), 1)
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 // netpollBreak interrupts an epollwait.
 func netpollBreak() {
@@ -28,7 +28,6 @@ func netpollBreak() {
 		}
 		if n == -_EINTR {
 			continue
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

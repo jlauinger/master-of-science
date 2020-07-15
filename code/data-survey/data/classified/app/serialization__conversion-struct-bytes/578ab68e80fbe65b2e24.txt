@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*TcNetemCorr)(unsafe.Pointer(&b[0:SizeofTcNetemCorr][0]))
-
+return (*TcNetemCorr)(unsafe.Pointer(&b[0:SizeofTcNetemCorr][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (msg *TcNetemCorr) Len() int {
 	return SizeofTcNetemCorr
 }
 
@@ -28,7 +28,6 @@ func DeserializeTcNetemCorr(b []byte) *TcNetemCorr {
 func (x *TcNetemCorr) Serialize() []byte {
 	return (*(*[SizeofTcNetemCorr]byte)(unsafe.Pointer(x)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

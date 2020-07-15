@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Conditions = *(*[]CustomResourceDefinitionCondition)(unsafe.Pointer(&in.Conditions))
-
+out.Conditions = *(*[]CustomResourceDefinitionCondition)(unsafe.Pointer(&in.Conditions))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_v1beta1_CustomResourceDefinitionStatus_To_apiextensions_CustomResourceDefinitionStatus(in *CustomResourceDefinitionStatus, out *apiextensions.CustomResourceDefinitionStatus, s conversion.Scope) error {
 	return autoConvert_v1beta1_CustomResourceDefinitionStatus_To_apiextensions_CustomResourceDefinitionStatus(in, out, s)
 }
 
@@ -28,7 +28,6 @@ func autoConvert_apiextensions_CustomResourceDefinitionStatus_To_v1beta1_CustomR
 	}
 	out.StoredVersions = *(*[]string)(unsafe.Pointer(&in.StoredVersions))
 	return nil
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

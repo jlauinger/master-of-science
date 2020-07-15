@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Capacity = *(*v1.ResourceList)(unsafe.Pointer(&in.Capacity))
-
+out.Capacity = *(*v1.ResourceList)(unsafe.Pointer(&in.Capacity))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func Convert_v1_NodeStatus_To_core_NodeStatus(in *v1.NodeStatus, out *core.NodeStatus, s conversion.Scope) error {
 	return autoConvert_v1_NodeStatus_To_core_NodeStatus(in, out, s)
 }
 
@@ -28,7 +28,6 @@ func autoConvert_core_NodeStatus_To_v1_NodeStatus(in *core.NodeStatus, out *v1.N
 	out.Conditions = *(*[]v1.NodeCondition)(unsafe.Pointer(&in.Conditions))
 	out.Addresses = *(*[]v1.NodeAddress)(unsafe.Pointer(&in.Addresses))
 	if err := Convert_core_NodeDaemonEndpoints_To_v1_NodeDaemonEndpoints(&in.DaemonEndpoints, &out.DaemonEndpoints, s); err != nil {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -14,10 +14,10 @@ Label 2 (For what purpose?): memory
 Snippet line:
 
 func memequal16(p, q unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return true
 }
 func memequal8(p, q unsafe.Pointer) bool {
 	return *(*int8)(p) == *(*int8)(q)
@@ -28,7 +28,6 @@ func memequal16(p, q unsafe.Pointer) bool {
 func memequal32(p, q unsafe.Pointer) bool {
 	return *(*int32)(p) == *(*int32)(q)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

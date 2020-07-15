@@ -14,9 +14,9 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *OptionalEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 type OptionalEncoder struct {
 	ValueEncoder ValEncoder
@@ -28,7 +28,6 @@ func (encoder *OptionalEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 	} else {
 		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), stream)
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

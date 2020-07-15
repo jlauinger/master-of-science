@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	rx := (*[4]byte)(unsafe.Pointer(&sa.RxID))
-
+rx := (*[4]byte)(unsafe.Pointer(&sa.RxID))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if sa.Ifindex < 0 || sa.Ifindex > 0x7fffffff {
 		return nil, 0, EINVAL
 	}
 	sa.raw.Family = AF_CAN
@@ -28,7 +28,6 @@ Snippet line:
 	}
 	tx := (*[4]byte)(unsafe.Pointer(&sa.TxID))
 	for i := 0; i < 4; i++ {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

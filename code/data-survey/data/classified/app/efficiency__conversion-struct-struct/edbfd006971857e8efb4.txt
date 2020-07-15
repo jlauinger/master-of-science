@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Env = *(*[]v1.EnvVar)(unsafe.Pointer(&in.Env))
-
+out.Env = *(*[]v1.EnvVar)(unsafe.Pointer(&in.Env))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.Command = *(*[]string)(unsafe.Pointer(&in.Command))
 	out.Args = *(*[]string)(unsafe.Pointer(&in.Args))
 	out.WorkingDir = in.WorkingDir
 	out.Ports = *(*[]v1.ContainerPort)(unsafe.Pointer(&in.Ports))
@@ -28,7 +28,6 @@ Snippet line:
 	}
 	out.VolumeMounts = *(*[]v1.VolumeMount)(unsafe.Pointer(&in.VolumeMounts))
 	out.VolumeDevices = *(*[]v1.VolumeDevice)(unsafe.Pointer(&in.VolumeDevices))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.AdditionalPrinterColumns = *(*[]apiextensions.CustomResourceColumnDefinition)(unsafe.Pointer(&in.AdditionalPrinterColumns))
-
+out.AdditionalPrinterColumns = *(*[]apiextensions.CustomResourceColumnDefinition)(unsafe.Pointer(&in.AdditionalPrinterColumns))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			}
 		}
 	} else {
 		out.Versions = nil
@@ -28,7 +28,6 @@ Snippet line:
 		*out = new(apiextensions.CustomResourceConversion)
 		if err := Convert_v1beta1_CustomResourceConversion_To_apiextensions_CustomResourceConversion(*in, *out, s); err != nil {
 			return err
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

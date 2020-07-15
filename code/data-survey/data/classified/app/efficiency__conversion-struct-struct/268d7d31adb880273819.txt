@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Default = *(*v1.ResourceList)(unsafe.Pointer(&in.Default))
-
+out.Default = *(*v1.ResourceList)(unsafe.Pointer(&in.Default))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func autoConvert_core_LimitRangeItem_To_v1_LimitRangeItem(in *core.LimitRangeItem, out *v1.LimitRangeItem, s conversion.Scope) error {
 	out.Type = v1.LimitType(in.Type)
@@ -27,7 +27,6 @@ func autoConvert_core_LimitRangeItem_To_v1_LimitRangeItem(in *core.LimitRangeIte
 	out.MaxLimitRequestRatio = *(*v1.ResourceList)(unsafe.Pointer(&in.MaxLimitRequestRatio))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-			raceAcquire(unsafe.Pointer(&ioSync))
-
+raceAcquire(unsafe.Pointer(&ioSync))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if raceenabled {
 		if n > 0 {
 			raceWriteRange(unsafe.Pointer(&p[0]), n)
 		}
@@ -27,7 +27,6 @@ Snippet line:
 	}
 	return
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

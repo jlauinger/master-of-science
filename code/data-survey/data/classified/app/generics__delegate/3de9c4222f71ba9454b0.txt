@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *sliceEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+type sliceEncoder struct {
 	sliceType   *reflect2.UnsafeSliceType
 	elemEncoder ValEncoder
 }
@@ -28,7 +28,6 @@ func (encoder *sliceEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
 		return
 	}
 	length := encoder.sliceType.UnsafeLengthOf(ptr)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

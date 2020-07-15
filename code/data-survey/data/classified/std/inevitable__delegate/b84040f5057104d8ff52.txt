@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-		msanRead(unsafe.Pointer(&p[0]), n)
-
+msanRead(unsafe.Pointer(&p[0]), n)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	if race.Enabled && n > 0 {
 		race.ReadRange(unsafe.Pointer(&p[0]), n)
 	}
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 // For testing: clients can set this flag to force
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

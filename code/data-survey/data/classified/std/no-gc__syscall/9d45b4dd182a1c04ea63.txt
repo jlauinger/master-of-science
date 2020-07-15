@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-	r0, _, e1 := Syscall6(SYS_GETXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(dest)), 0, 0)
-
+r0, _, e1 := Syscall6(SYS_GETXATTR, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(_p1)), uintptr(_p2), uintptr(len(dest)), 0, 0)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	if len(dest) > 0 {
 		_p2 = unsafe.Pointer(&dest[0])
 	} else {
 		_p2 = unsafe.Pointer(&_zero)
@@ -28,7 +28,6 @@ Snippet line:
 		err = errnoErr(e1)
 	}
 	return
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	return (*ICMPFilter)(unsafe.Pointer(&b[0])), nil
-
+return (*ICMPFilter)(unsafe.Pointer(&b[0])), nil
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return nil, err
 	}
 	if n != sizeofICMPFilter {
 		return nil, errNotImplemented
@@ -28,7 +28,6 @@ Snippet line:
 func (so *sockOpt) setICMPFilter(c *socket.Conn, f *ICMPFilter) error {
 	b := (*[sizeofICMPFilter]byte)(unsafe.Pointer(f))[:sizeofICMPFilter]
 	return so.Set(c, b)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

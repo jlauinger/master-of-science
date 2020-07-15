@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.InitContainerStatuses = *(*[]v1.ContainerStatus)(unsafe.Pointer(&in.InitContainerStatuses))
-
+out.InitContainerStatuses = *(*[]v1.ContainerStatus)(unsafe.Pointer(&in.InitContainerStatuses))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.NominatedNodeName = in.NominatedNodeName
 	out.HostIP = in.HostIP
 	out.PodIPs = *(*[]v1.PodIP)(unsafe.Pointer(&in.PodIPs))
 	out.StartTime = (*metav1.Time)(unsafe.Pointer(in.StartTime))
@@ -27,7 +27,6 @@ Snippet line:
 	out.EphemeralContainerStatuses = *(*[]v1.ContainerStatus)(unsafe.Pointer(&in.EphemeralContainerStatuses))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

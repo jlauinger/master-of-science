@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ConfigMap = (*v1.ConfigMapProjection)(unsafe.Pointer(in.ConfigMap))
-
+out.ConfigMap = (*v1.ConfigMapProjection)(unsafe.Pointer(in.ConfigMap))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func autoConvert_core_VolumeProjection_To_v1_VolumeProjection(in *core.VolumeProjection, out *v1.VolumeProjection, s conversion.Scope) error {
 	out.Secret = (*v1.SecretProjection)(unsafe.Pointer(in.Secret))
@@ -28,7 +28,6 @@ func autoConvert_core_VolumeProjection_To_v1_VolumeProjection(in *core.VolumePro
 		*out = new(v1.ServiceAccountTokenProjection)
 		if err := Convert_core_ServiceAccountTokenProjection_To_v1_ServiceAccountTokenProjection(*in, *out, s); err != nil {
 			return err
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

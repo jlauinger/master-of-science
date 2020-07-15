@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *base64Codec) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		stream.buf = append(stream.buf, buf...)
 	}
 	stream.writeByte('"')
 }
@@ -25,7 +25,6 @@ func (codec *base64Codec) IsEmpty(ptr unsafe.Pointer) bool {
 func (codec *base64Codec) IsEmpty(ptr unsafe.Pointer) bool {
 	return len(*((*[]byte)(ptr))) == 0
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-		tt := (*interfaceType)(unsafe.Pointer(t))
-
+tt := (*interfaceType)(unsafe.Pointer(t))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return ut.exportedMethods()
 }
 
 func (t *rtype) NumMethod() int {
@@ -27,7 +27,6 @@ func (t *rtype) NumMethod() int {
 	}
 	return len(t.exportedMethods())
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

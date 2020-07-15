@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	Decode(ptr unsafe.Pointer, iter *Iterator)
-
+Decode(ptr unsafe.Pointer, iter *Iterator)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+// 1. create instance of new value, for example *int will need a int to be allocated
 // 2. append to slice, if the existing cap is not enough, allocate will be done using Reflect.New
 // 3. assignment to map, both key and value will be reflect.Value
 // For a simple struct binding, it will be reflect.Value free and allocation free
@@ -28,7 +28,6 @@ type ValDecoder interface {
 // ValEncoder is an internal type registered to cache as needed.
 // Don't confuse jsoniter.ValEncoder with json.Encoder.
 // For json.Encoder's adapter, refer to jsoniter.AdapterEncoder(todo godoc link).
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

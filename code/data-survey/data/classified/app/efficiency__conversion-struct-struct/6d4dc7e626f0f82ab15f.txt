@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Cinder = (*v1.CinderPersistentVolumeSource)(unsafe.Pointer(in.Cinder))
-
+out.Cinder = (*v1.CinderPersistentVolumeSource)(unsafe.Pointer(in.Cinder))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.NFS = (*v1.NFSVolumeSource)(unsafe.Pointer(in.NFS))
 	out.RBD = (*v1.RBDPersistentVolumeSource)(unsafe.Pointer(in.RBD))
 	out.Quobyte = (*v1.QuobyteVolumeSource)(unsafe.Pointer(in.Quobyte))
 	out.ISCSI = (*v1.ISCSIPersistentVolumeSource)(unsafe.Pointer(in.ISCSI))
@@ -28,7 +28,6 @@ Snippet line:
 	out.Flocker = (*v1.FlockerVolumeSource)(unsafe.Pointer(in.Flocker))
 	out.AzureFile = (*v1.AzureFilePersistentVolumeSource)(unsafe.Pointer(in.AzureFile))
 	out.VsphereVolume = (*v1.VsphereVirtualDiskVolumeSource)(unsafe.Pointer(in.VsphereVolume))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.StartupProbe = (*core.Probe)(unsafe.Pointer(in.StartupProbe))
-
+out.StartupProbe = (*core.Probe)(unsafe.Pointer(in.StartupProbe))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	out.VolumeMounts = *(*[]core.VolumeMount)(unsafe.Pointer(&in.VolumeMounts))
 	out.VolumeDevices = *(*[]core.VolumeDevice)(unsafe.Pointer(&in.VolumeDevices))
 	out.LivenessProbe = (*core.Probe)(unsafe.Pointer(in.LivenessProbe))
@@ -28,7 +28,6 @@ Snippet line:
 	out.TerminationMessagePolicy = core.TerminationMessagePolicy(in.TerminationMessagePolicy)
 	out.ImagePullPolicy = core.PullPolicy(in.ImagePullPolicy)
 	out.SecurityContext = (*core.SecurityContext)(unsafe.Pointer(in.SecurityContext))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

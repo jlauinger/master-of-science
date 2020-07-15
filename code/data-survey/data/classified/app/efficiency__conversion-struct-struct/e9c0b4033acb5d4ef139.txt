@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.EphemeralContainers = *(*[]v1.EphemeralContainer)(unsafe.Pointer(&in.EphemeralContainers))
-
+out.EphemeralContainers = *(*[]v1.EphemeralContainer)(unsafe.Pointer(&in.EphemeralContainers))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	} else {
 		out.Volumes = nil
 	}
 	out.InitContainers = *(*[]v1.Container)(unsafe.Pointer(&in.InitContainers))
@@ -28,7 +28,6 @@ Snippet line:
 	out.ActiveDeadlineSeconds = (*int64)(unsafe.Pointer(in.ActiveDeadlineSeconds))
 	out.DNSPolicy = v1.DNSPolicy(in.DNSPolicy)
 	out.NodeSelector = *(*map[string]string)(unsafe.Pointer(&in.NodeSelector))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

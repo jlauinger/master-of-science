@@ -14,9 +14,9 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (*unfoldIgnoreObjPtr) initState(ctx *unfoldCtx, _ unsafe.Pointer) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func (*unfoldIgnoreObjValue) initState(ctx *unfoldCtx, _ reflect.Value) {
 	ctx.unfolder.push(_singletonunfolderIgnoreObj)
@@ -28,7 +28,6 @@ func (*unfoldIgnoreObjPtr) initState(ctx *unfoldCtx, _ unsafe.Pointer) {
 
 func (u *unfolderIgnoreObj) OnNil(ctx *unfoldCtx) error                { return u.onValue(ctx) }
 func (u *unfolderIgnoreObj) OnBool(ctx *unfoldCtx, _ bool) error       { return u.onValue(ctx) }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

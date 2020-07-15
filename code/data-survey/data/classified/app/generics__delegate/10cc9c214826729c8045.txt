@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		encoder.stringEncoder.Encode(unsafe.Pointer(&str), stream)
-
+encoder.stringEncoder.Encode(unsafe.Pointer(&str), stream)
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	bytes, err := marshaler.MarshalText()
 	if err != nil {
 		stream.Error = err
 	} else {
@@ -28,7 +28,6 @@ Snippet line:
 
 func (encoder *directTextMarshalerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
 	return encoder.checkIsEmpty.IsEmpty(ptr)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

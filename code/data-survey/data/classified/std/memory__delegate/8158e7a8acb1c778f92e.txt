@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-		adjustpointer(adjinfo, unsafe.Pointer(&d.fn))
-
+adjustpointer(adjinfo, unsafe.Pointer(&d.fn))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	// Adjust pointers in the Defer structs.
 	// We need to do this first because we need to adjust the
 	// defer.link fields so we always work on the new stack.
 	adjustpointer(adjinfo, unsafe.Pointer(&gp._defer))
@@ -28,7 +28,6 @@ Snippet line:
 		adjustpointer(adjinfo, unsafe.Pointer(&d.link))
 		adjustpointer(adjinfo, unsafe.Pointer(&d.varp))
 		adjustpointer(adjinfo, unsafe.Pointer(&d.fd))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

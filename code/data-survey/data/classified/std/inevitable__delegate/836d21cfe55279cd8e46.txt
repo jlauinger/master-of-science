@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-			atomic.StorepNoWB(unsafe.Pointer(&h.arenas[ri.l1()]), unsafe.Pointer(l2))
-
+atomic.StorepNoWB(unsafe.Pointer(&h.arenas[ri.l1()]), unsafe.Pointer(l2))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+			// Allocate an L2 arena map.
 			l2 = (*[1 << arenaL2Bits]*heapArena)(persistentalloc(unsafe.Sizeof(*l2), sys.PtrSize, nil))
 			if l2 == nil {
 				throw("out of memory allocating heap arena map")
@@ -28,7 +28,6 @@ Snippet line:
 		if l2[ri.l2()] != nil {
 			throw("arena already initialized")
 		}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

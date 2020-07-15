@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.LoadBalancerSourceRanges = *(*[]string)(unsafe.Pointer(&in.LoadBalancerSourceRanges))
-
+out.LoadBalancerSourceRanges = *(*[]string)(unsafe.Pointer(&in.LoadBalancerSourceRanges))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.ExternalName = in.ExternalName
 	out.ExternalIPs = *(*[]string)(unsafe.Pointer(&in.ExternalIPs))
 	out.LoadBalancerIP = in.LoadBalancerIP
 	out.SessionAffinity = v1.ServiceAffinity(in.SessionAffinity)
@@ -28,7 +28,6 @@ Snippet line:
 	out.PublishNotReadyAddresses = in.PublishNotReadyAddresses
 	out.IPFamily = (*v1.IPFamily)(unsafe.Pointer(in.IPFamily))
 	out.TopologyKeys = *(*[]string)(unsafe.Pointer(&in.TopologyKeys))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

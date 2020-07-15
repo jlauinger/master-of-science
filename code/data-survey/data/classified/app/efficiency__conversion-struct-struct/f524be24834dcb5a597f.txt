@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Cinder = (*core.CinderVolumeSource)(unsafe.Pointer(in.Cinder))
-
+out.Cinder = (*core.CinderVolumeSource)(unsafe.Pointer(in.Cinder))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.ISCSI = (*core.ISCSIVolumeSource)(unsafe.Pointer(in.ISCSI))
 	out.Glusterfs = (*core.GlusterfsVolumeSource)(unsafe.Pointer(in.Glusterfs))
 	out.PersistentVolumeClaim = (*core.PersistentVolumeClaimVolumeSource)(unsafe.Pointer(in.PersistentVolumeClaim))
 	out.RBD = (*core.RBDVolumeSource)(unsafe.Pointer(in.RBD))
@@ -28,7 +28,6 @@ Snippet line:
 	out.DownwardAPI = (*core.DownwardAPIVolumeSource)(unsafe.Pointer(in.DownwardAPI))
 	out.FC = (*core.FCVolumeSource)(unsafe.Pointer(in.FC))
 	out.AzureFile = (*core.AzureFileVolumeSource)(unsafe.Pointer(in.AzureFile))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

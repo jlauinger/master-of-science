@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		out.DryRun = *(*[]string)(unsafe.Pointer(&values))
-
+out.DryRun = *(*[]string)(unsafe.Pointer(&values))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func autoConvert_url_Values_To_v1_UpdateOptions(in *url.Values, out *UpdateOptions, s conversion.Scope) error {
 	// WARNING: Field TypeMeta does not have json tag, skipping.
@@ -28,7 +28,6 @@ func autoConvert_url_Values_To_v1_UpdateOptions(in *url.Values, out *UpdateOptio
 	}
 	if values, ok := map[string][]string(*in)["fieldManager"]; ok && len(values) > 0 {
 		if err := runtime.Convert_Slice_string_To_string(&values, &out.FieldManager, s); err != nil {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

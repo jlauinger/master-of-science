@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		return packEFace(type2.rtype, *(*unsafe.Pointer)(ptr))
-
+return packEFace(type2.rtype, *(*unsafe.Pointer)(ptr))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return type2.UnsafeIndirect(objEFace.data)
 }
 
 func (type2 *UnsafeArrayType) UnsafeIndirect(ptr unsafe.Pointer) interface{} {
@@ -28,7 +28,6 @@ func (type2 *UnsafeArrayType) UnsafeIndirect(ptr unsafe.Pointer) interface{} {
 }
 
 func (type2 *UnsafeArrayType) SetIndex(obj interface{}, index int, elem interface{}) {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

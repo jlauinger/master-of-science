@@ -13,11 +13,11 @@ Label 2 (For what purpose?): escape-analysis-escape
 --------------------------------------------------------------
 Snippet line:
 
-		atomic.StorepNoWB(noescape(unsafe.Pointer(&wg)), nil) // full memory barrier between stores to rd/wd and load of rg/wg in netpollunblock
-
+atomic.StorepNoWB(noescape(unsafe.Pointer(&wg)), nil) // full memory barrier between stores to rd/wd and load of rg/wg in netpollunblock
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		}
 	}
 	// If we set the new deadline in the past, unblock currently pending IO if any.
 	var rg, wg *g
@@ -28,7 +28,6 @@ Snippet line:
 		}
 		if pd.wd < 0 {
 			wg = netpollunblock(pd, 'w', false)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

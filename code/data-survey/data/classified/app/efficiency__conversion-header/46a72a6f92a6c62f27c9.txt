@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-			Data: uintptr(unsafe.Pointer(&data[start])),
-
+Data: uintptr(unsafe.Pointer(&data[start])),
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	rowStride := strides[0]
 	retVal = make([][]uint16, rows)
 	for i := range retVal {
 		start := i * rowStride
@@ -28,7 +28,6 @@ Snippet line:
 		}
 		retVal[i] = *(*[]uint16)(unsafe.Pointer(hdr))
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

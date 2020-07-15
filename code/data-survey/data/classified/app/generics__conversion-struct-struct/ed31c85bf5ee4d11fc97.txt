@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (customNumberDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 type customNumberDecoder struct {
 }
@@ -28,7 +28,6 @@ func (customNumberDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		var number jsoniter.Number
 		iter.ReadVal(&number)
 		i64, err := strconv.ParseInt(string(number), 10, 64)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ResponseObject = (*runtime.Unknown)(unsafe.Pointer(in.ResponseObject))
-
+out.ResponseObject = (*runtime.Unknown)(unsafe.Pointer(in.ResponseObject))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.SourceIPs = *(*[]string)(unsafe.Pointer(&in.SourceIPs))
 	out.UserAgent = in.UserAgent
 	out.ObjectRef = (*ObjectReference)(unsafe.Pointer(in.ObjectRef))
 	out.ResponseStatus = (*metav1.Status)(unsafe.Pointer(in.ResponseStatus))
@@ -28,7 +28,6 @@ Snippet line:
 	out.Annotations = *(*map[string]string)(unsafe.Pointer(&in.Annotations))
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

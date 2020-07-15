@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (type2 *safeMapType) UnsafeGetIndex(obj unsafe.Pointer, key unsafe.Pointer) unsafe.Pointer {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	ptr := reflect.New(elemVal.Type())
 	ptr.Elem().Set(elemVal)
 	return ptr.Interface()
 }
@@ -28,7 +28,6 @@ func (type2 *safeMapType) UnsafeGetIndex(obj unsafe.Pointer, key unsafe.Pointer)
 
 func (type2 *safeMapType) Iterate(obj interface{}) MapIterator {
 	m := reflect.ValueOf(obj).Elem()
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

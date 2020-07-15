@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: value.go
+Line: 1990
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): pointer-arithmetic
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+func arrayAt(p unsafe.Pointer, i int, eltSize uintptr, whySafe string) unsafe.Pointer {
+--------------------------------------------------------------
++/- 5 lines context:
+
+// The array pointed at by p must have at least i+1 elements:
+// it is invalid (but impossible to check here) to pass i >= len,
+// because then the result will point outside the array.
+// whySafe must explain why i < len. (Passing "i < len" is fine;
+// the benefit is to surface this assumption at the call site.)
+func arrayAt(p unsafe.Pointer, i int, eltSize uintptr, whySafe string) unsafe.Pointer {
+	return add(p, uintptr(i)*eltSize, "i < len")
+}
+
+// grow grows the slice s so that it can hold extra more values, allocating
+// more capacity if needed. It also returns the old and new slice lengths.
+--------------------------------------------------------------
++/- 100 lines context:
+
+	// Method on concrete type.
+	ms := v.typ.exportedMethods()
+	if uint(i) >= uint(len(ms)) {
+		panic("reflect: internal error: invalid method index")
+	}
+	m := ms[i]
+	return v.typ.typeOff(m.mtyp)
+}
+
+// Uint returns v's underlying value, as a uint64.
+// It panics if v's Kind is not Uint, Uintptr, Uint8, Uint16, Uint32, or Uint64.
+func (v Value) Uint() uint64 {
+	k := v.kind()
+	p := v.ptr
+	switch k {
+	case Uint:
+		return uint64(*(*uint)(p))
+	case Uint8:
+		return uint64(*(*uint8)(p))
+	case Uint16:
+		return uint64(*(*uint16)(p))
+	case Uint32:
+		return uint64(*(*uint32)(p))
+	case Uint64:
+		return *(*uint64)(p)
+	case Uintptr:
+		return uint64(*(*uintptr)(p))
+	}
+	panic(&ValueError{"reflect.Value.Uint", v.kind()})
+}
+
+//go:nocheckptr
+// This prevents inlining Value.UnsafeAddr when -d=checkptr is enabled,
+// which ensures cmd/compile can recognize unsafe.Pointer(v.UnsafeAddr())
+// and make an exception.
+
+// UnsafeAddr returns a pointer to v's data.
+// It is for advanced clients that also import the "unsafe" package.
+// It panics if v is not addressable.
+func (v Value) UnsafeAddr() uintptr {
+	// TODO: deprecate
+	if v.typ == nil {
+		panic(&ValueError{"reflect.Value.UnsafeAddr", Invalid})
+	}
+	if v.flag&flagAddr == 0 {
+		panic("reflect.Value.UnsafeAddr of unaddressable value")
+	}
+	return uintptr(v.ptr)
+}
+
+// StringHeader is the runtime representation of a string.
+// It cannot be used safely or portably and its representation may
+// change in a later release.
+// Moreover, the Data field is not sufficient to guarantee the data
+// it references will not be garbage collected, so programs must keep
+// a separate, correctly typed pointer to the underlying data.
+type StringHeader struct {
+	Data uintptr
+	Len  int
+}
+
+// stringHeader is a safe version of StringHeader used within this package.
+type stringHeader struct {
+	Data unsafe.Pointer
+	Len  int
+}
+
+// SliceHeader is the runtime representation of a slice.
+// It cannot be used safely or portably and its representation may
+// change in a later release.
+// Moreover, the Data field is not sufficient to guarantee the data
+// it references will not be garbage collected, so programs must keep
+// a separate, correctly typed pointer to the underlying data.
+type SliceHeader struct {
+	Data uintptr
+	Len  int
+	Cap  int
+}
+
+// sliceHeader is a safe version of SliceHeader used within this package.
+type sliceHeader struct {
+	Data unsafe.Pointer
+	Len  int
+	Cap  int
+}
+
+func typesMustMatch(what string, t1, t2 Type) {
+	if t1 != t2 {
+		panic(what + ": " + t1.String() + " != " + t2.String())
+	}
+}
+
+// arrayAt returns the i-th element of p,
+// an array whose elements are eltSize bytes wide.
+// The array pointed at by p must have at least i+1 elements:
+// it is invalid (but impossible to check here) to pass i >= len,
+// because then the result will point outside the array.
+// whySafe must explain why i < len. (Passing "i < len" is fine;
+// the benefit is to surface this assumption at the call site.)
+func arrayAt(p unsafe.Pointer, i int, eltSize uintptr, whySafe string) unsafe.Pointer {
+	return add(p, uintptr(i)*eltSize, "i < len")
+}
+
+// grow grows the slice s so that it can hold extra more values, allocating
+// more capacity if needed. It also returns the old and new slice lengths.
+func grow(s Value, extra int) (Value, int, int) {
+	i0 := s.Len()
+	i1 := i0 + extra
+	if i1 < i0 {
+		panic("reflect.Append: slice overflow")
+	}
+	m := s.Cap()
+	if i1 <= m {
+		return s.Slice(0, i1), i0, i1
+	}
+	if m == 0 {
+		m = extra
+	} else {
+		for m < i1 {
+			if i0 < 1024 {
+				m += m
+			} else {
+				m += m / 4
+			}
+		}
+	}
+	t := MakeSlice(s.Type(), i1, m)
+	Copy(t, s)
+	return t, i0, i1
+}
+
+// Append appends the values x to a slice s and returns the resulting slice.
+// As in Go, each x's value must be assignable to the slice's element type.
+func Append(s Value, x ...Value) Value {
+	s.mustBe(Slice)
+	s, i0, i1 := grow(s, len(x))
+	for i, j := i0, 0; i < i1; i, j = i+1, j+1 {
+		s.Index(i).Set(x[j])
+	}
+	return s
+}
+
+// AppendSlice appends a slice t to a slice s and returns the resulting slice.
+// The slices s and t must have the same element type.
+func AppendSlice(s, t Value) Value {
+	s.mustBe(Slice)
+	t.mustBe(Slice)
+	typesMustMatch("reflect.AppendSlice", s.Type().Elem(), t.Type().Elem())
+	s, i0, i1 := grow(s, t.Len())
+	Copy(s.Slice(i0, i1), t)
+	return s
+}
+
+// Copy copies the contents of src into dst until either
+// dst has been filled or src has been exhausted.
+// It returns the number of elements copied.
+// Dst and src each must have kind Slice or Array, and
+// dst and src must have the same element type.
+//
+// As a special case, src can have kind String if the element type of dst is kind Uint8.
+func Copy(dst, src Value) int {
+	dk := dst.kind()
+	if dk != Array && dk != Slice {
+		panic(&ValueError{"reflect.Copy", dk})
+	}
+	if dk == Array {
+		dst.mustBeAssignable()
+	}
+	dst.mustBeExported()
+
+	sk := src.kind()
+	var stringCopy bool
+	if sk != Array && sk != Slice {
+		stringCopy = sk == String && dst.typ.Elem().Kind() == Uint8
+		if !stringCopy {
+			panic(&ValueError{"reflect.Copy", sk})
+		}
+	}
+	src.mustBeExported()
+
+	de := dst.typ.Elem()
+	if !stringCopy {
+		se := src.typ.Elem()
+		typesMustMatch("reflect.Copy", de, se)
+	}
+
+	var ds, ss sliceHeader
+	if dk == Array {
+		ds.Data = dst.ptr
+		ds.Len = dst.Len()
+		ds.Cap = ds.Len
+	} else {
+		ds = *(*sliceHeader)(dst.ptr)
+	}
+	if sk == Array {
+		ss.Data = src.ptr
+		ss.Len = src.Len()
+		ss.Cap = ss.Len
+	} else if sk == Slice {
+		ss = *(*sliceHeader)(src.ptr)
+

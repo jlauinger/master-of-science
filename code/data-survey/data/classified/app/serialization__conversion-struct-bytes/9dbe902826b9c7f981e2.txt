@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[unix.SizeofRtMsg]byte)(unsafe.Pointer(msg)))[:]
-
+return (*(*[unix.SizeofRtMsg]byte)(unsafe.Pointer(msg)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeRtMsg(b []byte) *RtMsg {
 	return (*RtMsg)(unsafe.Pointer(&b[0:unix.SizeofRtMsg][0]))
 }
 
@@ -28,7 +28,6 @@ func (msg *RtMsg) Serialize() []byte {
 type RtNexthop struct {
 	unix.RtNexthop
 	Children []NetlinkRequestData
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

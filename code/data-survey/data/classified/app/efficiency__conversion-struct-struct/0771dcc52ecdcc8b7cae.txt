@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.WindowsOptions = (*v1.WindowsSecurityContextOptions)(unsafe.Pointer(in.WindowsOptions))
-
+out.WindowsOptions = (*v1.WindowsSecurityContextOptions)(unsafe.Pointer(in.WindowsOptions))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	// INFO: in.HostNetwork opted out of conversion generation
 	// INFO: in.HostPID opted out of conversion generation
 	// INFO: in.HostIPC opted out of conversion generation
 	// INFO: in.ShareProcessNamespace opted out of conversion generation
@@ -28,7 +28,6 @@ Snippet line:
 	out.RunAsNonRoot = (*bool)(unsafe.Pointer(in.RunAsNonRoot))
 	out.SupplementalGroups = *(*[]int64)(unsafe.Pointer(&in.SupplementalGroups))
 	out.FSGroup = (*int64)(unsafe.Pointer(in.FSGroup))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

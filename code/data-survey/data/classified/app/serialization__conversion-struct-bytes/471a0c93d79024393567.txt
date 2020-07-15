@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*TcHtbGlob)(unsafe.Pointer(&b[0:SizeofTcHtbGlob][0]))
-
+return (*TcHtbGlob)(unsafe.Pointer(&b[0:SizeofTcHtbGlob][0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (msg *TcHtbGlob) Len() int {
 	return SizeofTcHtbGlob
 }
 
@@ -28,7 +28,6 @@ func DeserializeTcHtbGlob(b []byte) *TcHtbGlob {
 func (x *TcHtbGlob) Serialize() []byte {
 	return (*(*[SizeofTcHtbGlob]byte)(unsafe.Pointer(x)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

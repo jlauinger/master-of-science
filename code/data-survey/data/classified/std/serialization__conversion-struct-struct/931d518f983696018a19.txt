@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-		pp := (*RawSockaddrNetlink)(unsafe.Pointer(rsa))
-
+pp := (*RawSockaddrNetlink)(unsafe.Pointer(rsa))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func anyToSockaddr(rsa *RawSockaddrAny) (Sockaddr, error) {
 	switch rsa.Addr.Family {
@@ -28,7 +28,6 @@ func anyToSockaddr(rsa *RawSockaddrAny) (Sockaddr, error) {
 		sa.Pad = pp.Pad
 		sa.Pid = pp.Pid
 		sa.Groups = pp.Groups
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

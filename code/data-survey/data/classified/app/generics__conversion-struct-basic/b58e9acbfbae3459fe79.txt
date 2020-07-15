@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *uint8Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 type uint8Codec struct {
 }
@@ -27,7 +27,6 @@ func (codec *uint8Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
 		*((*uint8)(ptr)) = iter.ReadUint8()
 	}
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

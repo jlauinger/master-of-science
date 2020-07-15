@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.Data = *(*map[string][]byte)(unsafe.Pointer(&in.Data))
-
+out.Data = *(*map[string][]byte)(unsafe.Pointer(&in.Data))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+}
 
 func autoConvert_v1_Secret_To_core_Secret(in *v1.Secret, out *core.Secret, s conversion.Scope) error {
 	out.ObjectMeta = in.ObjectMeta
@@ -27,7 +27,6 @@ func autoConvert_v1_Secret_To_core_Secret(in *v1.Secret, out *core.Secret, s con
 	out.Type = core.SecretType(in.Type)
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

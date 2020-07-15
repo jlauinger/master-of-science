@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.GitRepo = (*v1.GitRepoVolumeSource)(unsafe.Pointer(in.GitRepo))
-
+out.GitRepo = (*v1.GitRepoVolumeSource)(unsafe.Pointer(in.GitRepo))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func autoConvert_core_VolumeSource_To_v1_VolumeSource(in *core.VolumeSource, out *v1.VolumeSource, s conversion.Scope) error {
 	out.HostPath = (*v1.HostPathVolumeSource)(unsafe.Pointer(in.HostPath))
 	out.EmptyDir = (*v1.EmptyDirVolumeSource)(unsafe.Pointer(in.EmptyDir))
 	out.GCEPersistentDisk = (*v1.GCEPersistentDiskVolumeSource)(unsafe.Pointer(in.GCEPersistentDisk))
@@ -28,7 +28,6 @@ Snippet line:
 	out.ISCSI = (*v1.ISCSIVolumeSource)(unsafe.Pointer(in.ISCSI))
 	out.Glusterfs = (*v1.GlusterfsVolumeSource)(unsafe.Pointer(in.Glusterfs))
 	out.PersistentVolumeClaim = (*v1.PersistentVolumeClaimVolumeSource)(unsafe.Pointer(in.PersistentVolumeClaim))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

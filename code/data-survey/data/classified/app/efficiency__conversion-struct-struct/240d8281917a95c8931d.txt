@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.ImpersonatedUser = (*authenticationv1.UserInfo)(unsafe.Pointer(in.ImpersonatedUser))
-
+out.ImpersonatedUser = (*authenticationv1.UserInfo)(unsafe.Pointer(in.ImpersonatedUser))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.AuditID = types.UID(in.AuditID)
 	out.Stage = Stage(in.Stage)
 	out.RequestURI = in.RequestURI
 	out.Verb = in.Verb
@@ -28,7 +28,6 @@ Snippet line:
 	out.ObjectRef = (*ObjectReference)(unsafe.Pointer(in.ObjectRef))
 	out.ResponseStatus = (*metav1.Status)(unsafe.Pointer(in.ResponseStatus))
 	out.RequestObject = (*runtime.Unknown)(unsafe.Pointer(in.RequestObject))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-		return (*[sizeofSockaddrInet6]byte)(unsafe.Pointer(h.Name))[:h.Namelen]
-
+return (*[sizeofSockaddrInet6]byte)(unsafe.Pointer(h.Name))[:h.Namelen]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 }
 
 func (h *msghdr) name() []byte {
@@ -28,7 +28,6 @@ func (h *msghdr) name() []byte {
 }
 
 func (h *msghdr) controllen() int {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

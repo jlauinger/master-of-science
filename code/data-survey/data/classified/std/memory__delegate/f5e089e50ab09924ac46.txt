@@ -14,10 +14,10 @@ Label 2 (For what purpose?): memory
 Snippet line:
 
 func runtime_getProfLabel() unsafe.Pointer {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	getg().labels = labels
 }
 
@@ -25,7 +25,6 @@ func runtime_getProfLabel() unsafe.Pointer {
 func runtime_getProfLabel() unsafe.Pointer {
 	return getg().labels
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

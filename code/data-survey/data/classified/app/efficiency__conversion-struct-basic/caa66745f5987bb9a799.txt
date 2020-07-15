@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-		h.Name = (*byte)(unsafe.Pointer(&sa[0]))
-
+h.Name = (*byte)(unsafe.Pointer(&sa[0]))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	h.setIov(vs)
 	if len(oob) > 0 {
 		h.setControl(oob)
 	}
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 func (h *msghdr) name() []byte {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

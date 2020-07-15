@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func (field *safeField) UnsafeGet(obj unsafe.Pointer) unsafe.Pointer {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	ptr := reflect.New(val.Type())
 	ptr.Elem().Set(val)
 	return ptr.Interface()
 }
@@ -25,7 +25,6 @@ func (field *safeField) UnsafeGet(obj unsafe.Pointer) unsafe.Pointer {
 func (field *safeField) UnsafeGet(obj unsafe.Pointer) unsafe.Pointer {
 	panic("does not support unsafe operation")
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

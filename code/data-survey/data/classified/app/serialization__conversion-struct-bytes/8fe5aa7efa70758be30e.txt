@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
-
+b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (so *sockOpt) setAttachFilter(c *socket.Conn, f []bpf.RawInstruction) error {
 	prog := unix.SockFprog{
 		Len:    uint16(len(f)),
 		Filter: (*unix.SockFilter)(unsafe.Pointer(&f[0])),
@@ -25,7 +25,6 @@ Snippet line:
 	b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
 	return so.Set(c, b)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

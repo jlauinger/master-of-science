@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-		b = (*[sizeofGroupSourceReq]byte)(unsafe.Pointer(&gsr))[:sizeofGroupSourceReq]
-
+b = (*[sizeofGroupSourceReq]byte)(unsafe.Pointer(&gsr))[:sizeofGroupSourceReq]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		s := (*[sizeofGroupSourceReq]byte)(unsafe.Pointer(&gsr))
 		copy(d[:4], s[:4])
 		copy(d[8:], s[4:])
 		b = d[:]
@@ -26,7 +26,6 @@ Snippet line:
 	}
 	return so.Set(c, b)
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

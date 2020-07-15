@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.SecurityContext = (*core.SecurityContext)(unsafe.Pointer(in.SecurityContext))
-
+out.SecurityContext = (*core.SecurityContext)(unsafe.Pointer(in.SecurityContext))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	out.StartupProbe = (*core.Probe)(unsafe.Pointer(in.StartupProbe))
 	out.Lifecycle = (*core.Lifecycle)(unsafe.Pointer(in.Lifecycle))
 	out.TerminationMessagePath = in.TerminationMessagePath
 	out.TerminationMessagePolicy = core.TerminationMessagePolicy(in.TerminationMessagePolicy)
@@ -28,7 +28,6 @@ Snippet line:
 	out.TTY = in.TTY
 	return nil
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

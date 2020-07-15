@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-		var f func(unsafe.Pointer, unsafe.Pointer) unsafe.Pointer
-
+var f func(unsafe.Pointer, unsafe.Pointer) unsafe.Pointer
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		dt := data.Strings()
 		rt := retVal.Strings()
 		reduceDefaultStr(dt, rt, dim0, dimSize, outerStride, stride, expected, f)
 		return nil
@@ -28,7 +28,6 @@ Snippet line:
 		}
 		dt := data.UnsafePointers()
 		rt := retVal.UnsafePointers()
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

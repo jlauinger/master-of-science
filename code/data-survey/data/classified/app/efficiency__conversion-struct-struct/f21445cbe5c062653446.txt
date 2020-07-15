@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.AccessModes = *(*[]v1.PersistentVolumeAccessMode)(unsafe.Pointer(&in.AccessModes))
-
+out.AccessModes = *(*[]v1.PersistentVolumeAccessMode)(unsafe.Pointer(&in.AccessModes))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return autoConvert_v1_PersistentVolumeClaimStatus_To_core_PersistentVolumeClaimStatus(in, out, s)
 }
 
 func autoConvert_core_PersistentVolumeClaimStatus_To_v1_PersistentVolumeClaimStatus(in *core.PersistentVolumeClaimStatus, out *v1.PersistentVolumeClaimStatus, s conversion.Scope) error {
@@ -27,7 +27,6 @@ func autoConvert_core_PersistentVolumeClaimStatus_To_v1_PersistentVolumeClaimSta
 	out.Conditions = *(*[]v1.PersistentVolumeClaimCondition)(unsafe.Pointer(&in.Conditions))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

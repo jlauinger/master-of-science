@@ -13,11 +13,11 @@ Label 2 (For what purpose?): no-gc
 --------------------------------------------------------------
 Snippet line:
 
-			uintptr(unsafe.Pointer(&envvp[0])))
-
+uintptr(unsafe.Pointer(&envvp[0])))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		err1 = execveDarwin(argv0p, &argvp[0], &envvp[0])
 	} else {
 		_, _, err1 = RawSyscall(SYS_EXECVE,
 			uintptr(unsafe.Pointer(argv0p)),
@@ -27,7 +27,6 @@ Snippet line:
 	runtime_AfterExec()
 	return err1
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

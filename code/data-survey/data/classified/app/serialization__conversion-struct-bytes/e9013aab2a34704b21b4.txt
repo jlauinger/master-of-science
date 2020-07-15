@@ -13,18 +13,17 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofXfrmReplayStateEsn]byte)(unsafe.Pointer(msg)))[:]
-
+return (*(*[SizeofXfrmReplayStateEsn]byte)(unsafe.Pointer(msg)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	Bmp          []uint32
 }
 
 func (msg *XfrmReplayStateEsn) Serialize() []byte {
 	// We deliberately do not pass Bmp, as it gets set by the kernel.
 	return (*(*[SizeofXfrmReplayStateEsn]byte)(unsafe.Pointer(msg)))[:]
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (decoder *sevenFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	fieldDecoder6 *structFieldDecoder
 	fieldHash7    int64
 	fieldDecoder7 *structFieldDecoder
 }
@@ -28,7 +28,6 @@ func (decoder *sevenFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterat
 	}
 	if !iter.incrementDepth() {
 		return
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

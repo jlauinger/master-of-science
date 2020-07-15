@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-	return (*(*[SizeofTcHtbGlob]byte)(unsafe.Pointer(x)))[:]
-
+return (*(*[SizeofTcHtbGlob]byte)(unsafe.Pointer(x)))[:]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func DeserializeTcHtbGlob(b []byte) *TcHtbGlob {
 	return (*TcHtbGlob)(unsafe.Pointer(&b[0:SizeofTcHtbGlob][0]))
 }
 
@@ -28,7 +28,6 @@ func (x *TcHtbGlob) Serialize() []byte {
 // HFSC
 
 type Curve struct {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

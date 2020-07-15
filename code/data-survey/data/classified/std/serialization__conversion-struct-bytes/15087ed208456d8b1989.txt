@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-		bytes := (*[len(pp.Path)]byte)(unsafe.Pointer(&pp.Path[0]))[0:n]
-
+bytes := (*[len(pp.Path)]byte)(unsafe.Pointer(&pp.Path[0]))[0:n]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		// everyone uses this convention.
 		n := 0
 		for n < len(pp.Path) && pp.Path[n] != 0 {
 			n++
@@ -28,7 +28,6 @@ Snippet line:
 
 	case AF_INET:
 		pp := (*RawSockaddrInet4)(unsafe.Pointer(rsa))
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

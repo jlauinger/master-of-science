@@ -14,10 +14,10 @@ Label 2 (For what purpose?): unused
 Snippet line:
 
 func racewriterangepc(addr unsafe.Pointer, sz, callerpc, pc uintptr)        { throw("race") }
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func raceprocdestroy(ctx uintptr)                                           { throw("race") }
 func racemapshadow(addr unsafe.Pointer, size uintptr)                       { throw("race") }
 func racewritepc(addr unsafe.Pointer, callerpc, pc uintptr)                 { throw("race") }
 func racereadpc(addr unsafe.Pointer, callerpc, pc uintptr)                  { throw("race") }
@@ -28,7 +28,6 @@ func raceacquireg(gp *g, addr unsafe.Pointer)                               { th
 func raceacquirectx(racectx uintptr, addr unsafe.Pointer)                   { throw("race") }
 func racerelease(addr unsafe.Pointer)                                       { throw("race") }
 func racereleaseg(gp *g, addr unsafe.Pointer)                               { throw("race") }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

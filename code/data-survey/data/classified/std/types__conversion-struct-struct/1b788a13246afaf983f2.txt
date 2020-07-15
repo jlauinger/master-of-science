@@ -13,10 +13,10 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-	e := (*emptyInterface)(unsafe.Pointer(&i))
-
+e := (*emptyInterface)(unsafe.Pointer(&i))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 // packEface converts v to the empty interface.
 func packEface(v Value) interface{} {
@@ -28,7 +28,6 @@ func packEface(v Value) interface{} {
 	case ifaceIndir(t):
 		if v.flag&flagIndir == 0 {
 			panic("bad indir")
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

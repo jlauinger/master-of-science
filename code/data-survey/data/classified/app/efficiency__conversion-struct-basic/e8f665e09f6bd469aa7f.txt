@@ -13,10 +13,10 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.SinceSeconds = (*int64)(unsafe.Pointer(in.SinceSeconds))
-
+out.SinceSeconds = (*int64)(unsafe.Pointer(in.SinceSeconds))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func autoConvert_core_PodLogOptions_To_v1_PodLogOptions(in *core.PodLogOptions, out *v1.PodLogOptions, s conversion.Scope) error {
 	out.Container = in.Container
@@ -28,7 +28,6 @@ func autoConvert_core_PodLogOptions_To_v1_PodLogOptions(in *core.PodLogOptions, 
 	out.TailLines = (*int64)(unsafe.Pointer(in.TailLines))
 	out.LimitBytes = (*int64)(unsafe.Pointer(in.LimitBytes))
 	out.InsecureSkipTLSVerifyBackend = in.InsecureSkipTLSVerifyBackend
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

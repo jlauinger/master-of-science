@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (codec *stringCodec) IsEmpty(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+func (codec *stringCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
 	str := *((*string)(ptr))
 	stream.WriteString(str)
 }
@@ -28,7 +28,6 @@ func (codec *stringCodec) IsEmpty(ptr unsafe.Pointer) bool {
 
 type int8Codec struct {
 }
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

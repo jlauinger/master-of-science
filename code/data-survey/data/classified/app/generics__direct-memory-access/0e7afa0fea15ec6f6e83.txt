@@ -14,10 +14,10 @@ Label 2 (For what purpose?): generics
 Snippet line:
 
 func (encoder *dereferenceEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
-
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		return true
 	}
 	return encoder.ValueEncoder.IsEmpty(dePtr)
 }
@@ -28,7 +28,6 @@ func (encoder *dereferenceEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
 		return true
 	}
 	isEmbeddedPtrNil, converted := encoder.ValueEncoder.(IsEmbeddedPtrNil)
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

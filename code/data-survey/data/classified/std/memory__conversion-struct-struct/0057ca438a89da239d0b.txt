@@ -13,11 +13,11 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-			buf = (*stackWorkBuf)(unsafe.Pointer(getempty()))
-
+buf = (*stackWorkBuf)(unsafe.Pointer(getempty()))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	} else if buf.nobj == len(buf.obj) {
 		if s.freeBuf != nil {
 			buf = s.freeBuf
 			s.freeBuf = nil
@@ -28,7 +28,6 @@ Snippet line:
 		buf.next = *head
 		*head = buf
 	}
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

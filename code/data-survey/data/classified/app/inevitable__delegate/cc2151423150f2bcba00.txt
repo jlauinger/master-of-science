@@ -13,11 +13,11 @@ Label 2 (For what purpose?): inevitable
 --------------------------------------------------------------
 Snippet line:
 
-	atomic.StorePointer(&x.v, unsafe.Pointer(&p))
-
+atomic.StorePointer(&x.v, unsafe.Pointer(&p))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	}
 	return
 }
 
@@ -28,7 +28,6 @@ func (x *atomicRtidFnSlice) store(p []codecRtidFn) {
 // --------------------------
 type atomicClsErr struct {
 	v unsafe.Pointer // *clsErr
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

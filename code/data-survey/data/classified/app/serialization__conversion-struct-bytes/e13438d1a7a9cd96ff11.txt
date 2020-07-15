@@ -13,11 +13,11 @@ Label 2 (For what purpose?): serialization
 --------------------------------------------------------------
 Snippet line:
 
-		b = (*[sizeofGroupReq]byte)(unsafe.Pointer(&gr))[:sizeofGroupReq]
-
+b = (*[sizeofGroupReq]byte)(unsafe.Pointer(&gr))[:sizeofGroupReq]
 --------------------------------------------------------------
 +/- 5 lines context:
 
+		s := (*[sizeofGroupReq]byte)(unsafe.Pointer(&gr))
 		copy(d[:4], s[:4])
 		copy(d[8:], s[4:])
 		b = d[:]
@@ -28,7 +28,6 @@ Snippet line:
 }
 
 func (so *sockOpt) setGroupSourceReq(c *socket.Conn, ifi *net.Interface, grp, src net.IP) error {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

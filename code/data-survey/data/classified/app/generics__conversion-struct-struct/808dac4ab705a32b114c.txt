@@ -13,11 +13,11 @@ Label 2 (For what purpose?): generics
 --------------------------------------------------------------
 Snippet line:
 
-	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
-
+v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	v := (*unsafeReflectValue)(unsafe.Pointer(&rv))
 	e.e.EncodeUint(uint64(*(*uint64)(v.ptr)))
 }
 
@@ -27,7 +27,6 @@ func (e *Encoder) kUintptr(f *codecFnInfo, rv reflect.Value) {
 }
 
 // ------------
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

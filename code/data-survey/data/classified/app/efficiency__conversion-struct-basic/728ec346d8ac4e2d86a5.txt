@@ -13,11 +13,11 @@ Label 2 (For what purpose?): efficiency
 --------------------------------------------------------------
 Snippet line:
 
-	out.CacheSize = (*int32)(unsafe.Pointer(in.CacheSize))
-
+out.CacheSize = (*int32)(unsafe.Pointer(in.CacheSize))
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	return autoConvert_config_IdentityConfiguration_To_v1_IdentityConfiguration(in, out, s)
 }
 
 func autoConvert_v1_KMSConfiguration_To_config_KMSConfiguration(in *KMSConfiguration, out *config.KMSConfiguration, s conversion.Scope) error {
@@ -27,7 +27,6 @@ func autoConvert_v1_KMSConfiguration_To_config_KMSConfiguration(in *KMSConfigura
 	out.Timeout = (*metav1.Duration)(unsafe.Pointer(in.Timeout))
 	return nil
 }
-
 
 --------------------------------------------------------------
 +/- 100 lines context:

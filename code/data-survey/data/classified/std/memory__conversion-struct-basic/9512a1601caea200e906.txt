@@ -13,10 +13,10 @@ Label 2 (For what purpose?): memory
 --------------------------------------------------------------
 Snippet line:
 
-	dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
-
+dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
 --------------------------------------------------------------
 +/- 5 lines context:
+
 
 func finq_callback(fn *funcval, obj unsafe.Pointer, nret uintptr, fint *_type, ot *ptrtype) {
 	dumpint(tagQueuedFinalizer)
@@ -28,7 +28,6 @@ func finq_callback(fn *funcval, obj unsafe.Pointer, nret uintptr, fint *_type, o
 }
 
 func dumproots() {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 

@@ -13,11 +13,11 @@ Label 2 (For what purpose?): types
 --------------------------------------------------------------
 Snippet line:
 
-		return &(*u)(unsafe.Pointer(t)).u
-
+return &(*u)(unsafe.Pointer(t)).u
 --------------------------------------------------------------
 +/- 5 lines context:
 
+	default:
 		type u struct {
 			_type
 			u uncommontype
@@ -28,7 +28,6 @@ Snippet line:
 
 func (t *_type) name() string {
 	if t.tflag&tflagNamed == 0 {
-
 --------------------------------------------------------------
 +/- 100 lines context:
 
