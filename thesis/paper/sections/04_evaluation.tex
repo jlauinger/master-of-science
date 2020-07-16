@@ -14,14 +14,16 @@ To achieve this, we answer the following research questions:
     %\item Are there problems arising from the use of \unsafe{} that can lead to exploitable vulnerabilities? \label{rq:probsUnsafe}
 \end{enumerate}
 
-Figure~\ref{fig:overview} provides an overview of our study methodology.
+Figure~\ref{fig:study-overview} provides an overview of our study methodology.
 
-\input{gfx/figures/overview2.tex}
+\input{gfx/figures/study-methodology}
 
+To answer these research questions we first describe our evaluation data set and then provide in-depth analyses of how prevalent unsafe is in the wild, in which way and why it is used in our test data set.
+Our evaluation scripts as well as the results are available online\footnote{\todo{Provide link to our paper repository}} for further research.
 
-\subsection{Data Set Creation}
+\subsection{Data Set}
 
-To answer our research question, we create a data set of open-source Go code available on GitHub.
+To answer our research question, we created a data set of open-source Go code available on GitHub.
 As our research is focused on projects, we decide to crawl the \initalProjs{} most-stared Go projects available on GitHub. 
 To further understand the influence of the dependencies, we selected the applications supporting \textit{go modules}.
 With the introduction of Go \checkNum{1.13}, \textit{go modules} are the way to include dependencies within a Go application with the help of the Go tool chain. 
@@ -36,7 +38,7 @@ As a result, we end up with \projsAnalyzed{} top-rated Go projects collected fro
 
 Answers to \ref{rq:prevalApp} and \ref{rq:prevalDeps}:
 
-\checkNum{3355} of \checkNum{61839} (\checkNum{5.43\%}) transitively imported packages use unsafe. This answers \ref{rq:prevalDeps}
+\checkNum{3,388} of \checkNum{62,025} (\checkNum{5.46\%}) transitively imported packages use \unsafe{}. This answers \ref{rq:prevalDeps}. This includes the standard library, of which \checkNum{33} or \checkNum{186} (\checkNum{17.74\%}) use \unsafe{}.
 
 Number of projects: \checkNum{343}
 
@@ -82,3 +84,5 @@ Then, we identify class labels in two dimensions: what is being done, and for wh
 \input{gfx/tables/dataset-labels}
 
 We see that...
+
+Share of generated code snippets among the \checkNum{1,400} labeled snippets (which means they are in a file name containing \texttt{.generated.go}, \texttt{generated\_}, \texttt{zsyscall\_}, \texttt{zz\_generated} or generated CGo file: \checkNum{683}.

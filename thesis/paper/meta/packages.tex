@@ -1,0 +1,72 @@
+\usepackage{url}
+\usepackage{adjustbox}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nolist]{acronym}
+\usepackage{amssymb}
+\usepackage{blindtext}
+\usepackage{enumitem}
+\usepackage{makecell}
+\usepackage{listing}
+\usepackage{tabularx}
+\usepackage{enumitem} % Add labels for RQs defined in enumerated list
+\usepackage{amsmath}
+\usepackage{balance}
+
+%% Tikz
+\usepackage{tikz}
+\usetikzlibrary{positioning, fit} % positioning enables relative positions in tikz, fit enable to create groups of nodes
+\usepackage{tikzscale}
+\usepackage{pgfplots}
+\DeclareUnicodeCharacter{2212}{−}
+\usepgfplotslibrary{groupplots,dateplot}
+\usetikzlibrary{patterns,shapes.arrows}
+\pgfplotsset{compat=newest}
+
+%% Listings
+\RequirePackage{listings}
+\lstdefinelanguage{Golang}%
+    {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
+    recover,select,var,const,iota,},%
+    morekeywords=[2]{string,uint,uint8,uint16,uint32,uint64,int,int8,int16,%
+    int32,int64,bool,float32,float64,complex64,complex128,byte,rune,uintptr,%
+    error,interface},%
+    morekeywords=[3]{map,slice,make,new,nil,len,cap,copy,close,true,false,%
+    delete,append,real,imag,complex,chan,},%
+    morekeywords=[4]{for,break,continue,range,go,goto,switch,case,fallthrough,if,%
+    else,default,},%
+    morekeywords=[5]{Println,Printf,Error,Print,},%
+    sensitive=true,%
+    morecomment=[l]{//},%
+    morecomment=[s]{/*}{*/},%
+    morestring=[b]',%
+    morestring=[b]",%
+    morestring=[s]{`}{`},%
+}
+\lstset{
+    frame=none,
+    rulecolor=\color{red},
+    basicstyle=\footnotesize,
+    keywordstyle=\color{blue},
+    numbers=left,
+    numbersep=5pt,
+    showstringspaces=false,
+    stringstyle=\color{darkgreen},
+    tabsize=4,
+    language=Golang,
+    xleftmargin=17pt,
+    framexleftmargin=27pt,
+    framexrightmargin=5pt,
+    framexbottommargin=4pt,
+    breaklines=true,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+
+\definecolor{verylightgray}{RGB}{240,240,240}
+\definecolor{darkgreen}{RGB}{20, 150, 20}
+\definecolor{fuchsia}{rgb}{1.0, 0.0, 1.0}

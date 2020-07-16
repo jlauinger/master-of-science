@@ -1,5 +1,5 @@
 \section{Approach}
-\label{sec:impl}
+\label{sec:appr}
 In this section we present problems we identified when using unsafe plus information on how to exploit these issues in the wild.
 Furthermore, we present our two tools, \toolUsage{} and \toolSA{}, that aid in locating, evaluating and fixing potentially dangerous unsafe usages in source code.
 
@@ -13,6 +13,10 @@ In this section, we discuss potential threat models and exploit vectors against 
     \item Explain race and potential use-after-free with code pattern
     \item Explain threat model, such as information leak
 \end{itemize}
+
+\input{gfx/figures/gcrace-vuln}
+
+Figure~\ref{fig:gcrace-vuln} shows a visualization of the casting process that leads to the problems described here.
 
 
 \subsubsection*{Escape Analysis Flaw}
@@ -70,4 +74,17 @@ For each package, we then parse the code and run static code analysis on the Abs
 We count all usages, splitting them up in the data set by their usage context as \textit{assignment}, \textit{function declaration}, \textit{call}, \textit{variable declaration}, or \textit{other}.
 We save all findings including a context of some code lines for further inspection into CSV files.
 
-\subsection{\toolSA{}: An Unsafe-focused Linter}
+\subsubsection{Architecture}
+
+\input{gfx/figures/go-geiger-architecture}
+
+Figure~\ref{fig:geiger-architecture} shows an overview of the architecture of \toolUsage{}.
+
+
+\subsection{\toolSA{}: An Unsafe-focused Linter for Developers}
+
+\subsubsection{Architecture}
+
+Figure~\ref{fig:safer-architecture} shows an overview of the architecture of \toolSA{}.
+
+\input{gfx/figures/go-safer-architecture}

@@ -14,7 +14,7 @@ During this work, we developed two specific tools for developers and security an
 The first one, called \toolUsage{}, analyzes a project including its dependencies for general usage of unsafe and in which context.
 The second one, called \toolSA{}, helps during development by providing meaningful hints to potentially dangerous usages of unsafe and how to avoid them. 
 We analyzed \projsAnalyzed{} of the top 500 most-starred Go projects on GitHub to see how often unsafe is used in the wild. 
-Including their dependencies we analyzed more than \todo{XXX} individual packages for unsafe usage.
+Including their dependencies we analyzed more than \checkNum{62,025} individual packages for unsafe usage.
 We found that \percentageProjectsWithUnsafe{} projects contain \unsafe{} usages in their first-party packages, and \percentageProjectsAndDependenciesUnsafe{}
 projects contain \unsafe{} usages either in first-party or transitively in imported third-party libraries.
 From there we identified reasons for introducing unsafe in the source code in the first place and also whether it was really necessary.
@@ -35,8 +35,6 @@ In this paper, we present the following contributions:
 The paper is organized as follows:
 Section~\ref{sec:background} gives a short introduction into unsafe Go.
 Section~\ref{sec:rw} discusses related work. 
-In Section~\ref{sec:impl}, we present our methodology and data selection for the large-scale study, as well as our approach to collect and label data.
-Section~\ref{sec:eval} presents the results of our work.
-Section~\ref{sec:exploits} presents potential exploit vectors to some unsafe patterns found in the wild.
-Section~\ref{sec:discussion} discusses our approach, including potential threads to validity, and the presentation of our novel tools \toolUsage{} and \toolSA{}.
-Section~\ref{sec:concl} concludes the paper and outlines areas of future work.
+In Section~\ref{sec:appr}, we present potential exploit vectors to some unsafe patterns found in the wild, as well as our novel tool \toolUsage{} and \toolSA{}. Section~\ref{sec:eval} presents our methodology and data selection for the large-scale study, as well as our approach to collect and label data and the results.
+Section~\ref{sec:discussion} discusses our approach, including potential threads to validity and areas of future work.
+Section~\ref{sec:concl} concludes the paper.
