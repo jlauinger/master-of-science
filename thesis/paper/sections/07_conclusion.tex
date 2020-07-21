@@ -1,5 +1,14 @@
 \section{Conclusion}
 \label{sec:concl}
 
-We conducted the first (to the best of our knowledge) empirical study on the use of \unsafe{} Go code in the wild.
-We find that ...
+In this paper, we presented two novel tools to help Go developers write safer code with respect to \unsafe{} Go.
+\toolUsage{} identifies and counts \unsafe{} usages not only within a package, but also in its transitive dependencies, therefore providing effective tools to focus audit efforts on the code locations that are the most dangerous, and raising awareness into how \unsafe{} code is included into a project.
+\toolSA{} is a new static code analysis tool that helps developers identify two dangerous code patterns that were previously uncaught with existing tools.
+We presented novel evidence of how to exploit common unsafe code patterns, and submitted fixes to \numberBugsFixed{} bugs.
+We conducted a large-scale study of \packagesAnalyzed{} in \projsAnalyzed{} top-starred open-source Go projects and found that \percentagePackagesWithUnsafe{} of packages used transitively by the projects contain \unsafe{} usages. 
+\percentageProjectsWithUnsafe{} of projects contain at least one usage that is not part of the standard library, and \percentageProjectsAndDependenciesUnsafe{} of projects contain at least one \unsafe{} in the project or one of its transitive dependencies.
+Finally, we presented a new data set of manually labeled code snippets, providing insight into how and for what purpose \unsafe{} is used by developers.
+
+Based on our contributions, future work might look into supervised learning algorithms using our labeled data set to train classifiers that can identify the purpose and domain of \unsafe{} usages by looking at new code examples.
+As Smith et al. show, avoiding security vulnerabilities and fixing bugs can be made easier for developers by integrating code analysis tools into code editors and IDEs \cite{smith2020}.
+Thus, future work could build plugins for common IDEs that integrate our tools \toolUsage{} and \toolSA{}.

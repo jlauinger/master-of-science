@@ -4,21 +4,13 @@
 Empirical studies on unsafe code blocks in Rust projects: Qin \cite{qin2020} and Evans \cite{evans2020}.
 Qin analyzed the Git history and focused on confirmed bugs and vulnerabilities.
 Evans focused on search and discovery by static code analysis, like we did.
-
 Escape analysis: Wang \cite{wang2020}. They actively use the pattern we identified as bug in many projects to hide variables from escape analysis in order to perform static code optimization.
-
 Bug finder tools usability: \cite{smith2020}. The authors recommend integrated error messages in the IDE (future work?), contextualized and meaningful notifications, and good integration into CI.
-
 Counting dependencies that matter: Pashchenko \cite{pashchenko2018}. Study on Maven / Java but results applicable to Go.
 Exclude testing dependencies: we can't do that, but we exclude test files.
 For package popularity count the projects that transitively include the package.
 Problem: if a third-party library depends on an unsafe library, then we cannot simply update that library but instead we must wait for the third-party library to update or switch libraries.
 We contribute an analysis of import depth.
-
 Dependency update: Kula \cite{kula2017} finds that dependencies are often updated slowly or never. Mirhosseini \cite{mirhosseini2017}: automated PRs or badges can help, and a single bad experience in updating (breaking code) can make developers be reluctant to updates for a long time.
-
 Go concurrency bugs: Tu \cite{tu2019} present a study on Go concurrency bugs. They also identified bugs with commit messages, which we did not do.
-
-Rust tool to measure unsafe use in dependencies: Cargo Geiger \cite{cargogeiger}.
-
-We present \toolUsage{}. It identifies \unsafe{} usages in Go code and dependencies.
+\todo{Unsafe Study for Java}

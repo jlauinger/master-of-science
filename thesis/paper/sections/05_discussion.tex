@@ -1,19 +1,13 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\begin{itemize}
-    \item exploit-ability is not only of academic nature
-\end{itemize}
+Looking at the study results, we see that \unsafe{} is used consistently and wide-spread in the most popular open-source Go projects.
+Since we showed actual exploit vectors and bugs with code snippets that are commonly used in popular real-world applications, we think that research on \unsafe{} is clearly not only an academic issue, but has direct and important consequences on the actual software market.
+Audit efforts should be made up to an import depth of around 4.
+
+We submitted \numberPRs{} pull requests to fix more than \numberBugsFixed{} bugs that we found using \toolSA{}.
+\numberPRsMerged{} had already been accepted by the submission of this paper.
+
+Potential internal threats to validity for our study include bias towards bigger projects because those might be over-represented in the manually labeled data set. External threats include bias towards more active projects with many developers because we selected a subset of the most-starred open-source projects. Different project domains might use a different distribution and intention with \unsafe{} Go.
 
 
-\subsection{Threats to Validity}
-
-Bias?
-
-
-\subsection{Future Work}
-
-\begin{itemize}
-    \item Machine Learning
-    \item IDE Integrations
-\end{itemize}
