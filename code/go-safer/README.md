@@ -7,10 +7,13 @@ Go Vet-style linter to find incorrect uses of `reflect.SliceHeader` and `reflect
 
 `go-safer` reports the following two usage patterns:
 
- 1. There is a composite literal of underlying type `reflect.SliceHeader` or `reflect.StringHeader`
+`go-safer` reports the following usage patterns:
+
+ 1. There is a composite literal of underlying type `reflect.SliceHeader` or `reflect.StringHeader`,
  2. There is an assignment to an instance of type `reflect.SliceHeader` or `reflect.StringHeader` that was not created
-    by casting an actual slice or `string`
-    
+    by casting an actual slice or `string`, and
+ 3. There is a cast between struct types, where the structs contain a different number of fields with the architecture-dependently sized types `int`, `uint`, or `uintptr`
+
 Pattern 1 identifies code that looks like this:
 
 ```go
@@ -43,8 +46,22 @@ func unsafeFunction(s string) []byte {
 `safer-go` will catch the assignments to an object of type `reflect.SliceHeader`. Using the control flow graph of the
 function, it can see that `sH` was not derived by casting a real slice (here it's `nil` instead).
 
-There are more examples on incorrect (reported) and safe code in the test cases in the `passes/sliceheader/testdata/src`
-directory.
+Pattern 3 identified casts as the following:
+
+```go
+type A struct {
+  x int
+}
+type B struct {
+  y int64
+}
+func unsafeFunction(a A) B {
+  return *(*B)(unsafe.Pointer(&a))
+}
+```
+
+There are more examples on incorrect (reported) and safe code in the test cases in the `passes/*/testdata/src`
+directories.
 
 
 ## Why are these patterns insecure?
@@ -152,11 +169,10 @@ $ cd go-safer
 $ go build
 ```
 
-To run the test cases for the `sliceheader` pass, use the following commands:
+To run the test cases use the following command:
 
 ```
-$ cd passes/sliceheader
-$ go test
+$ go test ./...
 ```
 
 `go-safer` uses the testing infrastructure from `golang.org/x/tools/go/analysis/analysistest`. To add a test case, create
@@ -177,13 +193,18 @@ Annotations that indicate a line that should be reported must begin with `want` 
 For some reason, the testing infrastructure will cause `go-safer` to output the annotation twice, therefore it has to be
 expected twice as well to pass the test.
 
+Test cases for the `structcast` pass can be added similarly.
+
+Since `go-safer` is built upon the Go Vet standard infrastructure, you can import the passes into you own Go Vet-based
+linter.
+
 
 ## License
 
-Licensed under the MIT License (the "License"). You may not use this project except in compliance with the License. You 
+Licensed under the MIT License (the "License"). You may not use this project except in compliance with the License. You
 may obtain a copy of the License [here](https://opensource.org/licenses/MIT).
 
 Copyright 2020 Johannes Lauinger
 
-This tool has been developed as part of my Master's thesis at the 
+This tool has been developed as part of my Master's thesis at the
 [Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.
