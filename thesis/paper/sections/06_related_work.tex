@@ -1,16 +1,18 @@
 \section{Related Work}
 \label{sec:rw}
 
-Empirical studies on unsafe code blocks in Rust projects: Qin \cite{qin2020} and Evans \cite{evans2020}.
-Qin analyzed the Git history and focused on confirmed bugs and vulnerabilities.
-Evans focused on search and discovery by static code analysis, like we did.
-Escape analysis: Wang \cite{wang2020}. They actively use the pattern we identified as bug in many projects to hide variables from escape analysis in order to perform static code optimization.
-Bug finder tools usability: \cite{smith2020}. The authors recommend integrated error messages in the IDE (future work?), contextualized and meaningful notifications, and good integration into CI.
-Counting dependencies that matter: Pashchenko \cite{pashchenko2018}. Study on Maven / Java but results applicable to Go.
-Exclude testing dependencies: we can't do that, but we exclude test files.
-For package popularity count the projects that transitively include the package.
-Problem: if a third-party library depends on an unsafe library, then we cannot simply update that library but instead we must wait for the third-party library to update or switch libraries.
-We contribute an analysis of import depth.
-Dependency update: Kula \cite{kula2017} finds that dependencies are often updated slowly or never. Mirhosseini \cite{mirhosseini2017}: automated PRs or badges can help, and a single bad experience in updating (breaking code) can make developers be reluctant to updates for a long time.
-Go concurrency bugs: Tu \cite{tu2019} present a study on Go concurrency bugs. They also identified bugs with commit messages, which we did not do.
-\todo{Unsafe Study for Java}
+% Analyses in Go / Go and Security
+There are many previous works on the security of other Go features like channels and concurrency~\cite{tu2019,dilley2019,giunti2020,gabet2020,lange2017}, and a static code optimization approach~\cite{wang2020} that  actively breaks the escape analysis as also described in our paper.
+Security issues can be analyzed in project code like we did, or in a project's commit history~\cite{zhou2017}.
+% Unsafe in other languages
+Recently, related studies were published that focus on unsafe code and its usage in Rust~\cite{qin2020,evans2020} and Java~\cite{mastrangelo2015,huang2019}.
+Lehmann et al~\cite{lehmann-everything-2020} studied to which extend unsafe programs can lead to vulnerabilities in WebAssembly. %and it is possible to compile Go code to WebAssembly. 
+In contrast to analyzing the avoidance of memory safety, there are many previous works on how to support at least partial memory safety in C/C++ code ~\cite{burow2018CUP} \aw{Add others}.
+
+% Memory vulnerabilities
+A comprehensive study on vulnerabilities in memory, like the ones we discussed earlier, and their mitigation's is presented in earlier work~\cite{szekeres2013sok}.
+
+
+%Dependencies
+Concerning project dependencies, it is difficult to count the dependencies that matter the most, e.g. by excluding test dependencies~\cite{pashchenko2018}.
+A common problem is that dependencies are often updated slowly, keeping old bugs alive, although measures such as automated pull requests exist to mitigate this problem~\cite{kula2017, mirhosseini2017}.

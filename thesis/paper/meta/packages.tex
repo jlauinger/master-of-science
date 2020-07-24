@@ -19,6 +19,9 @@
 \usepackage{balance}
 \usepackage{tcolorbox} % for RQ answer boxes
 
+%% Tweak vspace after figures
+\captionsetup{belowskip=-5pt}
+
 %% Tikz
 \usepackage{tikz}
 \usetikzlibrary{positioning, fit} % positioning enables relative positions in tikz, fit enable to create groups of nodes
@@ -60,10 +63,10 @@
     stringstyle=\color{darkgreen},
     tabsize=4,
     language=Golang,
-    xleftmargin=17pt,
-    framexleftmargin=27pt,
+    xleftmargin=12pt,
+    framexleftmargin=22pt,
     framexrightmargin=5pt,
-    framexbottommargin=4pt,
+    framexbottommargin=0pt,
     breaklines=true,
     postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
 }

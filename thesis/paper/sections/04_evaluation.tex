@@ -1,22 +1,23 @@
 \section{Evaluation}
 \label{sec:eval}
 
-The goal of our large-scale study is to understand how \unsafe{} is used in open-source projects, and what the implications of this on the security of Go applications are. 
-To achieve this, we answer the following research questions:
+The goal of our real-world study is to understand how \unsafe{} is used in open-source projects, and what the implications of this are on the security of Go applications. 
+Furthermore, we want to answer the following research questions:
 
 \begin{enumerate}[leftmargin=*,label={RQ\arabic*}]
-    \item How many projects use \unsafe{} in Go code in their application? \label{rq:prevalApp}
-    \item How many projects introduce \unsafe{} through their dependencies? \label{rq:prevalDeps}
-    \item How deep in the import stack are the most imported \unsafe{} code packages? \label{rq:depsDepth}
+    \item How prevalent is \unsafe{} in Go application code? \label{rq:prevalApp}
+    \item What role do dependencies play for \unsafe{} usage? \label{rq:prevalDeps}
+    \item How deep in the dependency tree are \unsafe{} code packages usually buried? \label{rq:depsDepth}
     \item Which \unsafe{} keywords are used most? \label{rq:distTypes}
-    \item What \unsafe{} operations are used in practice, and what is their goal? \label{rq:purpose}
+    \item What \unsafe{} operations are used in practice, and for what purpose? \label{rq:purpose}
 \end{enumerate}
 
 %Figure~\ref{fig:study-overview} provides an overview of our study methodology.
 %\input{gfx/figures/study-methodology}
 
-To answer these research questions we first describe our evaluation data set and then provide in-depth analyses of how prevalent \unsafe{} is in the wild, in which way and why it is used in our test data set.
-Our evaluation scripts as well as the results are available online\footnote{\todo{Provide link to our paper repository}} for further research.
+To answer these questions, we first describe our evaluation data set and then provide in-depth analyses of \unsafe{} usage in the wild.
+% of how prevalent \unsafe{} is in the wild, in which way and why it is used in our test data set.
+Our evaluation scripts as well as the results are available online\footnote{\url{https://github.com/stg-tud/unsafe_go_study_results}} for further research.
 
 
 %% included here for manual positioning one page earlier. Belongs to next section, reposition if needed
@@ -25,90 +26,117 @@ Our evaluation scripts as well as the results are available online\footnote{\tod
 
 \subsection{Data Set}
 
-To answer our research questions, we created a data set of open-source Go code available on GitHub.
-As our research is focused on projects, we decide to crawl the \initalProjs{} most-stared Go projects available on GitHub. 
-To further understand the influence of the dependencies, we selected the applications supporting \textit{go modules}.
-With the introduction of Go \checkNum{1.13}, \textit{go modules}\footnote{\url{https://blog.golang.org/using-go-modules}} are the way to include dependencies within a Go application with the help of the Go tool chain. 
-Unfortunately, \withoutModules{} of the projects did not yet support Go modules and we had to exclude them.
-We further had to remove \notCompiled{} projects as we couldn't compile those.
-As a result, we end up with \projsAnalyzed{} top-rated Go projects collected from GitHub.
-Our projects have between 72,988 and 3,075 stars, with an average of 7,860 and median of 5,345, thus we analyze a subset of very popular projects.
-
-We use the Go tool chain to identify the root module of every project, that is the module that is defined by the top-level \textit{go.mod} file in the project.
-Then, we enumerate the transitive dependency packages of the project, and build the import tree. Using this import tree, we can identify the import depth as minimum depth in the tree for each package.
-For each package, we then use \toolUsage{} to find usages of \unsafe{} and save all findings including a context of some code lines for further inspection into CSV files.
+%For our evaluation, we created a data set of open-source Go code available on GitHub.
+As our research is focused on open-source projects, we crawled the \initalProjs{} most-starred Go projects available on GitHub. 
+To further understand the influence of dependencies, we then selected the applications supporting \textit{go modules}.
+With the introduction of Go \checkNum{1.13}, \textit{go modules}\footnote{\url{https://blog.golang.org/using-go-modules}} are the official way to include dependencies.
+Unfortunately, \withoutModules{} of the projects did not yet support Go modules.
+Thus, we excluded them from our set.
+Furthermore, \notCompiled{} projects that did not compile were removed.
+As a result, we ended up with \projsAnalyzed{} top-rated Go projects. % collected from GitHub.
+These have between 72,988 and 3,075 stars, with an average of 7,860. % and median of 5,345. %, thus, this evaluation focuses on very popular projects.
+%and save all findings into CSV files.
 
 
 \subsection{Unsafe Usages in Projects and Dependencies}
 
-We answer the research questions of how many projects use \unsafe{} in Go code in their application (\ref{rq:prevalApp}), how many projects introduce \unsafe{} through their dependencies (\ref{rq:prevalDeps}), and how deep in the import stack are the most imported \unsafe{} code packages (\ref{rq:depsDepth})?
-Our data shows that  \checkNum{131} (\checkNum{38.19\%}) projects have at least one \unsafe{} usage within the project code.
+We used the Go tool chain to identify the root module of each project. 
+This is the module defined by the top-level \textit{go.mod} file in the project.
+Then we enumerated the dependency packages of the project, and build the import tree.
+For each package, we then use \toolUsage{} to generate CSV reports of the found \unsafe{} usages.
+Through these analyses we answer the research questions of how many projects use \unsafe{} in their application (\ref{rq:prevalApp}), how many projects introduce \unsafe{} through their dependencies (\ref{rq:prevalDeps}), and how deep in the import stack are the most imported \unsafe{} code packages (\ref{rq:depsDepth}). 
+By selecting only results from the project root modules, we can easily find out how many applications contain a first-hand use of \unsafe{} code.
+Our data shows that \checkNum{131} (\checkNum{38.19\%}) projects have at least one \unsafe{} usage within the project code itself.
 
-\begin{tcolorbox}
-Answer to \ref{rq:prevalApp}: About \checkNum{38\%} of projects directly contain at least one \unsafe{} usage.
+\begin{tcolorbox}[boxsep=1pt, enlarge top by=5pt, title=Answer to \ref{rq:prevalApp}]
+About \checkNum{38\%} of projects directly contain at least one \unsafe{} usage.
 \end{tcolorbox}
 
-We find \checkNum{3,388} of \checkNum{62,025} (\checkNum{5.46\%}) transitively imported packages use \unsafe{}. This includes the standard library, of which \checkNum{33} or \checkNum{186} (\checkNum{17.74\%}) use \unsafe{}.
-There are \checkNum{299} (\checkNum{87.17\%}) projects that have at least one direct dependency to a package that has $\geq 1$ unsafe dependency, however for this number we counted only packages belonging to the project's root module as first-party project code. \jl{Might be wrong numbers}
-If a project is split into several modules that all should be logically viewed as first-party project code, they will inflate this number.
-Finally, \checkNum{312} (\checkNum{90.96\%}) projects have at least one transitive dependency with \unsafe{} usages anywhere in the import stack.
-These numbers do not include the Go standard library.
-Since all projects include the Go runtime, and the runtime uses \unsafe{}, there would otherwise simply be \checkNum{100\%} of projects that transitively include \unsafe{}.
-This would however be less meaningful, as we assume the Go standard library is thoroughly audited and safe to use.
 
-\begin{tcolorbox}
-Answer to \ref{rq:prevalDeps}: All projects import the Go runtime, which contains \unsafe{}. Other than that, about \checkNum{91\%} of projects transitively import at least one dependency that contains \unsafe{}.
+By looking closer at the imported packages, we see that \checkNum{3,388} of \checkNum{62,025} (\checkNum{5.46\%}) transitively imported packages use \unsafe{}. 
+Filtering the imported packages to only the Go standard library, we find that \checkNum{33} of \checkNum{186} (\checkNum{17.74\%}) used standard library packages contain \unsafe{}.
+%There are \checkNum{299} (\checkNum{87.17\%}) projects that have at least one direct dependency to a package that has $\geq 1$ unsafe dependency, however for this number we counted only packages belonging to the project's root module as first-party project code. \jl{Might be wrong numbers}
+%If a project is split into several modules that all should be logically viewed as first-party project code, they will inflate this number.
+There are \checkNum{312} (\checkNum{90.96\%}) projects that have at least one non-standard-library dependency with \unsafe{} usages somewhere in their dependency tree.
+Since all projects include the Go runtime, and the runtime uses \unsafe{}, counting it as an \unsafe{} dependency would mean that \checkNum{100\%} of projects transitively include \unsafe{}.
+We consider this to be less meaningful, as we assume the Go standard library is well audited and safer to use.
+
+\begin{tcolorbox}[boxsep=1pt, enlarge top by=5pt, title=Answer to \ref{rq:prevalDeps}]
+About \checkNum{91\%} of projects transitively import at least one dependency that contains \unsafe{}.
 \end{tcolorbox}
 
-Figure~\ref{fig:unsafe-import-depth} shows the number of packages with at least one \unsafe{} usage by its import depth for every project at its own, alongside the distribution for all projects combined.
-We see that most of the packages are imported early in the import stack with an average import depth of \averageUnsafeImportDepth (standard deviation of \stdUnsafeImportDepth).
-Therefore, these packages can be manually found and evaluated with tolerable effort.
+% Using this tree, we can identify the import depth as minimum depth in the tree for each package.
+Figure~\ref{fig:unsafe-import-depth} shows the number of packages with at least one \unsafe{} usage by their import depth for every project on its own as a heatmap, alongside the distribution for all projects combined as bars on the left side of the figure.
+It is evident that most packages with \unsafe{} are imported early in the dependency tree with an average import depth of \averageUnsafeImportDepth~and a standard deviation of \stdUnsafeImportDepth.
+While these packages can be manually found and evaluated, this process requires significant resources to handle the increasing number of packages introduced through each dependency. 
+For developers only the first level of dependencies, the ones they added themselves, are really obvious.
 
-\begin{tcolorbox}
-Answer to \ref{rq:depsDepth}: Most of imported packages that contain \unsafe{} usages are around a depth of \checkNum{3} in the package import tree (sd=\checkNum{1.6}).
+\begin{tcolorbox}[boxsep=1pt, enlarge top by=5pt, title=Answer to \ref{rq:depsDepth}]
+Most imported packages that contain \unsafe{} usages are around a depth of \checkNum{3} in the package dependency tree.
 \end{tcolorbox}
 
 
 \subsection{Types and Purpose of Unsafe in Practice}
 
-This section answers the research questions which \unsafe{} keywords are used most (\ref{rq:distTypes}), as well as what \unsafe{} operations are used in practice, and what is their goal (\ref{rq:purpose})?
+This section answers the research questions which \unsafe{} keywords are used most (\ref{rq:distTypes}), as well as what \unsafe{} operations are used in practice for what purpose (\ref{rq:purpose}).
 
-We show the distribution of the different \unsafe{} token types among the analyzed projects in Figure~\ref{fig:unsafe-tokens-distribution}.
-For this figure, we deduplicated packages by their name, module, and version. Packages that are imported in different versions by the projects in our data set are therefore counted once per version, because different version have potentially different \unsafe{} usages and coexist in the wild.
+Figure~\ref{fig:unsafe-tokens-distribution} shows the distribution of the different \unsafe{} types in our data set.
+%All duplicate package names, modules, and versions have been removed. 
+Packages that are imported in different versions by the projects are counted once per version, because different version can have different \unsafe{} usages and coexist in the wild.
+%We found various different usages of \unsafe{} in the analyzed projects, 
+In our data set \textit{uintptr} and \textit{unsafe.Pointer} are used about equally often and by far the most common with almost 100.000 findings. 
+Next, \textit{unsafe.Sizeof} is still used a bit ($\sim 3,700$), while the other \unsafe{} types are rarely used~($< 1,000$).
 
-\begin{tcolorbox}
-Answer to \ref{rq:distTypes}: \texttt{uintptr} and \texttt{unsafe.Pointer} are used about equally often and by far the most. \texttt{unsafe.Sizeof} is still used fairly often, the other \unsafe{} tokens are used rarely.
+\begin{tcolorbox}[boxsep=1pt, enlarge top by=5pt, title=Answer to \ref{rq:distTypes}]
+In the wild, \textit{uintptr} and \textit{unsafe.Pointer} are orders of magnitude more common than other \unsafe{} usages.
 \end{tcolorbox}
 
 \input{gfx/figures/distribution-unsafe-types}
 
-We present a summary of our labeled data set consisting of \checkNum{1,400} code snippets from the \checkNum{10} projects shown in Table~\ref{tbl:dataset-projects} in Table~\ref{tbl:dataset-classes}.
+To analyze the purpose and context in which \unsafe{} is used, we needed to manually analyze code.
+For this labeled data set, we selected the top \checkNum{10} projects (Table~\ref{tbl:dataset-projects}) with the most \unsafe{} usages in non-standard library packages.
+%These projects including the Git revision analyzed plus some additional data are shown in Table~\ref{tbl:dataset-projects}.
+From these projects and all their transitive dependencies, we randomly sampled \checkNum{400} code snippets that were found in the standard library and \checkNum{1,000} snippets from the remaining packages.
+We define standard library code as all packages that are part of the Go standard library or the \textit{golang.org/x/sys} module, as this module contains similar abstractions and code usages as the standard library.
+We split the snippets into two groups to analyze whether there is a difference between the official standard library and non-standard library code regarding the usage of \unsafe{}.
+Then, we identify class labels in two dimensions: what is being done, and for what purpose. 
+Finally, we manually analyzed all \checkNum{1,400} code snippets and labeled them accordingly.
+The results of this process are shown in Table~\ref{tbl:dataset-classes}.
 
-\input{gfx/tables/projects-10}
-
-We select the top \checkNum{10} projects with the most unsafe usages in non-standard library packages.
-These projects, including the revision that we analyzed, are shown in Table~\ref{tbl:dataset-projects}.
-From these projects and all their transitive dependencies, we randomly sample \checkNum{1000} application code and \checkNum{400} standard library code snippets. We define application code as all packages that are not part of the Go standard library or the \textit{golang.org/x/sys} module, as this module contains similar abstractions and code usages as the standard library. We split the snippets to analyze whether there is a difference in use between the two.
-Then, we identify class labels in two dimensions: what is being done, and for what purpose. Finally, we manually label all \checkNum{1,400} code snippets.
-
+\input{gfx/tables/dataset-projects}
 \input{gfx/tables/dataset-labels}
 
-\jl{Todo: Include description of classes}.
-We identify the following usage classes:
-The most prevalent are \textit{conversion-struct-struct}, \textit{conversion-struct-basic}, \textit{conversion-header}, \textit{conversion-struct-bytes}, and \textit{conversion-pointer}, which are all cast operations from arbitrary types to other arbitrary structs, basic Go types such as \texttt{int}, slice or string headers, byte slices, or raw \texttt{unsafe.Pointer} values.
+In the following we describe the identified usage type classes describing what is being done in code.
+The most prevalent are \textit{cast-struct}, \textit{cast-basic}, \textit{cast-header}, \textit{cast-bytes}, and \textit{cast-pointer}, which are all cast operations from arbitrary types to other arbitrary structs, basic Go types such as integers, slice or string headers, byte slices, or raw \texttt{unsafe.Pointer} values.
+The \textit{memory-access} class contains snippets where \texttt{unsafe.Pointer} values are dereferenced or their address is used either to change corresponding memory or compare the address to another address.
 \textit{Pointer-arithmetic} denotes usages of \unsafe{} to do some form of manual arithmetic manipulation of addresses, such as advancing an array.
-\textit{Definition} groups usages where a field or method of type \unsafe.Pointer{} is declared.
-\textit{Delegate} are instances where \unsafe{} is only needed in a function to pass it along to another function that requires a parameter of type \texttt{unsafe.Pointer}, thus the need to use \unsafe{} is actually located somewhere else.
-\textit{Type-reflection}: todo.
-\textit{Syscall}: todo.
-As the name suggests, \textit{unused} is a class of occurances that are not actually used.
+\textit{Definition} groups usages where a field or method of type \texttt{unsafe.Pointer} is declared for later usage.
+\textit{Delegate} are instances where \unsafe{} is only needed in a function to pass it along to another function that requires a parameter of type \texttt{unsafe.Pointer}, thus, the need to use \unsafe{} is actually located somewhere else.
+\textit{Syscall} are system calls using the Go \texttt{syscall} package.
+As the name suggests, \textit{unused} is a class of occurrences that are not actually used in the analyzed code, e.g. dead code or unused parameters.
 
-\jl{Todo: include insights}
-We see that...
+Our identified purpose classes, providing hints on why \unsafe{} is used here, are briefly discussed in the following.
+\textit{Efficiency} includes all cases where \unsafe{} is used to improve time or space efficiency.
+The \textit{serialization} class contains (un)marshalling and (de)serialization operations such as in-place casts from complex types to bytes.
+\textit{Generics} includes snippets where \unsafe{} is used to build functionality that would otherwise be solved with generics if they were available in Go.
+Samples in the \textit{avoid garbage collection} class are used to tell the Go compiler to not free a value while it is used, e.g., by a function written in assembly.
+The \textit{atomic operations} class contains usages of the \texttt{atomic} API which expects \unsafe{} for some functions.
+\textit{CGo usage} includes interoperability with C code.
+The \textit{usage of other function (ffi)} class contains examples of calling another function that expects its parameters as \unsafe{} pointers.
+\textit{Hide from escape analysis} includes the pattern described earlier (Listing~\ref{lst:unsafe-ex-escape-analysis}) to break the escape analysis chain.
+The \textit{memory layout control} class contains code used for low-level memory management.
+\textit{Types} snippets are used by the standard library to implement the Go type system.
+\textit{Reflect} includes instances of type reflection and re-implementations of some types of the \texttt{reflect} package, e.g. using \texttt{unsafe.Pointer} instead of \texttt{uintptr} for slice headers.
+Again, \textit{unused} is a class of unused occurrences.
 
-Among the \checkNum{1,400} labeled snippets, \checkNum{683} are located in generated code (which means they are in a file name containing \texttt{.generated.go}, \texttt{generated\_}, \texttt{zsyscall\_}, \texttt{zz\_generated} or generated CGo file).
-It might be safe to assume that generated code is less dangerous, however as bugs in the code generator can have very serious effects of scale, we include them in the study nonetheless.
+Among the \checkNum{1,400} labeled snippets, \checkNum{683} are located in automatically generated code.
+It might be safe to assume that generated code is less dangerous, however, as bugs in the code generator can have very serious effects of scale, we included them in the study nonetheless.
 
-\begin{tcolorbox}
-Answer to \ref{rq:purpose}: Developers primarily use \unsafe{} in casting operations to improve efficiency or call CGo code or system calls.
+It is obvious that most of the \unsafe{} found in the wild is used to improve efficiency by casting different types in place, or for fast (un)marshalling operations that would otherwise need either reflection or support for generics.
+Furthermore, \unsafe{} is required to call some functions that expect it, such as atomic operations or certain CGo/ffi functions.
+The standard library makes extensive use of \unsafe{} to implement types and memory management.
+Hiding values from escape analysis on purpose is done rarely.
+
+\begin{tcolorbox}[boxsep=1pt, enlarge top by=5pt, title=Answer to \ref{rq:purpose}]
+Developers primarily use \unsafe{} to improve efficiency in casting and (un)marshalling operations, or to interact with functions expecting \unsafe{} such the atomic or CGo/ffi interfaces.
 \end{tcolorbox}

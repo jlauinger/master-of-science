@@ -1,36 +1,38 @@
 \begin{table*}[!t]
     \centering
-    \caption[Labeled unsafe.Pointer usages in application code and standard library samples]%
-    {Labeled unsafe.Pointer usages in application code and standard library samples \newline \tiny ~ \newline \small
-        \underline{eff}: efficiency, \underline{gen}: generics, \underline{ser}: (de)serialization,
-        \underline{inev}: inevitable use, \underline{SR}: safer reflections, \underline{LC}: layout control,
-        \underline{EA}: hide from escape analysis, \underline{UU}: unused, \underline{cgo}: CGo mechanics,
-        \underline{no GC}: avoid garbage collector, \underline{typ}: types implementation,
-        \underline{mem}: memory management \newline \tiny ~}
+    \caption[Labeled unsafe.Pointer usages in application code (non standard library) and standard library samples]%
+    {Labeled unsafe.Pointer usages in application code (non standard library) and standard library samples \newline \footnotesize
+        \underline{eff}: efficiency, \underline{ser}: (de)serialization, \underline{gen}: generics,
+        \underline{no-gc}: avoid garbage collection, \underline{atomic}: atomic operations, \underline{cgo}: CGo usage,
+        \underline{ffi}: usage of other function, \underline{HE}: hide from escape analysis, \underline{layout}: memory layout control,
+        \underline{types}: Go type system,
+        \underline{reflect}: type reflection, \underline{unused}: declared but unused}
     \label{tbl:dataset-classes}
     \begin{adjustbox}{max width=\textwidth}
-    \begin{tabular}{r|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc}
-                          & \multicolumn{2}{c|}{eff} & \multicolumn{2}{c|}{gen} & \multicolumn{2}{c|}{ser} & \multicolumn{2}{c|}{inev} & \multicolumn{2}{c|}{SR} & \multicolumn{2}{c|}{LC} & \multicolumn{2}{c|}{EA} & \multicolumn{2}{c|}{UU} & \multicolumn{2}{c|}{cgo} & \multicolumn{2}{c|}{no GC} & \multicolumn{2}{c|}{typ} & \multicolumn{2}{c|}{mem} & \multicolumn{2}{c}{total} \\ \hline
-                          &  app &  std &  app &  std &  app &  std &  app &  std &  app &  std &  app &  std &  app &  std &  app &  std &  app &  std &   app &  std &  app &  std &  app &  std &   app &  std \\ \hline
- conversion-struct-struct &  408 &    4 &   42 &      &    3 &    6 &    1 &      &    1 &      &      &      &      &    2 &      &      &    5 &    2 &       &      &      &   30 &      &    4 &   460 &   48 \\
+    
+\begin{tabular}{r|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc|cc}
+                    & \multicolumn{2}{c|}{eff} & \multicolumn{2}{c|}{ser} & \multicolumn{2}{c|}{gen} & \multicolumn{2}{c|}{no GC} & \multicolumn{2}{c|}{atomic} & \multicolumn{2}{c|}{cgo} & \multicolumn{2}{c|}{ffi} & \multicolumn{2}{c|}{HE} & \multicolumn{2}{c|}{layout} & \multicolumn{2}{c|}{types} & \multicolumn{2}{c|}{reflect} & \multicolumn{2}{c|}{UU} & \multicolumn{2}{c}{total} \\ \hline
+                    &  app &  std &  app &  std &  app &  std &   app &  std &    app &  std &  app &  std &  app &  std &  app &  std &    app &  std &   app &  std &     app &  std &  app &  std &   app &  std \\ \hline
+        cast-struct &  407 &    4 &   42 &    6 &    6 &      &       &      &      1 &      &    5 &    2 &      &      &      &    2 &        &    4 &       &   31 &       2 &      &      &      &   463 &   49 \\
 \rowcolor{verylightgray}
-  conversion-struct-basic &   90 &    2 &   27 &      &    2 &    2 &      &    2 &      &      &    2 &    1 &      &      &      &      &    2 &    1 &       &      &      &    1 &      &    7 &   123 &   16 \\
-        conversion-header &   37 &    1 &    2 &      &    1 &      &      &      &      &      &      &      &      &      &      &      &      &      &       &      &      &    2 &      &    1 &    40 &    4 \\
+         cast-basic &   90 &    3 &   29 &    2 &      &      &       &      &        &      &    2 &    1 &      &    2 &      &      &      2 &    6 &       &    1 &         &    1 &      &      &   123 &   16 \\
+        cast-header &   36 &    1 &    3 &      &    1 &      &       &      &        &      &      &      &      &      &      &      &        &      &       &    3 &         &      &      &      &    40 &    4 \\
 \rowcolor{verylightgray}
-  conversion-struct-bytes &   26 &    5 &    2 &      &   73 &    6 &      &      &      &      &    2 &    1 &      &      &      &      &    1 &      &       &      &      &    1 &      &      &   104 &   13 \\
-       conversion-pointer &   14 &   20 &    8 &      &      &      &    1 &      &    1 &      &      &      &      &      &      &      &   13 &    1 &       &      &      &    9 &      &    3 &    37 &   33 \\
+         cast-bytes &   25 &    5 &   78 &    6 &      &      &       &      &        &      &    1 &      &      &      &      &      &      1 &    1 &       &    1 &         &      &      &      &   105 &   13 \\
+       cast-pointer &   14 &   21 &   15 &      &   10 &      &       &      &        &      &   14 &    1 &    2 &      &      &      &        &    2 &       &    9 &       1 &      &      &      &    56 &   33 \\
 \rowcolor{verylightgray}
-     direct-memory-access &    2 &    1 &   10 &      &    1 &      &    1 &      &      &      &    5 &      &      &      &      &      &      &      &       &      &      &    4 &      &    8 &    19 &   13 \\
-       pointer-arithmetic &    7 &    4 &    1 &      &      &      &      &      &    1 &      &    7 &    2 &    1 &    2 &      &      &      &    1 &       &      &      &    8 &      &    9 &    17 &   26 \\
+      memory-access &    4 &    1 &    7 &      &      &      &       &      &        &      &      &      &      &    1 &      &      &      4 &    7 &       &    4 &         &      &      &      &    15 &   13 \\
+ pointer-arithmetic &    8 &    4 &    5 &      &      &      &       &      &        &    1 &      &    1 &      &    2 &    1 &    2 &      3 &    8 &       &    8 &       1 &      &      &      &    18 &   26 \\
 \rowcolor{verylightgray}
-               definition &    6 &      &    4 &    1 &      &      &      &      &   20 &    1 &    1 &      &      &      &    1 &      &    4 &    4 &       &      &      &    8 &      &   12 &    36 &   26 \\
-                 delegate &    3 &      &   58 &    1 &      &      &   33 &   59 &      &      &      &      &      &    5 &      &      &    9 &    1 &       &      &      &    2 &      &    6 &   103 &   74 \\
+         definition &    5 &    1 &   12 &      &    2 &      &       &      &        &      &    4 &    4 &      &    1 &      &      &        &    9 &       &    8 &      15 &    3 &      &      &    38 &   26 \\
+           delegate &    5 &      &   63 &      &    2 &      &       &      &      8 &    5 &    9 &    1 &   20 &   42 &      &    4 &        &   15 &       &    6 &       2 &    1 &      &      &   109 &   74 \\
 \rowcolor{verylightgray}
-          type-reflection &      &      &   25 &      &      &      &      &      &    3 &      &      &      &      &      &      &      &      &      &       &      &      &    1 &      &      &    28 &    1 \\
-                  syscall &      &      &      &      &      &      &      &      &      &      &      &      &      &      &      &      &      &      &    17 &  138 &      &      &      &      &    17 &  138 \\
+            syscall &      &      &      &      &      &      &    17 &  138 &        &      &      &      &      &      &      &      &        &      &       &      &         &      &      &      &    17 &  138 \\
+             unused &      &      &      &      &      &      &       &      &        &      &      &      &      &      &      &      &        &      &       &      &         &      &   16 &    8 &    16 &    8 \\ \hline
 \rowcolor{verylightgray}
-                   unused &      &      &      &      &      &      &      &      &      &      &      &      &      &      &   16 &    8 &      &      &       &      &      &      &      &      &    16 &    8 \\ \hline
-                        total &  593 &   37 &  179 &    2 &   80 &   14 &   36 &   61 &   26 &    1 &   17 &    4 &    1 &    9 &   17 &    8 &   34 &   10 &    17 &  138 &    0 &   66 &    0 &   50 &  1000 &  400 \\
+                  total &  594 &   40 &  254 &   14 &   21 &    0 &    17 &  138 &      9 &    6 &   35 &   10 &   22 &   48 &    1 &    8 &     10 &   52 &     0 &   71 &      21 &    5 &   16 &    8 &  1000 &  400 \\
 \end{tabular}
+
     \end{adjustbox}
+        \vspace{-10pt}
 \end{table*}

@@ -1,32 +1,37 @@
 \section{Background}
 \label{sec:background}
 
-Programming languages that offer direct memory access through pointers, such as C, have traditionally had the problem of a number of common memory vulnerability patterns.
-Common problems include buffer overflows \cite{alnaeli2017, larochelle2001} or using pointers after they have been freed.
-To reduce this danger, many programming languages like Java or Python use automatic memory management and largely prevent developers from using low-level memory details like pointers in favor of managed object references.
-
+Programming languages that offer direct memory access through pointers, such as C, have traditionally been suffering of the dangers of memory corruption.
+Common problems include buffer overflows \cite{alnaeli2017, larochelle2001} or using pointers after they have been freed (\textit{use-after-free}).
+According to recent numbers provided by Microsoft memory safety accounts for around 70~\% of all their bugs\footnote{\url{https://msrc-blog.microsoft.com/2019/07/16/a-proactive-approach-to-more-secure-code/}}. 
+To reduce these dangers, many programming languages, like Java or Python, use automatic memory management and largely prevent developers from using low-level memory details like pointers in favor of managed object references.
+Thus, these languages are memory safe, eliminating all classes of memory corruption bugs. 
 However, there exist valid use-cases for access to such low-level aspects.
-Systems languages may need to enforce a specific memory layout in order to interact with hardware or network protocols, or developers may want to achieve high performance by reusing values in memory without the need or reallocation. This degree of control over what is happening at program execution might be impossible with the safety measures in place.
+Systems languages may need to enforce a specific memory layout in order to interact with hardware or network protocols, or developers may want to achieve high performance by reusing values in memory without the need or reallocation. 
+Another reason to interact with unmanaged memory from safe languages is by calling foreign functions of, e.g., a native C library.
+This degree of control over what should happen at program execution is impossible to achieve with the safety measures in place.
 
-Therefore, some safe languages like Go also include ways to explicitly circumvent the safety measures. The \texttt{unsafe} package in the Go standard library\footnote{\url{https://golang.org/pkg/unsafe}} is a means of doing this. It is a small package that contains three functions \texttt{Sizeof}, \texttt{Alignof}, and \texttt{Offsetof} that are all evaluated at compile time and provide access into memory alignment details of Go data types that would normally be unnecessary to know.
-Furthermore, the package provides a pointer type, \texttt{unsafe.Pointer} that allows developers to avoid the restrictions that are in place for regular pointer types.
-In particular, it is possible to 
+The Go programming language, also a memory safe language, provides such a possibility with the \unsafe{}~package\footnote{\url{https://golang.org/pkg/unsafe}}. 
+This package provides three functions \texttt{Sizeof}, \texttt{Alignof}, and \texttt{Offsetof}. 
+They are all evaluated at compile time and provide access into memory alignment details of Go data types that would normally be unnecessary to know, and thus, inaccessible.
+Furthermore, the package provides a pointer type, \texttt{unsafe.Pointer}, which allows developers to avoid the restrictions that are in place for regular pointer types.
+In particular, it enables one to 
 
 \begin{itemize}
-    \item cast any pointer to unsafe.Pointer,
-    \item cast unsafe.Pointer to any pointer,
-    \item cast unsafe.Pointer to uintptr, and
-    \item cast uintptr to unsafe.Pointer
+    \item cast any pointer to and from \texttt{unsafe.Pointer}, and
+    \item cast \texttt{unsafe.Pointer} to and from \texttt{uintptr}.
 \end{itemize}
 
-The first two rules allow casts between completely arbitrary types, and the other two allow the use of pointer arithmetic.
-The usage of the \texttt{unsafe} package removes the safety net provided by the Go type system and compiler, and brings developers down to the flexibility and danger of the pointers in C.
+The \texttt{uintptr} type is an integer type with a length sufficient to store memory addresses, however it is not a pointer type and therefore not treated as a reference.
+The first \unsafe{} rule allows casts between completely arbitrary types, and the latter one allows the use of pointer arithmetic.
+%The usage of the \unsafe{}~package removes the safety net provided by the Go type system and compiler, and brings developers down to the flexibility and danger of the pointers in C.
 
-The following two examples show how the \texttt{unsafe} package can be used in practice.
-In Listing~\ref{lst:unsafe-ex-in-place-cast}, \texttt{unsafe.Pointer} is used according to rules 1 and 2 to cast the \texttt{in.Items} slice to a new type without reallocating it for efficiency reasons.
-The code is taken from the Kubernetes \texttt{k8s.io/apiserver} module with minor adjustments.
+%In the remainders of this section, we discuss two example use cases of the \unsafe{} package in practice. 
+Listing~\ref{lst:unsafe-ex-in-place-cast} shows the usage of the \unsafe{} package to cast between arbitrary types according to the first rule. 
+In this example, \texttt{in.Items} is assigned to a new type (\texttt{out.Items}) in line 3 without reallocation for efficiency reasons. 
+This code was taken from the Kubernetes \textit{k8s.io/apiserver} module with minor adjustments.
 
-\begin{lstlisting}[language=Golang, label=lst:unsafe-ex-in-place-cast, caption=In-Place Cast using the Unsafe Package]
+\begin{lstlisting}[language=Golang, label=lst:unsafe-ex-in-place-cast, caption=In-place cast using the \unsafe{} package, float, belowskip=-1.5em]
 func autoConvert(in *PolicyList, out *audit.PolicyList) error {
 	// [...]
 	out.Items = *(*[]audit.Policy)(unsafe.Pointer(&in.Items))
@@ -34,19 +39,29 @@ func autoConvert(in *PolicyList, out *audit.PolicyList) error {
 }
 \end{lstlisting}
 
-Listing~\ref{lst:unsafe-ex-escape-analysis} shows how an \texttt{unsafe.Pointer} value can be converted to \texttt{uintptr}, a non-reference type that is large enough to store memory addresses, and back to hide it from the Go escape analysis.
 
-\begin{lstlisting}[language=Golang, label=lst:unsafe-ex-escape-analysis, caption=Hiding a Value from Escape Analysis]
+Listing~\ref{lst:unsafe-ex-escape-analysis} presents an example of casts involving \texttt{uintptr} as described in the second rule above. 
+The code is taken from the \textit{modern-go/reflect2} module.
+In Line 2, the \texttt{unsafe.Pointer} is converted to \texttt{uintptr}.
+Thus, the memory address is stored within a non-reference type in Go.
+Therefore, the back-conversion in Line 3 causes the \texttt{unsafe.Pointer} to be hidden for the escape analysis implemented in Go. 
+
+The garbage collector in Go manages the memory allocations and tries to identify allocations which can be freed up.
+For this task, the garbage collector uses an escape analysis to identify the scope of pointer allocations. 
+More concretely, it is analyzed if a pointer is only used within a function and can be stored in the corresponding stack frame or if the pointer can \textit{escape} the function and needs to be stored on the heap \cite{wang2020}. 
+Since \texttt{uintptr} values are not regarded as pointer types, storing the address of a pointer in a variable of such a type and then converting it back causes the escape analysis algorithm to miss the chain of references to the underlying value in memory. 
+Therefore Go will assume a value does not escape when it actually does, and may place it on the stack.
+When developers use this pattern correctly, it can be used for improved efficiency because deallocation is faster on the stack than on the heap.
+However, used incorrectly it can cause security problems as described in Section~\ref{sec:appr}.
+
+
+
+\begin{lstlisting}[language=Golang, label=lst:unsafe-ex-escape-analysis, caption=Hiding a value from escape analysis, float, belowskip=-1.5em]
 func NoEscape(p unsafe.Pointer) unsafe.Pointer {
 	x := uintptr(p)
 	return unsafe.Pointer(x ^ 0)
 }
 \end{lstlisting}
-
-Go uses escape analysis to decide whether variables can be allocated on the stack, or need to be placed on the heap \cite{wang2020}.
-Since \texttt{uintptr} values are not regarded as pointer types, storing the address of a pointer in a variable of such a type and then converting it back causes the escape analysis algorithm to miss the chain of references to the underlying value in memory, therefore Go will assume a value does not escape when it actually does, and may place it on the stack.
-When developers use this pattern correctly, it can be used for improved efficiency because deallocation is faster on the stack than on the heap.
-However, used incorrectly it can cause security problems as described in the next section.
 
 
 % \subsection{Go Dependency Management}

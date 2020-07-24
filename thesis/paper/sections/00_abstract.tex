@@ -1,11 +1,12 @@
-The Go programming language aims to provide memory and thread safety through compile-time measures such as a strict type system that prevents invalid memory accesses and data races. However, it also offers a way of circumventing this safety net through using the \unsafe{} package.
-This package allows arbitrary type casts and pointer arithmetic.
-There are legitimate use cases, but such uses must be done with extreme caution to avoid introducing vulnerabilities common to C programs, like buffer overflows and use-after-free.
-Furthermore, usages of \unsafe{} may be present not only in a project's first-party source code, but can be introduced through third-party dependencies as well.
-In this work, we present \toolUsage{}, a novel tool for Go developers to count \unsafe{} usages in a package and its dependencies.
-This tool enables developers to focus auditing efforts on the packages that actually contain \unsafe{} usages, therefore increasing cost and time efficiency.
-Using \toolUsage{}, we contribute a large-scale quantitative study on the usage of \unsafe{} in the \projsAnalyzed{} most popular open-source Go projects on GitHub, including a manual analysis of \numberCodeSnippets{} code samples on how \unsafe{} is used and for what purpose.
-We find that \percentagePackagesWithUnsafe{} of packages used transitively by the projects contain \unsafe{} usages. 
-\percentageProjectsWithUnsafe{} of projects contain at least one usage that is not part of the standard library, and \percentageProjectsAndDependenciesUnsafe{} of projects contain at least one \unsafe{} in the project or one of its transitive dependencies.
-The analyzed projects use \unsafe{} primarily for efficiency reasons and to create functionality of generics, which are not available in current versions of Go.
-Based on the usage patterns found, we present dangers and possible exploit vectors. Finally, we present \toolSA{}, a novel static analysis tool to identify two dangerous and common usage patterns that were previously undetected with existing tools.
+The Go programming language aims to provide memory and thread safety through compile-time measures such as a strict type system that prevents invalid memory accesses. 
+However, it also offers a way of circumventing this safety net through the use of the \unsafe{} package.
+While there are legitimate use cases for \unsafe{}, developers must exercise caution to avoid introducing vulnerabilities like buffer overflows or memory corruption in general.
+%Common uses for \unsafe{} are efficiency reasons and to create functionality of generics, which are not available in current versions of Go.
+%Usages of \unsafe{} may be present not only in a project's source code, but can also be introduced through dependencies.
+In this work, we present \toolUsage{}, a novel tool for Go developers to quantify \unsafe{} usages in a projects source code and all of its dependencies.
+%Using \toolUsage{}, we conducted a large-scale study on the usage of \unsafe{} in the \projsAnalyzed{} most popular open-source Go projects on GitHub, including a manual analysis of \numberCodeSnippets{} code samples on how \unsafe{} is used.
+Using \toolUsage{}, we conducted a study on the usage of \unsafe{} in the top 500 most popular open-source Go projects on GitHub, including a manual analysis of \numberCodeSnippets{} code samples on how \unsafe{} is used.
+From the projects using Go's module system  \percentagePackagesWithUnsafe{} of the dependencies contain \unsafe{} usages. 
+Of these modularized projects \percentageProjectsWithUnsafe{} contain at least one usage that is not part of the standard library, and \percentageProjectsAndDependenciesUnsafe{} of projects contain at least one \unsafe{} in the project itself or one of its transitive dependencies.
+Based on the usage patterns found, we present possible exploit vectors in different scenarios. 
+Finally, we present \toolSA{}, a novel static analysis tool to identify dangerous and common usage patterns that were previously undetected with existing tools.

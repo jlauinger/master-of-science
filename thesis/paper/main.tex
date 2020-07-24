@@ -25,9 +25,10 @@
 % Titles are generally capitalized except for words such as a, an, and, as,
 % at, but, by, for, in, nor, of, on, or, the, to and up, which are usually
 % not capitalized unless they are the first or last word of the title.
-% Linebreaks \\ can be used within to get better formatting as desired.
+% Line breaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{A Study of Prevalence, Purpose, and Risk\\ of Unsafe Go Code in the Wild}
+%\title{A Study of Prevalence, Purpose, and Risk\\ of Unsafe Go Code in the Wild}
+\title{Uncovering the Hidden Dangers: \\Finding Unsafe Go Code in the Wild}
 
 
 % conference papers do not typically use \thanks and this command
@@ -43,15 +44,15 @@
 \author{
 \IEEEauthorblockN{
 Johannes Lauinger\IEEEauthorrefmark{2},
-Anna-Katharina Wickert\IEEEauthorrefmark{1},
 Lars Baumgärtner\IEEEauthorrefmark{1}, 
+Anna-Katharina Wickert\IEEEauthorrefmark{1},
 Mira Mezini\IEEEauthorrefmark{1}
 }
 \IEEEauthorblockA{
 Technische Universität Darmstadt, D-64289 Darmstadt, Germany\\
 }
 \IEEEauthorblockA{\IEEEauthorrefmark{1}
-E-mail: \{wickert, baumgaertner, mezini\}@cs.tu-darmstadt.de \\
+E-mail: \{baumgaertner, wickert, mezini\}@cs.tu-darmstadt.de \\
 }
 \IEEEauthorblockA{\IEEEauthorrefmark{2}
 E-mail: jlauinger@seemoo.tu-darmstadt.de \\
@@ -71,7 +72,7 @@ E-mail: jlauinger@seemoo.tu-darmstadt.de \\
 \end{abstract}
 
 \begin{IEEEkeywords}
-Golang, Unsafe, Developer Tools, Exploitability, Empirical Study.
+Golang, Static Analysis, Memory Corruption.
 \end{IEEEkeywords}
 
 % For peer review papers, you can put extra information on the cover
@@ -80,7 +81,7 @@ Golang, Unsafe, Developer Tools, Exploitability, Empirical Study.
 % \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
 % \fi
 %
-% For peerreview papers, this IEEEtran command inserts a page break and
+% For peer review papers, this IEEEtran command inserts a page break and
 % creates the second title. It will be ignored for other modes.
 \IEEEpeerreviewmaketitle
 
@@ -124,7 +125,7 @@ Golang, Unsafe, Developer Tools, Exploitability, Empirical Study.
 % http://www.michaelshell.org/tex/ieeetran/bibtex/
 \bibliographystyle{IEEEtran}
 \balance
-\bibliography{IEEEabrv,references}
+\bibliography{IEEEabrv,references, references-withoutZotero}
 
 % that's all folks
 \end{document}

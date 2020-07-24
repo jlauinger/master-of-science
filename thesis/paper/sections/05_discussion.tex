@@ -2,12 +2,18 @@
 \label{sec:discussion}
 
 Looking at the study results, we see that \unsafe{} is used consistently and wide-spread in the most popular open-source Go projects.
-Since we showed actual exploit vectors and bugs with code snippets that are commonly used in popular real-world applications, we think that research on \unsafe{} is clearly not only an academic issue, but has direct and important consequences on the actual software market.
-Audit efforts should be made up to an import depth of around 4.
+One might argue that the found patterns only are minor annoyances, not that severe or would require a manual case-to-case inspection. 
+The general exploitability of various of these patterns was discussed in Section~\ref{sec:appr} with a link to proof-of-concept exploits that we developed, clearly showing that it is indeed possible to use the memory corruptions to ones advantage.
+Furthermore, we already submitted \numberPRs{} pull requests to fix more than \numberBugsFixed{} bugs that we found using \toolSA{}.
+So far, \numberPRsMerged{} have already been reviewed and accepted by the corresponding project maintainers.
 
-We submitted \numberPRs{} pull requests to fix more than \numberBugsFixed{} bugs that we found using \toolSA{}.
-\numberPRsMerged{} had already been accepted by the submission of this paper.
+%Since we showed actual exploit vectors and bugs with code snippets that are commonly used in popular real-world applications, we think that research on \unsafe{} is clearly not only an academic issue, but has direct and important consequences on the actual software market.
+%Audit efforts should be made up to an import depth of around 4.
 
-Potential internal threats to validity for our study include bias towards bigger projects because those might be over-represented in the manually labeled data set. External threats include bias towards more active projects with many developers because we selected a subset of the most-starred open-source projects. Different project domains might use a different distribution and intention with \unsafe{} Go.
 
+Potential internal threats to validity for our study include bias towards bigger projects because those might be over-represented in the manually labeled data set. 
+External threats include a bias towards more active projects with many developers because we selected a subset of the most-starred open-source projects on GitHub. 
+Also we only considered projects that use the Go module system, about a third of the top 500 projects are not modularized yet.
+Further, we could have missed projects from a special domain not having that many stars which might have other usage scenarios for \unsafe{} Go.
+Nevertheless, one can argue that the biggest projects also have professional developers, higher standards and code gets more reviewed, thus, code quality should be higher.
 
