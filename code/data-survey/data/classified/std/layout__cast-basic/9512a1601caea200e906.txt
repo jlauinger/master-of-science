@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: heapdump.go
+Line: 417
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func finq_callback(fn *funcval, obj unsafe.Pointer, nret uintptr, fint *_type, ot *ptrtype) {
+	dumpint(tagQueuedFinalizer)
+	dumpint(uint64(uintptr(obj)))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fint))))
+	dumpint(uint64(uintptr(unsafe.Pointer(ot))))
+}
+
+func dumproots() {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	child.argoff = s.argp - s.fp
+	child.arglen = s.arglen
+	child.sp = (*uint8)(unsafe.Pointer(s.sp))
+	child.depth++
+	stkmap = (*stackmap)(funcdata(f, _FUNCDATA_ArgsPointerMaps))
+	if stkmap != nil {
+		child.args = stackmapdata(stkmap, pcdata)
+	} else {
+		child.args.n = -1
+	}
+	return true
+}
+
+func dumpgoroutine(gp *g) {
+	var sp, pc, lr uintptr
+	if gp.syscallsp != 0 {
+		sp = gp.syscallsp
+		pc = gp.syscallpc
+		lr = 0
+	} else {
+		sp = gp.sched.sp
+		pc = gp.sched.pc
+		lr = gp.sched.lr
+	}
+
+	dumpint(tagGoroutine)
+	dumpint(uint64(uintptr(unsafe.Pointer(gp))))
+	dumpint(uint64(sp))
+	dumpint(uint64(gp.goid))
+	dumpint(uint64(gp.gopc))
+	dumpint(uint64(readgstatus(gp)))
+	dumpbool(isSystemGoroutine(gp, false))
+	dumpbool(false) // isbackground
+	dumpint(uint64(gp.waitsince))
+	dumpstr(gp.waitreason.String())
+	dumpint(uint64(uintptr(gp.sched.ctxt)))
+	dumpint(uint64(uintptr(unsafe.Pointer(gp.m))))
+	dumpint(uint64(uintptr(unsafe.Pointer(gp._defer))))
+	dumpint(uint64(uintptr(unsafe.Pointer(gp._panic))))
+
+	// dump stack
+	var child childInfo
+	child.args.n = -1
+	child.arglen = 0
+	child.sp = nil
+	child.depth = 0
+	gentraceback(pc, sp, lr, gp, 0, nil, 0x7fffffff, dumpframe, noescape(unsafe.Pointer(&child)), 0)
+
+	// dump defer & panic records
+	for d := gp._defer; d != nil; d = d.link {
+		dumpint(tagDefer)
+		dumpint(uint64(uintptr(unsafe.Pointer(d))))
+		dumpint(uint64(uintptr(unsafe.Pointer(gp))))
+		dumpint(uint64(d.sp))
+		dumpint(uint64(d.pc))
+		dumpint(uint64(uintptr(unsafe.Pointer(d.fn))))
+		if d.fn == nil {
+			// d.fn can be nil for open-coded defers
+			dumpint(uint64(0))
+		} else {
+			dumpint(uint64(uintptr(unsafe.Pointer(d.fn.fn))))
+		}
+		dumpint(uint64(uintptr(unsafe.Pointer(d.link))))
+	}
+	for p := gp._panic; p != nil; p = p.link {
+		dumpint(tagPanic)
+		dumpint(uint64(uintptr(unsafe.Pointer(p))))
+		dumpint(uint64(uintptr(unsafe.Pointer(gp))))
+		eface := efaceOf(&p.arg)
+		dumpint(uint64(uintptr(unsafe.Pointer(eface._type))))
+		dumpint(uint64(uintptr(unsafe.Pointer(eface.data))))
+		dumpint(0) // was p->defer, no longer recorded
+		dumpint(uint64(uintptr(unsafe.Pointer(p.link))))
+	}
+}
+
+func dumpgs() {
+	// goroutines & stacks
+	for i := 0; uintptr(i) < allglen; i++ {
+		gp := allgs[i]
+		status := readgstatus(gp) // The world is stopped so gp will not be in a scan state.
+		switch status {
+		default:
+			print("runtime: unexpected G.status ", hex(status), "\n")
+			throw("dumpgs in STW - bad status")
+		case _Gdead:
+			// ok
+		case _Grunnable,
+			_Gsyscall,
+			_Gwaiting:
+			dumpgoroutine(gp)
+		}
+	}
+}
+
+func finq_callback(fn *funcval, obj unsafe.Pointer, nret uintptr, fint *_type, ot *ptrtype) {
+	dumpint(tagQueuedFinalizer)
+	dumpint(uint64(uintptr(obj)))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fint))))
+	dumpint(uint64(uintptr(unsafe.Pointer(ot))))
+}
+
+func dumproots() {
+	// TODO(mwhudson): dump datamask etc from all objects
+	// data segment
+	dumpint(tagData)
+	dumpint(uint64(firstmoduledata.data))
+	dumpmemrange(unsafe.Pointer(firstmoduledata.data), firstmoduledata.edata-firstmoduledata.data)
+	dumpfields(firstmoduledata.gcdatamask)
+
+	// bss segment
+	dumpint(tagBSS)
+	dumpint(uint64(firstmoduledata.bss))
+	dumpmemrange(unsafe.Pointer(firstmoduledata.bss), firstmoduledata.ebss-firstmoduledata.bss)
+	dumpfields(firstmoduledata.gcbssmask)
+
+	// mspan.types
+	for _, s := range mheap_.allspans {
+		if s.state.get() == mSpanInUse {
+			// Finalizers
+			for sp := s.specials; sp != nil; sp = sp.next {
+				if sp.kind != _KindSpecialFinalizer {
+					continue
+				}
+				spf := (*specialfinalizer)(unsafe.Pointer(sp))
+				p := unsafe.Pointer(s.base() + uintptr(spf.special.offset))
+				dumpfinalizer(p, spf.fn, spf.fint, spf.ot)
+			}
+		}
+	}
+
+	// Finalizer queue
+	iterate_finq(finq_callback)
+}
+
+// Bit vector of free marks.
+// Needs to be as big as the largest number of objects per span.
+var freemark [_PageSize / 8]bool
+
+func dumpobjs() {
+	for _, s := range mheap_.allspans {
+		if s.state.get() != mSpanInUse {
+			continue
+		}
+		p := s.base()
+		size := s.elemsize
+		n := (s.npages << _PageShift) / size
+		if n > uintptr(len(freemark)) {
+			throw("freemark array doesn't have enough entries")
+		}
+
+		for freeIndex := uintptr(0); freeIndex < s.nelems; freeIndex++ {
+			if s.isFree(freeIndex) {
+				freemark[freeIndex] = true
+			}
+		}
+
+		for j := uintptr(0); j < n; j, p = j+1, p+size {
+			if freemark[j] {
+				freemark[j] = false
+				continue
+			}
+			dumpobj(unsafe.Pointer(p), size, makeheapobjbv(p, size))
+		}
+	}
+}
+
+func dumpparams() {
+	dumpint(tagParams)
+	x := uintptr(1)
+	if *(*byte)(unsafe.Pointer(&x)) == 1 {
+		dumpbool(false) // little-endian ptrs
+	} else {
+		dumpbool(true) // big-endian ptrs
+	}
+	dumpint(sys.PtrSize)
+	var arenaStart, arenaEnd uintptr
+	for i1 := range mheap_.arenas {
+		if mheap_.arenas[i1] == nil {
+			continue
+		}
+		for i, ha := range mheap_.arenas[i1] {
+			if ha == nil {
+				continue
+			}
+			base := arenaBase(arenaIdx(i1)<<arenaL1Shift | arenaIdx(i))
+			if arenaStart == 0 || base < arenaStart {
+				arenaStart = base
+			}
+			if base+heapArenaBytes > arenaEnd {
+				arenaEnd = base + heapArenaBytes
+			}
+		}
+	}
+	dumpint(uint64(arenaStart))
+	dumpint(uint64(arenaEnd))
+	dumpstr(sys.GOARCH)
+	dumpstr(sys.Goexperiment)
+

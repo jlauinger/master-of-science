@@ -1,0 +1,131 @@
+Module: github.com/vishvananda/netlink
+Version: v1.1.1-0.20200210222539-bfba8e4149db
+
+Package: github.com/vishvananda/netlink/nl
+File: xfrm_linux.go
+Line: 305
+
+Imported (possibly among others) by: cilium/cilium
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+return (*(*[SizeofXfrmMark]byte)(unsafe.Pointer(msg)))[:]
+--------------------------------------------------------------
++/- 5 lines context:
+
+func DeserializeXfrmMark(b []byte) *XfrmMark {
+	return (*XfrmMark)(unsafe.Pointer(&b[0:SizeofXfrmMark][0]))
+}
+
+func (msg *XfrmMark) Serialize() []byte {
+	return (*(*[SizeofXfrmMark]byte)(unsafe.Pointer(msg)))[:]
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+//   __u64 soft_byte_limit;
+//   __u64 hard_byte_limit;
+//   __u64 soft_packet_limit;
+//   __u64 hard_packet_limit;
+//   __u64 soft_add_expires_seconds;
+//   __u64 hard_add_expires_seconds;
+//   __u64 soft_use_expires_seconds;
+//   __u64 hard_use_expires_seconds;
+// };
+//
+
+type XfrmLifetimeCfg struct {
+	SoftByteLimit         uint64
+	HardByteLimit         uint64
+	SoftPacketLimit       uint64
+	HardPacketLimit       uint64
+	SoftAddExpiresSeconds uint64
+	HardAddExpiresSeconds uint64
+	SoftUseExpiresSeconds uint64
+	HardUseExpiresSeconds uint64
+}
+
+func (msg *XfrmLifetimeCfg) Len() int {
+	return SizeofXfrmLifetimeCfg
+}
+
+func DeserializeXfrmLifetimeCfg(b []byte) *XfrmLifetimeCfg {
+	return (*XfrmLifetimeCfg)(unsafe.Pointer(&b[0:SizeofXfrmLifetimeCfg][0]))
+}
+
+func (msg *XfrmLifetimeCfg) Serialize() []byte {
+	return (*(*[SizeofXfrmLifetimeCfg]byte)(unsafe.Pointer(msg)))[:]
+}
+
+// struct xfrm_lifetime_cur {
+//   __u64 bytes;
+//   __u64 packets;
+//   __u64 add_time;
+//   __u64 use_time;
+// };
+
+type XfrmLifetimeCur struct {
+	Bytes   uint64
+	Packets uint64
+	AddTime uint64
+	UseTime uint64
+}
+
+func (msg *XfrmLifetimeCur) Len() int {
+	return SizeofXfrmLifetimeCur
+}
+
+func DeserializeXfrmLifetimeCur(b []byte) *XfrmLifetimeCur {
+	return (*XfrmLifetimeCur)(unsafe.Pointer(&b[0:SizeofXfrmLifetimeCur][0]))
+}
+
+func (msg *XfrmLifetimeCur) Serialize() []byte {
+	return (*(*[SizeofXfrmLifetimeCur]byte)(unsafe.Pointer(msg)))[:]
+}
+
+// struct xfrm_id {
+//   xfrm_address_t  daddr;
+//   __be32    spi;
+//   __u8    proto;
+// };
+
+type XfrmId struct {
+	Daddr XfrmAddress
+	Spi   uint32 // big endian
+	Proto uint8
+	Pad   [3]byte
+}
+
+func (msg *XfrmId) Len() int {
+	return SizeofXfrmId
+}
+
+func DeserializeXfrmId(b []byte) *XfrmId {
+	return (*XfrmId)(unsafe.Pointer(&b[0:SizeofXfrmId][0]))
+}
+
+func (msg *XfrmId) Serialize() []byte {
+	return (*(*[SizeofXfrmId]byte)(unsafe.Pointer(msg)))[:]
+}
+
+type XfrmMark struct {
+	Value uint32
+	Mask  uint32
+}
+
+func (msg *XfrmMark) Len() int {
+	return SizeofXfrmMark
+}
+
+func DeserializeXfrmMark(b []byte) *XfrmMark {
+	return (*XfrmMark)(unsafe.Pointer(&b[0:SizeofXfrmMark][0]))
+}
+
+func (msg *XfrmMark) Serialize() []byte {
+	return (*(*[SizeofXfrmMark]byte)(unsafe.Pointer(msg)))[:]
+}
+

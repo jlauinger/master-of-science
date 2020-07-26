@@ -1,0 +1,234 @@
+Module: github.com/json-iterator/go
+Version: v1.1.9
+
+Package: github.com/json-iterator/go
+File: reflect_native.go
+Line: 230
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (codec *int8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	if !iter.ReadNil() {
+		*((*int8)(ptr)) = iter.ReadInt8()
+	}
+}
+
+func (codec *int8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt8(*((*int8)(ptr)))
+}
+
+func (codec *int8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int8)(ptr)) == 0
+--------------------------------------------------------------
++/- 100 lines context:
+
+		if typeName != "int8" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*int8)(nil)).Elem())
+		}
+		return &int8Codec{}
+	case reflect.Int16:
+		if typeName != "int16" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*int16)(nil)).Elem())
+		}
+		return &int16Codec{}
+	case reflect.Int32:
+		if typeName != "int32" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*int32)(nil)).Elem())
+		}
+		return &int32Codec{}
+	case reflect.Int64:
+		if typeName != "int64" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*int64)(nil)).Elem())
+		}
+		return &int64Codec{}
+	case reflect.Uint:
+		if typeName != "uint" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*uint)(nil)).Elem())
+		}
+		if strconv.IntSize == 32 {
+			return &uint32Codec{}
+		}
+		return &uint64Codec{}
+	case reflect.Uint8:
+		if typeName != "uint8" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*uint8)(nil)).Elem())
+		}
+		return &uint8Codec{}
+	case reflect.Uint16:
+		if typeName != "uint16" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*uint16)(nil)).Elem())
+		}
+		return &uint16Codec{}
+	case reflect.Uint32:
+		if typeName != "uint32" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*uint32)(nil)).Elem())
+		}
+		return &uint32Codec{}
+	case reflect.Uintptr:
+		if typeName != "uintptr" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*uintptr)(nil)).Elem())
+		}
+		if ptrSize == 32 {
+			return &uint32Codec{}
+		}
+		return &uint64Codec{}
+	case reflect.Uint64:
+		if typeName != "uint64" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*uint64)(nil)).Elem())
+		}
+		return &uint64Codec{}
+	case reflect.Float32:
+		if typeName != "float32" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*float32)(nil)).Elem())
+		}
+		return &float32Codec{}
+	case reflect.Float64:
+		if typeName != "float64" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*float64)(nil)).Elem())
+		}
+		return &float64Codec{}
+	case reflect.Bool:
+		if typeName != "bool" {
+			return decoderOfType(ctx, reflect2.TypeOfPtr((*bool)(nil)).Elem())
+		}
+		return &boolCodec{}
+	}
+	return nil
+}
+
+type stringCodec struct {
+}
+
+func (codec *stringCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*((*string)(ptr)) = iter.ReadString()
+}
+
+func (codec *stringCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	str := *((*string)(ptr))
+	stream.WriteString(str)
+}
+
+func (codec *stringCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*string)(ptr)) == ""
+}
+
+type int8Codec struct {
+}
+
+func (codec *int8Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int8)(ptr)) = iter.ReadInt8()
+	}
+}
+
+func (codec *int8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt8(*((*int8)(ptr)))
+}
+
+func (codec *int8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int8)(ptr)) == 0
+}
+
+type int16Codec struct {
+}
+
+func (codec *int16Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int16)(ptr)) = iter.ReadInt16()
+	}
+}
+
+func (codec *int16Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt16(*((*int16)(ptr)))
+}
+
+func (codec *int16Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int16)(ptr)) == 0
+}
+
+type int32Codec struct {
+}
+
+func (codec *int32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int32)(ptr)) = iter.ReadInt32()
+	}
+}
+
+func (codec *int32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt32(*((*int32)(ptr)))
+}
+
+func (codec *int32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int32)(ptr)) == 0
+}
+
+type int64Codec struct {
+}
+
+func (codec *int64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int64)(ptr)) = iter.ReadInt64()
+	}
+}
+
+func (codec *int64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt64(*((*int64)(ptr)))
+}
+
+func (codec *int64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int64)(ptr)) == 0
+}
+
+type uint8Codec struct {
+}
+
+func (codec *uint8Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint8)(ptr)) = iter.ReadUint8()
+	}
+}
+
+func (codec *uint8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint8(*((*uint8)(ptr)))
+}
+
+func (codec *uint8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint8)(ptr)) == 0
+}
+
+type uint16Codec struct {
+}
+
+func (codec *uint16Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint16)(ptr)) = iter.ReadUint16()
+	}
+}
+
+func (codec *uint16Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint16(*((*uint16)(ptr)))
+}
+
+func (codec *uint16Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint16)(ptr)) == 0
+}
+
+type uint32Codec struct {
+}
+
+func (codec *uint32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint32)(ptr)) = iter.ReadUint32()
+	}
+}
+

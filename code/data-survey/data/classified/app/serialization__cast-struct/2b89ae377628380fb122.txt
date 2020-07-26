@@ -1,0 +1,234 @@
+Module: github.com/hashicorp/go-msgpack
+Version: v1.1.5
+
+Package: github.com/hashicorp/go-msgpack/codec
+File: helper_unsafe.go
+Line: 105
+
+Imported (possibly among others) by: mattermost/mattermost-server
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+return uintptr(((*unsafeIntf)(unsafe.Pointer(&i))).typ)
+--------------------------------------------------------------
++/- 5 lines context:
+
+// func rv2rtid(rv reflect.Value) uintptr {
+// 	return uintptr((*unsafeReflectValue)(unsafe.Pointer(&rv)).typ)
+// }
+
+func i2rtid(i interface{}) uintptr {
+	return uintptr(((*unsafeIntf)(unsafe.Pointer(&i))).typ)
+}
+
+// --------------------------
+
+func isEmptyValue(v reflect.Value, tinfos *TypeInfos, deref, checkStruct bool) bool {
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Use of this source code is governed by a MIT license found in the LICENSE file.
+
+package codec
+
+import (
+	"reflect"
+	"sync/atomic"
+	"time"
+	"unsafe"
+)
+
+// This file has unsafe variants of some helper methods.
+// NOTE: See helper_not_unsafe.go for the usage information.
+
+// var zeroRTv [4]uintptr
+
+const safeMode = false
+const unsafeFlagIndir = 1 << 7 // keep in sync with GO_ROOT/src/reflect/value.go
+
+type unsafeString struct {
+	Data unsafe.Pointer
+	Len  int
+}
+
+type unsafeSlice struct {
+	Data unsafe.Pointer
+	Len  int
+	Cap  int
+}
+
+type unsafeIntf struct {
+	typ  unsafe.Pointer
+	word unsafe.Pointer
+}
+
+type unsafeReflectValue struct {
+	typ  unsafe.Pointer
+	ptr  unsafe.Pointer
+	flag uintptr
+}
+
+func stringView(v []byte) string {
+	if len(v) == 0 {
+		return ""
+	}
+	bx := (*unsafeSlice)(unsafe.Pointer(&v))
+	return *(*string)(unsafe.Pointer(&unsafeString{bx.Data, bx.Len}))
+}
+
+func bytesView(v string) []byte {
+	if len(v) == 0 {
+		return zeroByteSlice
+	}
+	sx := (*unsafeString)(unsafe.Pointer(&v))
+	return *(*[]byte)(unsafe.Pointer(&unsafeSlice{sx.Data, sx.Len, sx.Len}))
+}
+
+func definitelyNil(v interface{}) bool {
+	// There is no global way of checking if an interface is nil.
+	// For true references (map, ptr, func, chan), you can just look
+	// at the word of the interface. However, for slices, you have to dereference
+	// the word, and get a pointer to the 3-word interface value.
+	//
+	// However, the following are cheap calls
+	// - TypeOf(interface): cheap 2-line call.
+	// - ValueOf(interface{}): expensive
+	// - type.Kind: cheap call through an interface
+	// - Value.Type(): cheap call
+	//                 except it's a method value (e.g. r.Read, which implies that it is a Func)
+
+	return ((*unsafeIntf)(unsafe.Pointer(&v))).word == nil
+}
+
+func rv2i(rv reflect.Value) interface{} {
+	// TODO: consider a more generally-known optimization for reflect.Value ==> Interface
+	//
+	// Currently, we use this fragile method that taps into implememtation details from
+	// the source go stdlib reflect/value.go, and trims the implementation.
+
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	// true references (map, func, chan, ptr - NOT slice) may be double-referenced as flagIndir
+	var ptr unsafe.Pointer
+	if refBitset.isset(byte(urv.flag&(1<<5-1))) && urv.flag&unsafeFlagIndir != 0 {
+		ptr = *(*unsafe.Pointer)(urv.ptr)
+	} else {
+		ptr = urv.ptr
+	}
+	return *(*interface{})(unsafe.Pointer(&unsafeIntf{typ: urv.typ, word: ptr}))
+}
+
+func rt2id(rt reflect.Type) uintptr {
+	return uintptr(((*unsafeIntf)(unsafe.Pointer(&rt))).word)
+}
+
+// func rv2rtid(rv reflect.Value) uintptr {
+// 	return uintptr((*unsafeReflectValue)(unsafe.Pointer(&rv)).typ)
+// }
+
+func i2rtid(i interface{}) uintptr {
+	return uintptr(((*unsafeIntf)(unsafe.Pointer(&i))).typ)
+}
+
+// --------------------------
+
+func isEmptyValue(v reflect.Value, tinfos *TypeInfos, deref, checkStruct bool) bool {
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&v))
+	if urv.flag == 0 {
+		return true
+	}
+	switch v.Kind() {
+	case reflect.Invalid:
+		return true
+	case reflect.String:
+		return (*unsafeString)(urv.ptr).Len == 0
+	case reflect.Slice:
+		return (*unsafeSlice)(urv.ptr).Len == 0
+	case reflect.Bool:
+		return !*(*bool)(urv.ptr)
+	case reflect.Int:
+		return *(*int)(urv.ptr) == 0
+	case reflect.Int8:
+		return *(*int8)(urv.ptr) == 0
+	case reflect.Int16:
+		return *(*int16)(urv.ptr) == 0
+	case reflect.Int32:
+		return *(*int32)(urv.ptr) == 0
+	case reflect.Int64:
+		return *(*int64)(urv.ptr) == 0
+	case reflect.Uint:
+		return *(*uint)(urv.ptr) == 0
+	case reflect.Uint8:
+		return *(*uint8)(urv.ptr) == 0
+	case reflect.Uint16:
+		return *(*uint16)(urv.ptr) == 0
+	case reflect.Uint32:
+		return *(*uint32)(urv.ptr) == 0
+	case reflect.Uint64:
+		return *(*uint64)(urv.ptr) == 0
+	case reflect.Uintptr:
+		return *(*uintptr)(urv.ptr) == 0
+	case reflect.Float32:
+		return *(*float32)(urv.ptr) == 0
+	case reflect.Float64:
+		return *(*float64)(urv.ptr) == 0
+	case reflect.Interface:
+		isnil := urv.ptr == nil || *(*unsafe.Pointer)(urv.ptr) == nil
+		if deref {
+			if isnil {
+				return true
+			}
+			return isEmptyValue(v.Elem(), tinfos, deref, checkStruct)
+		}
+		return isnil
+	case reflect.Ptr:
+		// isnil := urv.ptr == nil (not sufficient, as a pointer value encodes the type)
+		isnil := urv.ptr == nil || *(*unsafe.Pointer)(urv.ptr) == nil
+		if deref {
+			if isnil {
+				return true
+			}
+			return isEmptyValue(v.Elem(), tinfos, deref, checkStruct)
+		}
+		return isnil
+	case reflect.Struct:
+		return isEmptyStruct(v, tinfos, deref, checkStruct)
+	case reflect.Map, reflect.Array, reflect.Chan:
+		return v.Len() == 0
+	}
+	return false
+}
+
+// --------------------------
+
+// atomicXXX is expected to be 2 words (for symmetry with atomic.Value)
+//
+// Note that we do not atomically load/store length and data pointer separately,
+// as this could lead to some races. Instead, we atomically load/store cappedSlice.
+//
+// Note: with atomic.(Load|Store)Pointer, we MUST work with an unsafe.Pointer directly.
+
+// ----------------------
+type atomicTypeInfoSlice struct {
+	v unsafe.Pointer // *[]rtid2ti
+	_ uintptr        // padding (atomicXXX expected to be 2 words)
+}
+
+func (x *atomicTypeInfoSlice) load() (s []rtid2ti) {
+	x2 := atomic.LoadPointer(&x.v)
+	if x2 != nil {
+		s = *(*[]rtid2ti)(x2)
+	}
+	return
+}
+
+func (x *atomicTypeInfoSlice) store(p []rtid2ti) {
+	atomic.StorePointer(&x.v, unsafe.Pointer(&p))
+}
+
+// --------------------------
+type atomicRtidFnSlice struct {
+

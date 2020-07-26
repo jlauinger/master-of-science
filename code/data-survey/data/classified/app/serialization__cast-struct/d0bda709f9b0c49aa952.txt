@@ -1,0 +1,34 @@
+Module: github.com/Azure/azure-storage-blob-go
+Version: v0.8.0
+
+Package: github.com/Azure/azure-storage-blob-go/azblob
+File: zz_generated_models.go
+Line: 3233
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+cp2 := (*containerProperties)(unsafe.Pointer(cp))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return e.EncodeElement(*cp2, start)
+}
+
+// UnmarshalXML implements the xml.Unmarshaler interface for ContainerProperties.
+func (cp *ContainerProperties) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	cp2 := (*containerProperties)(unsafe.Pointer(cp))
+	return d.DecodeElement(cp2, &start)
+}
+
+// ContainerReleaseLeaseResponse ...
+type ContainerReleaseLeaseResponse struct {
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

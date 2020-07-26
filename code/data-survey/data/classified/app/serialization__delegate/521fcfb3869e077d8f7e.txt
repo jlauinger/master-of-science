@@ -1,0 +1,217 @@
+Module: github.com/json-iterator/go
+Version: v1.1.7
+
+Package: github.com/json-iterator/go
+File: reflect_struct_decoder.go
+Line: 965
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (decoder *tenFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	fieldDecoder9  *structFieldDecoder
+	fieldHash10    int64
+	fieldDecoder10 *structFieldDecoder
+}
+
+func (decoder *tenFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	for {
+		switch iter.readFieldHash() {
+--------------------------------------------------------------
++/- 100 lines context:
+
+			decoder.fieldDecoder6.Decode(ptr, iter)
+		case decoder.fieldHash7:
+			decoder.fieldDecoder7.Decode(ptr, iter)
+		case decoder.fieldHash8:
+			decoder.fieldDecoder8.Decode(ptr, iter)
+		default:
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+}
+
+type nineFieldsStructDecoder struct {
+	typ           reflect2.Type
+	fieldHash1    int64
+	fieldDecoder1 *structFieldDecoder
+	fieldHash2    int64
+	fieldDecoder2 *structFieldDecoder
+	fieldHash3    int64
+	fieldDecoder3 *structFieldDecoder
+	fieldHash4    int64
+	fieldDecoder4 *structFieldDecoder
+	fieldHash5    int64
+	fieldDecoder5 *structFieldDecoder
+	fieldHash6    int64
+	fieldDecoder6 *structFieldDecoder
+	fieldHash7    int64
+	fieldDecoder7 *structFieldDecoder
+	fieldHash8    int64
+	fieldDecoder8 *structFieldDecoder
+	fieldHash9    int64
+	fieldDecoder9 *structFieldDecoder
+}
+
+func (decoder *nineFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	for {
+		switch iter.readFieldHash() {
+		case decoder.fieldHash1:
+			decoder.fieldDecoder1.Decode(ptr, iter)
+		case decoder.fieldHash2:
+			decoder.fieldDecoder2.Decode(ptr, iter)
+		case decoder.fieldHash3:
+			decoder.fieldDecoder3.Decode(ptr, iter)
+		case decoder.fieldHash4:
+			decoder.fieldDecoder4.Decode(ptr, iter)
+		case decoder.fieldHash5:
+			decoder.fieldDecoder5.Decode(ptr, iter)
+		case decoder.fieldHash6:
+			decoder.fieldDecoder6.Decode(ptr, iter)
+		case decoder.fieldHash7:
+			decoder.fieldDecoder7.Decode(ptr, iter)
+		case decoder.fieldHash8:
+			decoder.fieldDecoder8.Decode(ptr, iter)
+		case decoder.fieldHash9:
+			decoder.fieldDecoder9.Decode(ptr, iter)
+		default:
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+}
+
+type tenFieldsStructDecoder struct {
+	typ            reflect2.Type
+	fieldHash1     int64
+	fieldDecoder1  *structFieldDecoder
+	fieldHash2     int64
+	fieldDecoder2  *structFieldDecoder
+	fieldHash3     int64
+	fieldDecoder3  *structFieldDecoder
+	fieldHash4     int64
+	fieldDecoder4  *structFieldDecoder
+	fieldHash5     int64
+	fieldDecoder5  *structFieldDecoder
+	fieldHash6     int64
+	fieldDecoder6  *structFieldDecoder
+	fieldHash7     int64
+	fieldDecoder7  *structFieldDecoder
+	fieldHash8     int64
+	fieldDecoder8  *structFieldDecoder
+	fieldHash9     int64
+	fieldDecoder9  *structFieldDecoder
+	fieldHash10    int64
+	fieldDecoder10 *structFieldDecoder
+}
+
+func (decoder *tenFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	for {
+		switch iter.readFieldHash() {
+		case decoder.fieldHash1:
+			decoder.fieldDecoder1.Decode(ptr, iter)
+		case decoder.fieldHash2:
+			decoder.fieldDecoder2.Decode(ptr, iter)
+		case decoder.fieldHash3:
+			decoder.fieldDecoder3.Decode(ptr, iter)
+		case decoder.fieldHash4:
+			decoder.fieldDecoder4.Decode(ptr, iter)
+		case decoder.fieldHash5:
+			decoder.fieldDecoder5.Decode(ptr, iter)
+		case decoder.fieldHash6:
+			decoder.fieldDecoder6.Decode(ptr, iter)
+		case decoder.fieldHash7:
+			decoder.fieldDecoder7.Decode(ptr, iter)
+		case decoder.fieldHash8:
+			decoder.fieldDecoder8.Decode(ptr, iter)
+		case decoder.fieldHash9:
+			decoder.fieldDecoder9.Decode(ptr, iter)
+		case decoder.fieldHash10:
+			decoder.fieldDecoder10.Decode(ptr, iter)
+		default:
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+}
+
+type structFieldDecoder struct {
+	field        reflect2.StructField
+	fieldDecoder ValDecoder
+}
+
+func (decoder *structFieldDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	fieldPtr := decoder.field.UnsafeGet(ptr)
+	decoder.fieldDecoder.Decode(fieldPtr, iter)
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%s: %s", decoder.field.Name(), iter.Error.Error())
+	}
+}
+
+type stringModeStringDecoder struct {
+	elemDecoder ValDecoder
+	cfg         *frozenConfig
+}
+
+func (decoder *stringModeStringDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.elemDecoder.Decode(ptr, iter)
+	str := *((*string)(ptr))
+	tempIter := decoder.cfg.BorrowIterator([]byte(str))
+	defer decoder.cfg.ReturnIterator(tempIter)
+	*((*string)(ptr)) = tempIter.ReadString()
+}
+
+type stringModeNumberDecoder struct {
+	elemDecoder ValDecoder
+}
+
+func (decoder *stringModeNumberDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	c := iter.nextToken()
+	if c != '"' {
+		iter.ReportError("stringModeNumberDecoder", `expect ", but found `+string([]byte{c}))
+		return
+	}
+	decoder.elemDecoder.Decode(ptr, iter)
+	if iter.Error != nil {
+		return
+	}
+	c = iter.readByte()
+	if c != '"' {
+		iter.ReportError("stringModeNumberDecoder", `expect ", but found `+string([]byte{c}))
+		return
+	}
+}
+

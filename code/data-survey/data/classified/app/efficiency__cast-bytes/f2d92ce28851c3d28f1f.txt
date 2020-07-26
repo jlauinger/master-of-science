@@ -1,0 +1,234 @@
+Module: github.com/godror/godror
+Version: v0.10.4
+
+Package: github.com/godror/godror
+File: stmt.go
+Line: 1602
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+*x = append(*x, string(((*[32767]byte)(unsafe.Pointer(b.ptr)))[:b.length:b.length]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+			if data[i].isNull == 1 {
+				*x = append(*x, "")
+				continue
+			}
+			b := C.dpiData_getBytes(&data[i])
+			*x = append(*x, string(((*[32767]byte)(unsafe.Pointer(b.ptr)))[:b.length:b.length]))
+		}
+
+	case *interface{}:
+		switch y := (*x).(type) {
+		case []byte:
+--------------------------------------------------------------
++/- 100 lines context:
+
+		C.dpiData_setUint64(&data[i], C.uint64_t(x))
+	case []uint32:
+		for i, x := range slice {
+			C.dpiData_setUint64(&data[i], C.uint64_t(x))
+		}
+	case uint64:
+		i, x := 0, slice
+		C.dpiData_setUint64(&data[i], C.uint64_t(x))
+	case []uint64:
+		for i, x := range slice {
+			C.dpiData_setUint64(&data[i], C.uint64_t(x))
+		}
+
+	case float32:
+		i, x := 0, slice
+		C.dpiData_setFloat(&data[i], C.float(x))
+	case []float32:
+		for i, x := range slice {
+			C.dpiData_setFloat(&data[i], C.float(x))
+		}
+	case float64:
+		i, x := 0, slice
+		C.dpiData_setDouble(&data[i], C.double(x))
+	case []float64:
+		for i, x := range slice {
+			C.dpiData_setDouble(&data[i], C.double(x))
+		}
+
+	default:
+		return errors.Errorf("unknown number slice [%T] %#v", vv, vv)
+	}
+
+	//fmt.Printf("setInt64(%#v, %#v)\n", data, C.int64_t(int64(v.(int))))
+	return nil
+}
+
+func dataGetBytes(v interface{}, data []C.dpiData) error {
+	switch x := v.(type) {
+	case *[]byte:
+		if len(data) == 0 || data[0].isNull == 1 {
+			*x = nil
+			return nil
+		}
+		db := C.dpiData_getBytes(&data[0])
+		b := ((*[32767]byte)(unsafe.Pointer(db.ptr)))[:db.length:db.length]
+		// b must be copied
+		*x = append((*x)[:0], b...)
+
+	case *[][]byte:
+		maX := (*x)[:cap(*x)]
+		*x = (*x)[:0]
+		for i := range data {
+			if data[i].isNull == 1 {
+				*x = append(*x, nil)
+				continue
+			}
+			db := C.dpiData_getBytes(&data[i])
+			b := ((*[32767]byte)(unsafe.Pointer(db.ptr)))[:db.length:db.length]
+			// b must be copied
+			if i < len(maX) {
+				*x = append(*x, append(maX[i][:0], b...))
+			} else {
+				*x = append(*x, append(make([]byte, 0, len(b)), b...))
+			}
+		}
+
+	case *Number:
+		if len(data) == 0 || data[0].isNull == 1 {
+			*x = ""
+			return nil
+		}
+		b := C.dpiData_getBytes(&data[0])
+		*x = Number(((*[32767]byte)(unsafe.Pointer(b.ptr)))[:b.length:b.length])
+	case *[]Number:
+		*x = (*x)[:0]
+		for i := range data {
+			if data[i].isNull == 1 {
+				*x = append(*x, "")
+				continue
+			}
+			b := C.dpiData_getBytes(&data[i])
+			*x = append(*x, Number(((*[32767]byte)(unsafe.Pointer(b.ptr)))[:b.length:b.length]))
+		}
+
+	case *string:
+		if len(data) == 0 || data[0].isNull == 1 {
+			*x = ""
+			return nil
+		}
+		b := C.dpiData_getBytes(&data[0])
+		*x = string(((*[32767]byte)(unsafe.Pointer(b.ptr)))[:b.length:b.length])
+	case *[]string:
+		*x = (*x)[:0]
+		for i := range data {
+			if data[i].isNull == 1 {
+				*x = append(*x, "")
+				continue
+			}
+			b := C.dpiData_getBytes(&data[i])
+			*x = append(*x, string(((*[32767]byte)(unsafe.Pointer(b.ptr)))[:b.length:b.length]))
+		}
+
+	case *interface{}:
+		switch y := (*x).(type) {
+		case []byte:
+			err := dataGetBytes(&y, data[:1])
+			*x = y
+			return err
+		case [][]byte:
+			err := dataGetBytes(&y, data)
+			*x = y
+			return err
+
+		case Number:
+			err := dataGetBytes(&y, data[:1])
+			*x = y
+			return err
+		case []Number:
+			err := dataGetBytes(&y, data)
+			*x = y
+			return err
+
+		case string:
+			err := dataGetBytes(&y, data[:1])
+			*x = y
+			return err
+		case []string:
+			err := dataGetBytes(&y, data)
+			*x = y
+			return err
+
+		default:
+			return errors.Errorf("awaited []byte/string/Number, got %T (%#v)", x, x)
+		}
+
+	default:
+		return errors.Errorf("awaited []byte/string/Number, got %T (%#v)", v, v)
+	}
+	return nil
+}
+
+func dataSetBytes(dv *C.dpiVar, data []C.dpiData, vv interface{}) error {
+	if len(data) == 0 {
+		return nil
+	}
+	if vv == nil {
+		return dataSetNull(dv, data, nil)
+	}
+	var p *C.char
+	switch slice := vv.(type) {
+	case []byte:
+		i, x := 0, slice
+		if len(x) == 0 {
+			data[i].isNull = 1
+			return nil
+		}
+		data[i].isNull = 0
+		p = (*C.char)(unsafe.Pointer(&x[0]))
+		//if Log != nil {Log("C", "dpiVar_setFromBytes", "dv", dv, "pos", pos, "p", p, "len", len(x)) }
+		C.dpiVar_setFromBytes(dv, C.uint32_t(i), p, C.uint32_t(len(x)))
+	case [][]byte:
+		for i, x := range slice {
+			if len(x) == 0 {
+				data[i].isNull = 1
+				continue
+			}
+			data[i].isNull = 0
+			p = (*C.char)(unsafe.Pointer(&x[0]))
+			//if Log != nil {Log("C", "dpiVar_setFromBytes", "dv", dv, "pos", pos, "p", p, "len", len(x)) }
+			C.dpiVar_setFromBytes(dv, C.uint32_t(i), p, C.uint32_t(len(x)))
+		}
+
+	case Number:
+		i, x := 0, slice
+		if len(x) == 0 {
+			data[i].isNull = 1
+			return nil
+		}
+		data[i].isNull = 0
+		dpiSetFromString(dv, C.uint32_t(i), string(x))
+	case []Number:
+		for i, x := range slice {
+			if len(x) == 0 {
+				data[i].isNull = 1
+				continue
+			}
+			data[i].isNull = 0
+			dpiSetFromString(dv, C.uint32_t(i), string(x))
+		}
+
+	case string:
+		i, x := 0, slice
+		if len(x) == 0 {
+			data[i].isNull = 1
+			return nil
+		}
+		data[i].isNull = 0
+		dpiSetFromString(dv, C.uint32_t(i), x)
+	case []string:
+		for i, x := range slice {
+

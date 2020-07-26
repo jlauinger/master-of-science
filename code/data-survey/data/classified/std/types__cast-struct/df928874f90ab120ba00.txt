@@ -1,0 +1,217 @@
+Module: std
+Version: std
+
+Package: internal/reflectlite
+File: type.go
+Line: 842
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+v := (*funcType)(unsafe.Pointer(V))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		// Otherwise continue test for identical underlying type.
+		return V.chanDir() == T.chanDir() && haveIdenticalType(T.Elem(), V.Elem(), cmpTags)
+
+	case Func:
+		t := (*funcType)(unsafe.Pointer(T))
+		v := (*funcType)(unsafe.Pointer(V))
+		if t.outCount != v.outCount || t.inCount != v.inCount {
+			return false
+		}
+		for i := 0; i < t.NumIn(); i++ {
+			if !haveIdenticalType(t.In(i), v.In(i), cmpTags) {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	if v == nil {
+		return false
+	}
+	i := 0
+	vmethods := v.methods()
+	for j := 0; j < int(v.mcount); j++ {
+		tm := &t.methods[i]
+		tmName := t.nameOff(tm.name)
+		vm := vmethods[j]
+		vmName := V.nameOff(vm.name)
+		if vmName.name() == tmName.name() && V.typeOff(vm.mtyp) == t.typeOff(tm.typ) {
+			if !tmName.isExported() {
+				tmPkgPath := tmName.pkgPath()
+				if tmPkgPath == "" {
+					tmPkgPath = t.pkgPath.name()
+				}
+				vmPkgPath := vmName.pkgPath()
+				if vmPkgPath == "" {
+					vmPkgPath = V.nameOff(v.pkgPath).name()
+				}
+				if tmPkgPath != vmPkgPath {
+					continue
+				}
+			}
+			if i++; i >= len(t.methods) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// directlyAssignable reports whether a value x of type V can be directly
+// assigned (using memmove) to a value of type T.
+// https://golang.org/doc/go_spec.html#Assignability
+// Ignoring the interface rules (implemented elsewhere)
+// and the ideal constant rules (no ideal constants at run time).
+func directlyAssignable(T, V *rtype) bool {
+	// x's type V is identical to T?
+	if T == V {
+		return true
+	}
+
+	// Otherwise at least one of T and V must not be defined
+	// and they must have the same kind.
+	if T.hasName() && V.hasName() || T.Kind() != V.Kind() {
+		return false
+	}
+
+	// x's type T and V must  have identical underlying types.
+	return haveIdenticalUnderlyingType(T, V, true)
+}
+
+func haveIdenticalType(T, V Type, cmpTags bool) bool {
+	if cmpTags {
+		return T == V
+	}
+
+	if T.Name() != V.Name() || T.Kind() != V.Kind() {
+		return false
+	}
+
+	return haveIdenticalUnderlyingType(T.common(), V.common(), false)
+}
+
+func haveIdenticalUnderlyingType(T, V *rtype, cmpTags bool) bool {
+	if T == V {
+		return true
+	}
+
+	kind := T.Kind()
+	if kind != V.Kind() {
+		return false
+	}
+
+	// Non-composite types of equal kind have same underlying type
+	// (the predefined instance of the type).
+	if Bool <= kind && kind <= Complex128 || kind == String || kind == UnsafePointer {
+		return true
+	}
+
+	// Composite types.
+	switch kind {
+	case Array:
+		return T.Len() == V.Len() && haveIdenticalType(T.Elem(), V.Elem(), cmpTags)
+
+	case Chan:
+		// Special case:
+		// x is a bidirectional channel value, T is a channel type,
+		// and x's type V and T have identical element types.
+		if V.chanDir() == bothDir && haveIdenticalType(T.Elem(), V.Elem(), cmpTags) {
+			return true
+		}
+
+		// Otherwise continue test for identical underlying type.
+		return V.chanDir() == T.chanDir() && haveIdenticalType(T.Elem(), V.Elem(), cmpTags)
+
+	case Func:
+		t := (*funcType)(unsafe.Pointer(T))
+		v := (*funcType)(unsafe.Pointer(V))
+		if t.outCount != v.outCount || t.inCount != v.inCount {
+			return false
+		}
+		for i := 0; i < t.NumIn(); i++ {
+			if !haveIdenticalType(t.In(i), v.In(i), cmpTags) {
+				return false
+			}
+		}
+		for i := 0; i < t.NumOut(); i++ {
+			if !haveIdenticalType(t.Out(i), v.Out(i), cmpTags) {
+				return false
+			}
+		}
+		return true
+
+	case Interface:
+		t := (*interfaceType)(unsafe.Pointer(T))
+		v := (*interfaceType)(unsafe.Pointer(V))
+		if len(t.methods) == 0 && len(v.methods) == 0 {
+			return true
+		}
+		// Might have the same methods but still
+		// need a run time conversion.
+		return false
+
+	case Map:
+		return haveIdenticalType(T.Key(), V.Key(), cmpTags) && haveIdenticalType(T.Elem(), V.Elem(), cmpTags)
+
+	case Ptr, Slice:
+		return haveIdenticalType(T.Elem(), V.Elem(), cmpTags)
+
+	case Struct:
+		t := (*structType)(unsafe.Pointer(T))
+		v := (*structType)(unsafe.Pointer(V))
+		if len(t.fields) != len(v.fields) {
+			return false
+		}
+		if t.pkgPath.name() != v.pkgPath.name() {
+			return false
+		}
+		for i := range t.fields {
+			tf := &t.fields[i]
+			vf := &v.fields[i]
+			if tf.name.name() != vf.name.name() {
+				return false
+			}
+			if !haveIdenticalType(tf.typ, vf.typ, cmpTags) {
+				return false
+			}
+			if cmpTags && tf.name.tag() != vf.name.tag() {
+				return false
+			}
+			if tf.offsetEmbed != vf.offsetEmbed {
+				return false
+			}
+		}
+		return true
+	}
+
+	return false
+}
+
+type structTypeUncommon struct {
+	structType
+	u uncommonType
+}
+
+// toType converts from a *rtype to a Type that can be returned
+// to the client of package reflect. In gc, the only concern is that
+// a nil *rtype must be replaced by a nil Type, but in gccgo this
+// function takes care of ensuring that multiple *rtype for the same
+// type are coalesced into a single Type.
+func toType(t *rtype) Type {
+	if t == nil {
+		return nil
+	}
+	return t
+}
+
+// ifaceIndir reports whether t is stored indirectly in an interface value.
+func ifaceIndir(t *rtype) bool {
+	return t.kind&kindDirectIface == 0
+}
+

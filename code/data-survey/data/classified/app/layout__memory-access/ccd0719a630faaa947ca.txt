@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/internal/execution
+File: generic_cmp_vv.go
+Line: 3418
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func EqIterUnsafePointer(a []unsafe.Pointer, b []unsafe.Pointer, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+		}
+	}
+	return
+}
+
+func EqIterUnsafePointer(a []unsafe.Pointer, b []unsafe.Pointer, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+--------------------------------------------------------------
++/- 100 lines context:
+
+		if validi && validj && validk {
+			retVal[k] = a[i] == b[j]
+		}
+	}
+	return
+}
+
+func EqIterF64(a []float64, b []float64, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if j, validj, err = bit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if k, validk, err = rit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi && validj && validk {
+			retVal[k] = a[i] == b[j]
+		}
+	}
+	return
+}
+
+func EqIterC64(a []complex64, b []complex64, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if j, validj, err = bit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if k, validk, err = rit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi && validj && validk {
+			retVal[k] = a[i] == b[j]
+		}
+	}
+	return
+}
+
+func EqIterC128(a []complex128, b []complex128, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if j, validj, err = bit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if k, validk, err = rit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi && validj && validk {
+			retVal[k] = a[i] == b[j]
+		}
+	}
+	return
+}
+
+func EqIterStr(a []string, b []string, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if j, validj, err = bit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if k, validk, err = rit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi && validj && validk {
+			retVal[k] = a[i] == b[j]
+		}
+	}
+	return
+}
+
+func EqIterUnsafePointer(a []unsafe.Pointer, b []unsafe.Pointer, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if j, validj, err = bit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if k, validk, err = rit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi && validj && validk {
+			retVal[k] = a[i] == b[j]
+		}
+	}
+	return
+}
+
+func NeIterB(a []bool, b []bool, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if j, validj, err = bit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if k, validk, err = rit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi && validj && validk {
+			retVal[k] = a[i] != b[j]
+		}
+	}
+	return
+}
+
+func NeIterI(a []int, b []int, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if j, validj, err = bit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if k, validk, err = rit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi && validj && validk {
+			retVal[k] = a[i] != b[j]
+		}
+	}
+	return
+}
+
+func NeIterI8(a []int8, b []int8, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if j, validj, err = bit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if k, validk, err = rit.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi && validj && validk {
+			retVal[k] = a[i] != b[j]
+		}
+	}
+	return
+}
+
+func NeIterI16(a []int16, b []int16, retVal []bool, ait Iterator, bit Iterator, rit Iterator) (err error) {
+	var i, j, k int
+	var validi, validj, validk bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if j, validj, err = bit.NextValidity(); err != nil {
+

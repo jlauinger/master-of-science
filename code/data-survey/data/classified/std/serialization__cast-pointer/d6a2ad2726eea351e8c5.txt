@@ -1,0 +1,234 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20200122134326-e047566fdf82
+
+Package: golang.org/x/sys/unix
+File: syscall_linux.go
+Line: 690
+
+Imported (possibly among others) by: rancher/rancher
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+return unsafe.Pointer(&sa.raw), SizeofSockaddrALG, nil
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+
+	copy(sa.raw.Type[:], typ)
+	copy(sa.raw.Name[:], name)
+
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrALG, nil
+}
+
+// SockaddrVM implements the Sockaddr interface for AF_VSOCK type sockets.
+// SockaddrVM provides access to Linux VM sockets: a mechanism that enables
+// bidirectional communication between a hypervisor and its guest virtual
+--------------------------------------------------------------
++/- 100 lines context:
+
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrCAN, nil
+}
+
+// SockaddrALG implements the Sockaddr interface for AF_ALG type sockets.
+// SockaddrALG enables userspace access to the Linux kernel's cryptography
+// subsystem. The Type and Name fields specify which type of hash or cipher
+// should be used with a given socket.
+//
+// To create a file descriptor that provides access to a hash or cipher, both
+// Bind and Accept must be used. Once the setup process is complete, input
+// data can be written to the socket, processed by the kernel, and then read
+// back as hash output or ciphertext.
+//
+// Here is an example of using an AF_ALG socket with SHA1 hashing.
+// The initial socket setup process is as follows:
+//
+//      // Open a socket to perform SHA1 hashing.
+//      fd, _ := unix.Socket(unix.AF_ALG, unix.SOCK_SEQPACKET, 0)
+//      addr := &unix.SockaddrALG{Type: "hash", Name: "sha1"}
+//      unix.Bind(fd, addr)
+//      // Note: unix.Accept does not work at this time; must invoke accept()
+//      // manually using unix.Syscall.
+//      hashfd, _, _ := unix.Syscall(unix.SYS_ACCEPT, uintptr(fd), 0, 0)
+//
+// Once a file descriptor has been returned from Accept, it may be used to
+// perform SHA1 hashing. The descriptor is not safe for concurrent use, but
+// may be re-used repeatedly with subsequent Write and Read operations.
+//
+// When hashing a small byte slice or string, a single Write and Read may
+// be used:
+//
+//      // Assume hashfd is already configured using the setup process.
+//      hash := os.NewFile(hashfd, "sha1")
+//      // Hash an input string and read the results. Each Write discards
+//      // previous hash state. Read always reads the current state.
+//      b := make([]byte, 20)
+//      for i := 0; i < 2; i++ {
+//          io.WriteString(hash, "Hello, world.")
+//          hash.Read(b)
+//          fmt.Println(hex.EncodeToString(b))
+//      }
+//      // Output:
+//      // 2ae01472317d1935a84797ec1983ae243fc6aa28
+//      // 2ae01472317d1935a84797ec1983ae243fc6aa28
+//
+// For hashing larger byte slices, or byte streams such as those read from
+// a file or socket, use Sendto with MSG_MORE to instruct the kernel to update
+// the hash digest instead of creating a new one for a given chunk and finalizing it.
+//
+//      // Assume hashfd and addr are already configured using the setup process.
+//      hash := os.NewFile(hashfd, "sha1")
+//      // Hash the contents of a file.
+//      f, _ := os.Open("/tmp/linux-4.10-rc7.tar.xz")
+//      b := make([]byte, 4096)
+//      for {
+//          n, err := f.Read(b)
+//          if err == io.EOF {
+//              break
+//          }
+//          unix.Sendto(hashfd, b[:n], unix.MSG_MORE, addr)
+//      }
+//      hash.Read(b)
+//      fmt.Println(hex.EncodeToString(b))
+//      // Output: 85cdcad0c06eef66f805ecce353bec9accbeecc5
+//
+// For more information, see: http://www.chronox.de/crypto-API/crypto/userspace-if.html.
+type SockaddrALG struct {
+	Type    string
+	Name    string
+	Feature uint32
+	Mask    uint32
+	raw     RawSockaddrALG
+}
+
+func (sa *SockaddrALG) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	// Leave room for NUL byte terminator.
+	if len(sa.Type) > 13 {
+		return nil, 0, EINVAL
+	}
+	if len(sa.Name) > 63 {
+		return nil, 0, EINVAL
+	}
+
+	sa.raw.Family = AF_ALG
+	sa.raw.Feat = sa.Feature
+	sa.raw.Mask = sa.Mask
+
+	typ, err := ByteSliceFromString(sa.Type)
+	if err != nil {
+		return nil, 0, err
+	}
+	name, err := ByteSliceFromString(sa.Name)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	copy(sa.raw.Type[:], typ)
+	copy(sa.raw.Name[:], name)
+
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrALG, nil
+}
+
+// SockaddrVM implements the Sockaddr interface for AF_VSOCK type sockets.
+// SockaddrVM provides access to Linux VM sockets: a mechanism that enables
+// bidirectional communication between a hypervisor and its guest virtual
+// machines.
+type SockaddrVM struct {
+	// CID and Port specify a context ID and port address for a VM socket.
+	// Guests have a unique CID, and hosts may have a well-known CID of:
+	//  - VMADDR_CID_HYPERVISOR: refers to the hypervisor process.
+	//  - VMADDR_CID_HOST: refers to other processes on the host.
+	CID  uint32
+	Port uint32
+	raw  RawSockaddrVM
+}
+
+func (sa *SockaddrVM) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	sa.raw.Family = AF_VSOCK
+	sa.raw.Port = sa.Port
+	sa.raw.Cid = sa.CID
+
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrVM, nil
+}
+
+type SockaddrXDP struct {
+	Flags        uint16
+	Ifindex      uint32
+	QueueID      uint32
+	SharedUmemFD uint32
+	raw          RawSockaddrXDP
+}
+
+func (sa *SockaddrXDP) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	sa.raw.Family = AF_XDP
+	sa.raw.Flags = sa.Flags
+	sa.raw.Ifindex = sa.Ifindex
+	sa.raw.Queue_id = sa.QueueID
+	sa.raw.Shared_umem_fd = sa.SharedUmemFD
+
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrXDP, nil
+}
+
+// This constant mirrors the #define of PX_PROTO_OE in
+// linux/if_pppox.h. We're defining this by hand here instead of
+// autogenerating through mkerrors.sh because including
+// linux/if_pppox.h causes some declaration conflicts with other
+// includes (linux/if_pppox.h includes linux/in.h, which conflicts
+// with netinet/in.h). Given that we only need a single zero constant
+// out of that file, it's cleaner to just define it by hand here.
+const px_proto_oe = 0
+
+type SockaddrPPPoE struct {
+	SID    uint16
+	Remote []byte
+	Dev    string
+	raw    RawSockaddrPPPoX
+}
+
+func (sa *SockaddrPPPoE) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	if len(sa.Remote) != 6 {
+		return nil, 0, EINVAL
+	}
+	if len(sa.Dev) > IFNAMSIZ-1 {
+		return nil, 0, EINVAL
+	}
+
+	*(*uint16)(unsafe.Pointer(&sa.raw[0])) = AF_PPPOX
+	// This next field is in host-endian byte order. We can't use the
+	// same unsafe pointer cast as above, because this value is not
+	// 32-bit aligned and some architectures don't allow unaligned
+	// access.
+	//
+	// However, the value of px_proto_oe is 0, so we can use
+	// encoding/binary helpers to write the bytes without worrying
+	// about the ordering.
+	binary.BigEndian.PutUint32(sa.raw[2:6], px_proto_oe)
+	// This field is deliberately big-endian, unlike the previous
+	// one. The kernel expects SID to be in network byte order.
+	binary.BigEndian.PutUint16(sa.raw[6:8], sa.SID)
+	copy(sa.raw[8:14], sa.Remote)
+	for i := 14; i < 14+IFNAMSIZ; i++ {
+		sa.raw[i] = 0
+	}
+	copy(sa.raw[14:], sa.Dev)
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrPPPoX, nil
+}
+
+// SockaddrTIPC implements the Sockaddr interface for AF_TIPC type sockets.
+// For more information on TIPC, see: http://tipc.sourceforge.net/.
+type SockaddrTIPC struct {
+	// Scope is the publication scopes when binding service/service range.
+	// Should be set to TIPC_CLUSTER_SCOPE or TIPC_NODE_SCOPE.
+	Scope int
+
+	// Addr is the type of address used to manipulate a socket. Addr must be
+	// one of:
+	//  - *TIPCSocketAddr: "id" variant in the C addr union
+	//  - *TIPCServiceRange: "nameseq" variant in the C addr union
+	//  - *TIPCServiceName: "name" variant in the C addr union
+	//
+

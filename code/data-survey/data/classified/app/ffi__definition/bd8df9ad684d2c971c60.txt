@@ -1,0 +1,34 @@
+Module: github.com/containers/storage
+Version: v1.20.1
+
+Package: github.com/containers/storage/pkg/unshare
+File: /root/.cache/go-build/26/26042e0cd948e4667efc8f6be129dd69e8fa4c24cd28eaf1e9b7b3619ba78c30-d
+Line: 31
+
+Imported (possibly among others) by: containers/libpod
+
+Label 1 (What is happening?): definition
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+func _cgo_runtime_cgocall(unsafe.Pointer, uintptr) int32
+--------------------------------------------------------------
++/- 5 lines context:
+
+type _Ctype_ptrdiff_t = _Ctype_long
+
+type _Ctype_void [0]byte
+
+//go:linkname _cgo_runtime_cgocall runtime.cgocall
+func _cgo_runtime_cgocall(unsafe.Pointer, uintptr) int32
+
+//go:linkname _cgo_runtime_cgocallback runtime.cgocallback
+func _cgo_runtime_cgocallback(unsafe.Pointer, unsafe.Pointer, uintptr, uintptr)
+
+//go:linkname _cgoCheckPointer runtime.cgoCheckPointer
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

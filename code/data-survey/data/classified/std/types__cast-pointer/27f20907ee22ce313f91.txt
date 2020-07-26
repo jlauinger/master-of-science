@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: value.go
+Line: 1444
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+return **(**uintptr)(unsafe.Pointer(&f))
+--------------------------------------------------------------
++/- 5 lines context:
+
+			// identify a single function uniquely. All method expressions
+			// created via reflect have the same underlying code pointer,
+			// so their Pointers are equal. The function used here must
+			// match the one used in makeMethodValue.
+			f := methodValueCall
+			return **(**uintptr)(unsafe.Pointer(&f))
+		}
+		p := v.pointer()
+		// Non-nil func value points at data block.
+		// First word of data block is actual code.
+		if p != nil {
+--------------------------------------------------------------
++/- 100 lines context:
+
+func (v Value) NumField() int {
+	v.mustBe(Struct)
+	tt := (*structType)(unsafe.Pointer(v.typ))
+	return len(tt.fields)
+}
+
+// OverflowComplex reports whether the complex128 x cannot be represented by v's type.
+// It panics if v's Kind is not Complex64 or Complex128.
+func (v Value) OverflowComplex(x complex128) bool {
+	k := v.kind()
+	switch k {
+	case Complex64:
+		return overflowFloat32(real(x)) || overflowFloat32(imag(x))
+	case Complex128:
+		return false
+	}
+	panic(&ValueError{"reflect.Value.OverflowComplex", v.kind()})
+}
+
+// OverflowFloat reports whether the float64 x cannot be represented by v's type.
+// It panics if v's Kind is not Float32 or Float64.
+func (v Value) OverflowFloat(x float64) bool {
+	k := v.kind()
+	switch k {
+	case Float32:
+		return overflowFloat32(x)
+	case Float64:
+		return false
+	}
+	panic(&ValueError{"reflect.Value.OverflowFloat", v.kind()})
+}
+
+func overflowFloat32(x float64) bool {
+	if x < 0 {
+		x = -x
+	}
+	return math.MaxFloat32 < x && x <= math.MaxFloat64
+}
+
+// OverflowInt reports whether the int64 x cannot be represented by v's type.
+// It panics if v's Kind is not Int, Int8, Int16, Int32, or Int64.
+func (v Value) OverflowInt(x int64) bool {
+	k := v.kind()
+	switch k {
+	case Int, Int8, Int16, Int32, Int64:
+		bitSize := v.typ.size * 8
+		trunc := (x << (64 - bitSize)) >> (64 - bitSize)
+		return x != trunc
+	}
+	panic(&ValueError{"reflect.Value.OverflowInt", v.kind()})
+}
+
+// OverflowUint reports whether the uint64 x cannot be represented by v's type.
+// It panics if v's Kind is not Uint, Uintptr, Uint8, Uint16, Uint32, or Uint64.
+func (v Value) OverflowUint(x uint64) bool {
+	k := v.kind()
+	switch k {
+	case Uint, Uintptr, Uint8, Uint16, Uint32, Uint64:
+		bitSize := v.typ.size * 8
+		trunc := (x << (64 - bitSize)) >> (64 - bitSize)
+		return x != trunc
+	}
+	panic(&ValueError{"reflect.Value.OverflowUint", v.kind()})
+}
+
+//go:nocheckptr
+// This prevents inlining Value.Pointer when -d=checkptr is enabled,
+// which ensures cmd/compile can recognize unsafe.Pointer(v.Pointer())
+// and make an exception.
+
+// Pointer returns v's value as a uintptr.
+// It returns uintptr instead of unsafe.Pointer so that
+// code using reflect cannot obtain unsafe.Pointers
+// without importing the unsafe package explicitly.
+// It panics if v's Kind is not Chan, Func, Map, Ptr, Slice, or UnsafePointer.
+//
+// If v's Kind is Func, the returned pointer is an underlying
+// code pointer, but not necessarily enough to identify a
+// single function uniquely. The only guarantee is that the
+// result is zero if and only if v is a nil func Value.
+//
+// If v's Kind is Slice, the returned pointer is to the first
+// element of the slice. If the slice is nil the returned value
+// is 0.  If the slice is empty but non-nil the return value is non-zero.
+func (v Value) Pointer() uintptr {
+	// TODO: deprecate
+	k := v.kind()
+	switch k {
+	case Chan, Map, Ptr, UnsafePointer:
+		return uintptr(v.pointer())
+	case Func:
+		if v.flag&flagMethod != 0 {
+			// As the doc comment says, the returned pointer is an
+			// underlying code pointer but not necessarily enough to
+			// identify a single function uniquely. All method expressions
+			// created via reflect have the same underlying code pointer,
+			// so their Pointers are equal. The function used here must
+			// match the one used in makeMethodValue.
+			f := methodValueCall
+			return **(**uintptr)(unsafe.Pointer(&f))
+		}
+		p := v.pointer()
+		// Non-nil func value points at data block.
+		// First word of data block is actual code.
+		if p != nil {
+			p = *(*unsafe.Pointer)(p)
+		}
+		return uintptr(p)
+
+	case Slice:
+		return (*SliceHeader)(v.ptr).Data
+	}
+	panic(&ValueError{"reflect.Value.Pointer", v.kind()})
+}
+
+// Recv receives and returns a value from the channel v.
+// It panics if v's Kind is not Chan.
+// The receive blocks until a value is ready.
+// The boolean value ok is true if the value x corresponds to a send
+// on the channel, false if it is a zero value received because the channel is closed.
+func (v Value) Recv() (x Value, ok bool) {
+	v.mustBe(Chan)
+	v.mustBeExported()
+	return v.recv(false)
+}
+
+// internal recv, possibly non-blocking (nb).
+// v is known to be a channel.
+func (v Value) recv(nb bool) (val Value, ok bool) {
+	tt := (*chanType)(unsafe.Pointer(v.typ))
+	if ChanDir(tt.dir)&RecvDir == 0 {
+		panic("reflect: recv on send-only channel")
+	}
+	t := tt.elem
+	val = Value{t, nil, flag(t.Kind())}
+	var p unsafe.Pointer
+	if ifaceIndir(t) {
+		p = unsafe_New(t)
+		val.ptr = p
+		val.flag |= flagIndir
+	} else {
+		p = unsafe.Pointer(&val.ptr)
+	}
+	selected, ok := chanrecv(v.pointer(), nb, p)
+	if !selected {
+		val = Value{}
+	}
+	return
+}
+
+// Send sends x on the channel v.
+// It panics if v's kind is not Chan or if x's type is not the same type as v's element type.
+// As in Go, x's value must be assignable to the channel's element type.
+func (v Value) Send(x Value) {
+	v.mustBe(Chan)
+	v.mustBeExported()
+	v.send(x, false)
+}
+
+// internal send, possibly non-blocking.
+// v is known to be a channel.
+func (v Value) send(x Value, nb bool) (selected bool) {
+	tt := (*chanType)(unsafe.Pointer(v.typ))
+	if ChanDir(tt.dir)&SendDir == 0 {
+		panic("reflect: send on recv-only channel")
+	}
+	x.mustBeExported()
+	x = x.assignTo("reflect.Value.Send", tt.elem, nil)
+	var p unsafe.Pointer
+	if x.flag&flagIndir != 0 {
+		p = x.ptr
+	} else {
+		p = unsafe.Pointer(&x.ptr)
+	}
+	return chansend(v.pointer(), p, nb)
+}
+
+// Set assigns x to the value v.
+// It panics if CanSet returns false.
+// As in Go, x's value must be assignable to v's type.
+func (v Value) Set(x Value) {
+	v.mustBeAssignable()
+	x.mustBeExported() // do not let unexported x leak
+	var target unsafe.Pointer
+	if v.kind() == Interface {
+		target = v.ptr
+	}
+	x = x.assignTo("reflect.Set", v.typ, target)
+	if x.flag&flagIndir != 0 {
+		typedmemmove(v.typ, v.ptr, x.ptr)
+	} else {
+		*(*unsafe.Pointer)(v.ptr) = x.ptr
+	}
+}
+
+// SetBool sets v's underlying value.
+// It panics if v's Kind is not Bool or if CanSet() is false.
+func (v Value) SetBool(x bool) {
+	v.mustBeAssignable()
+	v.mustBe(Bool)
+

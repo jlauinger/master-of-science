@@ -1,0 +1,234 @@
+Module: github.com/json-iterator/go
+Version: v1.1.7
+
+Package: github.com/json-iterator/go
+File: reflect_extension.go
+Line: 219
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func RegisterTypeEncoderFunc(typ string, fun EncoderFunc, isEmptyFunc func(unsafe.Pointer) bool) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+func RegisterFieldDecoder(typ string, field string, decoder ValDecoder) {
+	fieldDecoders[fmt.Sprintf("%s/%s", typ, field)] = decoder
+}
+
+// RegisterTypeEncoderFunc register TypeEncoder for a type with encode/isEmpty function
+func RegisterTypeEncoderFunc(typ string, fun EncoderFunc, isEmptyFunc func(unsafe.Pointer) bool) {
+	typeEncoders[typ] = &funcEncoder{fun, isEmptyFunc}
+}
+
+// RegisterTypeEncoder register TypeEncoder for a type
+func RegisterTypeEncoder(typ string, encoder ValEncoder) {
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+// DecorateDecoder No-op
+func (extension EncoderExtension) DecorateDecoder(typ reflect2.Type, decoder ValDecoder) ValDecoder {
+	return decoder
+}
+
+// DecorateEncoder No-op
+func (extension EncoderExtension) DecorateEncoder(typ reflect2.Type, encoder ValEncoder) ValEncoder {
+	return encoder
+}
+
+type DecoderExtension map[reflect2.Type]ValDecoder
+
+// UpdateStructDescriptor No-op
+func (extension DecoderExtension) UpdateStructDescriptor(structDescriptor *StructDescriptor) {
+}
+
+// CreateMapKeyDecoder No-op
+func (extension DecoderExtension) CreateMapKeyDecoder(typ reflect2.Type) ValDecoder {
+	return nil
+}
+
+// CreateMapKeyEncoder No-op
+func (extension DecoderExtension) CreateMapKeyEncoder(typ reflect2.Type) ValEncoder {
+	return nil
+}
+
+// CreateDecoder get decoder from map
+func (extension DecoderExtension) CreateDecoder(typ reflect2.Type) ValDecoder {
+	return extension[typ]
+}
+
+// CreateEncoder No-op
+func (extension DecoderExtension) CreateEncoder(typ reflect2.Type) ValEncoder {
+	return nil
+}
+
+// DecorateDecoder No-op
+func (extension DecoderExtension) DecorateDecoder(typ reflect2.Type, decoder ValDecoder) ValDecoder {
+	return decoder
+}
+
+// DecorateEncoder No-op
+func (extension DecoderExtension) DecorateEncoder(typ reflect2.Type, encoder ValEncoder) ValEncoder {
+	return encoder
+}
+
+type funcDecoder struct {
+	fun DecoderFunc
+}
+
+func (decoder *funcDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.fun(ptr, iter)
+}
+
+type funcEncoder struct {
+	fun         EncoderFunc
+	isEmptyFunc func(ptr unsafe.Pointer) bool
+}
+
+func (encoder *funcEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.fun(ptr, stream)
+}
+
+func (encoder *funcEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	if encoder.isEmptyFunc == nil {
+		return false
+	}
+	return encoder.isEmptyFunc(ptr)
+}
+
+// DecoderFunc the function form of TypeDecoder
+type DecoderFunc func(ptr unsafe.Pointer, iter *Iterator)
+
+// EncoderFunc the function form of TypeEncoder
+type EncoderFunc func(ptr unsafe.Pointer, stream *Stream)
+
+// RegisterTypeDecoderFunc register TypeDecoder for a type with function
+func RegisterTypeDecoderFunc(typ string, fun DecoderFunc) {
+	typeDecoders[typ] = &funcDecoder{fun}
+}
+
+// RegisterTypeDecoder register TypeDecoder for a typ
+func RegisterTypeDecoder(typ string, decoder ValDecoder) {
+	typeDecoders[typ] = decoder
+}
+
+// RegisterFieldDecoderFunc register TypeDecoder for a struct field with function
+func RegisterFieldDecoderFunc(typ string, field string, fun DecoderFunc) {
+	RegisterFieldDecoder(typ, field, &funcDecoder{fun})
+}
+
+// RegisterFieldDecoder register TypeDecoder for a struct field
+func RegisterFieldDecoder(typ string, field string, decoder ValDecoder) {
+	fieldDecoders[fmt.Sprintf("%s/%s", typ, field)] = decoder
+}
+
+// RegisterTypeEncoderFunc register TypeEncoder for a type with encode/isEmpty function
+func RegisterTypeEncoderFunc(typ string, fun EncoderFunc, isEmptyFunc func(unsafe.Pointer) bool) {
+	typeEncoders[typ] = &funcEncoder{fun, isEmptyFunc}
+}
+
+// RegisterTypeEncoder register TypeEncoder for a type
+func RegisterTypeEncoder(typ string, encoder ValEncoder) {
+	typeEncoders[typ] = encoder
+}
+
+// RegisterFieldEncoderFunc register TypeEncoder for a struct field with encode/isEmpty function
+func RegisterFieldEncoderFunc(typ string, field string, fun EncoderFunc, isEmptyFunc func(unsafe.Pointer) bool) {
+	RegisterFieldEncoder(typ, field, &funcEncoder{fun, isEmptyFunc})
+}
+
+// RegisterFieldEncoder register TypeEncoder for a struct field
+func RegisterFieldEncoder(typ string, field string, encoder ValEncoder) {
+	fieldEncoders[fmt.Sprintf("%s/%s", typ, field)] = encoder
+}
+
+// RegisterExtension register extension
+func RegisterExtension(extension Extension) {
+	extensions = append(extensions, extension)
+}
+
+func getTypeDecoderFromExtension(ctx *ctx, typ reflect2.Type) ValDecoder {
+	decoder := _getTypeDecoderFromExtension(ctx, typ)
+	if decoder != nil {
+		for _, extension := range extensions {
+			decoder = extension.DecorateDecoder(typ, decoder)
+		}
+		decoder = ctx.decoderExtension.DecorateDecoder(typ, decoder)
+		for _, extension := range ctx.extraExtensions {
+			decoder = extension.DecorateDecoder(typ, decoder)
+		}
+	}
+	return decoder
+}
+func _getTypeDecoderFromExtension(ctx *ctx, typ reflect2.Type) ValDecoder {
+	for _, extension := range extensions {
+		decoder := extension.CreateDecoder(typ)
+		if decoder != nil {
+			return decoder
+		}
+	}
+	decoder := ctx.decoderExtension.CreateDecoder(typ)
+	if decoder != nil {
+		return decoder
+	}
+	for _, extension := range ctx.extraExtensions {
+		decoder := extension.CreateDecoder(typ)
+		if decoder != nil {
+			return decoder
+		}
+	}
+	typeName := typ.String()
+	decoder = typeDecoders[typeName]
+	if decoder != nil {
+		return decoder
+	}
+	if typ.Kind() == reflect.Ptr {
+		ptrType := typ.(*reflect2.UnsafePtrType)
+		decoder := typeDecoders[ptrType.Elem().String()]
+		if decoder != nil {
+			return &OptionalDecoder{ptrType.Elem(), decoder}
+		}
+	}
+	return nil
+}
+
+func getTypeEncoderFromExtension(ctx *ctx, typ reflect2.Type) ValEncoder {
+	encoder := _getTypeEncoderFromExtension(ctx, typ)
+	if encoder != nil {
+		for _, extension := range extensions {
+			encoder = extension.DecorateEncoder(typ, encoder)
+		}
+		encoder = ctx.encoderExtension.DecorateEncoder(typ, encoder)
+		for _, extension := range ctx.extraExtensions {
+			encoder = extension.DecorateEncoder(typ, encoder)
+		}
+	}
+	return encoder
+}
+
+func _getTypeEncoderFromExtension(ctx *ctx, typ reflect2.Type) ValEncoder {
+	for _, extension := range extensions {
+		encoder := extension.CreateEncoder(typ)
+		if encoder != nil {
+			return encoder
+		}
+	}
+	encoder := ctx.encoderExtension.CreateEncoder(typ)
+	if encoder != nil {
+		return encoder
+	}
+	for _, extension := range ctx.extraExtensions {
+		encoder := extension.CreateEncoder(typ)
+		if encoder != nil {
+			return encoder
+		}
+	}
+	typeName := typ.String()
+

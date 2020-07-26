@@ -1,0 +1,234 @@
+Module: github.com/elastic/go-structform
+Version: v0.0.6
+
+Package: github.com/elastic/go-structform/gotype
+File: unfold_user_primitive.generated.go
+Line: 415
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (u *userUnfolderFloat32) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return &userUnfolderFloat32{
+		fn: *((*userUnfolderFloat32CB)(stunsafe.UnsafeFnPtr(fn))),
+	}
+}
+
+func (u *userUnfolderFloat32) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *userUnfolderFloat32) cleanup(ctx *unfoldCtx) {
+--------------------------------------------------------------
++/- 100 lines context:
+
+func newUserUnfolderInt16(fn reflect.Value) ptrUnfolder {
+	return &userUnfolderInt16{
+		fn: *((*userUnfolderInt16CB)(stunsafe.UnsafeFnPtr(fn))),
+	}
+}
+
+func (u *userUnfolderInt16) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *userUnfolderInt16) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *userUnfolderInt16) process(ctx *unfoldCtx, v int16) error {
+	err := u.fn(ctx.ptr.current, v)
+	u.cleanup(ctx)
+	return err
+}
+
+type (
+	userUnfolderInt32 struct {
+		unfolderErrUnknown
+		fn userUnfolderInt32CB
+	}
+
+	userUnfolderInt32CB func(unsafe.Pointer, int32) error
+)
+
+func newUserUnfolderInt32(fn reflect.Value) ptrUnfolder {
+	return &userUnfolderInt32{
+		fn: *((*userUnfolderInt32CB)(stunsafe.UnsafeFnPtr(fn))),
+	}
+}
+
+func (u *userUnfolderInt32) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *userUnfolderInt32) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *userUnfolderInt32) process(ctx *unfoldCtx, v int32) error {
+	err := u.fn(ctx.ptr.current, v)
+	u.cleanup(ctx)
+	return err
+}
+
+type (
+	userUnfolderInt64 struct {
+		unfolderErrUnknown
+		fn userUnfolderInt64CB
+	}
+
+	userUnfolderInt64CB func(unsafe.Pointer, int64) error
+)
+
+func newUserUnfolderInt64(fn reflect.Value) ptrUnfolder {
+	return &userUnfolderInt64{
+		fn: *((*userUnfolderInt64CB)(stunsafe.UnsafeFnPtr(fn))),
+	}
+}
+
+func (u *userUnfolderInt64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *userUnfolderInt64) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *userUnfolderInt64) process(ctx *unfoldCtx, v int64) error {
+	err := u.fn(ctx.ptr.current, v)
+	u.cleanup(ctx)
+	return err
+}
+
+type (
+	userUnfolderFloat32 struct {
+		unfolderErrUnknown
+		fn userUnfolderFloat32CB
+	}
+
+	userUnfolderFloat32CB func(unsafe.Pointer, float32) error
+)
+
+func newUserUnfolderFloat32(fn reflect.Value) ptrUnfolder {
+	return &userUnfolderFloat32{
+		fn: *((*userUnfolderFloat32CB)(stunsafe.UnsafeFnPtr(fn))),
+	}
+}
+
+func (u *userUnfolderFloat32) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *userUnfolderFloat32) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *userUnfolderFloat32) process(ctx *unfoldCtx, v float32) error {
+	err := u.fn(ctx.ptr.current, v)
+	u.cleanup(ctx)
+	return err
+}
+
+type (
+	userUnfolderFloat64 struct {
+		unfolderErrUnknown
+		fn userUnfolderFloat64CB
+	}
+
+	userUnfolderFloat64CB func(unsafe.Pointer, float64) error
+)
+
+func newUserUnfolderFloat64(fn reflect.Value) ptrUnfolder {
+	return &userUnfolderFloat64{
+		fn: *((*userUnfolderFloat64CB)(stunsafe.UnsafeFnPtr(fn))),
+	}
+}
+
+func (u *userUnfolderFloat64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *userUnfolderFloat64) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *userUnfolderFloat64) process(ctx *unfoldCtx, v float64) error {
+	err := u.fn(ctx.ptr.current, v)
+	u.cleanup(ctx)
+	return err
+}
+
+func (u *userUnfolderBool) OnNil(ctx *unfoldCtx) error {
+	return u.process(ctx, false)
+}
+
+func (u *userUnfolderBool) OnBool(ctx *unfoldCtx, v bool) error { return u.process(ctx, v) }
+
+func (u *userUnfolderString) OnNil(ctx *unfoldCtx) error {
+	return u.process(ctx, "")
+}
+
+func (u *userUnfolderString) OnString(ctx *unfoldCtx, v string) error { return u.process(ctx, v) }
+func (u *userUnfolderString) OnStringRef(ctx *unfoldCtx, v []byte) error {
+	return u.OnString(ctx, string(v))
+}
+
+func (u *userUnfolderUint) OnNil(ctx *unfoldCtx) error {
+	return u.process(ctx, 0)
+}
+
+func (u *userUnfolderUint) OnByte(ctx *unfoldCtx, v byte) error {
+	return u.process(ctx, uint(v))
+}
+
+func (u *userUnfolderUint) OnUint(ctx *unfoldCtx, v uint) error {
+	return u.process(ctx, uint(v))
+}
+
+func (u *userUnfolderUint) OnUint8(ctx *unfoldCtx, v uint8) error {
+	return u.process(ctx, uint(v))
+}
+
+func (u *userUnfolderUint) OnUint16(ctx *unfoldCtx, v uint16) error {
+	return u.process(ctx, uint(v))
+}
+
+func (u *userUnfolderUint) OnUint32(ctx *unfoldCtx, v uint32) error {
+	return u.process(ctx, uint(v))
+}
+
+func (u *userUnfolderUint) OnUint64(ctx *unfoldCtx, v uint64) error {
+	return u.process(ctx, uint(v))
+}
+
+func (u *userUnfolderUint) OnInt(ctx *unfoldCtx, v int) error {
+	return u.process(ctx, uint(v))
+}
+
+func (u *userUnfolderUint) OnInt8(ctx *unfoldCtx, v int8) error {
+	return u.process(ctx, uint(v))
+}
+
+func (u *userUnfolderUint) OnInt16(ctx *unfoldCtx, v int16) error {
+	return u.process(ctx, uint(v))
+}
+

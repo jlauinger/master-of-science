@@ -1,0 +1,34 @@
+Module: github.com/coreos/go-systemd
+Version: v0.0.0-20190321100706-95778dfbb74e
+
+Package: github.com/coreos/go-systemd/util
+File: /root/.cache/go-build/fe/fe441f0bd0e8a2793e42a5a0d45dec43031ce11eaec5d1c3fb6926f8c52f0a82-d
+Line: 131
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+_cgo_runtime_cgocall(_cgo_82cd32a0f796_Cfunc_my_sd_pid_get_unit, uintptr(unsafe.Pointer(&p0)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+var __cgofn__cgo_82cd32a0f796_Cfunc_my_sd_pid_get_unit byte
+var _cgo_82cd32a0f796_Cfunc_my_sd_pid_get_unit = unsafe.Pointer(&__cgofn__cgo_82cd32a0f796_Cfunc_my_sd_pid_get_unit)
+
+//go:cgo_unsafe_args
+func _Cfunc_my_sd_pid_get_unit(p0 unsafe.Pointer, p1 _Ctype_pid_t, p2 **_Ctype_char) (r1 _Ctype_int) {
+	_cgo_runtime_cgocall(_cgo_82cd32a0f796_Cfunc_my_sd_pid_get_unit, uintptr(unsafe.Pointer(&p0)))
+	if _Cgo_always_false {
+		_Cgo_use(p0)
+		_Cgo_use(p1)
+		_Cgo_use(p2)
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

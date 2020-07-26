@@ -1,0 +1,34 @@
+Module: github.com/cilium/cilium
+Version: project
+
+Package: github.com/cilium/cilium/pkg/maps/lbmap
+File: ipv4.go
+Line: 247
+
+Imported (possibly among others) by: cilium/cilium
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+func (k *Backend4Key) GetKeyPtr() unsafe.Pointer       { return unsafe.Pointer(k) }
+--------------------------------------------------------------
++/- 5 lines context:
+
+func NewBackend4Key(id loadbalancer.BackendID) *Backend4Key {
+	return &Backend4Key{ID: id}
+}
+
+func (k *Backend4Key) String() string                  { return fmt.Sprintf("%d", k.ID) }
+func (k *Backend4Key) GetKeyPtr() unsafe.Pointer       { return unsafe.Pointer(k) }
+func (k *Backend4Key) NewValue() bpf.MapValue          { return &Backend4Value{} }
+func (k *Backend4Key) Map() *bpf.Map                   { return Backend4Map }
+func (k *Backend4Key) SetID(id loadbalancer.BackendID) { k.ID = id }
+func (k *Backend4Key) GetID() loadbalancer.BackendID   { return k.ID }
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

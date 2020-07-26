@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: heapdump.go
+Line: 209
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func dumpotherroot(description string, to unsafe.Pointer) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	dumpint(uint64(uintptr(obj)))
+	dumpmemrange(obj, size)
+	dumpfields(bv)
+}
+
+func dumpotherroot(description string, to unsafe.Pointer) {
+	dumpint(tagOtherRoot)
+	dumpstr(description)
+	dumpint(uint64(uintptr(to)))
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+var typecache [typeCacheBuckets]typeCacheBucket
+
+// dump a uint64 in a varint format parseable by encoding/binary
+func dumpint(v uint64) {
+	var buf [10]byte
+	var n int
+	for v >= 0x80 {
+		buf[n] = byte(v | 0x80)
+		n++
+		v >>= 7
+	}
+	buf[n] = byte(v)
+	n++
+	dwrite(unsafe.Pointer(&buf), uintptr(n))
+}
+
+func dumpbool(b bool) {
+	if b {
+		dumpint(1)
+	} else {
+		dumpint(0)
+	}
+}
+
+// dump varint uint64 length followed by memory contents
+func dumpmemrange(data unsafe.Pointer, len uintptr) {
+	dumpint(uint64(len))
+	dwrite(data, len)
+}
+
+func dumpslice(b []byte) {
+	dumpint(uint64(len(b)))
+	if len(b) > 0 {
+		dwrite(unsafe.Pointer(&b[0]), uintptr(len(b)))
+	}
+}
+
+func dumpstr(s string) {
+	sp := stringStructOf(&s)
+	dumpmemrange(sp.str, uintptr(sp.len))
+}
+
+// dump information for a type
+func dumptype(t *_type) {
+	if t == nil {
+		return
+	}
+
+	// If we've definitely serialized the type before,
+	// no need to do it again.
+	b := &typecache[t.hash&(typeCacheBuckets-1)]
+	if t == b.t[0] {
+		return
+	}
+	for i := 1; i < typeCacheAssoc; i++ {
+		if t == b.t[i] {
+			// Move-to-front
+			for j := i; j > 0; j-- {
+				b.t[j] = b.t[j-1]
+			}
+			b.t[0] = t
+			return
+		}
+	}
+
+	// Might not have been dumped yet. Dump it and
+	// remember we did so.
+	for j := typeCacheAssoc - 1; j > 0; j-- {
+		b.t[j] = b.t[j-1]
+	}
+	b.t[0] = t
+
+	// dump the type
+	dumpint(tagType)
+	dumpint(uint64(uintptr(unsafe.Pointer(t))))
+	dumpint(uint64(t.size))
+	if x := t.uncommon(); x == nil || t.nameOff(x.pkgpath).name() == "" {
+		dumpstr(t.string())
+	} else {
+		pkgpathstr := t.nameOff(x.pkgpath).name()
+		pkgpath := stringStructOf(&pkgpathstr)
+		namestr := t.name()
+		name := stringStructOf(&namestr)
+		dumpint(uint64(uintptr(pkgpath.len) + 1 + uintptr(name.len)))
+		dwrite(pkgpath.str, uintptr(pkgpath.len))
+		dwritebyte('.')
+		dwrite(name.str, uintptr(name.len))
+	}
+	dumpbool(t.kind&kindDirectIface == 0 || t.ptrdata != 0)
+}
+
+// dump an object
+func dumpobj(obj unsafe.Pointer, size uintptr, bv bitvector) {
+	dumpint(tagObject)
+	dumpint(uint64(uintptr(obj)))
+	dumpmemrange(obj, size)
+	dumpfields(bv)
+}
+
+func dumpotherroot(description string, to unsafe.Pointer) {
+	dumpint(tagOtherRoot)
+	dumpstr(description)
+	dumpint(uint64(uintptr(to)))
+}
+
+func dumpfinalizer(obj unsafe.Pointer, fn *funcval, fint *_type, ot *ptrtype) {
+	dumpint(tagFinalizer)
+	dumpint(uint64(uintptr(obj)))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fn.fn))))
+	dumpint(uint64(uintptr(unsafe.Pointer(fint))))
+	dumpint(uint64(uintptr(unsafe.Pointer(ot))))
+}
+
+type childInfo struct {
+	// Information passed up from the callee frame about
+	// the layout of the outargs region.
+	argoff uintptr   // where the arguments start in the frame
+	arglen uintptr   // size of args region
+	args   bitvector // if args.n >= 0, pointer map of args region
+	sp     *uint8    // callee sp
+	depth  uintptr   // depth in call stack (0 == most recent)
+}
+
+// dump kinds & offsets of interesting fields in bv
+func dumpbv(cbv *bitvector, offset uintptr) {
+	for i := uintptr(0); i < uintptr(cbv.n); i++ {
+		if cbv.ptrbit(i) == 1 {
+			dumpint(fieldKindPtr)
+			dumpint(uint64(offset + i*sys.PtrSize))
+		}
+	}
+}
+
+func dumpframe(s *stkframe, arg unsafe.Pointer) bool {
+	child := (*childInfo)(arg)
+	f := s.fn
+
+	// Figure out what we can about our stack map
+	pc := s.pc
+	pcdata := int32(-1) // Use the entry map at function entry
+	if pc != f.entry {
+		pc--
+		pcdata = pcdatavalue(f, _PCDATA_StackMapIndex, pc, nil)
+	}
+	if pcdata == -1 {
+		// We do not have a valid pcdata value but there might be a
+		// stackmap for this function. It is likely that we are looking
+		// at the function prologue, assume so and hope for the best.
+		pcdata = 0
+	}
+	stkmap := (*stackmap)(funcdata(f, _FUNCDATA_LocalsPointerMaps))
+
+	var bv bitvector
+	if stkmap != nil && stkmap.n > 0 {
+		bv = stackmapdata(stkmap, pcdata)
+	} else {
+		bv.n = -1
+	}
+
+	// Dump main body of stack frame.
+	dumpint(tagStackFrame)
+	dumpint(uint64(s.sp))                              // lowest address in frame
+	dumpint(uint64(child.depth))                       // # of frames deep on the stack
+	dumpint(uint64(uintptr(unsafe.Pointer(child.sp)))) // sp of child, or 0 if bottom of stack
+	dumpmemrange(unsafe.Pointer(s.sp), s.fp-s.sp)      // frame contents
+	dumpint(uint64(f.entry))
+	dumpint(uint64(s.pc))
+	dumpint(uint64(s.continpc))
+	name := funcname(f)
+	if name == "" {
+		name = "unknown function"
+	}
+	dumpstr(name)
+
+	// Dump fields in the outargs section
+	if child.args.n >= 0 {
+		dumpbv(&child.args, child.argoff)
+	} else {
+		// conservative - everything might be a pointer
+		for off := child.argoff; off < child.argoff+child.arglen; off += sys.PtrSize {
+			dumpint(fieldKindPtr)
+			dumpint(uint64(off))
+		}
+	}
+
+	// Dump fields in the local vars section
+	if stkmap == nil {
+		// No locals information, dump everything.
+		for off := child.arglen; off < s.varp-s.sp; off += sys.PtrSize {
+			dumpint(fieldKindPtr)
+			dumpint(uint64(off))
+		}
+	} else if stkmap.n < 0 {
+		// Locals size information, dump just the locals.
+		size := uintptr(-stkmap.n)
+		for off := s.varp - size - s.sp; off < s.varp-s.sp; off += sys.PtrSize {
+			dumpint(fieldKindPtr)
+			dumpint(uint64(off))
+		}
+

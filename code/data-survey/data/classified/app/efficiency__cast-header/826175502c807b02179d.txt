@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/native
+File: iterator_native.go
+Line: 277
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): cast-header
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+retVal[i] = *(*[]int16)(unsafe.Pointer(hdr))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int16)(unsafe.Pointer(hdr))
+	}
+	return
+}
+
+// Tensor3I16 converts a *Dense into  a [][][]int16.
+--------------------------------------------------------------
++/- 100 lines context:
+
+func VectorI8(t *Dense) (retVal []int8, err error) {
+	if err = checkNativeIterable(t, 1, Int8); err != nil {
+		return nil, err
+	}
+	return t.Int8s(), nil
+}
+
+// MatrixI8 converts a  *Dense into a [][]int8
+// If the *Dense does not represent a matrix of the wanted type, it will return an error.
+func MatrixI8(t *Dense) (retVal [][]int8, err error) {
+	if err = checkNativeIterable(t, 2, Int8); err != nil {
+		return nil, err
+	}
+
+	data := t.Int8s()
+	shape := t.Shape()
+	strides := t.Strides()
+
+	rows := shape[0]
+	cols := shape[1]
+	rowStride := strides[0]
+	retVal = make([][]int8, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int8)(unsafe.Pointer(hdr))
+	}
+	return
+}
+
+// Tensor3I8 converts a *Dense into  a [][][]int8.
+// If the *Dense does not represent a 3-tensor of the wanted type, it will return an error.
+func Tensor3I8(t *Dense) (retVal [][][]int8, err error) {
+	if err = checkNativeIterable(t, 3, Int8); err != nil {
+		return nil, err
+	}
+
+	data := t.Int8s()
+	shape := t.Shape()
+	strides := t.Strides()
+
+	layers := shape[0]
+	rows := shape[1]
+	cols := shape[2]
+	layerStride := strides[0]
+	rowStride := strides[1]
+	retVal = make([][][]int8, layers)
+	for i := range retVal {
+		retVal[i] = make([][]int8, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int8)(unsafe.Pointer(hdr))
+		}
+	}
+	return
+}
+
+/* Native Iterables for int16 */
+
+// VectorI16 converts a *Dense into a []int16
+// If the *Dense does not represent a vector of the wanted type, it will return an error.
+func VectorI16(t *Dense) (retVal []int16, err error) {
+	if err = checkNativeIterable(t, 1, Int16); err != nil {
+		return nil, err
+	}
+	return t.Int16s(), nil
+}
+
+// MatrixI16 converts a  *Dense into a [][]int16
+// If the *Dense does not represent a matrix of the wanted type, it will return an error.
+func MatrixI16(t *Dense) (retVal [][]int16, err error) {
+	if err = checkNativeIterable(t, 2, Int16); err != nil {
+		return nil, err
+	}
+
+	data := t.Int16s()
+	shape := t.Shape()
+	strides := t.Strides()
+
+	rows := shape[0]
+	cols := shape[1]
+	rowStride := strides[0]
+	retVal = make([][]int16, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int16)(unsafe.Pointer(hdr))
+	}
+	return
+}
+
+// Tensor3I16 converts a *Dense into  a [][][]int16.
+// If the *Dense does not represent a 3-tensor of the wanted type, it will return an error.
+func Tensor3I16(t *Dense) (retVal [][][]int16, err error) {
+	if err = checkNativeIterable(t, 3, Int16); err != nil {
+		return nil, err
+	}
+
+	data := t.Int16s()
+	shape := t.Shape()
+	strides := t.Strides()
+
+	layers := shape[0]
+	rows := shape[1]
+	cols := shape[2]
+	layerStride := strides[0]
+	rowStride := strides[1]
+	retVal = make([][][]int16, layers)
+	for i := range retVal {
+		retVal[i] = make([][]int16, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+			retVal[i][j] = *(*[]int16)(unsafe.Pointer(hdr))
+		}
+	}
+	return
+}
+
+/* Native Iterables for int32 */
+
+// VectorI32 converts a *Dense into a []int32
+// If the *Dense does not represent a vector of the wanted type, it will return an error.
+func VectorI32(t *Dense) (retVal []int32, err error) {
+	if err = checkNativeIterable(t, 1, Int32); err != nil {
+		return nil, err
+	}
+	return t.Int32s(), nil
+}
+
+// MatrixI32 converts a  *Dense into a [][]int32
+// If the *Dense does not represent a matrix of the wanted type, it will return an error.
+func MatrixI32(t *Dense) (retVal [][]int32, err error) {
+	if err = checkNativeIterable(t, 2, Int32); err != nil {
+		return nil, err
+	}
+
+	data := t.Int32s()
+	shape := t.Shape()
+	strides := t.Strides()
+
+	rows := shape[0]
+	cols := shape[1]
+	rowStride := strides[0]
+	retVal = make([][]int32, rows)
+	for i := range retVal {
+		start := i * rowStride
+		hdr := &reflect.SliceHeader{
+			Data: uintptr(unsafe.Pointer(&data[start])),
+			Len:  cols,
+			Cap:  cols,
+		}
+		retVal[i] = *(*[]int32)(unsafe.Pointer(hdr))
+	}
+	return
+}
+
+// Tensor3I32 converts a *Dense into  a [][][]int32.
+// If the *Dense does not represent a 3-tensor of the wanted type, it will return an error.
+func Tensor3I32(t *Dense) (retVal [][][]int32, err error) {
+	if err = checkNativeIterable(t, 3, Int32); err != nil {
+		return nil, err
+	}
+
+	data := t.Int32s()
+	shape := t.Shape()
+	strides := t.Strides()
+
+	layers := shape[0]
+	rows := shape[1]
+	cols := shape[2]
+	layerStride := strides[0]
+	rowStride := strides[1]
+	retVal = make([][][]int32, layers)
+	for i := range retVal {
+		retVal[i] = make([][]int32, rows)
+		for j := range retVal[i] {
+			start := i*layerStride + j*rowStride
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[start])),
+				Len:  cols,
+				Cap:  cols,
+			}
+

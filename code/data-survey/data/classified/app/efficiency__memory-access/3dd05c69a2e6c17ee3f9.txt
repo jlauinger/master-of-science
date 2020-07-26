@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/internal/execution
+File: generic_reduce.go
+Line: 1306
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+func reduceLastUnsafePointer(a, retVal []unsafe.Pointer, dimSize int, defaultValue unsafe.Pointer, fn func(a []unsafe.Pointer) unsafe.Pointer) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+		retVal[at] = r
+		at++
+	}
+}
+
+func reduceLastUnsafePointer(a, retVal []unsafe.Pointer, dimSize int, defaultValue unsafe.Pointer, fn func(a []unsafe.Pointer) unsafe.Pointer) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := fn(a[start : start+dimSize])
+		retVal[at] = r
+		at++
+--------------------------------------------------------------
++/- 100 lines context:
+
+func genericReduceLastUintptr(a, retVal []uintptr, dimSize int, defaultValue uintptr, fn func(uintptr, uintptr) uintptr) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := ReduceUintptr(fn, defaultValue, a[start:start+dimSize]...)
+		retVal[at] = r
+		at++
+	}
+}
+
+func reduceLastF32(a, retVal []float32, dimSize int, defaultValue float32, fn func(a []float32) float32) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := fn(a[start : start+dimSize])
+		retVal[at] = r
+		at++
+	}
+}
+
+func genericReduceLastF32(a, retVal []float32, dimSize int, defaultValue float32, fn func(float32, float32) float32) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := ReduceF32(fn, defaultValue, a[start:start+dimSize]...)
+		retVal[at] = r
+		at++
+	}
+}
+
+func reduceLastF64(a, retVal []float64, dimSize int, defaultValue float64, fn func(a []float64) float64) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := fn(a[start : start+dimSize])
+		retVal[at] = r
+		at++
+	}
+}
+
+func genericReduceLastF64(a, retVal []float64, dimSize int, defaultValue float64, fn func(float64, float64) float64) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := ReduceF64(fn, defaultValue, a[start:start+dimSize]...)
+		retVal[at] = r
+		at++
+	}
+}
+
+func reduceLastC64(a, retVal []complex64, dimSize int, defaultValue complex64, fn func(a []complex64) complex64) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := fn(a[start : start+dimSize])
+		retVal[at] = r
+		at++
+	}
+}
+
+func genericReduceLastC64(a, retVal []complex64, dimSize int, defaultValue complex64, fn func(complex64, complex64) complex64) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := ReduceC64(fn, defaultValue, a[start:start+dimSize]...)
+		retVal[at] = r
+		at++
+	}
+}
+
+func reduceLastC128(a, retVal []complex128, dimSize int, defaultValue complex128, fn func(a []complex128) complex128) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := fn(a[start : start+dimSize])
+		retVal[at] = r
+		at++
+	}
+}
+
+func genericReduceLastC128(a, retVal []complex128, dimSize int, defaultValue complex128, fn func(complex128, complex128) complex128) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := ReduceC128(fn, defaultValue, a[start:start+dimSize]...)
+		retVal[at] = r
+		at++
+	}
+}
+
+func reduceLastStr(a, retVal []string, dimSize int, defaultValue string, fn func(a []string) string) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := fn(a[start : start+dimSize])
+		retVal[at] = r
+		at++
+	}
+}
+
+func genericReduceLastStr(a, retVal []string, dimSize int, defaultValue string, fn func(string, string) string) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := ReduceStr(fn, defaultValue, a[start:start+dimSize]...)
+		retVal[at] = r
+		at++
+	}
+}
+
+func reduceLastUnsafePointer(a, retVal []unsafe.Pointer, dimSize int, defaultValue unsafe.Pointer, fn func(a []unsafe.Pointer) unsafe.Pointer) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := fn(a[start : start+dimSize])
+		retVal[at] = r
+		at++
+	}
+}
+
+func genericReduceLastUnsafePointer(a, retVal []unsafe.Pointer, dimSize int, defaultValue unsafe.Pointer, fn func(unsafe.Pointer, unsafe.Pointer) unsafe.Pointer) {
+	var at int
+	for start := 0; start <= len(a)-dimSize; start += dimSize {
+		r := ReduceUnsafePointer(fn, defaultValue, a[start:start+dimSize]...)
+		retVal[at] = r
+		at++
+	}
+}
+
+func reduceDefaultB(data, retVal []bool, dim0, dimSize, outerStride, stride, expected int, fn func(a, b bool) bool) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+			writeTo := i*expected + j
+			retVal[writeTo] = sliced[innerStart]
+			for k := 1; k < dimSize; k++ {
+				readFrom := innerStart + k*stride
+				retVal[writeTo] = fn(retVal[writeTo], sliced[readFrom])
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+			innerStart++
+		}
+	}
+}
+
+func reduceDefaultI(data, retVal []int, dim0, dimSize, outerStride, stride, expected int, fn func(a, b int) int) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+			writeTo := i*expected + j
+			retVal[writeTo] = sliced[innerStart]
+			for k := 1; k < dimSize; k++ {
+				readFrom := innerStart + k*stride
+				retVal[writeTo] = fn(retVal[writeTo], sliced[readFrom])
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+			innerStart++
+		}
+	}
+}
+
+func reduceDefaultI8(data, retVal []int8, dim0, dimSize, outerStride, stride, expected int, fn func(a, b int8) int8) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+			writeTo := i*expected + j
+			retVal[writeTo] = sliced[innerStart]
+			for k := 1; k < dimSize; k++ {
+				readFrom := innerStart + k*stride
+				retVal[writeTo] = fn(retVal[writeTo], sliced[readFrom])
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+			innerStart++
+		}
+	}
+}
+
+func reduceDefaultI16(data, retVal []int16, dim0, dimSize, outerStride, stride, expected int, fn func(a, b int16) int16) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+			writeTo := i*expected + j
+			retVal[writeTo] = sliced[innerStart]
+			for k := 1; k < dimSize; k++ {
+				readFrom := innerStart + k*stride
+				retVal[writeTo] = fn(retVal[writeTo], sliced[readFrom])
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+

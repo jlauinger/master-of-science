@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: internal/reflectlite
+File: value.go
+Line: 248
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+tt := (*ptrType)(unsafe.Pointer(v.typ))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		}
+		// The returned value's address is v's value.
+		if ptr == nil {
+			return Value{}
+		}
+		tt := (*ptrType)(unsafe.Pointer(v.typ))
+		typ := tt.elem
+		fl := v.flag&flagRO | flagIndir | flagAddr
+		fl |= flag(typ.Kind())
+		return Value{typ, ptr, fl}
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+	return Value{t, e.word, f}
+}
+
+// A ValueError occurs when a Value method is invoked on
+// a Value that does not support it. Such cases are documented
+// in the description of each method.
+type ValueError struct {
+	Method string
+	Kind   Kind
+}
+
+func (e *ValueError) Error() string {
+	return "reflect: call of " + e.Method + " on zero Value"
+}
+
+// methodName returns the name of the calling method,
+// assumed to be two stack frames above.
+func methodName() string {
+	pc, _, _, _ := runtime.Caller(2)
+	f := runtime.FuncForPC(pc)
+	if f == nil {
+		return "unknown method"
+	}
+	return f.Name()
+}
+
+// emptyInterface is the header for an interface{} value.
+type emptyInterface struct {
+	typ  *rtype
+	word unsafe.Pointer
+}
+
+// mustBeExported panics if f records that the value was obtained using
+// an unexported field.
+func (f flag) mustBeExported() {
+	if f == 0 {
+		panic(&ValueError{methodName(), 0})
+	}
+	if f&flagRO != 0 {
+		panic("reflect: " + methodName() + " using value obtained using unexported field")
+	}
+}
+
+// mustBeAssignable panics if f records that the value is not assignable,
+// which is to say that either it was obtained using an unexported field
+// or it is not addressable.
+func (f flag) mustBeAssignable() {
+	if f == 0 {
+		panic(&ValueError{methodName(), Invalid})
+	}
+	// Assignable if addressable and not read-only.
+	if f&flagRO != 0 {
+		panic("reflect: " + methodName() + " using value obtained using unexported field")
+	}
+	if f&flagAddr == 0 {
+		panic("reflect: " + methodName() + " using unaddressable value")
+	}
+}
+
+// CanSet reports whether the value of v can be changed.
+// A Value can be changed only if it is addressable and was not
+// obtained by the use of unexported struct fields.
+// If CanSet returns false, calling Set or any type-specific
+// setter (e.g., SetBool, SetInt) will panic.
+func (v Value) CanSet() bool {
+	return v.flag&(flagAddr|flagRO) == flagAddr
+}
+
+// Elem returns the value that the interface v contains
+// or that the pointer v points to.
+// It panics if v's Kind is not Interface or Ptr.
+// It returns the zero Value if v is nil.
+func (v Value) Elem() Value {
+	k := v.kind()
+	switch k {
+	case Interface:
+		var eface interface{}
+		if v.typ.NumMethod() == 0 {
+			eface = *(*interface{})(v.ptr)
+		} else {
+			eface = (interface{})(*(*interface {
+				M()
+			})(v.ptr))
+		}
+		x := unpackEface(eface)
+		if x.flag != 0 {
+			x.flag |= v.flag.ro()
+		}
+		return x
+	case Ptr:
+		ptr := v.ptr
+		if v.flag&flagIndir != 0 {
+			ptr = *(*unsafe.Pointer)(ptr)
+		}
+		// The returned value's address is v's value.
+		if ptr == nil {
+			return Value{}
+		}
+		tt := (*ptrType)(unsafe.Pointer(v.typ))
+		typ := tt.elem
+		fl := v.flag&flagRO | flagIndir | flagAddr
+		fl |= flag(typ.Kind())
+		return Value{typ, ptr, fl}
+	}
+	panic(&ValueError{"reflectlite.Value.Elem", v.kind()})
+}
+
+func valueInterface(v Value) interface{} {
+	if v.flag == 0 {
+		panic(&ValueError{"reflectlite.Value.Interface", 0})
+	}
+
+	if v.kind() == Interface {
+		// Special case: return the element inside the interface.
+		// Empty interface has one layout, all interfaces with
+		// methods have a second layout.
+		if v.numMethod() == 0 {
+			return *(*interface{})(v.ptr)
+		}
+		return *(*interface {
+			M()
+		})(v.ptr)
+	}
+
+	// TODO: pass safe to packEface so we don't need to copy if safe==true?
+	return packEface(v)
+}
+
+// IsNil reports whether its argument v is nil. The argument must be
+// a chan, func, interface, map, pointer, or slice value; if it is
+// not, IsNil panics. Note that IsNil is not always equivalent to a
+// regular comparison with nil in Go. For example, if v was created
+// by calling ValueOf with an uninitialized interface variable i,
+// i==nil will be true but v.IsNil will panic as v will be the zero
+// Value.
+func (v Value) IsNil() bool {
+	k := v.kind()
+	switch k {
+	case Chan, Func, Map, Ptr, UnsafePointer:
+		// if v.flag&flagMethod != 0 {
+		// 	return false
+		// }
+		ptr := v.ptr
+		if v.flag&flagIndir != 0 {
+			ptr = *(*unsafe.Pointer)(ptr)
+		}
+		return ptr == nil
+	case Interface, Slice:
+		// Both interface and slice are nil if first word is 0.
+		// Both are always bigger than a word; assume flagIndir.
+		return *(*unsafe.Pointer)(v.ptr) == nil
+	}
+	panic(&ValueError{"reflectlite.Value.IsNil", v.kind()})
+}
+
+// IsValid reports whether v represents a value.
+// It returns false if v is the zero Value.
+// If IsValid returns false, all other methods except String panic.
+// Most functions and methods never return an invalid Value.
+// If one does, its documentation states the conditions explicitly.
+func (v Value) IsValid() bool {
+	return v.flag != 0
+}
+
+// Kind returns v's Kind.
+// If v is the zero Value (IsValid returns false), Kind returns Invalid.
+func (v Value) Kind() Kind {
+	return v.kind()
+}
+
+// implemented in runtime:
+func chanlen(unsafe.Pointer) int
+func maplen(unsafe.Pointer) int
+
+// Len returns v's length.
+// It panics if v's Kind is not Array, Chan, Map, Slice, or String.
+func (v Value) Len() int {
+	k := v.kind()
+	switch k {
+	case Array:
+		tt := (*arrayType)(unsafe.Pointer(v.typ))
+		return int(tt.len)
+	case Chan:
+		return chanlen(v.pointer())
+	case Map:
+		return maplen(v.pointer())
+	case Slice:
+		// Slice is bigger than a word; assume flagIndir.
+		return (*sliceHeader)(v.ptr).Len
+	case String:
+		// String is bigger than a word; assume flagIndir.
+		return (*stringHeader)(v.ptr).Len
+	}
+	panic(&ValueError{"reflect.Value.Len", v.kind()})
+}
+
+// NumMethod returns the number of exported methods in the value's method set.
+func (v Value) numMethod() int {
+	if v.typ == nil {
+

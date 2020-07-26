@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/autoscaling/v2beta1
+File: zz_generated.conversion.go
+Line: 407
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.LastScaleTime = (*metav1.Time)(unsafe.Pointer(in.LastScaleTime))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return nil
+}
+
+func autoConvert_v2beta1_HorizontalPodAutoscalerStatus_To_autoscaling_HorizontalPodAutoscalerStatus(in *v2beta1.HorizontalPodAutoscalerStatus, out *autoscaling.HorizontalPodAutoscalerStatus, s conversion.Scope) error {
+	out.ObservedGeneration = (*int64)(unsafe.Pointer(in.ObservedGeneration))
+	out.LastScaleTime = (*metav1.Time)(unsafe.Pointer(in.LastScaleTime))
+	out.CurrentReplicas = in.CurrentReplicas
+	out.DesiredReplicas = in.DesiredReplicas
+	if in.CurrentMetrics != nil {
+		in, out := &in.CurrentMetrics, &out.CurrentMetrics
+		*out = make([]autoscaling.MetricStatus, len(*in))
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

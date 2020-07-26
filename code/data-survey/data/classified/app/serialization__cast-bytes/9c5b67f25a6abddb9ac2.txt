@@ -1,0 +1,234 @@
+Module: github.com/elastic/go-perf
+Version: v0.0.0-20191212140718-9c656876f595
+
+Package: github.com/elastic/go-perf
+File: record.go
+Line: 114
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+buf := (*[8]byte)(unsafe.Pointer(&val))[:]
+--------------------------------------------------------------
++/- 5 lines context:
+
+		if err == context.Canceled {
+			// Initiate active wakeup on ev.wakeupfd, and wait for
+			// doPoll to return. doPoll might miss this signal,
+			// but that's okay: see below.
+			val := uint64(1)
+			buf := (*[8]byte)(unsafe.Pointer(&val))[:]
+			unix.Write(ev.wakeupfd, buf)
+			active = true
+		}
+		<-ev.pollresp
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+	"sync/atomic"
+	"time"
+	"unsafe"
+
+	"golang.org/x/sys/unix"
+)
+
+// ErrDisabled is returned from ReadRecord and ReadRawRecord if the event
+// being monitored is attached to a different process, and that process
+// exits. (since Linux 3.18)
+var ErrDisabled = errors.New("perf: event disabled")
+
+// ErrNoReadRecord is returned by ReadRecord when it is disabled on a
+// group event, due to different configurations of the leader and follower
+// events. See also (*Event).SetOutput.
+var ErrNoReadRecord = errors.New("perf: ReadRecord disabled")
+
+// ErrBadRecord is returned by ReadRecord when a read record can't be decoded.
+var ErrBadRecord = errors.New("bad record received")
+
+// ReadRecord reads and decodes a record from the ring buffer associated
+// with ev.
+//
+// ReadRecord may be called concurrently with ReadCount or ReadGroupCount,
+// but not concurrently with itself, ReadRawRecord, Close, or any other
+// Event method.
+//
+// If another event's records were routed to ev via SetOutput, and the
+// two events did not have compatible SampleFormat Options settings (see
+// SetOutput documentation), ReadRecord returns ErrNoReadRecord.
+func (ev *Event) ReadRecord(ctx context.Context) (Record, error) {
+	if err := ev.ok(); err != nil {
+		return nil, err
+	}
+	if ev.noReadRecord {
+		return nil, ErrNoReadRecord
+	}
+	var raw RawRecord
+	if err := ev.ReadRawRecord(ctx, &raw); err != nil {
+		return nil, err
+	}
+	rec, err := newRecord(ev, raw.Header.Type)
+	if err != nil {
+		return nil, err
+	}
+	if err := rec.DecodeFrom(&raw, ev); err != nil {
+		return nil, err
+	}
+	return rec, nil
+}
+
+// ReadRawRecord reads and decodes a raw record from the ring buffer
+// associated with ev into rec. Callers must not retain rec.Data.
+//
+// ReadRawRecord may be called concurrently with ReadCount or ReadGroupCount,
+// but not concurrently with itself, ReadRecord, Close or any other Event
+// method.
+func (ev *Event) ReadRawRecord(ctx context.Context, raw *RawRecord) error {
+	if err := ev.ok(); err != nil {
+		return err
+	}
+	if ev.ring == nil {
+		return errors.New("perf: event ring not mapped")
+	}
+
+	// Fast path: try reading from the ring buffer first. If there is
+	// a record there, we are done.
+	if ev.readRawRecordNonblock(raw) {
+		return nil
+	}
+
+	// If the context has a deadline, and that deadline is in the future,
+	// use it to compute a timeout for ppoll(2). If the context is
+	// expired, bail out immediately. Otherwise, the timeout is zero,
+	// which means no timeout.
+	var timeout time.Duration
+	deadline, ok := ctx.Deadline()
+	if ok {
+		timeout = time.Until(deadline)
+		if timeout <= 0 {
+			<-ctx.Done()
+			return ctx.Err()
+		}
+	}
+
+	// Start a round of polling, then await results. Only one request
+	// can be in flight at a time, and the whole request-response cycle
+	// is owned by the current invocation of ReadRawRecord.
+again:
+	ev.pollreq <- pollreq{timeout: timeout}
+	select {
+	case <-ctx.Done():
+		active := false
+		err := ctx.Err()
+		if err == context.Canceled {
+			// Initiate active wakeup on ev.wakeupfd, and wait for
+			// doPoll to return. doPoll might miss this signal,
+			// but that's okay: see below.
+			val := uint64(1)
+			buf := (*[8]byte)(unsafe.Pointer(&val))[:]
+			unix.Write(ev.wakeupfd, buf)
+			active = true
+		}
+		<-ev.pollresp
+
+		// We don't know if doPoll woke up due to our active wakeup
+		// or because it timed out. It doesn't make a difference.
+		// The important detail here is that doPoll does not touch
+		// ev.wakeupfd (besides polling it for readiness). If we
+		// initiated active wakeup, we must restore the event file
+		// descriptor to quiescent state ourselves, in order to avoid
+		// a spurious wakeup during the next round of polling.
+		if active {
+			var buf [8]byte
+			unix.Read(ev.wakeupfd, buf[:])
+		}
+		return err
+	case resp := <-ev.pollresp:
+		if resp.err != nil {
+			// Polling failed. Nothing to do but report the error.
+			return resp.err
+		}
+		if resp.perfhup {
+			// Saw POLLHUP on ev.perffd. See also the
+			// documentation for ErrDisabled.
+			return ErrDisabled
+		}
+		if !resp.perfready {
+			// Here, we have not touched ev.wakeupfd, there
+			// was no polling error, and ev.perffd is not
+			// ready. Therefore, ppoll(2) must have timed out.
+			//
+			// The reason we are here is the following: doPoll
+			// woke up, and immediately sent us a pollresp, which
+			// won the race with <-ctx.Done(), such that this
+			// select case fired. In any case, ctx is expired,
+			// because we wouldn't be here otherwise.
+			<-ctx.Done()
+			return ctx.Err()
+		}
+		if !ev.readRawRecordNonblock(raw) {
+			// It might happen that an overflow notification was
+			// generated on the file descriptor, we observed it
+			// as POLLIN, but there is still nothing new for us
+			// to read in the ring buffer.
+			//
+			// This is because the notification is raised based
+			// on the Attr.Wakeup and Attr.Options.Watermark
+			// settings, rather than based on what events we've
+			// seen already.
+			//
+			// For example, for an event with Attr.Wakeup == 1,
+			// POLLIN will be indicated on the file descriptor
+			// after the first event, regardless of whether we
+			// have consumed it from the ring buffer or not.
+			//
+			// If we happen to see POLLIN with an empty ring
+			// buffer, the only thing to do is to wait again.
+			//
+			// See also https://github.com/acln0/perfwakeup.
+			goto again
+		}
+		return nil
+	}
+}
+
+// HasRecord returns if there is a record available to be read from the ring.
+func (ev *Event) HasRecord() bool {
+	return atomic.LoadUint64(&ev.meta.Data_head) != atomic.LoadUint64(&ev.meta.Data_tail)
+}
+
+// resetRing advances the read pointer to the write pointer to discard all the
+// data in the ring. This is done when bogus data is read from the ring.
+func (ev *Event) resetRing() {
+	atomic.StoreUint64(&ev.meta.Data_tail, atomic.LoadUint64(&ev.meta.Data_head))
+}
+
+// readRawRecordNonblock reads a raw record into rec, if one is available.
+// Callers must not retain rec.Data. The boolean return value signals whether
+// a record was actually found / written to rec.
+func (ev *Event) readRawRecordNonblock(raw *RawRecord) bool {
+	head := atomic.LoadUint64(&ev.meta.Data_head)
+	tail := atomic.LoadUint64(&ev.meta.Data_tail)
+	if head == tail {
+		return false
+	}
+
+	// Make sure there is enough space the read a record header. Otherwise
+	// consider the ring to be corrupted.
+	const headerSize = uint64(unsafe.Sizeof(RecordHeader{}))
+	avail := head - tail
+	if avail < headerSize {
+		ev.resetRing()
+		return false
+	}
+
+	// Head and tail values only ever grow, so we must take their value
+	// modulo the size of the data segment of the ring.
+	start := tail % uint64(len(ev.ringdata))
+	raw.Header = *(*RecordHeader)(unsafe.Pointer(&ev.ringdata[start]))
+

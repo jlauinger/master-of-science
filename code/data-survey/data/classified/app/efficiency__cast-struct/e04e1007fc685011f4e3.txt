@@ -1,0 +1,234 @@
+Module: go.etcd.io/bbolt
+Version: v1.3.3
+
+Package: go.etcd.io/bbolt
+File: bucket.go
+Line: 140
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+child.bucket = (*bucket)(unsafe.Pointer(&value[0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	// Read-only transactions can point directly at the mmap entry.
+	if b.tx.writable && !unaligned {
+		child.bucket = &bucket{}
+		*child.bucket = *(*bucket)(unsafe.Pointer(&value[0]))
+	} else {
+		child.bucket = (*bucket)(unsafe.Pointer(&value[0]))
+	}
+
+	// Save a reference to the inline page if the bucket is inline.
+	if child.root == 0 {
+		child.page = (*page)(unsafe.Pointer(&value[bucketHeaderSize]))
+--------------------------------------------------------------
++/- 100 lines context:
+
+	// This is non-persisted across transactions so it must be set in every Tx.
+	FillPercent float64
+}
+
+// bucket represents the on-file representation of a bucket.
+// This is stored as the "value" of a bucket key. If the bucket is small enough,
+// then its root page can be stored inline in the "value", after the bucket
+// header. In the case of inline buckets, the "root" will be 0.
+type bucket struct {
+	root     pgid   // page id of the bucket's root-level page
+	sequence uint64 // monotonically incrementing, used by NextSequence()
+}
+
+// newBucket returns a new bucket associated with a transaction.
+func newBucket(tx *Tx) Bucket {
+	var b = Bucket{tx: tx, FillPercent: DefaultFillPercent}
+	if tx.writable {
+		b.buckets = make(map[string]*Bucket)
+		b.nodes = make(map[pgid]*node)
+	}
+	return b
+}
+
+// Tx returns the tx of the bucket.
+func (b *Bucket) Tx() *Tx {
+	return b.tx
+}
+
+// Root returns the root of the bucket.
+func (b *Bucket) Root() pgid {
+	return b.root
+}
+
+// Writable returns whether the bucket is writable.
+func (b *Bucket) Writable() bool {
+	return b.tx.writable
+}
+
+// Cursor creates a cursor associated with the bucket.
+// The cursor is only valid as long as the transaction is open.
+// Do not use a cursor after the transaction is closed.
+func (b *Bucket) Cursor() *Cursor {
+	// Update transaction statistics.
+	b.tx.stats.CursorCount++
+
+	// Allocate and return a cursor.
+	return &Cursor{
+		bucket: b,
+		stack:  make([]elemRef, 0),
+	}
+}
+
+// Bucket retrieves a nested bucket by name.
+// Returns nil if the bucket does not exist.
+// The bucket instance is only valid for the lifetime of the transaction.
+func (b *Bucket) Bucket(name []byte) *Bucket {
+	if b.buckets != nil {
+		if child := b.buckets[string(name)]; child != nil {
+			return child
+		}
+	}
+
+	// Move cursor to key.
+	c := b.Cursor()
+	k, v, flags := c.seek(name)
+
+	// Return nil if the key doesn't exist or it is not a bucket.
+	if !bytes.Equal(name, k) || (flags&bucketLeafFlag) == 0 {
+		return nil
+	}
+
+	// Otherwise create a bucket and cache it.
+	var child = b.openBucket(v)
+	if b.buckets != nil {
+		b.buckets[string(name)] = child
+	}
+
+	return child
+}
+
+// Helper method that re-interprets a sub-bucket value
+// from a parent into a Bucket
+func (b *Bucket) openBucket(value []byte) *Bucket {
+	var child = newBucket(b.tx)
+
+	// If unaligned load/stores are broken on this arch and value is
+	// unaligned simply clone to an aligned byte array.
+	unaligned := brokenUnaligned && uintptr(unsafe.Pointer(&value[0]))&3 != 0
+
+	if unaligned {
+		value = cloneBytes(value)
+	}
+
+	// If this is a writable transaction then we need to copy the bucket entry.
+	// Read-only transactions can point directly at the mmap entry.
+	if b.tx.writable && !unaligned {
+		child.bucket = &bucket{}
+		*child.bucket = *(*bucket)(unsafe.Pointer(&value[0]))
+	} else {
+		child.bucket = (*bucket)(unsafe.Pointer(&value[0]))
+	}
+
+	// Save a reference to the inline page if the bucket is inline.
+	if child.root == 0 {
+		child.page = (*page)(unsafe.Pointer(&value[bucketHeaderSize]))
+	}
+
+	return &child
+}
+
+// CreateBucket creates a new bucket at the given key and returns the new bucket.
+// Returns an error if the key already exists, if the bucket name is blank, or if the bucket name is too long.
+// The bucket instance is only valid for the lifetime of the transaction.
+func (b *Bucket) CreateBucket(key []byte) (*Bucket, error) {
+	if b.tx.db == nil {
+		return nil, ErrTxClosed
+	} else if !b.tx.writable {
+		return nil, ErrTxNotWritable
+	} else if len(key) == 0 {
+		return nil, ErrBucketNameRequired
+	}
+
+	// Move cursor to correct position.
+	c := b.Cursor()
+	k, _, flags := c.seek(key)
+
+	// Return an error if there is an existing key.
+	if bytes.Equal(key, k) {
+		if (flags & bucketLeafFlag) != 0 {
+			return nil, ErrBucketExists
+		}
+		return nil, ErrIncompatibleValue
+	}
+
+	// Create empty, inline bucket.
+	var bucket = Bucket{
+		bucket:      &bucket{},
+		rootNode:    &node{isLeaf: true},
+		FillPercent: DefaultFillPercent,
+	}
+	var value = bucket.write()
+
+	// Insert into node.
+	key = cloneBytes(key)
+	c.node().put(key, key, value, 0, bucketLeafFlag)
+
+	// Since subbuckets are not allowed on inline buckets, we need to
+	// dereference the inline page, if it exists. This will cause the bucket
+	// to be treated as a regular, non-inline bucket for the rest of the tx.
+	b.page = nil
+
+	return b.Bucket(key), nil
+}
+
+// CreateBucketIfNotExists creates a new bucket if it doesn't already exist and returns a reference to it.
+// Returns an error if the bucket name is blank, or if the bucket name is too long.
+// The bucket instance is only valid for the lifetime of the transaction.
+func (b *Bucket) CreateBucketIfNotExists(key []byte) (*Bucket, error) {
+	child, err := b.CreateBucket(key)
+	if err == ErrBucketExists {
+		return b.Bucket(key), nil
+	} else if err != nil {
+		return nil, err
+	}
+	return child, nil
+}
+
+// DeleteBucket deletes a bucket at the given key.
+// Returns an error if the bucket does not exists, or if the key represents a non-bucket value.
+func (b *Bucket) DeleteBucket(key []byte) error {
+	if b.tx.db == nil {
+		return ErrTxClosed
+	} else if !b.Writable() {
+		return ErrTxNotWritable
+	}
+
+	// Move cursor to correct position.
+	c := b.Cursor()
+	k, _, flags := c.seek(key)
+
+	// Return an error if bucket doesn't exist or is not a bucket.
+	if !bytes.Equal(key, k) {
+		return ErrBucketNotFound
+	} else if (flags & bucketLeafFlag) == 0 {
+		return ErrIncompatibleValue
+	}
+
+	// Recursively delete all child buckets.
+	child := b.Bucket(key)
+	err := child.ForEach(func(k, v []byte) error {
+		if v == nil {
+			if err := child.DeleteBucket(k); err != nil {
+				return fmt.Errorf("delete bucket: %s", err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+

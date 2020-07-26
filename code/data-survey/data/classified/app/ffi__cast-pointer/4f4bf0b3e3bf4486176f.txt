@@ -1,0 +1,234 @@
+Module: gorgonia.org/cu
+Version: v0.9.2
+
+Package: gorgonia.org/cu/dnn
+File: generated_API.go
+Line: 614
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+betaC = unsafe.Pointer(&betaF)
+--------------------------------------------------------------
++/- 5 lines context:
+
+	case Double:
+		var alphaF, betaF C.double
+		alphaF = C.double(alpha)
+		betaF = C.double(beta)
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	default:
+		return errors.Errorf("Unsupported data type: %v", xDesc.dataType)
+	}
+	// call cudnnBatchNormalizationForwardTraining
+	return result(C.cudnnBatchNormalizationForwardTraining(co.internal, mode.C(), alphaC, betaC, xDesc.internal, x.Pointer(), yDesc.internal, y.Pointer(), bnScaleBiasMeanVarDesc.internal, bnScale.Pointer(), bnBias.Pointer(), C.double(exponentialAverageFactor), resultRunningMean.Pointer(), resultRunningVariance.Pointer(), C.double(epsilon), resultSaveMean.Pointer(), resultSaveInvVariance.Pointer()))
+--------------------------------------------------------------
++/- 100 lines context:
+
+		betaF = C.double(beta)
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	default:
+		return errors.Errorf("Unsupported data type: %v", xDesc.dataType)
+	}
+	// call cudnnLRNCrossChannelForward
+	return result(C.cudnnLRNCrossChannelForward(co.internal, normDesc.internal, lrnMode.C(), alphaC, xDesc.internal, x.Pointer(), betaC, yDesc.internal, y.Pointer()))
+}
+
+// LRNCrossChannelBackward performs the backward LRN layer computation.
+func (co *Context) LRNCrossChannelBackward(normDesc *LRN, lrnMode LRNMode, alpha float64, yDesc *TensorDescriptor, y Memory, dyDesc *TensorDescriptor, dy Memory, xDesc *TensorDescriptor, x Memory, beta float64, dxDesc *TensorDescriptor, dx Memory) error {
+	// DOUBLECHECK: "cudnnLRNCrossChannelBackward" returns Memory type in Parameter 12
+	var alphaC, betaC unsafe.Pointer
+	switch yDesc.dataType {
+	case Float, Half:
+		var alphaF, betaF C.float
+		alphaF = C.float(float32(alpha))
+		betaF = C.float(float32(beta))
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	case Double:
+		var alphaF, betaF C.double
+		alphaF = C.double(alpha)
+		betaF = C.double(beta)
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	default:
+		return errors.Errorf("Unsupported data type: %v", yDesc.dataType)
+	}
+	// TODO: dxDesc cudnnTensorDescriptor_t
+	// call cudnnLRNCrossChannelBackward
+	return result(C.cudnnLRNCrossChannelBackward(co.internal, normDesc.internal, lrnMode.C(), alphaC, yDesc.internal, y.Pointer(), dyDesc.internal, dy.Pointer(), xDesc.internal, x.Pointer(), betaC, dxDesc.internal, dx.Pointer()))
+}
+
+// DivisiveNormalizationForward performs the forward spatial DivisiveNormalization layer computation. It divides every value in a layer by the standard deviation of it's spatial neighbors as described in `What is the Best Multi-Stage Architecture for Object Recognition`, Jarrett 2009, Local Contrast Normalization Layer section. Note that Divisive Normalization only implements the x/max(c, sigma_x) portion of the computation, where sigma_x is the variance over the spatial neighborhood of x. The full LCN (Local Contrastive Normalization) computation can be implemented as a two-step process:
+func (co *Context) DivisiveNormalizationForward(normDesc *LRN, mode DivNormMode, alpha float64, xDesc *TensorDescriptor, x Memory, means Memory, temp Memory, temp2 Memory, beta float64, yDesc *TensorDescriptor, y Memory) error {
+	// DOUBLECHECK: "cudnnDivisiveNormalizationForward" returns Memory type in Parameter 11
+	var alphaC, betaC unsafe.Pointer
+	switch xDesc.dataType {
+	case Float, Half:
+		var alphaF, betaF C.float
+		alphaF = C.float(float32(alpha))
+		betaF = C.float(float32(beta))
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	case Double:
+		var alphaF, betaF C.double
+		alphaF = C.double(alpha)
+		betaF = C.double(beta)
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	default:
+		return errors.Errorf("Unsupported data type: %v", xDesc.dataType)
+	}
+	// call cudnnDivisiveNormalizationForward
+	return result(C.cudnnDivisiveNormalizationForward(co.internal, normDesc.internal, mode.C(), alphaC, xDesc.internal, x.Pointer(), means.Pointer(), temp.Pointer(), temp2.Pointer(), betaC, yDesc.internal, y.Pointer()))
+}
+
+// DivisiveNormalizationBackward performs the backward DivisiveNormalization layer computation.
+func (co *Context) DivisiveNormalizationBackward(normDesc *LRN, mode DivNormMode, alpha float64, xDesc *TensorDescriptor, x Memory, means Memory, dy Memory, temp Memory, temp2 Memory, beta float64, dXdMeansDesc *TensorDescriptor, dx Memory, dMeans Memory) error {
+	// DOUBLECHECK: "cudnnDivisiveNormalizationBackward" returns Memory type in Parameter 13
+	var alphaC, betaC unsafe.Pointer
+	switch xDesc.dataType {
+	case Float, Half:
+		var alphaF, betaF C.float
+		alphaF = C.float(float32(alpha))
+		betaF = C.float(float32(beta))
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	case Double:
+		var alphaF, betaF C.double
+		alphaF = C.double(alpha)
+		betaF = C.double(beta)
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	default:
+		return errors.Errorf("Unsupported data type: %v", xDesc.dataType)
+	}
+	// call cudnnDivisiveNormalizationBackward
+	return result(C.cudnnDivisiveNormalizationBackward(co.internal, normDesc.internal, mode.C(), alphaC, xDesc.internal, x.Pointer(), means.Pointer(), dy.Pointer(), temp.Pointer(), temp2.Pointer(), betaC, dXdMeansDesc.internal, dx.Pointer(), dMeans.Pointer()))
+}
+
+// BatchNormalizationForwardTraining performs the forward BatchNormalization layer computation for training phase.
+func (co *Context) BatchNormalizationForwardTraining(mode BatchNormMode, alpha float64, beta float64, xDesc *TensorDescriptor, x Memory, yDesc *TensorDescriptor, y Memory, bnScaleBiasMeanVarDesc *TensorDescriptor, bnScale Memory, bnBias Memory, exponentialAverageFactor float64, resultRunningMean Memory, resultRunningVariance Memory, epsilon float64, resultSaveMean Memory, resultSaveInvVariance Memory) error {
+	// DOUBLECHECK: "cudnnBatchNormalizationForwardTraining" returns Memory type in Parameter 16
+	var alphaC, betaC unsafe.Pointer
+	switch xDesc.dataType {
+	case Float, Half:
+		var alphaF, betaF C.float
+		alphaF = C.float(float32(alpha))
+		betaF = C.float(float32(beta))
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	case Double:
+		var alphaF, betaF C.double
+		alphaF = C.double(alpha)
+		betaF = C.double(beta)
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	default:
+		return errors.Errorf("Unsupported data type: %v", xDesc.dataType)
+	}
+	// call cudnnBatchNormalizationForwardTraining
+	return result(C.cudnnBatchNormalizationForwardTraining(co.internal, mode.C(), alphaC, betaC, xDesc.internal, x.Pointer(), yDesc.internal, y.Pointer(), bnScaleBiasMeanVarDesc.internal, bnScale.Pointer(), bnBias.Pointer(), C.double(exponentialAverageFactor), resultRunningMean.Pointer(), resultRunningVariance.Pointer(), C.double(epsilon), resultSaveMean.Pointer(), resultSaveInvVariance.Pointer()))
+}
+
+// BatchNormalizationForwardInference performs the forward BatchNormalization layer computation for inference phase. BatchNormalizationForwardInference layer is based on the paper `Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift`, S. Ioffe, C. Szegedy, 2015.
+func (co *Context) BatchNormalizationForwardInference(mode BatchNormMode, alpha float64, beta float64, xDesc *TensorDescriptor, x Memory, yDesc *TensorDescriptor, y Memory, bnScaleBiasMeanVarDesc *TensorDescriptor, bnScale Memory, bnBias Memory, estimatedMean Memory, estimatedVariance Memory, epsilon float64) error {
+	var alphaC, betaC unsafe.Pointer
+	switch xDesc.dataType {
+	case Float, Half:
+		var alphaF, betaF C.float
+		alphaF = C.float(float32(alpha))
+		betaF = C.float(float32(beta))
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	case Double:
+		var alphaF, betaF C.double
+		alphaF = C.double(alpha)
+		betaF = C.double(beta)
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	default:
+		return errors.Errorf("Unsupported data type: %v", xDesc.dataType)
+	}
+	// call cudnnBatchNormalizationForwardInference
+	return result(C.cudnnBatchNormalizationForwardInference(co.internal, mode.C(), alphaC, betaC, xDesc.internal, x.Pointer(), yDesc.internal, y.Pointer(), bnScaleBiasMeanVarDesc.internal, bnScale.Pointer(), bnBias.Pointer(), estimatedMean.Pointer(), estimatedVariance.Pointer(), C.double(epsilon)))
+}
+
+// BatchNormalizationBackward performs the backward BatchNormalization layer computation.
+func (co *Context) BatchNormalizationBackward(mode BatchNormMode, alphaDataDiff float64, betaDataDiff float64, alphaParamDiff float64, betaParamDiff float64, xDesc *TensorDescriptor, x Memory, dyDesc *TensorDescriptor, dy Memory, dxDesc *TensorDescriptor, dx Memory, dBnScaleBiasDesc *TensorDescriptor, bnScale Memory, dBnScaleResult Memory, dBnBiasResult Memory, epsilon float64, savedMean Memory, savedInvVariance Memory) error {
+	var alphaDataDiffC, betaDataDiffC, alphaParamDiffC, betaParamDiffC unsafe.Pointer
+	switch xDesc.dataType {
+	case Float, Half:
+		var alphaDataDiffF, betaDataDiffF, alphaParamDiffF, betaParamDiffF C.float
+		alphaDataDiffF = C.float(float32(alphaDataDiff))
+		betaDataDiffF = C.float(float32(betaDataDiff))
+		alphaParamDiffF = C.float(float32(alphaParamDiff))
+		betaParamDiffF = C.float(float32(betaParamDiff))
+		alphaDataDiffC = unsafe.Pointer(&alphaDataDiffF)
+		betaDataDiffC = unsafe.Pointer(&betaDataDiffF)
+		alphaParamDiffC = unsafe.Pointer(&alphaParamDiffF)
+		betaParamDiffC = unsafe.Pointer(&betaParamDiffF)
+	case Double:
+		var alphaDataDiffF, betaDataDiffF, alphaParamDiffF, betaParamDiffF C.double
+		alphaDataDiffF = C.double(alphaDataDiff)
+		betaDataDiffF = C.double(betaDataDiff)
+		alphaParamDiffF = C.double(alphaParamDiff)
+		betaParamDiffF = C.double(betaParamDiff)
+		alphaDataDiffC = unsafe.Pointer(&alphaDataDiffF)
+		betaDataDiffC = unsafe.Pointer(&betaDataDiffF)
+		alphaParamDiffC = unsafe.Pointer(&alphaParamDiffF)
+		betaParamDiffC = unsafe.Pointer(&betaParamDiffF)
+	default:
+		return errors.Errorf("Unsupported data type: %v", xDesc.dataType)
+	}
+	// call cudnnBatchNormalizationBackward
+	return result(C.cudnnBatchNormalizationBackward(co.internal, mode.C(), alphaDataDiffC, betaDataDiffC, alphaParamDiffC, betaParamDiffC, xDesc.internal, x.Pointer(), dyDesc.internal, dy.Pointer(), dxDesc.internal, dx.Pointer(), dBnScaleBiasDesc.internal, bnScale.Pointer(), dBnScaleResult.Pointer(), dBnBiasResult.Pointer(), C.double(epsilon), savedMean.Pointer(), savedInvVariance.Pointer()))
+}
+
+// SpatialTfGridGeneratorForward generates a grid of coordinates in the input tensor corresponding to each pixel from the output tensor.
+func (co *Context) SpatialTfGridGeneratorForward(stDesc *SpatialTransformer, theta Memory, grid Memory) error {
+	// DOUBLECHECK: "cudnnSpatialTfGridGeneratorForward" returns Memory type in Parameter 3
+	// call cudnnSpatialTfGridGeneratorForward
+	return result(C.cudnnSpatialTfGridGeneratorForward(co.internal, stDesc.internal, theta.Pointer(), grid.Pointer()))
+}
+
+// SpatialTfGridGeneratorBackward computes the gradient of a grid generation operation.
+func (co *Context) SpatialTfGridGeneratorBackward(stDesc *SpatialTransformer, dgrid Memory, dtheta Memory) error {
+	// DOUBLECHECK: "cudnnSpatialTfGridGeneratorBackward" returns Memory type in Parameter 3
+	// call cudnnSpatialTfGridGeneratorBackward
+	return result(C.cudnnSpatialTfGridGeneratorBackward(co.internal, stDesc.internal, dgrid.Pointer(), dtheta.Pointer()))
+}
+
+// SpatialTfSamplerForward performs a sampler operation and generates the output tensor using the grid given by the grid generator.
+func (co *Context) SpatialTfSamplerForward(stDesc *SpatialTransformer, alpha float64, xDesc *TensorDescriptor, x Memory, grid Memory, beta float64, yDesc *TensorDescriptor, y Memory) error {
+	// DOUBLECHECK: "cudnnSpatialTfSamplerForward" returns Memory type in Parameter 8
+	var alphaC, betaC unsafe.Pointer
+	switch xDesc.dataType {
+	case Float, Half:
+		var alphaF, betaF C.float
+		alphaF = C.float(float32(alpha))
+		betaF = C.float(float32(beta))
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	case Double:
+		var alphaF, betaF C.double
+		alphaF = C.double(alpha)
+		betaF = C.double(beta)
+		alphaC = unsafe.Pointer(&alphaF)
+		betaC = unsafe.Pointer(&betaF)
+	default:
+		return errors.Errorf("Unsupported data type: %v", xDesc.dataType)
+	}
+	// call cudnnSpatialTfSamplerForward
+	return result(C.cudnnSpatialTfSamplerForward(co.internal, stDesc.internal, alphaC, xDesc.internal, x.Pointer(), grid.Pointer(), betaC, yDesc.internal, y.Pointer()))
+}
+
+// SpatialTfSamplerBackward computes the gradient of a sampling operation.
+

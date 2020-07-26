@@ -1,0 +1,34 @@
+Module: modernc.org/zappy
+Version: v1.0.0
+
+Package: modernc.org/zappy
+File: /root/.cache/go-build/17/17098a003d418ae73434df8902f1f5042d7525236474a9db858a3e63146597ce-d
+Line: 31
+
+Imported (possibly among others) by: xo/usql
+
+Label 1 (What is happening?): definition
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+func _cgo_runtime_cgocall(unsafe.Pointer, uintptr) int32
+--------------------------------------------------------------
++/- 5 lines context:
+
+type _Ctype_uint8_t = _Ctype___uint8_t
+
+type _Ctype_void [0]byte
+
+//go:linkname _cgo_runtime_cgocall runtime.cgocall
+func _cgo_runtime_cgocall(unsafe.Pointer, uintptr) int32
+
+//go:linkname _cgo_runtime_cgocallback runtime.cgocallback
+func _cgo_runtime_cgocallback(unsafe.Pointer, unsafe.Pointer, uintptr, uintptr)
+
+//go:linkname _cgoCheckPointer runtime.cgoCheckPointer
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

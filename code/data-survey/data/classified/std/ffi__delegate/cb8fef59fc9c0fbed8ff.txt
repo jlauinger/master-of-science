@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: signal_unix.go
+Line: 525
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+func sighandler(sig uint32, info *siginfo, ctxt unsafe.Pointer, gp *g) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+//
+// The garbage collector may have stopped the world, so write barriers
+// are not allowed.
+//
+//go:nowritebarrierrec
+func sighandler(sig uint32, info *siginfo, ctxt unsafe.Pointer, gp *g) {
+	_g_ := getg()
+	c := &sigctxt{info, ctxt}
+
+	if sig == _SIGPROF {
+		sigprof(c.sigpc(), c.sigsp(), c.siglr(), gp, _g_.m)
+--------------------------------------------------------------
++/- 100 lines context:
+
+			// executing non-Go code.
+			// We got past sigfwdgo, so we know that there is
+			// no non-Go signal handler for sigPreempt.
+			// The default behavior for sigPreempt is to ignore
+			// the signal, so badsignal will be a no-op anyway.
+			return
+		}
+		c.fixsigcode(sig)
+		badsignal(uintptr(sig), c)
+		return
+	}
+
+	// If some non-Go code called sigaltstack, adjust.
+	var gsignalStack gsignalStack
+	setStack := adjustSignalStack(sig, g.m, &gsignalStack)
+	if setStack {
+		g.m.gsignal.stktopsp = getcallersp()
+	}
+
+	setg(g.m.gsignal)
+
+	if g.stackguard0 == stackFork {
+		signalDuringFork(sig)
+	}
+
+	c.fixsigcode(sig)
+	sighandler(sig, info, ctx, g)
+	setg(g)
+	if setStack {
+		restoreGsignalStack(&gsignalStack)
+	}
+}
+
+// adjustSignalStack adjusts the current stack guard based on the
+// stack pointer that is actually in use while handling a signal.
+// We do this in case some non-Go code called sigaltstack.
+// This reports whether the stack was adjusted, and if so stores the old
+// signal stack in *gsigstack.
+//go:nosplit
+func adjustSignalStack(sig uint32, mp *m, gsigStack *gsignalStack) bool {
+	sp := uintptr(unsafe.Pointer(&sig))
+	if sp >= mp.gsignal.stack.lo && sp < mp.gsignal.stack.hi {
+		return false
+	}
+
+	if sp >= mp.g0.stack.lo && sp < mp.g0.stack.hi {
+		// The signal was delivered on the g0 stack.
+		// This can happen when linked with C code
+		// using the thread sanitizer, which collects
+		// signals then delivers them itself by calling
+		// the signal handler directly when C code,
+		// including C code called via cgo, calls a
+		// TSAN-intercepted function such as malloc.
+		st := stackt{ss_size: mp.g0.stack.hi - mp.g0.stack.lo}
+		setSignalstackSP(&st, mp.g0.stack.lo)
+		setGsignalStack(&st, gsigStack)
+		return true
+	}
+
+	var st stackt
+	sigaltstack(nil, &st)
+	if st.ss_flags&_SS_DISABLE != 0 {
+		setg(nil)
+		needm(0)
+		noSignalStack(sig)
+		dropm()
+	}
+	stsp := uintptr(unsafe.Pointer(st.ss_sp))
+	if sp < stsp || sp >= stsp+st.ss_size {
+		setg(nil)
+		needm(0)
+		sigNotOnStack(sig)
+		dropm()
+	}
+	setGsignalStack(&st, gsigStack)
+	return true
+}
+
+// crashing is the number of m's we have waited for when implementing
+// GOTRACEBACK=crash when a signal is received.
+var crashing int32
+
+// testSigtrap and testSigusr1 are used by the runtime tests. If
+// non-nil, it is called on SIGTRAP/SIGUSR1. If it returns true, the
+// normal behavior on this signal is suppressed.
+var testSigtrap func(info *siginfo, ctxt *sigctxt, gp *g) bool
+var testSigusr1 func(gp *g) bool
+
+// sighandler is invoked when a signal occurs. The global g will be
+// set to a gsignal goroutine and we will be running on the alternate
+// signal stack. The parameter g will be the value of the global g
+// when the signal occurred. The sig, info, and ctxt parameters are
+// from the system signal handler: they are the parameters passed when
+// the SA is passed to the sigaction system call.
+//
+// The garbage collector may have stopped the world, so write barriers
+// are not allowed.
+//
+//go:nowritebarrierrec
+func sighandler(sig uint32, info *siginfo, ctxt unsafe.Pointer, gp *g) {
+	_g_ := getg()
+	c := &sigctxt{info, ctxt}
+
+	if sig == _SIGPROF {
+		sigprof(c.sigpc(), c.sigsp(), c.siglr(), gp, _g_.m)
+		return
+	}
+
+	if sig == _SIGTRAP && testSigtrap != nil && testSigtrap(info, (*sigctxt)(noescape(unsafe.Pointer(c))), gp) {
+		return
+	}
+
+	if sig == _SIGUSR1 && testSigusr1 != nil && testSigusr1(gp) {
+		return
+	}
+
+	if sig == sigPreempt {
+		// Might be a preemption signal.
+		doSigPreempt(gp, c)
+		// Even if this was definitely a preemption signal, it
+		// may have been coalesced with another signal, so we
+		// still let it through to the application.
+	}
+
+	flags := int32(_SigThrow)
+	if sig < uint32(len(sigtable)) {
+		flags = sigtable[sig].flags
+	}
+	if flags&_SigPanic != 0 && gp.throwsplit {
+		// We can't safely sigpanic because it may grow the
+		// stack. Abort in the signal handler instead.
+		flags = (flags &^ _SigPanic) | _SigThrow
+	}
+	if isAbortPC(c.sigpc()) {
+		// On many architectures, the abort function just
+		// causes a memory fault. Don't turn that into a panic.
+		flags = _SigThrow
+	}
+	if c.sigcode() != _SI_USER && flags&_SigPanic != 0 {
+		// The signal is going to cause a panic.
+		// Arrange the stack so that it looks like the point
+		// where the signal occurred made a call to the
+		// function sigpanic. Then set the PC to sigpanic.
+
+		// Have to pass arguments out of band since
+		// augmenting the stack frame would break
+		// the unwinding code.
+		gp.sig = sig
+		gp.sigcode0 = uintptr(c.sigcode())
+		gp.sigcode1 = uintptr(c.fault())
+		gp.sigpc = c.sigpc()
+
+		c.preparePanic(sig, gp)
+		return
+	}
+
+	if c.sigcode() == _SI_USER || flags&_SigNotify != 0 {
+		if sigsend(sig) {
+			return
+		}
+	}
+
+	if c.sigcode() == _SI_USER && signal_ignored(sig) {
+		return
+	}
+
+	if flags&_SigKill != 0 {
+		dieFromSignal(sig)
+	}
+
+	if flags&_SigThrow == 0 {
+		return
+	}
+
+	_g_.m.throwing = 1
+	_g_.m.caughtsig.set(gp)
+
+	if crashing == 0 {
+		startpanic_m()
+	}
+
+	if sig < uint32(len(sigtable)) {
+		print(sigtable[sig].name, "\n")
+	} else {
+		print("Signal ", sig, "\n")
+	}
+
+	print("PC=", hex(c.sigpc()), " m=", _g_.m.id, " sigcode=", c.sigcode(), "\n")
+	if _g_.m.lockedg != 0 && _g_.m.ncgo > 0 && gp == _g_.m.g0 {
+		print("signal arrived during cgo execution\n")
+		gp = _g_.m.lockedg.ptr()
+	}
+	print("\n")
+
+	level, _, docrash := gotraceback()
+	if level > 0 {
+		goroutineheader(gp)
+		tracebacktrap(c.sigpc(), c.sigsp(), c.siglr(), gp)
+		if crashing > 0 && gp != _g_.m.curg && _g_.m.curg != nil && readgstatus(_g_.m.curg)&^_Gscan == _Grunning {
+			// tracebackothers on original m skipped this one; trace it now.
+

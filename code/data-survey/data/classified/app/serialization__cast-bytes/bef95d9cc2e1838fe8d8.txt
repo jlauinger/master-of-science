@@ -1,0 +1,153 @@
+Module: github.com/vishvananda/netlink
+Version: v1.1.0
+
+Package: github.com/vishvananda/netlink/nl
+File: nl_linux.go
+Line: 741
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+a := (*unix.RtAttr)(unsafe.Pointer(&b[0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+	return attrs, nil
+}
+
+func netlinkRouteAttrAndValue(b []byte) (*unix.RtAttr, []byte, int, error) {
+	a := (*unix.RtAttr)(unsafe.Pointer(&b[0]))
+	if int(a.Len) < unix.SizeofRtAttr || int(a.Len) > len(b) {
+		return nil, nil, 0, unix.EINVAL
+	}
+	return a, b[unix.SizeofRtAttr:], rtaAlignOf(int(a.Len)), nil
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+	rb2 := make([]byte, nr)
+	copy(rb2, rb[:nr])
+	nl, err := syscall.ParseNetlinkMessage(rb2)
+	if err != nil {
+		return nil, nil, err
+	}
+	return nl, fromAddr, nil
+}
+
+// SetSendTimeout allows to set a send timeout on the socket
+func (s *NetlinkSocket) SetSendTimeout(timeout *unix.Timeval) error {
+	// Set a send timeout of SOCKET_SEND_TIMEOUT, this will allow the Send to periodically unblock and avoid that a routine
+	// remains stuck on a send on a closed fd
+	return unix.SetsockoptTimeval(int(s.fd), unix.SOL_SOCKET, unix.SO_SNDTIMEO, timeout)
+}
+
+// SetReceiveTimeout allows to set a receive timeout on the socket
+func (s *NetlinkSocket) SetReceiveTimeout(timeout *unix.Timeval) error {
+	// Set a read timeout of SOCKET_READ_TIMEOUT, this will allow the Read to periodically unblock and avoid that a routine
+	// remains stuck on a recvmsg on a closed fd
+	return unix.SetsockoptTimeval(int(s.fd), unix.SOL_SOCKET, unix.SO_RCVTIMEO, timeout)
+}
+
+func (s *NetlinkSocket) GetPid() (uint32, error) {
+	fd := int(atomic.LoadInt32(&s.fd))
+	lsa, err := unix.Getsockname(fd)
+	if err != nil {
+		return 0, err
+	}
+	switch v := lsa.(type) {
+	case *unix.SockaddrNetlink:
+		return v.Pid, nil
+	}
+	return 0, fmt.Errorf("Wrong socket type")
+}
+
+func ZeroTerminated(s string) []byte {
+	bytes := make([]byte, len(s)+1)
+	for i := 0; i < len(s); i++ {
+		bytes[i] = s[i]
+	}
+	bytes[len(s)] = 0
+	return bytes
+}
+
+func NonZeroTerminated(s string) []byte {
+	bytes := make([]byte, len(s))
+	for i := 0; i < len(s); i++ {
+		bytes[i] = s[i]
+	}
+	return bytes
+}
+
+func BytesToString(b []byte) string {
+	n := bytes.Index(b, []byte{0})
+	return string(b[:n])
+}
+
+func Uint8Attr(v uint8) []byte {
+	return []byte{byte(v)}
+}
+
+func Uint16Attr(v uint16) []byte {
+	native := NativeEndian()
+	bytes := make([]byte, 2)
+	native.PutUint16(bytes, v)
+	return bytes
+}
+
+func Uint32Attr(v uint32) []byte {
+	native := NativeEndian()
+	bytes := make([]byte, 4)
+	native.PutUint32(bytes, v)
+	return bytes
+}
+
+func Uint64Attr(v uint64) []byte {
+	native := NativeEndian()
+	bytes := make([]byte, 8)
+	native.PutUint64(bytes, v)
+	return bytes
+}
+
+func ParseRouteAttr(b []byte) ([]syscall.NetlinkRouteAttr, error) {
+	var attrs []syscall.NetlinkRouteAttr
+	for len(b) >= unix.SizeofRtAttr {
+		a, vbuf, alen, err := netlinkRouteAttrAndValue(b)
+		if err != nil {
+			return nil, err
+		}
+		ra := syscall.NetlinkRouteAttr{Attr: syscall.RtAttr(*a), Value: vbuf[:int(a.Len)-unix.SizeofRtAttr]}
+		attrs = append(attrs, ra)
+		b = b[alen:]
+	}
+	return attrs, nil
+}
+
+func netlinkRouteAttrAndValue(b []byte) (*unix.RtAttr, []byte, int, error) {
+	a := (*unix.RtAttr)(unsafe.Pointer(&b[0]))
+	if int(a.Len) < unix.SizeofRtAttr || int(a.Len) > len(b) {
+		return nil, nil, 0, unix.EINVAL
+	}
+	return a, b[unix.SizeofRtAttr:], rtaAlignOf(int(a.Len)), nil
+}
+
+// SocketHandle contains the netlink socket and the associated
+// sequence counter for a specific netlink family
+type SocketHandle struct {
+	Seq    uint32
+	Socket *NetlinkSocket
+}
+
+// Close closes the netlink socket
+func (sh *SocketHandle) Close() {
+	if sh.Socket != nil {
+		sh.Socket.Close()
+	}
+}
+

@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: mbitmap.go
+Line: 822
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+memclrNoHeapPointers(unsafe.Pointer(h.bitp), nbyte)
+--------------------------------------------------------------
++/- 5 lines context:
+
+			for i := uintptr(0); i < nbyte; i++ {
+				*bitp = bitPointerAll | bitScanAll
+				bitp = add1(bitp)
+			}
+		} else {
+			memclrNoHeapPointers(unsafe.Pointer(h.bitp), nbyte)
+		}
+		h = hNext
+		nw -= anw
+	}
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+				if !buf.putFast(*dstx, 0) {
+					wbBufFlush(nil, 0)
+				}
+			} else {
+				srcx := (*uintptr)(unsafe.Pointer(src + i))
+				if !buf.putFast(*dstx, *srcx) {
+					wbBufFlush(nil, 0)
+				}
+			}
+		}
+		mask <<= 1
+	}
+}
+
+// typeBitsBulkBarrier executes a write barrier for every
+// pointer that would be copied from [src, src+size) to [dst,
+// dst+size) by a memmove using the type bitmap to locate those
+// pointer slots.
+//
+// The type typ must correspond exactly to [src, src+size) and [dst, dst+size).
+// dst, src, and size must be pointer-aligned.
+// The type typ must have a plain bitmap, not a GC program.
+// The only use of this function is in channel sends, and the
+// 64 kB channel element limit takes care of this for us.
+//
+// Must not be preempted because it typically runs right before memmove,
+// and the GC must observe them as an atomic action.
+//
+// Callers must perform cgo checks if writeBarrier.cgo.
+//
+//go:nosplit
+func typeBitsBulkBarrier(typ *_type, dst, src, size uintptr) {
+	if typ == nil {
+		throw("runtime: typeBitsBulkBarrier without type")
+	}
+	if typ.size != size {
+		println("runtime: typeBitsBulkBarrier with type ", typ.string(), " of size ", typ.size, " but memory size", size)
+		throw("runtime: invalid typeBitsBulkBarrier")
+	}
+	if typ.kind&kindGCProg != 0 {
+		println("runtime: typeBitsBulkBarrier with type ", typ.string(), " with GC prog")
+		throw("runtime: invalid typeBitsBulkBarrier")
+	}
+	if !writeBarrier.needed {
+		return
+	}
+	ptrmask := typ.gcdata
+	buf := &getg().m.p.ptr().wbBuf
+	var bits uint32
+	for i := uintptr(0); i < typ.ptrdata; i += sys.PtrSize {
+		if i&(sys.PtrSize*8-1) == 0 {
+			bits = uint32(*ptrmask)
+			ptrmask = addb(ptrmask, 1)
+		} else {
+			bits = bits >> 1
+		}
+		if bits&1 != 0 {
+			dstx := (*uintptr)(unsafe.Pointer(dst + i))
+			srcx := (*uintptr)(unsafe.Pointer(src + i))
+			if !buf.putFast(*dstx, *srcx) {
+				wbBufFlush(nil, 0)
+			}
+		}
+	}
+}
+
+// The methods operating on spans all require that h has been returned
+// by heapBitsForSpan and that size, n, total are the span layout description
+// returned by the mspan's layout method.
+// If total > size*n, it means that there is extra leftover memory in the span,
+// usually due to rounding.
+//
+// TODO(rsc): Perhaps introduce a different heapBitsSpan type.
+
+// initSpan initializes the heap bitmap for a span.
+// It clears all checkmark bits.
+// If this is a span of pointer-sized objects, it initializes all
+// words to pointer/scan.
+// Otherwise, it initializes all words to scalar/dead.
+func (h heapBits) initSpan(s *mspan) {
+	// Clear bits corresponding to objects.
+	nw := (s.npages << _PageShift) / sys.PtrSize
+	if nw%wordsPerBitmapByte != 0 {
+		throw("initSpan: unaligned length")
+	}
+	if h.shift != 0 {
+		throw("initSpan: unaligned base")
+	}
+	isPtrs := sys.PtrSize == 8 && s.elemsize == sys.PtrSize
+	for nw > 0 {
+		hNext, anw := h.forwardOrBoundary(nw)
+		nbyte := anw / wordsPerBitmapByte
+		if isPtrs {
+			bitp := h.bitp
+			for i := uintptr(0); i < nbyte; i++ {
+				*bitp = bitPointerAll | bitScanAll
+				bitp = add1(bitp)
+			}
+		} else {
+			memclrNoHeapPointers(unsafe.Pointer(h.bitp), nbyte)
+		}
+		h = hNext
+		nw -= anw
+	}
+}
+
+// initCheckmarkSpan initializes a span for being checkmarked.
+// It clears the checkmark bits, which are set to 1 in normal operation.
+func (h heapBits) initCheckmarkSpan(size, n, total uintptr) {
+	// The ptrSize == 8 is a compile-time constant false on 32-bit and eliminates this code entirely.
+	if sys.PtrSize == 8 && size == sys.PtrSize {
+		// Checkmark bit is type bit, bottom bit of every 2-bit entry.
+		// Only possible on 64-bit system, since minimum size is 8.
+		// Must clear type bit (checkmark bit) of every word.
+		// The type bit is the lower of every two-bit pair.
+		for i := uintptr(0); i < n; i += wordsPerBitmapByte {
+			*h.bitp &^= bitPointerAll
+			h = h.forward(wordsPerBitmapByte)
+		}
+		return
+	}
+	for i := uintptr(0); i < n; i++ {
+		*h.bitp &^= bitScan << (heapBitsShift + h.shift)
+		h = h.forward(size / sys.PtrSize)
+	}
+}
+
+// clearCheckmarkSpan undoes all the checkmarking in a span.
+// The actual checkmark bits are ignored, so the only work to do
+// is to fix the pointer bits. (Pointer bits are ignored by scanobject
+// but consulted by typedmemmove.)
+func (h heapBits) clearCheckmarkSpan(size, n, total uintptr) {
+	// The ptrSize == 8 is a compile-time constant false on 32-bit and eliminates this code entirely.
+	if sys.PtrSize == 8 && size == sys.PtrSize {
+		// Checkmark bit is type bit, bottom bit of every 2-bit entry.
+		// Only possible on 64-bit system, since minimum size is 8.
+		// Must clear type bit (checkmark bit) of every word.
+		// The type bit is the lower of every two-bit pair.
+		for i := uintptr(0); i < n; i += wordsPerBitmapByte {
+			*h.bitp |= bitPointerAll
+			h = h.forward(wordsPerBitmapByte)
+		}
+	}
+}
+
+// oneBitCount is indexed by byte and produces the
+// number of 1 bits in that byte. For example 128 has 1 bit set
+// and oneBitCount[128] will holds 1.
+var oneBitCount = [256]uint8{
+	0, 1, 1, 2, 1, 2, 2, 3,
+	1, 2, 2, 3, 2, 3, 3, 4,
+	1, 2, 2, 3, 2, 3, 3, 4,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	1, 2, 2, 3, 2, 3, 3, 4,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	1, 2, 2, 3, 2, 3, 3, 4,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	4, 5, 5, 6, 5, 6, 6, 7,
+	1, 2, 2, 3, 2, 3, 3, 4,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	4, 5, 5, 6, 5, 6, 6, 7,
+	2, 3, 3, 4, 3, 4, 4, 5,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	4, 5, 5, 6, 5, 6, 6, 7,
+	3, 4, 4, 5, 4, 5, 5, 6,
+	4, 5, 5, 6, 5, 6, 6, 7,
+	4, 5, 5, 6, 5, 6, 6, 7,
+	5, 6, 6, 7, 6, 7, 7, 8}
+
+// countAlloc returns the number of objects allocated in span s by
+// scanning the allocation bitmap.
+// TODO:(rlh) Use popcount intrinsic.
+func (s *mspan) countAlloc() int {
+	count := 0
+	maxIndex := s.nelems / 8
+	for i := uintptr(0); i < maxIndex; i++ {
+		mrkBits := *s.gcmarkBits.bytep(i)
+		count += int(oneBitCount[mrkBits])
+	}
+	if bitsInLastByte := s.nelems % 8; bitsInLastByte != 0 {
+		mrkBits := *s.gcmarkBits.bytep(maxIndex)
+		mask := uint8((1 << bitsInLastByte) - 1)
+		bits := mrkBits & mask
+		count += int(oneBitCount[bits])
+	}
+	return count
+}
+

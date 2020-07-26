@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: panic.go
+Line: 923
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): hide-escape
+
+--------------------------------------------------------------
+Snippet line:
+
+gp._panic = (*_panic)(noescape(unsafe.Pointer(&p)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+
+	var p _panic
+	p.arg = e
+	p.link = gp._panic
+	gp._panic = (*_panic)(noescape(unsafe.Pointer(&p)))
+
+	atomic.Xadd(&runningPanicDefers, 1)
+
+	// By calculating getcallerpc/getcallersp here, we avoid scanning the
+	// gopanic frame (stack scanning is slow...)
+--------------------------------------------------------------
++/- 100 lines context:
+
+	for i := int(nDefers) - 1; i >= 0; i-- {
+		// read the funcdata info for this defer
+		var argWidth, closureOffset, nArgs uint32
+		argWidth, fd = readvarintUnsafe(fd)
+		closureOffset, fd = readvarintUnsafe(fd)
+		nArgs, fd = readvarintUnsafe(fd)
+		if deferBits&(1<<i) == 0 {
+			for j := uint32(0); j < nArgs; j++ {
+				_, fd = readvarintUnsafe(fd)
+				_, fd = readvarintUnsafe(fd)
+				_, fd = readvarintUnsafe(fd)
+			}
+			continue
+		}
+		closure := *(**funcval)(unsafe.Pointer(d.varp - uintptr(closureOffset)))
+		d.fn = closure
+		deferArgs := deferArgs(d)
+		// If there is an interface receiver or method receiver, it is
+		// described/included as the first arg.
+		for j := uint32(0); j < nArgs; j++ {
+			var argOffset, argLen, argCallOffset uint32
+			argOffset, fd = readvarintUnsafe(fd)
+			argLen, fd = readvarintUnsafe(fd)
+			argCallOffset, fd = readvarintUnsafe(fd)
+			memmove(unsafe.Pointer(uintptr(deferArgs)+uintptr(argCallOffset)),
+				unsafe.Pointer(d.varp-uintptr(argOffset)),
+				uintptr(argLen))
+		}
+		deferBits = deferBits &^ (1 << i)
+		*(*uint8)(unsafe.Pointer(d.varp - uintptr(deferBitsOffset))) = deferBits
+		p := d._panic
+		reflectcallSave(p, unsafe.Pointer(closure), deferArgs, argWidth)
+		if p != nil && p.aborted {
+			break
+		}
+		d.fn = nil
+		// These args are just a copy, so can be cleared immediately
+		memclrNoHeapPointers(deferArgs, uintptr(argWidth))
+		if d._panic != nil && d._panic.recovered {
+			done = deferBits == 0
+			break
+		}
+	}
+
+	return done
+}
+
+// reflectcallSave calls reflectcall after saving the caller's pc and sp in the
+// panic record. This allows the runtime to return to the Goexit defer processing
+// loop, in the unusual case where the Goexit may be bypassed by a successful
+// recover.
+func reflectcallSave(p *_panic, fn, arg unsafe.Pointer, argsize uint32) {
+	if p != nil {
+		p.argp = unsafe.Pointer(getargp(0))
+		p.pc = getcallerpc()
+		p.sp = unsafe.Pointer(getcallersp())
+	}
+	reflectcall(nil, fn, arg, argsize, argsize)
+	if p != nil {
+		p.pc = 0
+		p.sp = unsafe.Pointer(nil)
+	}
+}
+
+// The implementation of the predeclared function panic.
+func gopanic(e interface{}) {
+	gp := getg()
+	if gp.m.curg != gp {
+		print("panic: ")
+		printany(e)
+		print("\n")
+		throw("panic on system stack")
+	}
+
+	if gp.m.mallocing != 0 {
+		print("panic: ")
+		printany(e)
+		print("\n")
+		throw("panic during malloc")
+	}
+	if gp.m.preemptoff != "" {
+		print("panic: ")
+		printany(e)
+		print("\n")
+		print("preempt off reason: ")
+		print(gp.m.preemptoff)
+		print("\n")
+		throw("panic during preemptoff")
+	}
+	if gp.m.locks != 0 {
+		print("panic: ")
+		printany(e)
+		print("\n")
+		throw("panic holding locks")
+	}
+
+	var p _panic
+	p.arg = e
+	p.link = gp._panic
+	gp._panic = (*_panic)(noescape(unsafe.Pointer(&p)))
+
+	atomic.Xadd(&runningPanicDefers, 1)
+
+	// By calculating getcallerpc/getcallersp here, we avoid scanning the
+	// gopanic frame (stack scanning is slow...)
+	addOneOpenDeferFrame(gp, getcallerpc(), unsafe.Pointer(getcallersp()))
+
+	for {
+		d := gp._defer
+		if d == nil {
+			break
+		}
+
+		// If defer was started by earlier panic or Goexit (and, since we're back here, that triggered a new panic),
+		// take defer off list. An earlier panic will not continue running, but we will make sure below that an
+		// earlier Goexit does continue running.
+		if d.started {
+			if d._panic != nil {
+				d._panic.aborted = true
+			}
+			d._panic = nil
+			if !d.openDefer {
+				// For open-coded defers, we need to process the
+				// defer again, in case there are any other defers
+				// to call in the frame (not including the defer
+				// call that caused the panic).
+				d.fn = nil
+				gp._defer = d.link
+				freedefer(d)
+				continue
+			}
+		}
+
+		// Mark defer as started, but keep on list, so that traceback
+		// can find and update the defer's argument frame if stack growth
+		// or a garbage collection happens before reflectcall starts executing d.fn.
+		d.started = true
+
+		// Record the panic that is running the defer.
+		// If there is a new panic during the deferred call, that panic
+		// will find d in the list and will mark d._panic (this panic) aborted.
+		d._panic = (*_panic)(noescape(unsafe.Pointer(&p)))
+
+		done := true
+		if d.openDefer {
+			done = runOpenDeferFrame(gp, d)
+			if done && !d._panic.recovered {
+				addOneOpenDeferFrame(gp, 0, nil)
+			}
+		} else {
+			p.argp = unsafe.Pointer(getargp(0))
+			reflectcall(nil, unsafe.Pointer(d.fn), deferArgs(d), uint32(d.siz), uint32(d.siz))
+		}
+		p.argp = nil
+
+		// reflectcall did not panic. Remove d.
+		if gp._defer != d {
+			throw("bad defer entry in panic")
+		}
+		d._panic = nil
+
+		// trigger shrinkage to test stack copy. See stack_test.go:TestStackPanic
+		//GC()
+
+		pc := d.pc
+		sp := unsafe.Pointer(d.sp) // must be pointer so it gets adjusted during stack copy
+		if done {
+			d.fn = nil
+			gp._defer = d.link
+			freedefer(d)
+		}
+		if p.recovered {
+			gp._panic = p.link
+			if gp._panic != nil && gp._panic.goexit && gp._panic.aborted {
+				// A normal recover would bypass/abort the Goexit.  Instead,
+				// we return to the processing loop of the Goexit.
+				gp.sigcode0 = uintptr(gp._panic.sp)
+				gp.sigcode1 = uintptr(gp._panic.pc)
+				mcall(recovery)
+				throw("bypassed recovery failed") // mcall should not return
+			}
+			atomic.Xadd(&runningPanicDefers, -1)
+
+			if done {
+				// Remove any remaining non-started, open-coded
+				// defer entries after a recover, since the
+				// corresponding defers will be executed normally
+				// (inline). Any such entry will become stale once
+				// we run the corresponding defers inline and exit
+				// the associated stack frame.
+				d := gp._defer
+				var prev *_defer
+				for d != nil {
+					if d.openDefer {
+						if d.started {
+							// This defer is started but we
+							// are in the middle of a
+							// defer-panic-recover inside of
+							// it, so don't remove it or any
+							// further defer entries
+

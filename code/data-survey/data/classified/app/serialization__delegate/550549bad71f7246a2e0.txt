@@ -1,0 +1,234 @@
+Module: github.com/elastic/go-structform
+Version: v0.0.6
+
+Package: github.com/elastic/go-structform/gotype
+File: unfold_map.generated.go
+Line: 745
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (u *unfolderMapInt) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func newUnfoldMapKeyInt() *unfoldMapKeyInt {
+	return _singletonUnfoldMapKeyInt
+}
+
+func (u *unfolderMapInt) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(newUnfoldMapKeyInt())
+	ctx.unfolder.push(newUnfoldMapStartInt())
+	ctx.ptr.push(ptr)
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+var _singletonUnfoldMapStartUint64 = &unfoldMapStartUint64{}
+
+func newUnfoldMapStartUint64() *unfoldMapStartUint64 {
+	return _singletonUnfoldMapStartUint64
+}
+
+type unfoldMapKeyUint64 struct {
+	unfolderErrExpectKey
+}
+
+var _singletonUnfoldMapKeyUint64 = &unfoldMapKeyUint64{}
+
+func newUnfoldMapKeyUint64() *unfoldMapKeyUint64 {
+	return _singletonUnfoldMapKeyUint64
+}
+
+func (u *unfolderMapUint64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(newUnfoldMapKeyUint64())
+	ctx.unfolder.push(newUnfoldMapStartUint64())
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfoldMapKeyUint64) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfoldMapStartUint64) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+}
+
+func (u *unfolderMapUint64) ptr(ctx *unfoldCtx) *map[string]uint64 {
+	return (*map[string]uint64)(ctx.ptr.current)
+}
+
+func (u *unfoldMapStartUint64) OnObjectStart(ctx *unfoldCtx, l int, baseType structform.BaseType) error {
+	// TODO: validate baseType
+
+	u.cleanup(ctx)
+	return nil
+}
+
+func (u *unfoldMapKeyUint64) OnKeyRef(ctx *unfoldCtx, key []byte) error {
+	return u.OnKey(ctx, ctx.keyCache.get(key))
+}
+
+func (u *unfoldMapKeyUint64) OnKey(ctx *unfoldCtx, key string) error {
+	ctx.key.push(key)
+	ctx.unfolder.current = newUnfolderMapUint64()
+	return nil
+}
+
+func (u *unfoldMapKeyUint64) OnObjectFinished(ctx *unfoldCtx) error {
+	u.cleanup(ctx)
+	return nil
+}
+
+func (u *unfolderMapUint64) put(ctx *unfoldCtx, v uint64) error {
+	to := u.ptr(ctx)
+	if *to == nil {
+		*to = map[string]uint64{}
+	}
+	(*to)[ctx.key.pop()] = v
+
+	ctx.unfolder.current = newUnfoldMapKeyUint64()
+	return nil
+}
+
+type unfolderMapInt struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderMapInt = &unfolderMapInt{}
+
+func newUnfolderMapInt() *unfolderMapInt {
+	return _singletonUnfolderMapInt
+}
+
+type unfoldMapStartInt struct {
+	unfolderErrObjectStart
+}
+
+var _singletonUnfoldMapStartInt = &unfoldMapStartInt{}
+
+func newUnfoldMapStartInt() *unfoldMapStartInt {
+	return _singletonUnfoldMapStartInt
+}
+
+type unfoldMapKeyInt struct {
+	unfolderErrExpectKey
+}
+
+var _singletonUnfoldMapKeyInt = &unfoldMapKeyInt{}
+
+func newUnfoldMapKeyInt() *unfoldMapKeyInt {
+	return _singletonUnfoldMapKeyInt
+}
+
+func (u *unfolderMapInt) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(newUnfoldMapKeyInt())
+	ctx.unfolder.push(newUnfoldMapStartInt())
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfoldMapKeyInt) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfoldMapStartInt) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+}
+
+func (u *unfolderMapInt) ptr(ctx *unfoldCtx) *map[string]int {
+	return (*map[string]int)(ctx.ptr.current)
+}
+
+func (u *unfoldMapStartInt) OnObjectStart(ctx *unfoldCtx, l int, baseType structform.BaseType) error {
+	// TODO: validate baseType
+
+	u.cleanup(ctx)
+	return nil
+}
+
+func (u *unfoldMapKeyInt) OnKeyRef(ctx *unfoldCtx, key []byte) error {
+	return u.OnKey(ctx, ctx.keyCache.get(key))
+}
+
+func (u *unfoldMapKeyInt) OnKey(ctx *unfoldCtx, key string) error {
+	ctx.key.push(key)
+	ctx.unfolder.current = newUnfolderMapInt()
+	return nil
+}
+
+func (u *unfoldMapKeyInt) OnObjectFinished(ctx *unfoldCtx) error {
+	u.cleanup(ctx)
+	return nil
+}
+
+func (u *unfolderMapInt) put(ctx *unfoldCtx, v int) error {
+	to := u.ptr(ctx)
+	if *to == nil {
+		*to = map[string]int{}
+	}
+	(*to)[ctx.key.pop()] = v
+
+	ctx.unfolder.current = newUnfoldMapKeyInt()
+	return nil
+}
+
+type unfolderMapInt8 struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderMapInt8 = &unfolderMapInt8{}
+
+func newUnfolderMapInt8() *unfolderMapInt8 {
+	return _singletonUnfolderMapInt8
+}
+
+type unfoldMapStartInt8 struct {
+	unfolderErrObjectStart
+}
+
+var _singletonUnfoldMapStartInt8 = &unfoldMapStartInt8{}
+
+func newUnfoldMapStartInt8() *unfoldMapStartInt8 {
+	return _singletonUnfoldMapStartInt8
+}
+
+type unfoldMapKeyInt8 struct {
+	unfolderErrExpectKey
+}
+
+var _singletonUnfoldMapKeyInt8 = &unfoldMapKeyInt8{}
+
+func newUnfoldMapKeyInt8() *unfoldMapKeyInt8 {
+	return _singletonUnfoldMapKeyInt8
+}
+
+func (u *unfolderMapInt8) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(newUnfoldMapKeyInt8())
+	ctx.unfolder.push(newUnfoldMapStartInt8())
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfoldMapKeyInt8) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfoldMapStartInt8) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+}
+
+func (u *unfolderMapInt8) ptr(ctx *unfoldCtx) *map[string]int8 {
+	return (*map[string]int8)(ctx.ptr.current)
+}
+
+

@@ -1,0 +1,148 @@
+Module: github.com/json-iterator/go
+Version: v1.1.7
+
+Package: github.com/json-iterator/go
+File: reflect.go
+Line: 318
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (decoder *placeholderDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+type placeholderDecoder struct {
+	decoder ValDecoder
+}
+
+func (decoder *placeholderDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.decoder.Decode(ptr, iter)
+}
+
+type placeholderEncoder struct {
+	encoder ValEncoder
+--------------------------------------------------------------
++/- 100 lines context:
+
+	if encoder != nil {
+		return encoder
+	}
+	encoder = createEncoderOfType(ctx, typ)
+	for _, extension := range extensions {
+		encoder = extension.DecorateEncoder(typ, encoder)
+	}
+	encoder = ctx.encoderExtension.DecorateEncoder(typ, encoder)
+	for _, extension := range ctx.extraExtensions {
+		encoder = extension.DecorateEncoder(typ, encoder)
+	}
+	return encoder
+}
+
+func createEncoderOfType(ctx *ctx, typ reflect2.Type) ValEncoder {
+	encoder := ctx.encoders[typ]
+	if encoder != nil {
+		return encoder
+	}
+	placeholder := &placeholderEncoder{}
+	ctx.encoders[typ] = placeholder
+	encoder = _createEncoderOfType(ctx, typ)
+	placeholder.encoder = encoder
+	return encoder
+}
+func _createEncoderOfType(ctx *ctx, typ reflect2.Type) ValEncoder {
+	encoder := createEncoderOfJsonRawMessage(ctx, typ)
+	if encoder != nil {
+		return encoder
+	}
+	encoder = createEncoderOfJsonNumber(ctx, typ)
+	if encoder != nil {
+		return encoder
+	}
+	encoder = createEncoderOfMarshaler(ctx, typ)
+	if encoder != nil {
+		return encoder
+	}
+	encoder = createEncoderOfAny(ctx, typ)
+	if encoder != nil {
+		return encoder
+	}
+	encoder = createEncoderOfNative(ctx, typ)
+	if encoder != nil {
+		return encoder
+	}
+	kind := typ.Kind()
+	switch kind {
+	case reflect.Interface:
+		return &dynamicEncoder{typ}
+	case reflect.Struct:
+		return encoderOfStruct(ctx, typ)
+	case reflect.Array:
+		return encoderOfArray(ctx, typ)
+	case reflect.Slice:
+		return encoderOfSlice(ctx, typ)
+	case reflect.Map:
+		return encoderOfMap(ctx, typ)
+	case reflect.Ptr:
+		return encoderOfOptional(ctx, typ)
+	default:
+		return &lazyErrorEncoder{err: fmt.Errorf("%s%s is unsupported type", ctx.prefix, typ.String())}
+	}
+}
+
+type lazyErrorDecoder struct {
+	err error
+}
+
+func (decoder *lazyErrorDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if iter.WhatIsNext() != NilValue {
+		if iter.Error == nil {
+			iter.Error = decoder.err
+		}
+	} else {
+		iter.Skip()
+	}
+}
+
+type lazyErrorEncoder struct {
+	err error
+}
+
+func (encoder *lazyErrorEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if ptr == nil {
+		stream.WriteNil()
+	} else if stream.Error == nil {
+		stream.Error = encoder.err
+	}
+}
+
+func (encoder *lazyErrorEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+}
+
+type placeholderDecoder struct {
+	decoder ValDecoder
+}
+
+func (decoder *placeholderDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	decoder.decoder.Decode(ptr, iter)
+}
+
+type placeholderEncoder struct {
+	encoder ValEncoder
+}
+
+func (encoder *placeholderEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	encoder.encoder.Encode(ptr, stream)
+}
+
+func (encoder *placeholderEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.encoder.IsEmpty(ptr)
+}
+

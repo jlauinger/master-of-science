@@ -1,0 +1,34 @@
+Module: ./staging/src/k8s.io/client-go
+Version: project
+
+Package: k8s.io/client-go/tools/clientcmd/api/v1
+File: zz_generated.conversion.go
+Line: 239
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.CertificateAuthorityData = *(*[]byte)(unsafe.Pointer(&in.CertificateAuthorityData))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func autoConvert_v1_Cluster_To_api_Cluster(in *Cluster, out *api.Cluster, s conversion.Scope) error {
+	out.Server = in.Server
+	out.TLSServerName = in.TLSServerName
+	out.InsecureSkipTLSVerify = in.InsecureSkipTLSVerify
+	out.CertificateAuthority = in.CertificateAuthority
+	out.CertificateAuthorityData = *(*[]byte)(unsafe.Pointer(&in.CertificateAuthorityData))
+	out.ProxyURL = in.ProxyURL
+	if err := Convert_Slice_v1_NamedExtension_To_Map_string_To_runtime_Object(&in.Extensions, &out.Extensions, s); err != nil {
+		return err
+	}
+	return nil
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

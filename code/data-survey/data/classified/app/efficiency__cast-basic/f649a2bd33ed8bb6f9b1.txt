@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/discovery/v1beta1
+File: zz_generated.conversion.go
+Line: 115
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.Hostname = (*string)(unsafe.Pointer(in.Hostname))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func autoConvert_discovery_Endpoint_To_v1beta1_Endpoint(in *discovery.Endpoint, out *v1beta1.Endpoint, s conversion.Scope) error {
+	out.Addresses = *(*[]string)(unsafe.Pointer(&in.Addresses))
+	if err := Convert_discovery_EndpointConditions_To_v1beta1_EndpointConditions(&in.Conditions, &out.Conditions, s); err != nil {
+		return err
+	}
+	out.Hostname = (*string)(unsafe.Pointer(in.Hostname))
+	out.TargetRef = (*v1.ObjectReference)(unsafe.Pointer(in.TargetRef))
+	out.Topology = *(*map[string]string)(unsafe.Pointer(&in.Topology))
+	return nil
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

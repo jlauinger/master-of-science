@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: profbuf.go
+Line: 352
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+*(*uintptr)(unsafe.Pointer(&b.tags[wt])) = uintptr(unsafe.Pointer(*tagPtr))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	// value we copied when scanning b.tags (heap-allocated).
+	// We arrange that the store here is always overwriting a nil,
+	// so there is no need for a deletion barrier on b.tags[wt].
+	wt := int(bw.tagCount() % uint32(len(b.tags)))
+	if tagPtr != nil {
+		*(*uintptr)(unsafe.Pointer(&b.tags[wt])) = uintptr(unsafe.Pointer(*tagPtr))
+	}
+
+	// Main record.
+	// It has to fit in a contiguous section of the slice, so if it doesn't fit at the end,
+	// leave a rewind marker (0) and start over at the beginning of the slice.
+--------------------------------------------------------------
++/- 100 lines context:
+
+		// Skip over that and start over at beginning of slice.
+		nd -= len(b.data) - i
+	}
+	return nd >= want
+}
+
+// canWriteTwoRecords reports whether the buffer has room
+// for two records with stack lengths nstk1, nstk2, in that order.
+// Each record must be contiguous on its own, but the two
+// records need not be contiguous (one can be at the end of the buffer
+// and the other can wrap around and start at the beginning of the buffer).
+func (b *profBuf) canWriteTwoRecords(nstk1, nstk2 int) bool {
+	br := b.r.load()
+	bw := b.w.load()
+
+	// room for tag?
+	if countSub(br.tagCount(), bw.tagCount())+len(b.tags) < 2 {
+		return false
+	}
+
+	// room for data?
+	nd := countSub(br.dataCount(), bw.dataCount()) + len(b.data)
+
+	// first record
+	want := 2 + int(b.hdrsize) + nstk1
+	i := int(bw.dataCount() % uint32(len(b.data)))
+	if i+want > len(b.data) {
+		// Can't fit in trailing fragment of slice.
+		// Skip over that and start over at beginning of slice.
+		nd -= len(b.data) - i
+		i = 0
+	}
+	i += want
+	nd -= want
+
+	// second record
+	want = 2 + int(b.hdrsize) + nstk2
+	if i+want > len(b.data) {
+		// Can't fit in trailing fragment of slice.
+		// Skip over that and start over at beginning of slice.
+		nd -= len(b.data) - i
+		i = 0
+	}
+	return nd >= want
+}
+
+// write writes an entry to the profiling buffer b.
+// The entry begins with a fixed hdr, which must have
+// length b.hdrsize, followed by a variable-sized stack
+// and a single tag pointer *tagPtr (or nil if tagPtr is nil).
+// No write barriers allowed because this might be called from a signal handler.
+func (b *profBuf) write(tagPtr *unsafe.Pointer, now int64, hdr []uint64, stk []uintptr) {
+	if b == nil {
+		return
+	}
+	if len(hdr) > int(b.hdrsize) {
+		throw("misuse of profBuf.write")
+	}
+
+	if hasOverflow := b.hasOverflow(); hasOverflow && b.canWriteTwoRecords(1, len(stk)) {
+		// Room for both an overflow record and the one being written.
+		// Write the overflow record if the reader hasn't gotten to it yet.
+		// Only racing against reader, not other writers.
+		count, time := b.takeOverflow()
+		if count > 0 {
+			var stk [1]uintptr
+			stk[0] = uintptr(count)
+			b.write(nil, int64(time), nil, stk[:])
+		}
+	} else if hasOverflow || !b.canWriteRecord(len(stk)) {
+		// Pending overflow without room to write overflow and new records
+		// or no overflow but also no room for new record.
+		b.incrementOverflow(now)
+		b.wakeupExtra()
+		return
+	}
+
+	// There's room: write the record.
+	br := b.r.load()
+	bw := b.w.load()
+
+	// Profiling tag
+	//
+	// The tag is a pointer, but we can't run a write barrier here.
+	// We have interrupted the OS-level execution of gp, but the
+	// runtime still sees gp as executing. In effect, we are running
+	// in place of the real gp. Since gp is the only goroutine that
+	// can overwrite gp.labels, the value of gp.labels is stable during
+	// this signal handler: it will still be reachable from gp when
+	// we finish executing. If a GC is in progress right now, it must
+	// keep gp.labels alive, because gp.labels is reachable from gp.
+	// If gp were to overwrite gp.labels, the deletion barrier would
+	// still shade that pointer, which would preserve it for the
+	// in-progress GC, so all is well. Any future GC will see the
+	// value we copied when scanning b.tags (heap-allocated).
+	// We arrange that the store here is always overwriting a nil,
+	// so there is no need for a deletion barrier on b.tags[wt].
+	wt := int(bw.tagCount() % uint32(len(b.tags)))
+	if tagPtr != nil {
+		*(*uintptr)(unsafe.Pointer(&b.tags[wt])) = uintptr(unsafe.Pointer(*tagPtr))
+	}
+
+	// Main record.
+	// It has to fit in a contiguous section of the slice, so if it doesn't fit at the end,
+	// leave a rewind marker (0) and start over at the beginning of the slice.
+	wd := int(bw.dataCount() % uint32(len(b.data)))
+	nd := countSub(br.dataCount(), bw.dataCount()) + len(b.data)
+	skip := 0
+	if wd+2+int(b.hdrsize)+len(stk) > len(b.data) {
+		b.data[wd] = 0
+		skip = len(b.data) - wd
+		nd -= skip
+		wd = 0
+	}
+	data := b.data[wd:]
+	data[0] = uint64(2 + b.hdrsize + uintptr(len(stk))) // length
+	data[1] = uint64(now)                               // time stamp
+	// header, zero-padded
+	i := uintptr(copy(data[2:2+b.hdrsize], hdr))
+	for ; i < b.hdrsize; i++ {
+		data[2+i] = 0
+	}
+	for i, pc := range stk {
+		data[2+b.hdrsize+uintptr(i)] = uint64(pc)
+	}
+
+	for {
+		// Commit write.
+		// Racing with reader setting flag bits in b.w, to avoid lost wakeups.
+		old := b.w.load()
+		new := old.addCountsAndClearFlags(skip+2+len(stk)+int(b.hdrsize), 1)
+		if !b.w.cas(old, new) {
+			continue
+		}
+		// If there was a reader, wake it up.
+		if old&profReaderSleeping != 0 {
+			notewakeup(&b.wait)
+		}
+		break
+	}
+}
+
+// close signals that there will be no more writes on the buffer.
+// Once all the data has been read from the buffer, reads will return eof=true.
+func (b *profBuf) close() {
+	if atomic.Load(&b.eof) > 0 {
+		throw("runtime: profBuf already closed")
+	}
+	atomic.Store(&b.eof, 1)
+	b.wakeupExtra()
+}
+
+// wakeupExtra must be called after setting one of the "extra"
+// atomic fields b.overflow or b.eof.
+// It records the change in b.w and wakes up the reader if needed.
+func (b *profBuf) wakeupExtra() {
+	for {
+		old := b.w.load()
+		new := old | profWriteExtra
+		if !b.w.cas(old, new) {
+			continue
+		}
+		if old&profReaderSleeping != 0 {
+			notewakeup(&b.wait)
+		}
+		break
+	}
+}
+
+// profBufReadMode specifies whether to block when no data is available to read.
+type profBufReadMode int
+
+const (
+	profBufBlocking profBufReadMode = iota
+	profBufNonBlocking
+)
+
+var overflowTag [1]unsafe.Pointer // always nil
+
+func (b *profBuf) read(mode profBufReadMode) (data []uint64, tags []unsafe.Pointer, eof bool) {
+	if b == nil {
+		return nil, nil, true
+	}
+
+	br := b.rNext
+
+	// Commit previous read, returning that part of the ring to the writer.
+	// First clear tags that have now been read, both to avoid holding
+	// up the memory they point at for longer than necessary
+	// and so that b.write can assume it is always overwriting
+	// nil tag entries (see comment in b.write).
+	rPrev := b.r.load()
+	if rPrev != br {
+		ntag := countSub(br.tagCount(), rPrev.tagCount())
+		ti := int(rPrev.tagCount() % uint32(len(b.tags)))
+		for i := 0; i < ntag; i++ {
+			b.tags[ti] = nil
+			if ti++; ti == len(b.tags) {
+				ti = 0
+			}
+

@@ -1,0 +1,133 @@
+Module: github.com/json-iterator/go
+Version: v1.1.9
+
+Package: github.com/json-iterator/go
+File: reflect_struct_encoder.go
+Line: 209
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (encoder *stringModeStringEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	defer encoder.cfg.ReturnStream(tempStream)
+	encoder.elemEncoder.Encode(ptr, tempStream)
+	stream.WriteString(string(tempStream.Buffer()))
+}
+
+func (encoder *stringModeStringEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.elemEncoder.IsEmpty(ptr)
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+	encoder.fieldEncoder.Encode(fieldPtr, stream)
+	if stream.Error != nil && stream.Error != io.EOF {
+		stream.Error = fmt.Errorf("%s: %s", encoder.field.Name(), stream.Error.Error())
+	}
+}
+
+func (encoder *structFieldEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	fieldPtr := encoder.field.UnsafeGet(ptr)
+	return encoder.fieldEncoder.IsEmpty(fieldPtr)
+}
+
+func (encoder *structFieldEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
+	isEmbeddedPtrNil, converted := encoder.fieldEncoder.(IsEmbeddedPtrNil)
+	if !converted {
+		return false
+	}
+	fieldPtr := encoder.field.UnsafeGet(ptr)
+	return isEmbeddedPtrNil.IsEmbeddedPtrNil(fieldPtr)
+}
+
+type IsEmbeddedPtrNil interface {
+	IsEmbeddedPtrNil(ptr unsafe.Pointer) bool
+}
+
+type structEncoder struct {
+	typ    reflect2.Type
+	fields []structFieldTo
+}
+
+type structFieldTo struct {
+	encoder *structFieldEncoder
+	toName  string
+}
+
+func (encoder *structEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteObjectStart()
+	isNotFirst := false
+	for _, field := range encoder.fields {
+		if field.encoder.omitempty && field.encoder.IsEmpty(ptr) {
+			continue
+		}
+		if field.encoder.IsEmbeddedPtrNil(ptr) {
+			continue
+		}
+		if isNotFirst {
+			stream.WriteMore()
+		}
+		stream.WriteObjectField(field.toName)
+		field.encoder.Encode(ptr, stream)
+		isNotFirst = true
+	}
+	stream.WriteObjectEnd()
+	if stream.Error != nil && stream.Error != io.EOF {
+		stream.Error = fmt.Errorf("%v.%s", encoder.typ, stream.Error.Error())
+	}
+}
+
+func (encoder *structEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+}
+
+type emptyStructEncoder struct {
+}
+
+func (encoder *emptyStructEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteEmptyObject()
+}
+
+func (encoder *emptyStructEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+}
+
+type stringModeNumberEncoder struct {
+	elemEncoder ValEncoder
+}
+
+func (encoder *stringModeNumberEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.writeByte('"')
+	encoder.elemEncoder.Encode(ptr, stream)
+	stream.writeByte('"')
+}
+
+func (encoder *stringModeNumberEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.elemEncoder.IsEmpty(ptr)
+}
+
+type stringModeStringEncoder struct {
+	elemEncoder ValEncoder
+	cfg         *frozenConfig
+}
+
+func (encoder *stringModeStringEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	tempStream := encoder.cfg.BorrowStream(nil)
+	tempStream.Attachment = stream.Attachment
+	defer encoder.cfg.ReturnStream(tempStream)
+	encoder.elemEncoder.Encode(ptr, tempStream)
+	stream.WriteString(string(tempStream.Buffer()))
+}
+
+func (encoder *stringModeStringEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.elemEncoder.IsEmpty(ptr)
+}
+

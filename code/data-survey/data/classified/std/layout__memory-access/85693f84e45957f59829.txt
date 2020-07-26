@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: sema.go
+Line: 243
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+if t.elem == unsafe.Pointer(addr) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	s.prev = nil
+
+	var last *sudog
+	pt := &root.treap
+	for t := *pt; t != nil; t = *pt {
+		if t.elem == unsafe.Pointer(addr) {
+			// Already have addr in list.
+			if lifo {
+				// Substitute s in t's place in treap.
+				*pt = s
+				s.ticket = t.ticket
+--------------------------------------------------------------
++/- 100 lines context:
+
+		goparkunlock(&root.lock, waitReasonSemacquire, traceEvGoBlockSync, 4+skipframes)
+		if s.ticket != 0 || cansemacquire(addr) {
+			break
+		}
+	}
+	if s.releasetime > 0 {
+		blockevent(s.releasetime-t0, 3+skipframes)
+	}
+	releaseSudog(s)
+}
+
+func semrelease(addr *uint32) {
+	semrelease1(addr, false, 0)
+}
+
+func semrelease1(addr *uint32, handoff bool, skipframes int) {
+	root := semroot(addr)
+	atomic.Xadd(addr, 1)
+
+	// Easy case: no waiters?
+	// This check must happen after the xadd, to avoid a missed wakeup
+	// (see loop in semacquire).
+	if atomic.Load(&root.nwait) == 0 {
+		return
+	}
+
+	// Harder case: search for a waiter and wake it.
+	lock(&root.lock)
+	if atomic.Load(&root.nwait) == 0 {
+		// The count is already consumed by another goroutine,
+		// so no need to wake up another goroutine.
+		unlock(&root.lock)
+		return
+	}
+	s, t0 := root.dequeue(addr)
+	if s != nil {
+		atomic.Xadd(&root.nwait, -1)
+	}
+	unlock(&root.lock)
+	if s != nil { // May be slow or even yield, so unlock first
+		acquiretime := s.acquiretime
+		if acquiretime != 0 {
+			mutexevent(t0-acquiretime, 3+skipframes)
+		}
+		if s.ticket != 0 {
+			throw("corrupted semaphore ticket")
+		}
+		if handoff && cansemacquire(addr) {
+			s.ticket = 1
+		}
+		readyWithTime(s, 5+skipframes)
+		if s.ticket == 1 && getg().m.locks == 0 {
+			// Direct G handoff
+			// readyWithTime has added the waiter G as runnext in the
+			// current P; we now call the scheduler so that we start running
+			// the waiter G immediately.
+			// Note that waiter inherits our time slice: this is desirable
+			// to avoid having a highly contended semaphore hog the P
+			// indefinitely. goyield is like Gosched, but it emits a
+			// "preempted" trace event instead and, more importantly, puts
+			// the current G on the local runq instead of the global one.
+			// We only do this in the starving regime (handoff=true), as in
+			// the non-starving case it is possible for a different waiter
+			// to acquire the semaphore while we are yielding/scheduling,
+			// and this would be wasteful. We wait instead to enter starving
+			// regime, and then we start to do direct handoffs of ticket and
+			// P.
+			// See issue 33747 for discussion.
+			goyield()
+		}
+	}
+}
+
+func semroot(addr *uint32) *semaRoot {
+	return &semtable[(uintptr(unsafe.Pointer(addr))>>3)%semTabSize].root
+}
+
+func cansemacquire(addr *uint32) bool {
+	for {
+		v := atomic.Load(addr)
+		if v == 0 {
+			return false
+		}
+		if atomic.Cas(addr, v, v-1) {
+			return true
+		}
+	}
+}
+
+// queue adds s to the blocked goroutines in semaRoot.
+func (root *semaRoot) queue(addr *uint32, s *sudog, lifo bool) {
+	s.g = getg()
+	s.elem = unsafe.Pointer(addr)
+	s.next = nil
+	s.prev = nil
+
+	var last *sudog
+	pt := &root.treap
+	for t := *pt; t != nil; t = *pt {
+		if t.elem == unsafe.Pointer(addr) {
+			// Already have addr in list.
+			if lifo {
+				// Substitute s in t's place in treap.
+				*pt = s
+				s.ticket = t.ticket
+				s.acquiretime = t.acquiretime
+				s.parent = t.parent
+				s.prev = t.prev
+				s.next = t.next
+				if s.prev != nil {
+					s.prev.parent = s
+				}
+				if s.next != nil {
+					s.next.parent = s
+				}
+				// Add t first in s's wait list.
+				s.waitlink = t
+				s.waittail = t.waittail
+				if s.waittail == nil {
+					s.waittail = t
+				}
+				t.parent = nil
+				t.prev = nil
+				t.next = nil
+				t.waittail = nil
+			} else {
+				// Add s to end of t's wait list.
+				if t.waittail == nil {
+					t.waitlink = s
+				} else {
+					t.waittail.waitlink = s
+				}
+				t.waittail = s
+				s.waitlink = nil
+			}
+			return
+		}
+		last = t
+		if uintptr(unsafe.Pointer(addr)) < uintptr(t.elem) {
+			pt = &t.prev
+		} else {
+			pt = &t.next
+		}
+	}
+
+	// Add s as new leaf in tree of unique addrs.
+	// The balanced tree is a treap using ticket as the random heap priority.
+	// That is, it is a binary tree ordered according to the elem addresses,
+	// but then among the space of possible binary trees respecting those
+	// addresses, it is kept balanced on average by maintaining a heap ordering
+	// on the ticket: s.ticket <= both s.prev.ticket and s.next.ticket.
+	// https://en.wikipedia.org/wiki/Treap
+	// https://faculty.washington.edu/aragon/pubs/rst89.pdf
+	//
+	// s.ticket compared with zero in couple of places, therefore set lowest bit.
+	// It will not affect treap's quality noticeably.
+	s.ticket = fastrand() | 1
+	s.parent = last
+	*pt = s
+
+	// Rotate up into tree according to ticket (priority).
+	for s.parent != nil && s.parent.ticket > s.ticket {
+		if s.parent.prev == s {
+			root.rotateRight(s.parent)
+		} else {
+			if s.parent.next != s {
+				panic("semaRoot queue")
+			}
+			root.rotateLeft(s.parent)
+		}
+	}
+}
+
+// dequeue searches for and finds the first goroutine
+// in semaRoot blocked on addr.
+// If the sudog was being profiled, dequeue returns the time
+// at which it was woken up as now. Otherwise now is 0.
+func (root *semaRoot) dequeue(addr *uint32) (found *sudog, now int64) {
+	ps := &root.treap
+	s := *ps
+	for ; s != nil; s = *ps {
+		if s.elem == unsafe.Pointer(addr) {
+			goto Found
+		}
+		if uintptr(unsafe.Pointer(addr)) < uintptr(s.elem) {
+			ps = &s.prev
+		} else {
+			ps = &s.next
+		}
+	}
+	return nil, 0
+
+Found:
+	now = int64(0)
+	if s.acquiretime != 0 {
+		now = cputicks()
+	}
+	if t := s.waitlink; t != nil {
+		// Substitute t, also waiting on addr, for s in root tree of unique addrs.
+		*ps = t
+

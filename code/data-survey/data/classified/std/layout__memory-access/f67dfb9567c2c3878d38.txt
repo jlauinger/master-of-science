@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: trace.go
+Line: 924
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func (a *traceAlloc) alloc(n uintptr) unsafe.Pointer {
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func (p traceAllocBlockPtr) ptr() *traceAllocBlock   { return (*traceAllocBlock)(unsafe.Pointer(p)) }
+func (p *traceAllocBlockPtr) set(x *traceAllocBlock) { *p = traceAllocBlockPtr(unsafe.Pointer(x)) }
+
+// alloc allocates n-byte block.
+func (a *traceAlloc) alloc(n uintptr) unsafe.Pointer {
+	n = alignUp(n, sys.PtrSize)
+	if a.head == 0 || a.off+n > uintptr(len(a.head.ptr().data)) {
+		if n > uintptr(len(a.head.ptr().data)) {
+			throw("trace: alloc too large")
+		}
+--------------------------------------------------------------
++/- 100 lines context:
+
+		if !more {
+			return frames
+		}
+	}
+}
+
+// dump writes all previously cached stacks to trace buffers,
+// releases all memory and resets state.
+func (tab *traceStackTable) dump() {
+	var tmp [(2 + 4*traceStackSize) * traceBytesPerNumber]byte
+	bufp := traceFlush(0, 0)
+	for _, stk := range tab.tab {
+		stk := stk.ptr()
+		for ; stk != nil; stk = stk.link.ptr() {
+			tmpbuf := tmp[:0]
+			tmpbuf = traceAppend(tmpbuf, uint64(stk.id))
+			frames := allFrames(stk.stack())
+			tmpbuf = traceAppend(tmpbuf, uint64(len(frames)))
+			for _, f := range frames {
+				var frame traceFrame
+				frame, bufp = traceFrameForPC(bufp, 0, f)
+				tmpbuf = traceAppend(tmpbuf, uint64(f.PC))
+				tmpbuf = traceAppend(tmpbuf, uint64(frame.funcID))
+				tmpbuf = traceAppend(tmpbuf, uint64(frame.fileID))
+				tmpbuf = traceAppend(tmpbuf, uint64(frame.line))
+			}
+			// Now copy to the buffer.
+			size := 1 + traceBytesPerNumber + len(tmpbuf)
+			if buf := bufp.ptr(); len(buf.arr)-buf.pos < size {
+				bufp = traceFlush(bufp, 0)
+			}
+			buf := bufp.ptr()
+			buf.byte(traceEvStack | 3<<traceArgCountShift)
+			buf.varint(uint64(len(tmpbuf)))
+			buf.pos += copy(buf.arr[buf.pos:], tmpbuf)
+		}
+	}
+
+	lock(&trace.lock)
+	traceFullQueue(bufp)
+	unlock(&trace.lock)
+
+	tab.mem.drop()
+	*tab = traceStackTable{}
+}
+
+type traceFrame struct {
+	funcID uint64
+	fileID uint64
+	line   uint64
+}
+
+// traceFrameForPC records the frame information.
+// It may allocate memory.
+func traceFrameForPC(buf traceBufPtr, pid int32, f Frame) (traceFrame, traceBufPtr) {
+	bufp := &buf
+	var frame traceFrame
+
+	fn := f.Function
+	const maxLen = 1 << 10
+	if len(fn) > maxLen {
+		fn = fn[len(fn)-maxLen:]
+	}
+	frame.funcID, bufp = traceString(bufp, pid, fn)
+	frame.line = uint64(f.Line)
+	file := f.File
+	if len(file) > maxLen {
+		file = file[len(file)-maxLen:]
+	}
+	frame.fileID, bufp = traceString(bufp, pid, file)
+	return frame, (*bufp)
+}
+
+// traceAlloc is a non-thread-safe region allocator.
+// It holds a linked list of traceAllocBlock.
+type traceAlloc struct {
+	head traceAllocBlockPtr
+	off  uintptr
+}
+
+// traceAllocBlock is a block in traceAlloc.
+//
+// traceAllocBlock is allocated from non-GC'd memory, so it must not
+// contain heap pointers. Writes to pointers to traceAllocBlocks do
+// not need write barriers.
+//
+//go:notinheap
+type traceAllocBlock struct {
+	next traceAllocBlockPtr
+	data [64<<10 - sys.PtrSize]byte
+}
+
+// TODO: Since traceAllocBlock is now go:notinheap, this isn't necessary.
+type traceAllocBlockPtr uintptr
+
+func (p traceAllocBlockPtr) ptr() *traceAllocBlock   { return (*traceAllocBlock)(unsafe.Pointer(p)) }
+func (p *traceAllocBlockPtr) set(x *traceAllocBlock) { *p = traceAllocBlockPtr(unsafe.Pointer(x)) }
+
+// alloc allocates n-byte block.
+func (a *traceAlloc) alloc(n uintptr) unsafe.Pointer {
+	n = alignUp(n, sys.PtrSize)
+	if a.head == 0 || a.off+n > uintptr(len(a.head.ptr().data)) {
+		if n > uintptr(len(a.head.ptr().data)) {
+			throw("trace: alloc too large")
+		}
+		block := (*traceAllocBlock)(sysAlloc(unsafe.Sizeof(traceAllocBlock{}), &memstats.other_sys))
+		if block == nil {
+			throw("trace: out of memory")
+		}
+		block.next.set(a.head.ptr())
+		a.head.set(block)
+		a.off = 0
+	}
+	p := &a.head.ptr().data[a.off]
+	a.off += n
+	return unsafe.Pointer(p)
+}
+
+// drop frees all previously allocated memory and resets the allocator.
+func (a *traceAlloc) drop() {
+	for a.head != 0 {
+		block := a.head.ptr()
+		a.head.set(block.next.ptr())
+		sysFree(unsafe.Pointer(block), unsafe.Sizeof(traceAllocBlock{}), &memstats.other_sys)
+	}
+}
+
+// The following functions write specific events to trace.
+
+func traceGomaxprocs(procs int32) {
+	traceEvent(traceEvGomaxprocs, 1, uint64(procs))
+}
+
+func traceProcStart() {
+	traceEvent(traceEvProcStart, -1, uint64(getg().m.id))
+}
+
+func traceProcStop(pp *p) {
+	// Sysmon and stopTheWorld can stop Ps blocked in syscalls,
+	// to handle this we temporary employ the P.
+	mp := acquirem()
+	oldp := mp.p
+	mp.p.set(pp)
+	traceEvent(traceEvProcStop, -1)
+	mp.p = oldp
+	releasem(mp)
+}
+
+func traceGCStart() {
+	traceEvent(traceEvGCStart, 3, trace.seqGC)
+	trace.seqGC++
+}
+
+func traceGCDone() {
+	traceEvent(traceEvGCDone, -1)
+}
+
+func traceGCSTWStart(kind int) {
+	traceEvent(traceEvGCSTWStart, -1, uint64(kind))
+}
+
+func traceGCSTWDone() {
+	traceEvent(traceEvGCSTWDone, -1)
+}
+
+// traceGCSweepStart prepares to trace a sweep loop. This does not
+// emit any events until traceGCSweepSpan is called.
+//
+// traceGCSweepStart must be paired with traceGCSweepDone and there
+// must be no preemption points between these two calls.
+func traceGCSweepStart() {
+	// Delay the actual GCSweepStart event until the first span
+	// sweep. If we don't sweep anything, don't emit any events.
+	_p_ := getg().m.p.ptr()
+	if _p_.traceSweep {
+		throw("double traceGCSweepStart")
+	}
+	_p_.traceSweep, _p_.traceSwept, _p_.traceReclaimed = true, 0, 0
+}
+
+// traceGCSweepSpan traces the sweep of a single page.
+//
+// This may be called outside a traceGCSweepStart/traceGCSweepDone
+// pair; however, it will not emit any trace events in this case.
+func traceGCSweepSpan(bytesSwept uintptr) {
+	_p_ := getg().m.p.ptr()
+	if _p_.traceSweep {
+		if _p_.traceSwept == 0 {
+			traceEvent(traceEvGCSweepStart, 1)
+		}
+		_p_.traceSwept += bytesSwept
+	}
+}
+
+func traceGCSweepDone() {
+	_p_ := getg().m.p.ptr()
+	if !_p_.traceSweep {
+		throw("missing traceGCSweepStart")
+	}
+	if _p_.traceSwept != 0 {
+

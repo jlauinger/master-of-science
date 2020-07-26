@@ -1,0 +1,175 @@
+Module: std
+Version: std
+
+Package: runtime
+File: type.go
+Line: 685
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+mv := (*maptype)(unsafe.Pointer(v))
+--------------------------------------------------------------
++/- 5 lines context:
+
+			}
+		}
+		return true
+	case kindMap:
+		mt := (*maptype)(unsafe.Pointer(t))
+		mv := (*maptype)(unsafe.Pointer(v))
+		return typesEqual(mt.key, mv.key, seen) && typesEqual(mt.elem, mv.elem, seen)
+	case kindPtr:
+		pt := (*ptrtype)(unsafe.Pointer(t))
+		pv := (*ptrtype)(unsafe.Pointer(v))
+		return typesEqual(pt.elem, pv.elem, seen)
+--------------------------------------------------------------
++/- 100 lines context:
+
+//
+// Only typelinksinit needs this function.
+func typesEqual(t, v *_type, seen map[_typePair]struct{}) bool {
+	tp := _typePair{t, v}
+	if _, ok := seen[tp]; ok {
+		return true
+	}
+
+	// mark these types as seen, and thus equivalent which prevents an infinite loop if
+	// the two types are identical, but recursively defined and loaded from
+	// different modules
+	seen[tp] = struct{}{}
+
+	if t == v {
+		return true
+	}
+	kind := t.kind & kindMask
+	if kind != v.kind&kindMask {
+		return false
+	}
+	if t.string() != v.string() {
+		return false
+	}
+	ut := t.uncommon()
+	uv := v.uncommon()
+	if ut != nil || uv != nil {
+		if ut == nil || uv == nil {
+			return false
+		}
+		pkgpatht := t.nameOff(ut.pkgpath).name()
+		pkgpathv := v.nameOff(uv.pkgpath).name()
+		if pkgpatht != pkgpathv {
+			return false
+		}
+	}
+	if kindBool <= kind && kind <= kindComplex128 {
+		return true
+	}
+	switch kind {
+	case kindString, kindUnsafePointer:
+		return true
+	case kindArray:
+		at := (*arraytype)(unsafe.Pointer(t))
+		av := (*arraytype)(unsafe.Pointer(v))
+		return typesEqual(at.elem, av.elem, seen) && at.len == av.len
+	case kindChan:
+		ct := (*chantype)(unsafe.Pointer(t))
+		cv := (*chantype)(unsafe.Pointer(v))
+		return ct.dir == cv.dir && typesEqual(ct.elem, cv.elem, seen)
+	case kindFunc:
+		ft := (*functype)(unsafe.Pointer(t))
+		fv := (*functype)(unsafe.Pointer(v))
+		if ft.outCount != fv.outCount || ft.inCount != fv.inCount {
+			return false
+		}
+		tin, vin := ft.in(), fv.in()
+		for i := 0; i < len(tin); i++ {
+			if !typesEqual(tin[i], vin[i], seen) {
+				return false
+			}
+		}
+		tout, vout := ft.out(), fv.out()
+		for i := 0; i < len(tout); i++ {
+			if !typesEqual(tout[i], vout[i], seen) {
+				return false
+			}
+		}
+		return true
+	case kindInterface:
+		it := (*interfacetype)(unsafe.Pointer(t))
+		iv := (*interfacetype)(unsafe.Pointer(v))
+		if it.pkgpath.name() != iv.pkgpath.name() {
+			return false
+		}
+		if len(it.mhdr) != len(iv.mhdr) {
+			return false
+		}
+		for i := range it.mhdr {
+			tm := &it.mhdr[i]
+			vm := &iv.mhdr[i]
+			// Note the mhdr array can be relocated from
+			// another module. See #17724.
+			tname := resolveNameOff(unsafe.Pointer(tm), tm.name)
+			vname := resolveNameOff(unsafe.Pointer(vm), vm.name)
+			if tname.name() != vname.name() {
+				return false
+			}
+			if tname.pkgPath() != vname.pkgPath() {
+				return false
+			}
+			tityp := resolveTypeOff(unsafe.Pointer(tm), tm.ityp)
+			vityp := resolveTypeOff(unsafe.Pointer(vm), vm.ityp)
+			if !typesEqual(tityp, vityp, seen) {
+				return false
+			}
+		}
+		return true
+	case kindMap:
+		mt := (*maptype)(unsafe.Pointer(t))
+		mv := (*maptype)(unsafe.Pointer(v))
+		return typesEqual(mt.key, mv.key, seen) && typesEqual(mt.elem, mv.elem, seen)
+	case kindPtr:
+		pt := (*ptrtype)(unsafe.Pointer(t))
+		pv := (*ptrtype)(unsafe.Pointer(v))
+		return typesEqual(pt.elem, pv.elem, seen)
+	case kindSlice:
+		st := (*slicetype)(unsafe.Pointer(t))
+		sv := (*slicetype)(unsafe.Pointer(v))
+		return typesEqual(st.elem, sv.elem, seen)
+	case kindStruct:
+		st := (*structtype)(unsafe.Pointer(t))
+		sv := (*structtype)(unsafe.Pointer(v))
+		if len(st.fields) != len(sv.fields) {
+			return false
+		}
+		if st.pkgPath.name() != sv.pkgPath.name() {
+			return false
+		}
+		for i := range st.fields {
+			tf := &st.fields[i]
+			vf := &sv.fields[i]
+			if tf.name.name() != vf.name.name() {
+				return false
+			}
+			if !typesEqual(tf.typ, vf.typ, seen) {
+				return false
+			}
+			if tf.name.tag() != vf.name.tag() {
+				return false
+			}
+			if tf.offsetAnon != vf.offsetAnon {
+				return false
+			}
+		}
+		return true
+	default:
+		println("runtime: impossible type kind", kind)
+		throw("runtime: impossible type kind")
+		return false
+	}
+}
+

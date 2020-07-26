@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: iface.go
+Line: 345
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+x = unsafe.Pointer(&zeroVal[0])
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return
+}
+
+func convT32(val uint32) (x unsafe.Pointer) {
+	if val == 0 {
+		x = unsafe.Pointer(&zeroVal[0])
+	} else {
+		x = mallocgc(4, uint32Type, false)
+		*(*uint32)(x) = val
+	}
+	return
+--------------------------------------------------------------
++/- 100 lines context:
+
+	lock(&itabLock)
+	for _, md := range activeModules() {
+		for _, i := range md.itablinks {
+			itabAdd(i)
+		}
+	}
+	unlock(&itabLock)
+}
+
+// panicdottypeE is called when doing an e.(T) conversion and the conversion fails.
+// have = the dynamic type we have.
+// want = the static type we're trying to convert to.
+// iface = the static type we're converting from.
+func panicdottypeE(have, want, iface *_type) {
+	panic(&TypeAssertionError{iface, have, want, ""})
+}
+
+// panicdottypeI is called when doing an i.(T) conversion and the conversion fails.
+// Same args as panicdottypeE, but "have" is the dynamic itab we have.
+func panicdottypeI(have *itab, want, iface *_type) {
+	var t *_type
+	if have != nil {
+		t = have._type
+	}
+	panicdottypeE(t, want, iface)
+}
+
+// panicnildottype is called when doing a i.(T) conversion and the interface i is nil.
+// want = the static type we're trying to convert to.
+func panicnildottype(want *_type) {
+	panic(&TypeAssertionError{nil, nil, want, ""})
+	// TODO: Add the static type we're converting from as well.
+	// It might generate a better error message.
+	// Just to match other nil conversion errors, we don't for now.
+}
+
+// The specialized convTx routines need a type descriptor to use when calling mallocgc.
+// We don't need the type to be exact, just to have the correct size, alignment, and pointer-ness.
+// However, when debugging, it'd be nice to have some indication in mallocgc where the types came from,
+// so we use named types here.
+// We then construct interface values of these types,
+// and then extract the type word to use as needed.
+type (
+	uint16InterfacePtr uint16
+	uint32InterfacePtr uint32
+	uint64InterfacePtr uint64
+	stringInterfacePtr string
+	sliceInterfacePtr  []byte
+)
+
+var (
+	uint16Eface interface{} = uint16InterfacePtr(0)
+	uint32Eface interface{} = uint32InterfacePtr(0)
+	uint64Eface interface{} = uint64InterfacePtr(0)
+	stringEface interface{} = stringInterfacePtr("")
+	sliceEface  interface{} = sliceInterfacePtr(nil)
+
+	uint16Type *_type = efaceOf(&uint16Eface)._type
+	uint32Type *_type = efaceOf(&uint32Eface)._type
+	uint64Type *_type = efaceOf(&uint64Eface)._type
+	stringType *_type = efaceOf(&stringEface)._type
+	sliceType  *_type = efaceOf(&sliceEface)._type
+)
+
+// The conv and assert functions below do very similar things.
+// The convXXX functions are guaranteed by the compiler to succeed.
+// The assertXXX functions may fail (either panicking or returning false,
+// depending on whether they are 1-result or 2-result).
+// The convXXX functions succeed on a nil input, whereas the assertXXX
+// functions fail on a nil input.
+
+func convT2E(t *_type, elem unsafe.Pointer) (e eface) {
+	if raceenabled {
+		raceReadObjectPC(t, elem, getcallerpc(), funcPC(convT2E))
+	}
+	if msanenabled {
+		msanread(elem, t.size)
+	}
+	x := mallocgc(t.size, t, true)
+	// TODO: We allocate a zeroed object only to overwrite it with actual data.
+	// Figure out how to avoid zeroing. Also below in convT2Eslice, convT2I, convT2Islice.
+	typedmemmove(t, x, elem)
+	e._type = t
+	e.data = x
+	return
+}
+
+func convT16(val uint16) (x unsafe.Pointer) {
+	if val == 0 {
+		x = unsafe.Pointer(&zeroVal[0])
+	} else {
+		x = mallocgc(2, uint16Type, false)
+		*(*uint16)(x) = val
+	}
+	return
+}
+
+func convT32(val uint32) (x unsafe.Pointer) {
+	if val == 0 {
+		x = unsafe.Pointer(&zeroVal[0])
+	} else {
+		x = mallocgc(4, uint32Type, false)
+		*(*uint32)(x) = val
+	}
+	return
+}
+
+func convT64(val uint64) (x unsafe.Pointer) {
+	if val == 0 {
+		x = unsafe.Pointer(&zeroVal[0])
+	} else {
+		x = mallocgc(8, uint64Type, false)
+		*(*uint64)(x) = val
+	}
+	return
+}
+
+func convTstring(val string) (x unsafe.Pointer) {
+	if val == "" {
+		x = unsafe.Pointer(&zeroVal[0])
+	} else {
+		x = mallocgc(unsafe.Sizeof(val), stringType, true)
+		*(*string)(x) = val
+	}
+	return
+}
+
+func convTslice(val []byte) (x unsafe.Pointer) {
+	// Note: this must work for any element type, not just byte.
+	if (*slice)(unsafe.Pointer(&val)).array == nil {
+		x = unsafe.Pointer(&zeroVal[0])
+	} else {
+		x = mallocgc(unsafe.Sizeof(val), sliceType, true)
+		*(*[]byte)(x) = val
+	}
+	return
+}
+
+func convT2Enoptr(t *_type, elem unsafe.Pointer) (e eface) {
+	if raceenabled {
+		raceReadObjectPC(t, elem, getcallerpc(), funcPC(convT2Enoptr))
+	}
+	if msanenabled {
+		msanread(elem, t.size)
+	}
+	x := mallocgc(t.size, t, false)
+	memmove(x, elem, t.size)
+	e._type = t
+	e.data = x
+	return
+}
+
+func convT2I(tab *itab, elem unsafe.Pointer) (i iface) {
+	t := tab._type
+	if raceenabled {
+		raceReadObjectPC(t, elem, getcallerpc(), funcPC(convT2I))
+	}
+	if msanenabled {
+		msanread(elem, t.size)
+	}
+	x := mallocgc(t.size, t, true)
+	typedmemmove(t, x, elem)
+	i.tab = tab
+	i.data = x
+	return
+}
+
+func convT2Inoptr(tab *itab, elem unsafe.Pointer) (i iface) {
+	t := tab._type
+	if raceenabled {
+		raceReadObjectPC(t, elem, getcallerpc(), funcPC(convT2Inoptr))
+	}
+	if msanenabled {
+		msanread(elem, t.size)
+	}
+	x := mallocgc(t.size, t, false)
+	memmove(x, elem, t.size)
+	i.tab = tab
+	i.data = x
+	return
+}
+
+func convI2I(inter *interfacetype, i iface) (r iface) {
+	tab := i.tab
+	if tab == nil {
+		return
+	}
+	if tab.inter == inter {
+		r.tab = tab
+		r.data = i.data
+		return
+	}
+	r.tab = getitab(inter, tab._type, false)
+	r.data = i.data
+	return
+}
+
+func assertI2I(inter *interfacetype, i iface) (r iface) {
+	tab := i.tab
+	if tab == nil {
+

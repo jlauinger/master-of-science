@@ -1,0 +1,34 @@
+Module: github.com/iovisor/gobpf
+Version: v0.0.0-20180826141936-4ece6c56f936
+
+Package: github.com/iovisor/gobpf/elf
+File: /root/.cache/go-build/e5/e5058a4731ab4cf4534f7a9b88883ccfa60809e59eea41d011824cb4e086c2c5-d
+Line: 224
+
+Imported (possibly among others) by: weaveworks/scope
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+errno := _cgo_runtime_cgocall(_cgo_138acf537e29_C2func_bpf_pin_object, uintptr(unsafe.Pointer(&p0)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+var __cgofn__cgo_138acf537e29_C2func_bpf_pin_object byte
+var _cgo_138acf537e29_C2func_bpf_pin_object = unsafe.Pointer(&__cgofn__cgo_138acf537e29_C2func_bpf_pin_object)
+
+//go:cgo_unsafe_args
+func _C2func_bpf_pin_object(p0 _Ctype_int, p1 *_Ctype_char) (r1 _Ctype_int, r2 error) {
+	errno := _cgo_runtime_cgocall(_cgo_138acf537e29_C2func_bpf_pin_object, uintptr(unsafe.Pointer(&p0)))
+	if errno != 0 { r2 = syscall.Errno(errno) }
+	if _Cgo_always_false {
+		_Cgo_use(p0)
+		_Cgo_use(p1)
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

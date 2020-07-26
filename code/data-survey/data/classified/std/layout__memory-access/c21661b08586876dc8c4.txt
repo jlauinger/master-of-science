@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: traceback.go
+Line: 646
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+(*[1 << 20]uintptr)(unsafe.Pointer(pcbuf))[n] = pc
+--------------------------------------------------------------
++/- 5 lines context:
+
+	for _, pc := range cgoPCs {
+		if pc == 0 || n >= max {
+			break
+		}
+		if pcbuf != nil {
+			(*[1 << 20]uintptr)(unsafe.Pointer(pcbuf))[n] = pc
+		}
+		if printing {
+			if cgoSymbolizer == nil {
+				print("non-Go function at pc=", hex(pc), "\n")
+			} else {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	// what's left on the panic stack are exactly (and only) the dead frames.
+	//
+	// We require callback != nil here because only when callback != nil
+	// do we know that gentraceback is being called in a "must be correct"
+	// context as opposed to a "best effort" context. The tracebacks with
+	// callbacks only happen when everything is stopped nicely.
+	// At other times, such as when gathering a stack for a profiling signal
+	// or when printing a traceback during a crash, everything may not be
+	// stopped nicely, and the stack walk may not be able to complete.
+	if callback != nil && n < max && frame.sp != gp.stktopsp {
+		print("runtime: g", gp.goid, ": frame.sp=", hex(frame.sp), " top=", hex(gp.stktopsp), "\n")
+		print("\tstack=[", hex(gp.stack.lo), "-", hex(gp.stack.hi), "] n=", n, " max=", max, "\n")
+		throw("traceback did not unwind completely")
+	}
+
+	return n
+}
+
+// reflectMethodValue is a partial duplicate of reflect.makeFuncImpl
+// and reflect.methodValue.
+type reflectMethodValue struct {
+	fn     uintptr
+	stack  *bitvector // ptrmap for both args and results
+	argLen uintptr    // just args
+}
+
+// getArgInfoFast returns the argument frame information for a call to f.
+// It is short and inlineable. However, it does not handle all functions.
+// If ok reports false, you must call getArgInfo instead.
+// TODO(josharian): once we do mid-stack inlining,
+// call getArgInfo directly from getArgInfoFast and stop returning an ok bool.
+func getArgInfoFast(f funcInfo, needArgMap bool) (arglen uintptr, argmap *bitvector, ok bool) {
+	return uintptr(f.args), nil, !(needArgMap && f.args == _ArgsSizeUnknown)
+}
+
+// getArgInfo returns the argument frame information for a call to f
+// with call frame frame.
+//
+// This is used for both actual calls with active stack frames and for
+// deferred calls or goroutines that are not yet executing. If this is an actual
+// call, ctxt must be nil (getArgInfo will retrieve what it needs from
+// the active stack frame). If this is a deferred call or unstarted goroutine,
+// ctxt must be the function object that was deferred or go'd.
+func getArgInfo(frame *stkframe, f funcInfo, needArgMap bool, ctxt *funcval) (arglen uintptr, argmap *bitvector) {
+	arglen = uintptr(f.args)
+	if needArgMap && f.args == _ArgsSizeUnknown {
+		// Extract argument bitmaps for reflect stubs from the calls they made to reflect.
+		switch funcname(f) {
+		case "reflect.makeFuncStub", "reflect.methodValueCall":
+			// These take a *reflect.methodValue as their
+			// context register.
+			var mv *reflectMethodValue
+			var retValid bool
+			if ctxt != nil {
+				// This is not an actual call, but a
+				// deferred call or an unstarted goroutine.
+				// The function value is itself the *reflect.methodValue.
+				mv = (*reflectMethodValue)(unsafe.Pointer(ctxt))
+			} else {
+				// This is a real call that took the
+				// *reflect.methodValue as its context
+				// register and immediately saved it
+				// to 0(SP). Get the methodValue from
+				// 0(SP).
+				arg0 := frame.sp + sys.MinFrameSize
+				mv = *(**reflectMethodValue)(unsafe.Pointer(arg0))
+				// Figure out whether the return values are valid.
+				// Reflect will update this value after it copies
+				// in the return values.
+				retValid = *(*bool)(unsafe.Pointer(arg0 + 3*sys.PtrSize))
+			}
+			if mv.fn != f.entry {
+				print("runtime: confused by ", funcname(f), "\n")
+				throw("reflect mismatch")
+			}
+			bv := mv.stack
+			arglen = uintptr(bv.n * sys.PtrSize)
+			if !retValid {
+				arglen = uintptr(mv.argLen) &^ (sys.PtrSize - 1)
+			}
+			argmap = bv
+		}
+	}
+	return
+}
+
+// tracebackCgoContext handles tracing back a cgo context value, from
+// the context argument to setCgoTraceback, for the gentraceback
+// function. It returns the new value of n.
+func tracebackCgoContext(pcbuf *uintptr, printing bool, ctxt uintptr, n, max int) int {
+	var cgoPCs [32]uintptr
+	cgoContextPCs(ctxt, cgoPCs[:])
+	var arg cgoSymbolizerArg
+	anySymbolized := false
+	for _, pc := range cgoPCs {
+		if pc == 0 || n >= max {
+			break
+		}
+		if pcbuf != nil {
+			(*[1 << 20]uintptr)(unsafe.Pointer(pcbuf))[n] = pc
+		}
+		if printing {
+			if cgoSymbolizer == nil {
+				print("non-Go function at pc=", hex(pc), "\n")
+			} else {
+				c := printOneCgoTraceback(pc, max-n, &arg)
+				n += c - 1 // +1 a few lines down
+				anySymbolized = true
+			}
+		}
+		n++
+	}
+	if anySymbolized {
+		arg.pc = 0
+		callCgoSymbolizer(&arg)
+	}
+	return n
+}
+
+func printcreatedby(gp *g) {
+	// Show what created goroutine, except main goroutine (goid 1).
+	pc := gp.gopc
+	f := findfunc(pc)
+	if f.valid() && showframe(f, gp, false, funcID_normal, funcID_normal) && gp.goid != 1 {
+		printcreatedby1(f, pc)
+	}
+}
+
+func printcreatedby1(f funcInfo, pc uintptr) {
+	print("created by ", funcname(f), "\n")
+	tracepc := pc // back up to CALL instruction for funcline.
+	if pc > f.entry {
+		tracepc -= sys.PCQuantum
+	}
+	file, line := funcline(f, tracepc)
+	print("\t", file, ":", line)
+	if pc > f.entry {
+		print(" +", hex(pc-f.entry))
+	}
+	print("\n")
+}
+
+func traceback(pc, sp, lr uintptr, gp *g) {
+	traceback1(pc, sp, lr, gp, 0)
+}
+
+// tracebacktrap is like traceback but expects that the PC and SP were obtained
+// from a trap, not from gp->sched or gp->syscallpc/gp->syscallsp or getcallerpc/getcallersp.
+// Because they are from a trap instead of from a saved pair,
+// the initial PC must not be rewound to the previous instruction.
+// (All the saved pairs record a PC that is a return address, so we
+// rewind it into the CALL instruction.)
+// If gp.m.libcall{g,pc,sp} information is available, it uses that information in preference to
+// the pc/sp/lr passed in.
+func tracebacktrap(pc, sp, lr uintptr, gp *g) {
+	if gp.m.libcallsp != 0 {
+		// We're in C code somewhere, traceback from the saved position.
+		traceback1(gp.m.libcallpc, gp.m.libcallsp, 0, gp.m.libcallg.ptr(), 0)
+		return
+	}
+	traceback1(pc, sp, lr, gp, _TraceTrap)
+}
+
+func traceback1(pc, sp, lr uintptr, gp *g, flags uint) {
+	// If the goroutine is in cgo, and we have a cgo traceback, print that.
+	if iscgo && gp.m != nil && gp.m.ncgo > 0 && gp.syscallsp != 0 && gp.m.cgoCallers != nil && gp.m.cgoCallers[0] != 0 {
+		// Lock cgoCallers so that a signal handler won't
+		// change it, copy the array, reset it, unlock it.
+		// We are locked to the thread and are not running
+		// concurrently with a signal handler.
+		// We just have to stop a signal handler from interrupting
+		// in the middle of our copy.
+		atomic.Store(&gp.m.cgoCallersUse, 1)
+		cgoCallers := *gp.m.cgoCallers
+		gp.m.cgoCallers[0] = 0
+		atomic.Store(&gp.m.cgoCallersUse, 0)
+
+		printCgoTraceback(&cgoCallers)
+	}
+
+	var n int
+	if readgstatus(gp)&^_Gscan == _Gsyscall {
+		// Override registers if blocked in system call.
+		pc = gp.syscallpc
+		sp = gp.syscallsp
+		flags &^= _TraceTrap
+	}
+	// Print traceback. By default, omits runtime frames.
+	// If that means we print nothing at all, repeat forcing all frames printed.
+	n = gentraceback(pc, sp, lr, gp, 0, nil, _TracebackMaxFrames, nil, nil, flags)
+	if n == 0 && (flags&_TraceRuntimeFrames) == 0 {
+		n = gentraceback(pc, sp, lr, gp, 0, nil, _TracebackMaxFrames, nil, nil, flags|_TraceRuntimeFrames)
+	}
+	if n == _TracebackMaxFrames {
+		print("...additional frames elided...\n")
+	}
+	printcreatedby(gp)
+
+	if gp.ancestors == nil {
+		return
+

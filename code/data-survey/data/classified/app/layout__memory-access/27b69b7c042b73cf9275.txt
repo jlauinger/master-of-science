@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor
+File: array.go
+Line: 296
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func malloc(t Dtype, length int) unsafe.Pointer {
+--------------------------------------------------------------
++/- 5 lines context:
+
+func (a *array) rtype() reflect.Type  { return a.t.Type }
+
+/* MEMORY MOVEMENT STUFF */
+
+// malloc is standard Go allocation of a block of memory - the plus side is that Go manages the memory
+func malloc(t Dtype, length int) unsafe.Pointer {
+	size := int(calcMemSize(t, length))
+	s := make(rawdata, size)
+	return unsafe.Pointer(&s[0])
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+// swap swaps the elements i and j in the array
+func (a *array) swap(i, j int) {
+	if a.t == String {
+		ss := a.hdr().Strings()
+		ss[i], ss[j] = ss[j], ss[i]
+		return
+	}
+	if !isParameterizedKind(a.t.Kind()) {
+		switch a.t.Size() {
+		case 8:
+			us := a.hdr().Uint64s()
+			us[i], us[j] = us[j], us[i]
+		case 4:
+			us := a.hdr().Uint32s()
+			us[i], us[j] = us[j], us[i]
+		case 2:
+			us := a.hdr().Uint16s()
+			us[i], us[j] = us[j], us[i]
+		case 1:
+			us := a.hdr().Uint8s()
+			us[i], us[j] = us[j], us[i]
+		}
+		return
+	}
+
+	size := int(a.t.Size())
+	tmp := make([]byte, size)
+	bs := a.byteSlice()
+	is := i * size
+	ie := is + size
+	js := j * size
+	je := js + size
+	copy(tmp, bs[is:ie])
+	copy(bs[is:ie], bs[js:je])
+	copy(bs[js:je], tmp)
+}
+
+/* *Array is a Memory */
+
+// Uintptr returns the pointer of the first value of the slab
+func (a *array) Uintptr() uintptr { return uintptr(a.Ptr) }
+
+// MemSize returns how big the slice is in bytes
+func (a *array) MemSize() uintptr { return uintptr(a.L) * a.t.Size() }
+
+// Pointer returns the pointer of the first value of the slab, as an unsafe.Pointer
+func (a *array) Pointer() unsafe.Pointer { return a.Ptr }
+
+// Data returns the representation of a slice.
+func (a array) Data() interface{} {
+	if a.v == nil {
+		// build a type of []T
+		shdr := reflect.SliceHeader{
+			Data: uintptr(a.Header.Ptr),
+			Len:  a.Header.L,
+			Cap:  a.Header.C,
+		}
+		sliceT := reflect.SliceOf(a.t.Type)
+		ptr := unsafe.Pointer(&shdr)
+		val := reflect.Indirect(reflect.NewAt(sliceT, ptr))
+		a.v = val.Interface()
+
+	}
+	return a.v
+}
+
+// Zero zeroes out the underlying array of the *Dense tensor.
+func (a array) Zero() {
+	if a.t.Kind() == reflect.String {
+		ss := a.Strings()
+		for i := range ss {
+			ss[i] = ""
+		}
+		return
+	}
+	if !isParameterizedKind(a.t.Kind()) {
+		ba := a.byteSlice()
+		for i := range ba {
+			ba[i] = 0
+		}
+		return
+	}
+	ptr := uintptr(a.Ptr)
+	for i := 0; i < a.L; i++ {
+		want := ptr + uintptr(i)*a.t.Size()
+		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+		val = reflect.Indirect(val)
+		val.Set(reflect.Zero(a.t))
+	}
+}
+
+func (a *array) hdr() *storage.Header { return &a.Header }
+func (a *array) rtype() reflect.Type  { return a.t.Type }
+
+/* MEMORY MOVEMENT STUFF */
+
+// malloc is standard Go allocation of a block of memory - the plus side is that Go manages the memory
+func malloc(t Dtype, length int) unsafe.Pointer {
+	size := int(calcMemSize(t, length))
+	s := make(rawdata, size)
+	return unsafe.Pointer(&s[0])
+}
+
+// calcMemSize calulates the memory size of an array (given its size)
+func calcMemSize(dt Dtype, size int) int64 {
+	return int64(dt.Size()) * int64(size)
+}
+
+// copyArray copies an array.
+func copyArray(dst, src *array) int {
+	if dst.t != src.t {
+		panic("Cannot copy arrays of different types.")
+	}
+	return storage.Copy(dst.t.Type, &dst.Header, &src.Header)
+}
+
+func copyArraySliced(dst array, dstart, dend int, src array, sstart, send int) int {
+	if dst.t != src.t {
+		panic("Cannot copy arrays of different types.")
+	}
+	return storage.CopySliced(dst.t.Type, &dst.Header, dstart, dend, &src.Header, sstart, send)
+}
+
+// copyDense copies a DenseTensor
+func copyDense(dst, src DenseTensor) int {
+	if dst.Dtype() != src.Dtype() {
+		panic("Cannot dopy DenseTensors of different types")
+	}
+
+	if ms, ok := src.(MaskedTensor); ok && ms.IsMasked() {
+		if md, ok := dst.(MaskedTensor); ok {
+			dmask := md.Mask()
+			smask := ms.Mask()
+			if cap(dmask) < len(smask) {
+				dmask = make([]bool, len(smask))
+				copy(dmask, md.Mask())
+				md.SetMask(dmask)
+			}
+			copy(dmask, smask)
+		}
+	}
+
+	e := src.Engine()
+	if err := e.Memcpy(dst.arrPtr(), src.arrPtr()); err != nil {
+		panic(err)
+	}
+	return dst.len()
+
+	// return copyArray(dst.arr(), src.arr())
+}
+
+// copyDenseSliced copies a DenseTensor, but both are sliced
+func copyDenseSliced(dst DenseTensor, dstart, dend int, src DenseTensor, sstart, send int) int {
+	if dst.Dtype() != src.Dtype() {
+		panic("Cannot copy DenseTensors of different types")
+	}
+
+	if ms, ok := src.(MaskedTensor); ok && ms.IsMasked() {
+		if md, ok := dst.(MaskedTensor); ok {
+			dmask := md.Mask()
+			smask := ms.Mask()
+			if cap(dmask) < dend {
+				dmask = make([]bool, dend)
+				copy(dmask, md.Mask())
+				md.SetMask(dmask)
+			}
+			copy(dmask[dstart:dend], smask[sstart:send])
+		}
+	}
+	if e := src.Engine(); e != nil {
+		darr := dst.arr()
+		sarr := src.arr()
+		d := darr.slice(dstart, dend)
+		s := sarr.slice(sstart, send)
+
+		switch e.(type) {
+		case NonStdEngine:
+			da := d.toarray()
+			sa := s.toarray()
+			if err := e.Memcpy(&da, &sa); err != nil {
+				panic(err)
+			}
+		default:
+			// THIS IS AN OPTIMIZATION. REVISIT WHEN NEEDED.
+			//
+			// THE PURPOSE of this optimization is to make this perform better under
+			// default circumstances.
+			//
+			// The original code simply uses t.Engine().Memcpy(&dSlice, &tSlice).
+			// A variant can still be seen in the NonStdEngine case above.
+			//
+			// The `array.slice()` method has been optimized to return `array2`, which is a
+			// non-heap allocated type.
+			// a value of `array2` cannot have its address taken - e.g.
+			// 	var a array2
+			// 	doSomething(&a) // ← this cannot be done
+			//
+			// We *could* make `array2` implement Memory. But then a lot of runtime.convT2I and
+

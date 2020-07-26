@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/coordination/v1beta1
+File: zz_generated.conversion.go
+Line: 124
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.AcquireTime = (*v1.MicroTime)(unsafe.Pointer(in.AcquireTime))
+--------------------------------------------------------------
++/- 5 lines context:
+
+}
+
+func autoConvert_v1beta1_LeaseSpec_To_coordination_LeaseSpec(in *v1beta1.LeaseSpec, out *coordination.LeaseSpec, s conversion.Scope) error {
+	out.HolderIdentity = (*string)(unsafe.Pointer(in.HolderIdentity))
+	out.LeaseDurationSeconds = (*int32)(unsafe.Pointer(in.LeaseDurationSeconds))
+	out.AcquireTime = (*v1.MicroTime)(unsafe.Pointer(in.AcquireTime))
+	out.RenewTime = (*v1.MicroTime)(unsafe.Pointer(in.RenewTime))
+	out.LeaseTransitions = (*int32)(unsafe.Pointer(in.LeaseTransitions))
+	return nil
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/internal/execution
+File: generic_cmp_vv.go
+Line: 628
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func EqUnsafePointer(a []unsafe.Pointer, b []unsafe.Pointer, retVal []bool) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqUnsafePointer(a []unsafe.Pointer, b []unsafe.Pointer, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+--------------------------------------------------------------
++/- 100 lines context:
+
+func EqU(a []uint, b []uint, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqU8(a []uint8, b []uint8, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqU16(a []uint16, b []uint16, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqU32(a []uint32, b []uint32, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqU64(a []uint64, b []uint64, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqUintptr(a []uintptr, b []uintptr, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqF32(a []float32, b []float32, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqF64(a []float64, b []float64, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqC64(a []complex64, b []complex64, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqC128(a []complex128, b []complex128, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqStr(a []string, b []string, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func EqUnsafePointer(a []unsafe.Pointer, b []unsafe.Pointer, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] == b[i]
+	}
+}
+
+func NeB(a []bool, b []bool, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeI(a []int, b []int, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeI8(a []int8, b []int8, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeI16(a []int16, b []int16, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeI32(a []int32, b []int32, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeI64(a []int64, b []int64, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeU(a []uint, b []uint, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeU8(a []uint8, b []uint8, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeU16(a []uint16, b []uint16, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeU32(a []uint32, b []uint32, retVal []bool) {
+	a = a[:]
+	b = b[:len(a)]
+	retVal = retVal[:len(a)]
+	for i := range retVal {
+		retVal[i] = a[i] != b[i]
+	}
+}
+
+func NeU64(a []uint64, b []uint64, retVal []bool) {
+	a = a[:]
+

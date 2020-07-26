@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: stack.go
+Line: 869
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): pointer-arithmetic
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+memmove(unsafe.Pointer(new.hi-ncopy), unsafe.Pointer(old.hi-ncopy), ncopy)
+--------------------------------------------------------------
++/- 5 lines context:
+
+		// the stack they may interact with.
+		ncopy -= syncadjustsudogs(gp, used, &adjinfo)
+	}
+
+	// Copy the stack (or the rest of it) to the new location
+	memmove(unsafe.Pointer(new.hi-ncopy), unsafe.Pointer(old.hi-ncopy), ncopy)
+
+	// Adjust remaining structures that have pointers into stacks.
+	// We have to do most of these before we traceback the new
+	// stack because gentraceback uses them.
+	adjustctxt(gp, &adjinfo)
+--------------------------------------------------------------
++/- 100 lines context:
+
+	var sghi uintptr
+	for sg := gp.waiting; sg != nil; sg = sg.waitlink {
+		p := uintptr(sg.elem) + uintptr(sg.c.elemsize)
+		if stk.lo <= p && p < stk.hi && p > sghi {
+			sghi = p
+		}
+	}
+	return sghi
+}
+
+// syncadjustsudogs adjusts gp's sudogs and copies the part of gp's
+// stack they refer to while synchronizing with concurrent channel
+// operations. It returns the number of bytes of stack copied.
+func syncadjustsudogs(gp *g, used uintptr, adjinfo *adjustinfo) uintptr {
+	if gp.waiting == nil {
+		return 0
+	}
+
+	// Lock channels to prevent concurrent send/receive.
+	var lastc *hchan
+	for sg := gp.waiting; sg != nil; sg = sg.waitlink {
+		if sg.c != lastc {
+			lock(&sg.c.lock)
+		}
+		lastc = sg.c
+	}
+
+	// Adjust sudogs.
+	adjustsudogs(gp, adjinfo)
+
+	// Copy the part of the stack the sudogs point in to
+	// while holding the lock to prevent races on
+	// send/receive slots.
+	var sgsize uintptr
+	if adjinfo.sghi != 0 {
+		oldBot := adjinfo.old.hi - used
+		newBot := oldBot + adjinfo.delta
+		sgsize = adjinfo.sghi - oldBot
+		memmove(unsafe.Pointer(newBot), unsafe.Pointer(oldBot), sgsize)
+	}
+
+	// Unlock channels.
+	lastc = nil
+	for sg := gp.waiting; sg != nil; sg = sg.waitlink {
+		if sg.c != lastc {
+			unlock(&sg.c.lock)
+		}
+		lastc = sg.c
+	}
+
+	return sgsize
+}
+
+// Copies gp's stack to a new stack of a different size.
+// Caller must have changed gp status to Gcopystack.
+func copystack(gp *g, newsize uintptr) {
+	if gp.syscallsp != 0 {
+		throw("stack growth not allowed in system call")
+	}
+	old := gp.stack
+	if old.lo == 0 {
+		throw("nil stackbase")
+	}
+	used := old.hi - gp.sched.sp
+
+	// allocate new stack
+	new := stackalloc(uint32(newsize))
+	if stackPoisonCopy != 0 {
+		fillstack(new, 0xfd)
+	}
+	if stackDebug >= 1 {
+		print("copystack gp=", gp, " [", hex(old.lo), " ", hex(old.hi-used), " ", hex(old.hi), "]", " -> [", hex(new.lo), " ", hex(new.hi-used), " ", hex(new.hi), "]/", newsize, "\n")
+	}
+
+	// Compute adjustment.
+	var adjinfo adjustinfo
+	adjinfo.old = old
+	adjinfo.delta = new.hi - old.hi
+
+	// Adjust sudogs, synchronizing with channel ops if necessary.
+	ncopy := used
+	if !gp.activeStackChans {
+		adjustsudogs(gp, &adjinfo)
+	} else {
+		// sudogs may be pointing in to the stack and gp has
+		// released channel locks, so other goroutines could
+		// be writing to gp's stack. Find the highest such
+		// pointer so we can handle everything there and below
+		// carefully. (This shouldn't be far from the bottom
+		// of the stack, so there's little cost in handling
+		// everything below it carefully.)
+		adjinfo.sghi = findsghi(gp, old)
+
+		// Synchronize with channel ops and copy the part of
+		// the stack they may interact with.
+		ncopy -= syncadjustsudogs(gp, used, &adjinfo)
+	}
+
+	// Copy the stack (or the rest of it) to the new location
+	memmove(unsafe.Pointer(new.hi-ncopy), unsafe.Pointer(old.hi-ncopy), ncopy)
+
+	// Adjust remaining structures that have pointers into stacks.
+	// We have to do most of these before we traceback the new
+	// stack because gentraceback uses them.
+	adjustctxt(gp, &adjinfo)
+	adjustdefers(gp, &adjinfo)
+	adjustpanics(gp, &adjinfo)
+	if adjinfo.sghi != 0 {
+		adjinfo.sghi += adjinfo.delta
+	}
+
+	// Swap out old stack for new one
+	gp.stack = new
+	gp.stackguard0 = new.lo + _StackGuard // NOTE: might clobber a preempt request
+	gp.sched.sp = new.hi - used
+	gp.stktopsp += adjinfo.delta
+
+	// Adjust pointers in the new stack.
+	gentraceback(^uintptr(0), ^uintptr(0), 0, gp, 0, nil, 0x7fffffff, adjustframe, noescape(unsafe.Pointer(&adjinfo)), 0)
+
+	// free old stack
+	if stackPoisonCopy != 0 {
+		fillstack(old, 0xfc)
+	}
+	stackfree(old)
+}
+
+// round x up to a power of 2.
+func round2(x int32) int32 {
+	s := uint(0)
+	for 1<<s < x {
+		s++
+	}
+	return 1 << s
+}
+
+// Called from runtime·morestack when more stack is needed.
+// Allocate larger stack and relocate to new stack.
+// Stack growth is multiplicative, for constant amortized cost.
+//
+// g->atomicstatus will be Grunning or Gscanrunning upon entry.
+// If the scheduler is trying to stop this g, then it will set preemptStop.
+//
+// This must be nowritebarrierrec because it can be called as part of
+// stack growth from other nowritebarrierrec functions, but the
+// compiler doesn't check this.
+//
+//go:nowritebarrierrec
+func newstack() {
+	thisg := getg()
+	// TODO: double check all gp. shouldn't be getg().
+	if thisg.m.morebuf.g.ptr().stackguard0 == stackFork {
+		throw("stack growth after fork")
+	}
+	if thisg.m.morebuf.g.ptr() != thisg.m.curg {
+		print("runtime: newstack called from g=", hex(thisg.m.morebuf.g), "\n"+"\tm=", thisg.m, " m->curg=", thisg.m.curg, " m->g0=", thisg.m.g0, " m->gsignal=", thisg.m.gsignal, "\n")
+		morebuf := thisg.m.morebuf
+		traceback(morebuf.pc, morebuf.sp, morebuf.lr, morebuf.g.ptr())
+		throw("runtime: wrong goroutine in newstack")
+	}
+
+	gp := thisg.m.curg
+
+	if thisg.m.curg.throwsplit {
+		// Update syscallsp, syscallpc in case traceback uses them.
+		morebuf := thisg.m.morebuf
+		gp.syscallsp = morebuf.sp
+		gp.syscallpc = morebuf.pc
+		pcname, pcoff := "(unknown)", uintptr(0)
+		f := findfunc(gp.sched.pc)
+		if f.valid() {
+			pcname = funcname(f)
+			pcoff = gp.sched.pc - f.entry
+		}
+		print("runtime: newstack at ", pcname, "+", hex(pcoff),
+			" sp=", hex(gp.sched.sp), " stack=[", hex(gp.stack.lo), ", ", hex(gp.stack.hi), "]\n",
+			"\tmorebuf={pc:", hex(morebuf.pc), " sp:", hex(morebuf.sp), " lr:", hex(morebuf.lr), "}\n",
+			"\tsched={pc:", hex(gp.sched.pc), " sp:", hex(gp.sched.sp), " lr:", hex(gp.sched.lr), " ctxt:", gp.sched.ctxt, "}\n")
+
+		thisg.m.traceback = 2 // Include runtime frames
+		traceback(morebuf.pc, morebuf.sp, morebuf.lr, gp)
+		throw("runtime: stack split at bad time")
+	}
+
+	morebuf := thisg.m.morebuf
+	thisg.m.morebuf.pc = 0
+	thisg.m.morebuf.lr = 0
+	thisg.m.morebuf.sp = 0
+	thisg.m.morebuf.g = 0
+
+	// NOTE: stackguard0 may change underfoot, if another thread
+	// is about to try to preempt gp. Read it just once and use that same
+	// value now and below.
+	preempt := atomic.Loaduintptr(&gp.stackguard0) == stackPreempt
+
+	// Be conservative about where we preempt.
+	// We are interested in preempting user Go code, not runtime code.
+	// If we're holding locks, mallocing, or preemption is disabled, don't
+	// preempt.
+	// This check is very early in newstack so that even the status change
+

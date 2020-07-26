@@ -1,0 +1,234 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20200515095857-1151b9dac4a9
+
+Package: golang.org/x/sys/unix
+File: syscall_linux.go
+Line: 189
+
+Imported (possibly among others) by: mattermost/mattermost-server
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+return utimes(path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	ts[1] = NsecToTimespec(TimevalToNsec(tv[1]))
+	err := utimensat(AT_FDCWD, path, (*[2]Timespec)(unsafe.Pointer(&ts[0])), 0)
+	if err != ENOSYS {
+		return err
+	}
+	return utimes(path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+}
+
+//sys	utimensat(dirfd int, path string, times *[2]Timespec, flags int) (err error)
+
+func UtimesNano(path string, ts []Timespec) error {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	v := int32(value)
+	return ioctl(fd, req, uintptr(unsafe.Pointer(&v)))
+}
+
+func IoctlSetRTCTime(fd int, value *RTCTime) error {
+	err := ioctl(fd, RTC_SET_TIME, uintptr(unsafe.Pointer(value)))
+	runtime.KeepAlive(value)
+	return err
+}
+
+func IoctlGetUint32(fd int, req uint) (uint32, error) {
+	var value uint32
+	err := ioctl(fd, req, uintptr(unsafe.Pointer(&value)))
+	return value, err
+}
+
+func IoctlGetRTCTime(fd int) (*RTCTime, error) {
+	var value RTCTime
+	err := ioctl(fd, RTC_RD_TIME, uintptr(unsafe.Pointer(&value)))
+	return &value, err
+}
+
+//sys	Linkat(olddirfd int, oldpath string, newdirfd int, newpath string, flags int) (err error)
+
+func Link(oldpath string, newpath string) (err error) {
+	return Linkat(AT_FDCWD, oldpath, AT_FDCWD, newpath, 0)
+}
+
+func Mkdir(path string, mode uint32) (err error) {
+	return Mkdirat(AT_FDCWD, path, mode)
+}
+
+func Mknod(path string, mode uint32, dev int) (err error) {
+	return Mknodat(AT_FDCWD, path, mode, dev)
+}
+
+func Open(path string, mode int, perm uint32) (fd int, err error) {
+	return openat(AT_FDCWD, path, mode|O_LARGEFILE, perm)
+}
+
+//sys	openat(dirfd int, path string, flags int, mode uint32) (fd int, err error)
+
+func Openat(dirfd int, path string, flags int, mode uint32) (fd int, err error) {
+	return openat(dirfd, path, flags|O_LARGEFILE, mode)
+}
+
+//sys	ppoll(fds *PollFd, nfds int, timeout *Timespec, sigmask *Sigset_t) (n int, err error)
+
+func Ppoll(fds []PollFd, timeout *Timespec, sigmask *Sigset_t) (n int, err error) {
+	if len(fds) == 0 {
+		return ppoll(nil, 0, timeout, sigmask)
+	}
+	return ppoll(&fds[0], len(fds), timeout, sigmask)
+}
+
+//sys	Readlinkat(dirfd int, path string, buf []byte) (n int, err error)
+
+func Readlink(path string, buf []byte) (n int, err error) {
+	return Readlinkat(AT_FDCWD, path, buf)
+}
+
+func Rename(oldpath string, newpath string) (err error) {
+	return Renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath)
+}
+
+func Rmdir(path string) error {
+	return Unlinkat(AT_FDCWD, path, AT_REMOVEDIR)
+}
+
+//sys	Symlinkat(oldpath string, newdirfd int, newpath string) (err error)
+
+func Symlink(oldpath string, newpath string) (err error) {
+	return Symlinkat(oldpath, AT_FDCWD, newpath)
+}
+
+func Unlink(path string) error {
+	return Unlinkat(AT_FDCWD, path, 0)
+}
+
+//sys	Unlinkat(dirfd int, path string, flags int) (err error)
+
+func Utimes(path string, tv []Timeval) error {
+	if tv == nil {
+		err := utimensat(AT_FDCWD, path, nil, 0)
+		if err != ENOSYS {
+			return err
+		}
+		return utimes(path, nil)
+	}
+	if len(tv) != 2 {
+		return EINVAL
+	}
+	var ts [2]Timespec
+	ts[0] = NsecToTimespec(TimevalToNsec(tv[0]))
+	ts[1] = NsecToTimespec(TimevalToNsec(tv[1]))
+	err := utimensat(AT_FDCWD, path, (*[2]Timespec)(unsafe.Pointer(&ts[0])), 0)
+	if err != ENOSYS {
+		return err
+	}
+	return utimes(path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+}
+
+//sys	utimensat(dirfd int, path string, times *[2]Timespec, flags int) (err error)
+
+func UtimesNano(path string, ts []Timespec) error {
+	if ts == nil {
+		err := utimensat(AT_FDCWD, path, nil, 0)
+		if err != ENOSYS {
+			return err
+		}
+		return utimes(path, nil)
+	}
+	if len(ts) != 2 {
+		return EINVAL
+	}
+	err := utimensat(AT_FDCWD, path, (*[2]Timespec)(unsafe.Pointer(&ts[0])), 0)
+	if err != ENOSYS {
+		return err
+	}
+	// If the utimensat syscall isn't available (utimensat was added to Linux
+	// in 2.6.22, Released, 8 July 2007) then fall back to utimes
+	var tv [2]Timeval
+	for i := 0; i < 2; i++ {
+		tv[i] = NsecToTimeval(TimespecToNsec(ts[i]))
+	}
+	return utimes(path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+}
+
+func UtimesNanoAt(dirfd int, path string, ts []Timespec, flags int) error {
+	if ts == nil {
+		return utimensat(dirfd, path, nil, flags)
+	}
+	if len(ts) != 2 {
+		return EINVAL
+	}
+	return utimensat(dirfd, path, (*[2]Timespec)(unsafe.Pointer(&ts[0])), flags)
+}
+
+func Futimesat(dirfd int, path string, tv []Timeval) error {
+	if tv == nil {
+		return futimesat(dirfd, path, nil)
+	}
+	if len(tv) != 2 {
+		return EINVAL
+	}
+	return futimesat(dirfd, path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+}
+
+func Futimes(fd int, tv []Timeval) (err error) {
+	// Believe it or not, this is the best we can do on Linux
+	// (and is what glibc does).
+	return Utimes("/proc/self/fd/"+itoa(fd), tv)
+}
+
+const ImplementsGetwd = true
+
+//sys	Getcwd(buf []byte) (n int, err error)
+
+func Getwd() (wd string, err error) {
+	var buf [PathMax]byte
+	n, err := Getcwd(buf[0:])
+	if err != nil {
+		return "", err
+	}
+	// Getcwd returns the number of bytes written to buf, including the NUL.
+	if n < 1 || n > len(buf) || buf[n-1] != 0 {
+		return "", EINVAL
+	}
+	return string(buf[0 : n-1]), nil
+}
+
+func Getgroups() (gids []int, err error) {
+	n, err := getgroups(0, nil)
+	if err != nil {
+		return nil, err
+	}
+	if n == 0 {
+		return nil, nil
+	}
+
+	// Sanity check group count. Max is 1<<16 on Linux.
+	if n < 0 || n > 1<<20 {
+		return nil, EINVAL
+	}
+
+	a := make([]_Gid_t, n)
+	n, err = getgroups(n, &a[0])
+	if err != nil {
+		return nil, err
+	}
+	gids = make([]int, n)
+	for i, v := range a[0:n] {
+		gids[i] = int(v)
+	}
+	return
+}
+
+func Setgroups(gids []int) (err error) {
+	if len(gids) == 0 {
+		return setgroups(0, nil)
+

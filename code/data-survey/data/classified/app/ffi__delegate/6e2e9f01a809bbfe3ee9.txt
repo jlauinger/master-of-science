@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/internal/execution
+File: generic_map.go
+Line: 286
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+func MapErrUnsafePointer(fn func(unsafe.Pointer) (unsafe.Pointer, error), a []unsafe.Pointer) (err error) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+		}
+	}
+	return
+}
+
+func MapErrUnsafePointer(fn func(unsafe.Pointer) (unsafe.Pointer, error), a []unsafe.Pointer) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+func MapErrU(fn func(uint) (uint, error), a []uint) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrU8(fn func(uint8) (uint8, error), a []uint8) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrU16(fn func(uint16) (uint16, error), a []uint16) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrU32(fn func(uint32) (uint32, error), a []uint32) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrU64(fn func(uint64) (uint64, error), a []uint64) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrUintptr(fn func(uintptr) (uintptr, error), a []uintptr) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrF32(fn func(float32) (float32, error), a []float32) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrF64(fn func(float64) (float64, error), a []float64) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrC64(fn func(complex64) (complex64, error), a []complex64) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrC128(fn func(complex128) (complex128, error), a []complex128) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrStr(fn func(string) (string, error), a []string) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrUnsafePointer(fn func(unsafe.Pointer) (unsafe.Pointer, error), a []unsafe.Pointer) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapIterB(fn func(bool) bool, a []bool, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			a[i] = fn(a[i])
+		}
+	}
+	return
+}
+
+func MapIterI(fn func(int) int, a []int, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			a[i] = fn(a[i])
+		}
+	}
+	return
+}
+
+func MapIterI8(fn func(int8) int8, a []int8, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			a[i] = fn(a[i])
+		}
+	}
+	return
+}
+
+func MapIterI16(fn func(int16) int16, a []int16, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			a[i] = fn(a[i])
+		}
+	}
+	return
+}
+
+func MapIterI32(fn func(int32) int32, a []int32, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			a[i] = fn(a[i])
+		}
+	}
+	return
+}
+
+func MapIterI64(fn func(int64) int64, a []int64, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			a[i] = fn(a[i])
+		}
+	}
+	return
+}
+
+func MapIterU(fn func(uint) uint, a []uint, ait Iterator) (err error) {
+	var i int
+

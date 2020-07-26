@@ -1,0 +1,234 @@
+Module: github.com/vishvananda/netlink
+Version: v1.1.1-0.20200210222539-bfba8e4149db
+
+Package: github.com/vishvananda/netlink/nl
+File: tc_linux.go
+Line: 421
+
+Imported (possibly among others) by: cilium/cilium
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+return (*TcHtbGlob)(unsafe.Pointer(&b[0:SizeofTcHtbGlob][0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func (msg *TcHtbGlob) Len() int {
+	return SizeofTcHtbGlob
+}
+
+func DeserializeTcHtbGlob(b []byte) *TcHtbGlob {
+	return (*TcHtbGlob)(unsafe.Pointer(&b[0:SizeofTcHtbGlob][0]))
+}
+
+func (x *TcHtbGlob) Serialize() []byte {
+	return (*(*[SizeofTcHtbGlob]byte)(unsafe.Pointer(x)))[:]
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+func (msg *TcNetemCorrupt) Len() int {
+	return SizeofTcNetemCorrupt
+}
+
+func DeserializeTcNetemCorrupt(b []byte) *TcNetemCorrupt {
+	return (*TcNetemCorrupt)(unsafe.Pointer(&b[0:SizeofTcNetemCorrupt][0]))
+}
+
+func (x *TcNetemCorrupt) Serialize() []byte {
+	return (*(*[SizeofTcNetemCorrupt]byte)(unsafe.Pointer(x)))[:]
+}
+
+// struct tc_tbf_qopt {
+//   struct tc_ratespec rate;
+//   struct tc_ratespec peakrate;
+//   __u32   limit;
+//   __u32   buffer;
+//   __u32   mtu;
+// };
+
+type TcTbfQopt struct {
+	Rate     TcRateSpec
+	Peakrate TcRateSpec
+	Limit    uint32
+	Buffer   uint32
+	Mtu      uint32
+}
+
+func (msg *TcTbfQopt) Len() int {
+	return SizeofTcTbfQopt
+}
+
+func DeserializeTcTbfQopt(b []byte) *TcTbfQopt {
+	return (*TcTbfQopt)(unsafe.Pointer(&b[0:SizeofTcTbfQopt][0]))
+}
+
+func (x *TcTbfQopt) Serialize() []byte {
+	return (*(*[SizeofTcTbfQopt]byte)(unsafe.Pointer(x)))[:]
+}
+
+const (
+	TCA_HTB_UNSPEC = iota
+	TCA_HTB_PARMS
+	TCA_HTB_INIT
+	TCA_HTB_CTAB
+	TCA_HTB_RTAB
+	TCA_HTB_DIRECT_QLEN
+	TCA_HTB_RATE64
+	TCA_HTB_CEIL64
+	TCA_HTB_MAX = TCA_HTB_CEIL64
+)
+
+//struct tc_htb_opt {
+//	struct tc_ratespec	rate;
+//	struct tc_ratespec	ceil;
+//	__u32	buffer;
+//	__u32	cbuffer;
+//	__u32	quantum;
+//	__u32	level;		/* out only */
+//	__u32	prio;
+//};
+
+type TcHtbCopt struct {
+	Rate    TcRateSpec
+	Ceil    TcRateSpec
+	Buffer  uint32
+	Cbuffer uint32
+	Quantum uint32
+	Level   uint32
+	Prio    uint32
+}
+
+func (msg *TcHtbCopt) Len() int {
+	return SizeofTcHtbCopt
+}
+
+func DeserializeTcHtbCopt(b []byte) *TcHtbCopt {
+	return (*TcHtbCopt)(unsafe.Pointer(&b[0:SizeofTcHtbCopt][0]))
+}
+
+func (x *TcHtbCopt) Serialize() []byte {
+	return (*(*[SizeofTcHtbCopt]byte)(unsafe.Pointer(x)))[:]
+}
+
+type TcHtbGlob struct {
+	Version      uint32
+	Rate2Quantum uint32
+	Defcls       uint32
+	Debug        uint32
+	DirectPkts   uint32
+}
+
+func (msg *TcHtbGlob) Len() int {
+	return SizeofTcHtbGlob
+}
+
+func DeserializeTcHtbGlob(b []byte) *TcHtbGlob {
+	return (*TcHtbGlob)(unsafe.Pointer(&b[0:SizeofTcHtbGlob][0]))
+}
+
+func (x *TcHtbGlob) Serialize() []byte {
+	return (*(*[SizeofTcHtbGlob]byte)(unsafe.Pointer(x)))[:]
+}
+
+// HFSC
+
+type Curve struct {
+	m1 uint32
+	d  uint32
+	m2 uint32
+}
+
+type HfscCopt struct {
+	Rsc Curve
+	Fsc Curve
+	Usc Curve
+}
+
+func (c *Curve) Attrs() (uint32, uint32, uint32) {
+	return c.m1, c.d, c.m2
+}
+
+func (c *Curve) Set(m1 uint32, d uint32, m2 uint32) {
+	c.m1 = m1
+	c.d = d
+	c.m2 = m2
+}
+
+func DeserializeHfscCurve(b []byte) *Curve {
+	return &Curve{
+		m1: binary.LittleEndian.Uint32(b[0:4]),
+		d:  binary.LittleEndian.Uint32(b[4:8]),
+		m2: binary.LittleEndian.Uint32(b[8:12]),
+	}
+}
+
+func SerializeHfscCurve(c *Curve) (b []byte) {
+	t := make([]byte, binary.MaxVarintLen32)
+	binary.LittleEndian.PutUint32(t, c.m1)
+	b = append(b, t[:4]...)
+	binary.LittleEndian.PutUint32(t, c.d)
+	b = append(b, t[:4]...)
+	binary.LittleEndian.PutUint32(t, c.m2)
+	b = append(b, t[:4]...)
+	return b
+}
+
+type TcHfscOpt struct {
+	Defcls uint16
+}
+
+func (x *TcHfscOpt) Serialize() []byte {
+	return (*(*[2]byte)(unsafe.Pointer(x)))[:]
+}
+
+const (
+	TCA_U32_UNSPEC = iota
+	TCA_U32_CLASSID
+	TCA_U32_HASH
+	TCA_U32_LINK
+	TCA_U32_DIVISOR
+	TCA_U32_SEL
+	TCA_U32_POLICE
+	TCA_U32_ACT
+	TCA_U32_INDEV
+	TCA_U32_PCNT
+	TCA_U32_MARK
+	TCA_U32_MAX = TCA_U32_MARK
+)
+
+// struct tc_u32_key {
+//   __be32    mask;
+//   __be32    val;
+//   int   off;
+//   int   offmask;
+// };
+
+type TcU32Key struct {
+	Mask    uint32 // big endian
+	Val     uint32 // big endian
+	Off     int32
+	OffMask int32
+}
+
+func (msg *TcU32Key) Len() int {
+	return SizeofTcU32Key
+}
+
+func DeserializeTcU32Key(b []byte) *TcU32Key {
+	return (*TcU32Key)(unsafe.Pointer(&b[0:SizeofTcU32Key][0]))
+}
+
+func (x *TcU32Key) Serialize() []byte {
+	return (*(*[SizeofTcU32Key]byte)(unsafe.Pointer(x)))[:]
+}
+
+// struct tc_u32_sel {
+//   unsigned char   flags;
+

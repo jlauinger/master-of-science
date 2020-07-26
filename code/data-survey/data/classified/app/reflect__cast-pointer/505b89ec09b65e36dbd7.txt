@@ -1,0 +1,56 @@
+Module: github.com/google/go-cmp
+Version: v0.3.1
+
+Package: github.com/google/go-cmp/cmp/internal/value
+File: pointer_unsafe.go
+Line: 25
+
+Imported (possibly among others) by: rook/rook
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): reflect
+
+--------------------------------------------------------------
+Snippet line:
+
+return Pointer{unsafe.Pointer(v.Pointer()), v.Type()}
+--------------------------------------------------------------
++/- 5 lines context:
+
+// PointerOf returns a Pointer from v, which must be a
+// reflect.Ptr, reflect.Slice, or reflect.Map.
+func PointerOf(v reflect.Value) Pointer {
+	// The proper representation of a pointer is unsafe.Pointer,
+	// which is necessary if the GC ever uses a moving collector.
+	return Pointer{unsafe.Pointer(v.Pointer()), v.Type()}
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Copyright 2018, The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE.md file.
+
+// +build !purego
+
+package value
+
+import (
+	"reflect"
+	"unsafe"
+)
+
+// Pointer is an opaque typed pointer and is guaranteed to be comparable.
+type Pointer struct {
+	p unsafe.Pointer
+	t reflect.Type
+}
+
+// PointerOf returns a Pointer from v, which must be a
+// reflect.Ptr, reflect.Slice, or reflect.Map.
+func PointerOf(v reflect.Value) Pointer {
+	// The proper representation of a pointer is unsafe.Pointer,
+	// which is necessary if the GC ever uses a moving collector.
+	return Pointer{unsafe.Pointer(v.Pointer()), v.Type()}
+}
+

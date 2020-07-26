@@ -1,0 +1,234 @@
+Module: github.com/vishvananda/netlink
+Version: v1.1.0
+
+Package: github.com/vishvananda/netlink/nl
+File: tc_linux.go
+Line: 513
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+return (*TcU32Key)(unsafe.Pointer(&b[0:SizeofTcU32Key][0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func (msg *TcU32Key) Len() int {
+	return SizeofTcU32Key
+}
+
+func DeserializeTcU32Key(b []byte) *TcU32Key {
+	return (*TcU32Key)(unsafe.Pointer(&b[0:SizeofTcU32Key][0]))
+}
+
+func (x *TcU32Key) Serialize() []byte {
+	return (*(*[SizeofTcU32Key]byte)(unsafe.Pointer(x)))[:]
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+func (msg *TcHtbGlob) Len() int {
+	return SizeofTcHtbGlob
+}
+
+func DeserializeTcHtbGlob(b []byte) *TcHtbGlob {
+	return (*TcHtbGlob)(unsafe.Pointer(&b[0:SizeofTcHtbGlob][0]))
+}
+
+func (x *TcHtbGlob) Serialize() []byte {
+	return (*(*[SizeofTcHtbGlob]byte)(unsafe.Pointer(x)))[:]
+}
+
+// HFSC
+
+type Curve struct {
+	m1 uint32
+	d  uint32
+	m2 uint32
+}
+
+type HfscCopt struct {
+	Rsc Curve
+	Fsc Curve
+	Usc Curve
+}
+
+func (c *Curve) Attrs() (uint32, uint32, uint32) {
+	return c.m1, c.d, c.m2
+}
+
+func (c *Curve) Set(m1 uint32, d uint32, m2 uint32) {
+	c.m1 = m1
+	c.d = d
+	c.m2 = m2
+}
+
+func DeserializeHfscCurve(b []byte) *Curve {
+	return &Curve{
+		m1: binary.LittleEndian.Uint32(b[0:4]),
+		d:  binary.LittleEndian.Uint32(b[4:8]),
+		m2: binary.LittleEndian.Uint32(b[8:12]),
+	}
+}
+
+func SerializeHfscCurve(c *Curve) (b []byte) {
+	t := make([]byte, binary.MaxVarintLen32)
+	binary.LittleEndian.PutUint32(t, c.m1)
+	b = append(b, t[:4]...)
+	binary.LittleEndian.PutUint32(t, c.d)
+	b = append(b, t[:4]...)
+	binary.LittleEndian.PutUint32(t, c.m2)
+	b = append(b, t[:4]...)
+	return b
+}
+
+type TcHfscOpt struct {
+	Defcls uint16
+}
+
+func (x *TcHfscOpt) Serialize() []byte {
+	return (*(*[2]byte)(unsafe.Pointer(x)))[:]
+}
+
+const (
+	TCA_U32_UNSPEC = iota
+	TCA_U32_CLASSID
+	TCA_U32_HASH
+	TCA_U32_LINK
+	TCA_U32_DIVISOR
+	TCA_U32_SEL
+	TCA_U32_POLICE
+	TCA_U32_ACT
+	TCA_U32_INDEV
+	TCA_U32_PCNT
+	TCA_U32_MARK
+	TCA_U32_MAX = TCA_U32_MARK
+)
+
+// struct tc_u32_key {
+//   __be32    mask;
+//   __be32    val;
+//   int   off;
+//   int   offmask;
+// };
+
+type TcU32Key struct {
+	Mask    uint32 // big endian
+	Val     uint32 // big endian
+	Off     int32
+	OffMask int32
+}
+
+func (msg *TcU32Key) Len() int {
+	return SizeofTcU32Key
+}
+
+func DeserializeTcU32Key(b []byte) *TcU32Key {
+	return (*TcU32Key)(unsafe.Pointer(&b[0:SizeofTcU32Key][0]))
+}
+
+func (x *TcU32Key) Serialize() []byte {
+	return (*(*[SizeofTcU32Key]byte)(unsafe.Pointer(x)))[:]
+}
+
+// struct tc_u32_sel {
+//   unsigned char   flags;
+//   unsigned char   offshift;
+//   unsigned char   nkeys;
+//
+//   __be16      offmask;
+//   __u16     off;
+//   short     offoff;
+//
+//   short     hoff;
+//   __be32      hmask;
+//   struct tc_u32_key keys[0];
+// };
+
+const (
+	TC_U32_TERMINAL  = 1 << iota
+	TC_U32_OFFSET    = 1 << iota
+	TC_U32_VAROFFSET = 1 << iota
+	TC_U32_EAT       = 1 << iota
+)
+
+type TcU32Sel struct {
+	Flags    uint8
+	Offshift uint8
+	Nkeys    uint8
+	Pad      uint8
+	Offmask  uint16 // big endian
+	Off      uint16
+	Offoff   int16
+	Hoff     int16
+	Hmask    uint32 // big endian
+	Keys     []TcU32Key
+}
+
+func (msg *TcU32Sel) Len() int {
+	return SizeofTcU32Sel + int(msg.Nkeys)*SizeofTcU32Key
+}
+
+func DeserializeTcU32Sel(b []byte) *TcU32Sel {
+	x := &TcU32Sel{}
+	copy((*(*[SizeofTcU32Sel]byte)(unsafe.Pointer(x)))[:], b)
+	next := SizeofTcU32Sel
+	var i uint8
+	for i = 0; i < x.Nkeys; i++ {
+		x.Keys = append(x.Keys, *DeserializeTcU32Key(b[next:]))
+		next += SizeofTcU32Key
+	}
+	return x
+}
+
+func (x *TcU32Sel) Serialize() []byte {
+	// This can't just unsafe.cast because it must iterate through keys.
+	buf := make([]byte, x.Len())
+	copy(buf, (*(*[SizeofTcU32Sel]byte)(unsafe.Pointer(x)))[:])
+	next := SizeofTcU32Sel
+	for _, key := range x.Keys {
+		keyBuf := key.Serialize()
+		copy(buf[next:], keyBuf)
+		next += SizeofTcU32Key
+	}
+	return buf
+}
+
+type TcGen struct {
+	Index   uint32
+	Capab   uint32
+	Action  int32
+	Refcnt  int32
+	Bindcnt int32
+}
+
+func (msg *TcGen) Len() int {
+	return SizeofTcGen
+}
+
+func DeserializeTcGen(b []byte) *TcGen {
+	return (*TcGen)(unsafe.Pointer(&b[0:SizeofTcGen][0]))
+}
+
+func (x *TcGen) Serialize() []byte {
+	return (*(*[SizeofTcGen]byte)(unsafe.Pointer(x)))[:]
+}
+
+// #define tc_gen \
+//   __u32                 index; \
+//   __u32                 capab; \
+//   int                   action; \
+//   int                   refcnt; \
+//   int                   bindcnt
+
+const (
+	TCA_ACT_GACT = 5
+)
+
+

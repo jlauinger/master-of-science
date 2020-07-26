@@ -1,0 +1,34 @@
+Module: github.com/cilium/cilium
+Version: project
+
+Package: github.com/cilium/cilium/pkg/hubble/container
+File: ring.go
+Line: 107
+
+Imported (possibly among others) by: cilium/cilium
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): atomic
+
+--------------------------------------------------------------
+Snippet line:
+
+slot := unsafe.Pointer(&r.data[dataIdx])
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+// dataLoadAtomic performs an atomic store as `r.data[dataIdx] = e`.
+// `dataIdx` is the array index with the cycle counter already masked out.
+// This ensures that the point load/store itself is a data race.
+func (r *Ring) dataStoreAtomic(dataIdx uint64, e *v1.Event) {
+	slot := unsafe.Pointer(&r.data[dataIdx])
+	atomic.StorePointer((*unsafe.Pointer)(slot), unsafe.Pointer(e))
+}
+
+// Len returns the number of elements in the ring buffer, similar to builtin `len()`.
+func (r *Ring) Len() uint64 {
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

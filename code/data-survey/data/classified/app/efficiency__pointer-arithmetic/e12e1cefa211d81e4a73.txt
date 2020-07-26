@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor
+File: array_getset.go
+Line: 296
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): pointer-arithmetic
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+	xv := reflect.ValueOf(x)
+	ptr := uintptr(a.Ptr)
+	for i := 0; i < a.L; i++ {
+		want := ptr + uintptr(i)*a.t.Size()
+		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+		val = reflect.Indirect(val)
+		val.Set(xv)
+	}
+	return nil
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+			return nil
+		}
+
+	case Uint16:
+		if xv, ok := x.(uint16); ok {
+			data := a.Uint16s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Uint32:
+		if xv, ok := x.(uint32); ok {
+			data := a.Uint32s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Uint64:
+		if xv, ok := x.(uint64); ok {
+			data := a.Uint64s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Uintptr:
+		if xv, ok := x.(uintptr); ok {
+			data := a.Uintptrs()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Float32:
+		if xv, ok := x.(float32); ok {
+			data := a.Float32s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Float64:
+		if xv, ok := x.(float64); ok {
+			data := a.Float64s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Complex64:
+		if xv, ok := x.(complex64); ok {
+			data := a.Complex64s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case Complex128:
+		if xv, ok := x.(complex128); ok {
+			data := a.Complex128s()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case String:
+		if xv, ok := x.(string); ok {
+			data := a.Strings()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	case UnsafePointer:
+		if xv, ok := x.(unsafe.Pointer); ok {
+			data := a.UnsafePointers()
+			for i := range data {
+				data[i] = xv
+			}
+			return nil
+		}
+
+	}
+
+	xv := reflect.ValueOf(x)
+	ptr := uintptr(a.Ptr)
+	for i := 0; i < a.L; i++ {
+		want := ptr + uintptr(i)*a.t.Size()
+		val := reflect.NewAt(a.t.Type, unsafe.Pointer(want))
+		val = reflect.Indirect(val)
+		val.Set(xv)
+	}
+	return nil
+}
+
+func (t *array) memsetIter(x interface{}, it Iterator) (err error) {
+	var i int
+	switch t.t {
+	case Bool:
+		xv, ok := x.(bool)
+		if !ok {
+			return errors.Errorf(dtypeMismatch, t.t, x)
+		}
+		data := t.Bools()
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			data[i] = xv
+		}
+		err = handleNoOp(err)
+	case Int:
+		xv, ok := x.(int)
+		if !ok {
+			return errors.Errorf(dtypeMismatch, t.t, x)
+		}
+		data := t.Ints()
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			data[i] = xv
+		}
+		err = handleNoOp(err)
+	case Int8:
+		xv, ok := x.(int8)
+		if !ok {
+			return errors.Errorf(dtypeMismatch, t.t, x)
+		}
+		data := t.Int8s()
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			data[i] = xv
+		}
+		err = handleNoOp(err)
+	case Int16:
+		xv, ok := x.(int16)
+		if !ok {
+			return errors.Errorf(dtypeMismatch, t.t, x)
+		}
+		data := t.Int16s()
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			data[i] = xv
+		}
+		err = handleNoOp(err)
+	case Int32:
+		xv, ok := x.(int32)
+		if !ok {
+			return errors.Errorf(dtypeMismatch, t.t, x)
+		}
+		data := t.Int32s()
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			data[i] = xv
+		}
+		err = handleNoOp(err)
+	case Int64:
+		xv, ok := x.(int64)
+		if !ok {
+			return errors.Errorf(dtypeMismatch, t.t, x)
+		}
+		data := t.Int64s()
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			data[i] = xv
+		}
+		err = handleNoOp(err)
+	case Uint:
+		xv, ok := x.(uint)
+		if !ok {
+			return errors.Errorf(dtypeMismatch, t.t, x)
+		}
+		data := t.Uints()
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			data[i] = xv
+		}
+		err = handleNoOp(err)
+	case Uint8:
+		xv, ok := x.(uint8)
+		if !ok {
+			return errors.Errorf(dtypeMismatch, t.t, x)
+		}
+		data := t.Uint8s()
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			data[i] = xv
+		}
+		err = handleNoOp(err)
+	case Uint16:
+		xv, ok := x.(uint16)
+		if !ok {
+			return errors.Errorf(dtypeMismatch, t.t, x)
+		}
+		data := t.Uint16s()
+		for i, err = it.Next(); err == nil; i, err = it.Next() {
+			data[i] = xv
+		}
+		err = handleNoOp(err)
+	case Uint32:
+

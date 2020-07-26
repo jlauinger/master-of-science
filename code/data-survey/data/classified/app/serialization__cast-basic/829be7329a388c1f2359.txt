@@ -1,0 +1,234 @@
+Module: github.com/json-iterator/go
+Version: v1.1.7
+
+Package: github.com/json-iterator/go
+File: reflect_struct_decoder.go
+Line: 520
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+field = *(*string)(unsafe.Pointer(&fieldBytes))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func (decoder *generalStructDecoder) decodeOneField(ptr unsafe.Pointer, iter *Iterator) {
+	var field string
+	var fieldDecoder *structFieldDecoder
+	if iter.cfg.objectFieldMustBeSimpleString {
+		fieldBytes := iter.ReadStringAsSlice()
+		field = *(*string)(unsafe.Pointer(&fieldBytes))
+		fieldDecoder = decoder.fields[field]
+		if fieldDecoder == nil && !iter.cfg.caseSensitive {
+			fieldDecoder = decoder.fields[strings.ToLower(field)]
+		}
+	} else {
+--------------------------------------------------------------
++/- 100 lines context:
+
+		var fieldName3 int64
+		var fieldName4 int64
+		var fieldName5 int64
+		var fieldName6 int64
+		var fieldName7 int64
+		var fieldName8 int64
+		var fieldName9 int64
+		var fieldName10 int64
+		var fieldDecoder1 *structFieldDecoder
+		var fieldDecoder2 *structFieldDecoder
+		var fieldDecoder3 *structFieldDecoder
+		var fieldDecoder4 *structFieldDecoder
+		var fieldDecoder5 *structFieldDecoder
+		var fieldDecoder6 *structFieldDecoder
+		var fieldDecoder7 *structFieldDecoder
+		var fieldDecoder8 *structFieldDecoder
+		var fieldDecoder9 *structFieldDecoder
+		var fieldDecoder10 *structFieldDecoder
+		for fieldName, fieldDecoder := range fields {
+			fieldHash := calcHash(fieldName, ctx.caseSensitive())
+			_, known := knownHash[fieldHash]
+			if known {
+				return &generalStructDecoder{typ, fields, false}
+			}
+			knownHash[fieldHash] = struct{}{}
+			if fieldName1 == 0 {
+				fieldName1 = fieldHash
+				fieldDecoder1 = fieldDecoder
+			} else if fieldName2 == 0 {
+				fieldName2 = fieldHash
+				fieldDecoder2 = fieldDecoder
+			} else if fieldName3 == 0 {
+				fieldName3 = fieldHash
+				fieldDecoder3 = fieldDecoder
+			} else if fieldName4 == 0 {
+				fieldName4 = fieldHash
+				fieldDecoder4 = fieldDecoder
+			} else if fieldName5 == 0 {
+				fieldName5 = fieldHash
+				fieldDecoder5 = fieldDecoder
+			} else if fieldName6 == 0 {
+				fieldName6 = fieldHash
+				fieldDecoder6 = fieldDecoder
+			} else if fieldName7 == 0 {
+				fieldName7 = fieldHash
+				fieldDecoder7 = fieldDecoder
+			} else if fieldName8 == 0 {
+				fieldName8 = fieldHash
+				fieldDecoder8 = fieldDecoder
+			} else if fieldName9 == 0 {
+				fieldName9 = fieldHash
+				fieldDecoder9 = fieldDecoder
+			} else {
+				fieldName10 = fieldHash
+				fieldDecoder10 = fieldDecoder
+			}
+		}
+		return &tenFieldsStructDecoder{typ,
+			fieldName1, fieldDecoder1,
+			fieldName2, fieldDecoder2,
+			fieldName3, fieldDecoder3,
+			fieldName4, fieldDecoder4,
+			fieldName5, fieldDecoder5,
+			fieldName6, fieldDecoder6,
+			fieldName7, fieldDecoder7,
+			fieldName8, fieldDecoder8,
+			fieldName9, fieldDecoder9,
+			fieldName10, fieldDecoder10}
+	}
+	return &generalStructDecoder{typ, fields, false}
+}
+
+type generalStructDecoder struct {
+	typ                   reflect2.Type
+	fields                map[string]*structFieldDecoder
+	disallowUnknownFields bool
+}
+
+func (decoder *generalStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	var c byte
+	for c = ','; c == ','; c = iter.nextToken() {
+		decoder.decodeOneField(ptr, iter)
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+	if c != '}' {
+		iter.ReportError("struct Decode", `expect }, but found `+string([]byte{c}))
+	}
+}
+
+func (decoder *generalStructDecoder) decodeOneField(ptr unsafe.Pointer, iter *Iterator) {
+	var field string
+	var fieldDecoder *structFieldDecoder
+	if iter.cfg.objectFieldMustBeSimpleString {
+		fieldBytes := iter.ReadStringAsSlice()
+		field = *(*string)(unsafe.Pointer(&fieldBytes))
+		fieldDecoder = decoder.fields[field]
+		if fieldDecoder == nil && !iter.cfg.caseSensitive {
+			fieldDecoder = decoder.fields[strings.ToLower(field)]
+		}
+	} else {
+		field = iter.ReadString()
+		fieldDecoder = decoder.fields[field]
+		if fieldDecoder == nil && !iter.cfg.caseSensitive {
+			fieldDecoder = decoder.fields[strings.ToLower(field)]
+		}
+	}
+	if fieldDecoder == nil {
+		if decoder.disallowUnknownFields {
+			msg := "found unknown field: " + field
+			iter.ReportError("ReadObject", msg)
+		}
+		c := iter.nextToken()
+		if c != ':' {
+			iter.ReportError("ReadObject", "expect : after object field, but found "+string([]byte{c}))
+		}
+		iter.Skip()
+		return
+	}
+	c := iter.nextToken()
+	if c != ':' {
+		iter.ReportError("ReadObject", "expect : after object field, but found "+string([]byte{c}))
+	}
+	fieldDecoder.Decode(ptr, iter)
+}
+
+type skipObjectDecoder struct {
+	typ reflect2.Type
+}
+
+func (decoder *skipObjectDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	valueType := iter.WhatIsNext()
+	if valueType != ObjectValue && valueType != NilValue {
+		iter.ReportError("skipObjectDecoder", "expect object or null")
+		return
+	}
+	iter.Skip()
+}
+
+type oneFieldStructDecoder struct {
+	typ          reflect2.Type
+	fieldHash    int64
+	fieldDecoder *structFieldDecoder
+}
+
+func (decoder *oneFieldStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	for {
+		if iter.readFieldHash() == decoder.fieldHash {
+			decoder.fieldDecoder.Decode(ptr, iter)
+		} else {
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+}
+
+type twoFieldsStructDecoder struct {
+	typ           reflect2.Type
+	fieldHash1    int64
+	fieldDecoder1 *structFieldDecoder
+	fieldHash2    int64
+	fieldDecoder2 *structFieldDecoder
+}
+
+func (decoder *twoFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	for {
+		switch iter.readFieldHash() {
+		case decoder.fieldHash1:
+			decoder.fieldDecoder1.Decode(ptr, iter)
+		case decoder.fieldHash2:
+			decoder.fieldDecoder2.Decode(ptr, iter)
+		default:
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+}
+
+type threeFieldsStructDecoder struct {
+	typ           reflect2.Type
+

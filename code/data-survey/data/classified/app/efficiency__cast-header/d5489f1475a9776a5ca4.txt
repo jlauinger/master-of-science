@@ -1,0 +1,184 @@
+Module: github.com/ugorji/go
+Version: v0.0.0-20170918222552-54210f4e076c
+
+Package: github.com/ugorji/go/codec
+File: helper_unsafe.go
+Line: 50
+
+Imported (possibly among others) by: weaveworks/scope
+
+Label 1 (What is happening?): cast-header
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+return *(*string)(unsafe.Pointer(&sx))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		return ""
+	}
+
+	bx := (*unsafeSlice)(unsafe.Pointer(&v))
+	sx := unsafeString{bx.Data, bx.Len}
+	return *(*string)(unsafe.Pointer(&sx))
+}
+
+func bytesView(v string) []byte {
+	if len(v) == 0 {
+		return zeroByteSlice
+--------------------------------------------------------------
++/- 100 lines context:
+
+// +build !safe
+// +build !appengine
+// +build go1.7
+
+// Copyright (c) 2012-2015 Ugorji Nwoke. All rights reserved.
+// Use of this source code is governed by a MIT license found in the LICENSE file.
+
+package codec
+
+import (
+	"reflect"
+	"sync/atomic"
+	"unsafe"
+)
+
+// This file has unsafe variants of some helper methods.
+// NOTE: See helper_not_unsafe.go for the usage information.
+
+// var zeroRTv [4]uintptr
+
+type unsafeString struct {
+	Data uintptr
+	Len  int
+}
+
+type unsafeSlice struct {
+	Data uintptr
+	Len  int
+	Cap  int
+}
+
+type unsafeIntf struct {
+	typ  unsafe.Pointer
+	word unsafe.Pointer
+}
+
+type unsafeReflectValue struct {
+	typ  unsafe.Pointer
+	ptr  unsafe.Pointer
+	flag uintptr
+}
+
+func stringView(v []byte) string {
+	if len(v) == 0 {
+		return ""
+	}
+
+	bx := (*unsafeSlice)(unsafe.Pointer(&v))
+	sx := unsafeString{bx.Data, bx.Len}
+	return *(*string)(unsafe.Pointer(&sx))
+}
+
+func bytesView(v string) []byte {
+	if len(v) == 0 {
+		return zeroByteSlice
+	}
+
+	sx := (*unsafeString)(unsafe.Pointer(&v))
+	bx := unsafeSlice{sx.Data, sx.Len, sx.Len}
+	return *(*[]byte)(unsafe.Pointer(&bx))
+}
+
+// func keepAlive4BytesView(v string) {
+// 	runtime.KeepAlive(v)
+// }
+
+// func keepAlive4StringView(v []byte) {
+// 	runtime.KeepAlive(v)
+// }
+
+const _unsafe_rv2i_is_safe = false
+
+// TODO: consider a more generally-known optimization for reflect.Value ==> Interface
+//
+// Currently, we use this fragile method that taps into implememtation details from
+// the source go stdlib reflect/value.go,
+// and trims the implementation.
+func rv2i(rv reflect.Value) interface{} {
+	if _unsafe_rv2i_is_safe {
+		return rv.Interface()
+	}
+	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
+	// references that are single-words (map, ptr) may be double-referenced as flagIndir
+	kk := urv.flag & (1<<5 - 1)
+	if (kk == uintptr(reflect.Map) || kk == uintptr(reflect.Ptr)) && urv.flag&(1<<7) != 0 {
+		return *(*interface{})(unsafe.Pointer(&unsafeIntf{word: *(*unsafe.Pointer)(urv.ptr), typ: urv.typ}))
+	}
+	return *(*interface{})(unsafe.Pointer(&unsafeIntf{word: urv.ptr, typ: urv.typ}))
+}
+
+func rt2id(rt reflect.Type) uintptr {
+	return uintptr(((*unsafeIntf)(unsafe.Pointer(&rt))).word)
+}
+
+// func rv0t(rt reflect.Type) reflect.Value {
+// 	ut := (*unsafeIntf)(unsafe.Pointer(&rt))
+// 	// we need to determine whether ifaceIndir, and then whether to just pass 0 as the ptr
+// 	uv := unsafeReflectValue{ut.word, &zeroRTv, flag(rt.Kind())}
+// 	return *(*reflect.Value)(unsafe.Pointer(&uv})
+// }
+
+type ptrToRVKV struct {
+	k uintptr
+	v reflect.Value
+}
+
+type ptrToRvMap struct {
+	// m map[uintptr]reflect.Value
+	a [4]ptrToRVKV
+	v []ptrToRVKV
+}
+
+func (p *ptrToRvMap) init() {
+	// fmt.Printf(">>>> new ptr to rv map\n")
+	// p.m = make(map[uintptr]reflect.Value, 32)
+	p.v = p.a[:0]
+}
+
+func (p *ptrToRvMap) get(intf interface{}) (rv reflect.Value) {
+	word := uintptr(((*unsafeIntf)(unsafe.Pointer(&intf))).word)
+	// binary search. adapted from sort/search.go.
+	h, i, j := 0, 0, len(p.v)
+	for i < j {
+		h = i + (j-i)/2
+		if p.v[h].k < word {
+			i = h + 1
+		} else {
+			j = h
+		}
+	}
+	if i < len(p.v) && p.v[i].k == word {
+		return p.v[i].v
+	}
+
+	// insert into position i
+	// fmt.Printf(">>>> resetting rv for word: %x, interface: %v\n", word, intf)
+	rv = reflect.ValueOf(intf).Elem()
+	p.v = append(p.v, ptrToRVKV{})
+	copy(p.v[i+1:len(p.v)], p.v[i:len(p.v)-1])
+	p.v[i].k, p.v[i].v = word, rv
+	return
+}
+
+// --------------------------
+type atomicTypeInfoSlice struct {
+	v unsafe.Pointer
+}
+
+func (x *atomicTypeInfoSlice) load() *[]rtid2ti {
+	return (*[]rtid2ti)(atomic.LoadPointer(&x.v))
+

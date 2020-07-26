@@ -1,0 +1,153 @@
+Module: github.com/gogo/protobuf
+Version: v1.3.0
+
+Package: github.com/gogo/protobuf/proto
+File: pointer_unsafe.go
+Line: 289
+
+Imported (possibly among others) by: weaveworks/scope
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): atomic
+
+--------------------------------------------------------------
+Snippet line:
+
+atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func atomicLoadUnmarshalInfo(p **unmarshalInfo) *unmarshalInfo {
+	return (*unmarshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreUnmarshalInfo(p **unmarshalInfo, v *unmarshalInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadMarshalInfo(p **marshalInfo) *marshalInfo {
+	return (*marshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreMarshalInfo(p **marshalInfo, v *marshalInfo) {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	return (*bool)(p.p)
+}
+func (p pointer) toBoolPtr() **bool {
+	return (**bool)(p.p)
+}
+func (p pointer) toBoolSlice() *[]bool {
+	return (*[]bool)(p.p)
+}
+func (p pointer) toFloat64() *float64 {
+	return (*float64)(p.p)
+}
+func (p pointer) toFloat64Ptr() **float64 {
+	return (**float64)(p.p)
+}
+func (p pointer) toFloat64Slice() *[]float64 {
+	return (*[]float64)(p.p)
+}
+func (p pointer) toFloat32() *float32 {
+	return (*float32)(p.p)
+}
+func (p pointer) toFloat32Ptr() **float32 {
+	return (**float32)(p.p)
+}
+func (p pointer) toFloat32Slice() *[]float32 {
+	return (*[]float32)(p.p)
+}
+func (p pointer) toString() *string {
+	return (*string)(p.p)
+}
+func (p pointer) toStringPtr() **string {
+	return (**string)(p.p)
+}
+func (p pointer) toStringSlice() *[]string {
+	return (*[]string)(p.p)
+}
+func (p pointer) toBytes() *[]byte {
+	return (*[]byte)(p.p)
+}
+func (p pointer) toBytesSlice() *[][]byte {
+	return (*[][]byte)(p.p)
+}
+func (p pointer) toExtensions() *XXX_InternalExtensions {
+	return (*XXX_InternalExtensions)(p.p)
+}
+func (p pointer) toOldExtensions() *map[int32]Extension {
+	return (*map[int32]Extension)(p.p)
+}
+
+// getPointerSlice loads []*T from p as a []pointer.
+// The value returned is aliased with the original slice.
+// This behavior differs from the implementation in pointer_reflect.go.
+func (p pointer) getPointerSlice() []pointer {
+	// Super-tricky - p should point to a []*T where T is a
+	// message type. We load it as []pointer.
+	return *(*[]pointer)(p.p)
+}
+
+// setPointerSlice stores []pointer into p as a []*T.
+// The value set is aliased with the input slice.
+// This behavior differs from the implementation in pointer_reflect.go.
+func (p pointer) setPointerSlice(v []pointer) {
+	// Super-tricky - p should point to a []*T where T is a
+	// message type. We store it as []pointer.
+	*(*[]pointer)(p.p) = v
+}
+
+// getPointer loads the pointer at p and returns it.
+func (p pointer) getPointer() pointer {
+	return pointer{p: *(*unsafe.Pointer)(p.p)}
+}
+
+// setPointer stores the pointer q at p.
+func (p pointer) setPointer(q pointer) {
+	*(*unsafe.Pointer)(p.p) = q.p
+}
+
+// append q to the slice pointed to by p.
+func (p pointer) appendPointer(q pointer) {
+	s := (*[]unsafe.Pointer)(p.p)
+	*s = append(*s, q.p)
+}
+
+// getInterfacePointer returns a pointer that points to the
+// interface data of the interface pointed by p.
+func (p pointer) getInterfacePointer() pointer {
+	// Super-tricky - read pointer out of data word of interface value.
+	return pointer{p: (*(*[2]unsafe.Pointer)(p.p))[1]}
+}
+
+// asPointerTo returns a reflect.Value that is a pointer to an
+// object of type t stored at p.
+func (p pointer) asPointerTo(t reflect.Type) reflect.Value {
+	return reflect.NewAt(t, p.p)
+}
+
+func atomicLoadUnmarshalInfo(p **unmarshalInfo) *unmarshalInfo {
+	return (*unmarshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreUnmarshalInfo(p **unmarshalInfo, v *unmarshalInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadMarshalInfo(p **marshalInfo) *marshalInfo {
+	return (*marshalInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreMarshalInfo(p **marshalInfo, v *marshalInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadMergeInfo(p **mergeInfo) *mergeInfo {
+	return (*mergeInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreMergeInfo(p **mergeInfo, v *mergeInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+func atomicLoadDiscardInfo(p **discardInfo) *discardInfo {
+	return (*discardInfo)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(p))))
+}
+func atomicStoreDiscardInfo(p **discardInfo, v *discardInfo) {
+	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(p)), unsafe.Pointer(v))
+}
+

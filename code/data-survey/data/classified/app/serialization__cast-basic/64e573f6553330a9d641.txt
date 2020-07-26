@@ -1,0 +1,234 @@
+Module: github.com/elastic/go-structform
+Version: v0.0.6
+
+Package: github.com/elastic/go-structform/gotype
+File: unfold_lookup_go.generated.go
+Line: 120
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+return unsafe.Pointer(ptr), newUnfolderUint32()
+--------------------------------------------------------------
++/- 5 lines context:
+
+		return unsafe.Pointer(ptr), newUnfolderArrUint16()
+	case *map[string]uint16:
+		return unsafe.Pointer(ptr), newUnfolderMapUint16()
+
+	case *uint32:
+		return unsafe.Pointer(ptr), newUnfolderUint32()
+	case *[]uint32:
+		return unsafe.Pointer(ptr), newUnfolderArrUint32()
+	case *map[string]uint32:
+		return unsafe.Pointer(ptr), newUnfolderMapUint32()
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+import (
+	"reflect"
+	"unsafe"
+)
+
+func lookupUserPrimitiveConstructor(t reflect.Type) func(reflect.Value) ptrUnfolder {
+	switch t.Kind() {
+	case reflect.Bool:
+		return newUserUnfolderBool
+
+	case reflect.String:
+		return newUserUnfolderString
+
+	case reflect.Uint:
+		return newUserUnfolderUint
+
+	case reflect.Uint8:
+		return newUserUnfolderUint8
+
+	case reflect.Uint16:
+		return newUserUnfolderUint16
+
+	case reflect.Uint32:
+		return newUserUnfolderUint32
+
+	case reflect.Uint64:
+		return newUserUnfolderUint64
+
+	case reflect.Int:
+		return newUserUnfolderInt
+
+	case reflect.Int8:
+		return newUserUnfolderInt8
+
+	case reflect.Int16:
+		return newUserUnfolderInt16
+
+	case reflect.Int32:
+		return newUserUnfolderInt32
+
+	case reflect.Int64:
+		return newUserUnfolderInt64
+
+	case reflect.Float32:
+		return newUserUnfolderFloat32
+
+	case reflect.Float64:
+		return newUserUnfolderFloat64
+
+	default:
+		return nil
+	}
+}
+
+func lookupGoTypeUnfolder(to interface{}) (unsafe.Pointer, ptrUnfolder) {
+	switch ptr := to.(type) {
+	case *interface{}:
+		return unsafe.Pointer(ptr), newUnfolderIfc()
+	case *[]interface{}:
+		return unsafe.Pointer(ptr), newUnfolderArrIfc()
+	case *map[string]interface{}:
+		return unsafe.Pointer(ptr), newUnfolderMapIfc()
+
+	case *bool:
+		return unsafe.Pointer(ptr), newUnfolderBool()
+	case *[]bool:
+		return unsafe.Pointer(ptr), newUnfolderArrBool()
+	case *map[string]bool:
+		return unsafe.Pointer(ptr), newUnfolderMapBool()
+
+	case *string:
+		return unsafe.Pointer(ptr), newUnfolderString()
+	case *[]string:
+		return unsafe.Pointer(ptr), newUnfolderArrString()
+	case *map[string]string:
+		return unsafe.Pointer(ptr), newUnfolderMapString()
+
+	case *uint:
+		return unsafe.Pointer(ptr), newUnfolderUint()
+	case *[]uint:
+		return unsafe.Pointer(ptr), newUnfolderArrUint()
+	case *map[string]uint:
+		return unsafe.Pointer(ptr), newUnfolderMapUint()
+
+	case *uint8:
+		return unsafe.Pointer(ptr), newUnfolderUint8()
+	case *[]uint8:
+		return unsafe.Pointer(ptr), newUnfolderArrUint8()
+	case *map[string]uint8:
+		return unsafe.Pointer(ptr), newUnfolderMapUint8()
+
+	case *uint16:
+		return unsafe.Pointer(ptr), newUnfolderUint16()
+	case *[]uint16:
+		return unsafe.Pointer(ptr), newUnfolderArrUint16()
+	case *map[string]uint16:
+		return unsafe.Pointer(ptr), newUnfolderMapUint16()
+
+	case *uint32:
+		return unsafe.Pointer(ptr), newUnfolderUint32()
+	case *[]uint32:
+		return unsafe.Pointer(ptr), newUnfolderArrUint32()
+	case *map[string]uint32:
+		return unsafe.Pointer(ptr), newUnfolderMapUint32()
+
+	case *uint64:
+		return unsafe.Pointer(ptr), newUnfolderUint64()
+	case *[]uint64:
+		return unsafe.Pointer(ptr), newUnfolderArrUint64()
+	case *map[string]uint64:
+		return unsafe.Pointer(ptr), newUnfolderMapUint64()
+
+	case *int:
+		return unsafe.Pointer(ptr), newUnfolderInt()
+	case *[]int:
+		return unsafe.Pointer(ptr), newUnfolderArrInt()
+	case *map[string]int:
+		return unsafe.Pointer(ptr), newUnfolderMapInt()
+
+	case *int8:
+		return unsafe.Pointer(ptr), newUnfolderInt8()
+	case *[]int8:
+		return unsafe.Pointer(ptr), newUnfolderArrInt8()
+	case *map[string]int8:
+		return unsafe.Pointer(ptr), newUnfolderMapInt8()
+
+	case *int16:
+		return unsafe.Pointer(ptr), newUnfolderInt16()
+	case *[]int16:
+		return unsafe.Pointer(ptr), newUnfolderArrInt16()
+	case *map[string]int16:
+		return unsafe.Pointer(ptr), newUnfolderMapInt16()
+
+	case *int32:
+		return unsafe.Pointer(ptr), newUnfolderInt32()
+	case *[]int32:
+		return unsafe.Pointer(ptr), newUnfolderArrInt32()
+	case *map[string]int32:
+		return unsafe.Pointer(ptr), newUnfolderMapInt32()
+
+	case *int64:
+		return unsafe.Pointer(ptr), newUnfolderInt64()
+	case *[]int64:
+		return unsafe.Pointer(ptr), newUnfolderArrInt64()
+	case *map[string]int64:
+		return unsafe.Pointer(ptr), newUnfolderMapInt64()
+
+	case *float32:
+		return unsafe.Pointer(ptr), newUnfolderFloat32()
+	case *[]float32:
+		return unsafe.Pointer(ptr), newUnfolderArrFloat32()
+	case *map[string]float32:
+		return unsafe.Pointer(ptr), newUnfolderMapFloat32()
+
+	case *float64:
+		return unsafe.Pointer(ptr), newUnfolderFloat64()
+	case *[]float64:
+		return unsafe.Pointer(ptr), newUnfolderArrFloat64()
+	case *map[string]float64:
+		return unsafe.Pointer(ptr), newUnfolderMapFloat64()
+
+	default:
+		return nil, nil
+	}
+}
+
+func lookupGoPtrUnfolder(t reflect.Type) ptrUnfolder {
+	switch t.Kind() {
+	case reflect.Interface:
+		return newUnfolderIfc()
+
+	case reflect.Bool:
+		return newUnfolderBool()
+
+	case reflect.String:
+		return newUnfolderString()
+
+	case reflect.Uint:
+		return newUnfolderUint()
+
+	case reflect.Uint8:
+		return newUnfolderUint8()
+
+	case reflect.Uint16:
+		return newUnfolderUint16()
+
+	case reflect.Uint32:
+		return newUnfolderUint32()
+
+	case reflect.Uint64:
+		return newUnfolderUint64()
+
+	case reflect.Int:
+		return newUnfolderInt()
+
+	case reflect.Int8:
+		return newUnfolderInt8()
+
+	case reflect.Int16:
+		return newUnfolderInt16()
+

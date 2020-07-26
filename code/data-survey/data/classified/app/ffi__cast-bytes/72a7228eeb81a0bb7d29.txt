@@ -1,0 +1,190 @@
+Module: github.com/godror/godror
+Version: v0.16.0
+
+Package: github.com/godror/godror
+File: obj.go
+Line: 56
+
+Imported (possibly among others) by: xo/usql
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+C.dpiData_setBytes(&data.dpiData, (*C.char)(unsafe.Pointer(&a[0])), C.uint32_t(len(a)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	data.implicitObj = true
+	// the maximum length of that buffer must be supplied
+	// in the value.asBytes.length attribute before calling this function.
+	if attr.NativeTypeNum == C.DPI_NATIVE_TYPE_BYTES && attr.OracleTypeNum == C.DPI_ORACLE_TYPE_NUMBER {
+		var a [39]byte
+		C.dpiData_setBytes(&data.dpiData, (*C.char)(unsafe.Pointer(&a[0])), C.uint32_t(len(a)))
+	}
+
+	//fmt.Printf("getAttributeValue(%p, %p, %d, %+v)\n", O.dpiObject, attr.dpiObjectAttr, data.NativeTypeNum, data.dpiData)
+	if C.dpiObject_getAttributeValue(O.dpiObject, attr.dpiObjectAttr, data.NativeTypeNum, &data.dpiData) == C.DPI_FAILURE {
+		return errors.Errorf("getAttributeValue(%q, obj=%+v, attr=%+v, typ=%d): %w", name, O, attr.dpiObjectAttr, data.NativeTypeNum, O.getError())
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Copyright 2017, 2020 The Godror Authors
+//
+//
+// SPDX-License-Identifier: UPL-1.0 OR Apache-2.0
+
+package godror
+
+/*
+#include <stdlib.h>
+#include "dpiImpl.h"
+*/
+import "C"
+import (
+	"context"
+	"database/sql/driver"
+	"fmt"
+	"reflect"
+	"strings"
+	"sync"
+	"unsafe"
+
+	errors "golang.org/x/xerrors"
+)
+
+var _ = fmt.Printf
+
+// Object represents a dpiObject.
+type Object struct {
+	dpiObject *C.dpiObject
+	ObjectType
+}
+
+func (O *Object) getError() error { return O.conn.getError() }
+
+// ErrNoSuchKey is the error for missing key in lookup.
+var ErrNoSuchKey = errors.New("no such key")
+
+// GetAttribute gets the i-th attribute into data.
+func (O *Object) GetAttribute(data *Data, name string) error {
+	if O == nil || O.dpiObject == nil {
+		panic("nil dpiObject")
+	}
+	attr, ok := O.Attributes[name]
+	if !ok {
+		return errors.Errorf("%s: %w", name, ErrNoSuchKey)
+	}
+
+	data.reset()
+	data.NativeTypeNum = attr.NativeTypeNum
+	data.ObjectType = attr.ObjectType
+	data.implicitObj = true
+	// the maximum length of that buffer must be supplied
+	// in the value.asBytes.length attribute before calling this function.
+	if attr.NativeTypeNum == C.DPI_NATIVE_TYPE_BYTES && attr.OracleTypeNum == C.DPI_ORACLE_TYPE_NUMBER {
+		var a [39]byte
+		C.dpiData_setBytes(&data.dpiData, (*C.char)(unsafe.Pointer(&a[0])), C.uint32_t(len(a)))
+	}
+
+	//fmt.Printf("getAttributeValue(%p, %p, %d, %+v)\n", O.dpiObject, attr.dpiObjectAttr, data.NativeTypeNum, data.dpiData)
+	if C.dpiObject_getAttributeValue(O.dpiObject, attr.dpiObjectAttr, data.NativeTypeNum, &data.dpiData) == C.DPI_FAILURE {
+		return errors.Errorf("getAttributeValue(%q, obj=%+v, attr=%+v, typ=%d): %w", name, O, attr.dpiObjectAttr, data.NativeTypeNum, O.getError())
+	}
+	//fmt.Printf("getAttributeValue(%p, %q=%p, %d, %+v)\n", O.dpiObject, attr.Name, attr.dpiObjectAttr, data.NativeTypeNum, data.dpiData)
+	return nil
+}
+
+// SetAttribute sets the named attribute with data.
+func (O *Object) SetAttribute(name string, data *Data) error {
+	if !strings.Contains(name, `"`) {
+		name = strings.ToUpper(name)
+	}
+	attr := O.Attributes[name]
+	if data.NativeTypeNum == 0 {
+		data.NativeTypeNum = attr.NativeTypeNum
+		data.ObjectType = attr.ObjectType
+	}
+	if C.dpiObject_setAttributeValue(O.dpiObject, attr.dpiObjectAttr, data.NativeTypeNum, &data.dpiData) == C.DPI_FAILURE {
+		return O.getError()
+	}
+	return nil
+}
+
+// Set is a convenience function to set the named attribute with the given value.
+func (O *Object) Set(name string, v interface{}) error {
+	if data, ok := v.(*Data); ok {
+		return O.SetAttribute(name, data)
+	}
+	d := scratch.Get()
+	defer scratch.Put(d)
+	if err := d.Set(v); err != nil {
+		return err
+	}
+	return O.SetAttribute(name, d)
+}
+
+// ResetAttributes prepare all attributes for use the object as IN parameter
+func (O *Object) ResetAttributes() error {
+	var data Data
+	for _, attr := range O.Attributes {
+		data.reset()
+		data.NativeTypeNum = attr.NativeTypeNum
+		data.ObjectType = attr.ObjectType
+		if attr.NativeTypeNum == C.DPI_NATIVE_TYPE_BYTES && attr.OracleTypeNum == C.DPI_ORACLE_TYPE_NUMBER {
+			a := make([]byte, attr.Precision)
+			C.dpiData_setBytes(&data.dpiData, (*C.char)(unsafe.Pointer(&a[0])), C.uint32_t(attr.Precision))
+		}
+		if C.dpiObject_setAttributeValue(O.dpiObject, attr.dpiObjectAttr, data.NativeTypeNum, &data.dpiData) == C.DPI_FAILURE {
+			return O.getError()
+		}
+	}
+
+	return nil
+}
+
+// Get scans the named attribute into dest, and returns it.
+func (O *Object) Get(name string) (interface{}, error) {
+	d := scratch.Get()
+	defer scratch.Put(d)
+	if err := O.GetAttribute(d, name); err != nil {
+		return nil, err
+	}
+	isObject := d.IsObject()
+	if isObject {
+		d.ObjectType = O.Attributes[name].ObjectType
+	}
+	v := d.Get()
+	if !isObject {
+		return v, nil
+	}
+	sub := v.(*Object)
+	if sub != nil && sub.CollectionOf != nil {
+		return &ObjectCollection{Object: sub}, nil
+	}
+	return sub, nil
+}
+
+// ObjectRef implements userType interface.
+func (O *Object) ObjectRef() *Object {
+	return O
+}
+
+// Collection returns &ObjectCollection{Object: O} iff the Object is a collection.
+// Otherwise it returns nil.
+func (O *Object) Collection() ObjectCollection {
+	if O.ObjectType.CollectionOf == nil {
+		return ObjectCollection{}
+	}
+	return ObjectCollection{Object: O}
+}
+
+// Close releases a reference to the object.
+func (O *Object) Close() error {
+	obj := O.dpiObject
+	O.dpiObject = nil
+	if obj == nil {
+		return nil
+

@@ -1,0 +1,55 @@
+Module: golang.org/x/net
+Version: v0.0.0-20200226121028-0de0cce0169b
+
+Package: golang.org/x/net/ipv6
+File: sys_bpf.go
+Line: 22
+
+Imported (possibly among others) by: rook/rook
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
+--------------------------------------------------------------
++/- 5 lines context:
+
+func (so *sockOpt) setAttachFilter(c *socket.Conn, f []bpf.RawInstruction) error {
+	prog := unix.SockFprog{
+		Len:    uint16(len(f)),
+		Filter: (*unix.SockFilter)(unsafe.Pointer(&f[0])),
+	}
+	b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
+	return so.Set(c, b)
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Copyright 2017 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// +build linux
+
+package ipv6
+
+import (
+	"unsafe"
+
+	"golang.org/x/net/bpf"
+	"golang.org/x/net/internal/socket"
+	"golang.org/x/sys/unix"
+)
+
+func (so *sockOpt) setAttachFilter(c *socket.Conn, f []bpf.RawInstruction) error {
+	prog := unix.SockFprog{
+		Len:    uint16(len(f)),
+		Filter: (*unix.SockFilter)(unsafe.Pointer(&f[0])),
+	}
+	b := (*[unix.SizeofSockFprog]byte)(unsafe.Pointer(&prog))[:unix.SizeofSockFprog]
+	return so.Set(c, b)
+}
+

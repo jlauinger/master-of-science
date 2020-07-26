@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/internal/execution
+File: generic_cmp_mixed.go
+Line: 5115
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func EqVSUnsafePointer(a []unsafe.Pointer, b unsafe.Pointer, retVal []bool) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSUnsafePointer(a []unsafe.Pointer, b unsafe.Pointer, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+}
+
+func EqVSI(a []int, b int, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSI8(a []int8, b int8, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSI16(a []int16, b int16, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSI32(a []int32, b int32, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSI64(a []int64, b int64, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSU(a []uint, b uint, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSU8(a []uint8, b uint8, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSU16(a []uint16, b uint16, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSU32(a []uint32, b uint32, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSU64(a []uint64, b uint64, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSUintptr(a []uintptr, b uintptr, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSF32(a []float32, b float32, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSF64(a []float64, b float64, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSC64(a []complex64, b complex64, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSC128(a []complex128, b complex128, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSStr(a []string, b string, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func EqVSUnsafePointer(a []unsafe.Pointer, b unsafe.Pointer, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] == b
+	}
+}
+
+func NeVSB(a []bool, b bool, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSI(a []int, b int, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSI8(a []int8, b int8, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSI16(a []int16, b int16, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSI32(a []int32, b int32, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSI64(a []int64, b int64, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSU(a []uint, b uint, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSU8(a []uint8, b uint8, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSU16(a []uint16, b uint16, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSU32(a []uint32, b uint32, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSU64(a []uint64, b uint64, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSUintptr(a []uintptr, b uintptr, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSF32(a []float32, b float32, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSF64(a []float64, b float64, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSC64(a []complex64, b complex64, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+
+func NeVSC128(a []complex128, b complex128, retVal []bool) {
+	for i := range retVal {
+		retVal[i] = a[i] != b
+	}
+}
+

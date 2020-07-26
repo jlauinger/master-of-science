@@ -1,0 +1,234 @@
+Module: github.com/coreos/bbolt
+Version: v1.3.1-coreos.6.0.20180318001526-af9db2027c98
+
+Package: github.com/coreos/bbolt
+File: db.go
+Line: 869
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+return (*page)(unsafe.Pointer(&b[id*pgid(db.pageSize)]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return (*page)(unsafe.Pointer(&db.data[pos]))
+}
+
+// pageInBuffer retrieves a page reference from a given byte array based on the current page size.
+func (db *DB) pageInBuffer(b []byte, id pgid) *page {
+	return (*page)(unsafe.Pointer(&b[id*pgid(db.pageSize)]))
+}
+
+// meta retrieves the current meta page reference.
+func (db *DB) meta() *meta {
+	// We have to return the meta with the highest txid which doesn't fail
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+// run performs the transactions in the batch and communicates results
+// back to DB.Batch.
+func (b *batch) run() {
+	b.db.batchMu.Lock()
+	b.timer.Stop()
+	// Make sure no new work is added to this batch, but don't break
+	// other batches.
+	if b.db.batch == b {
+		b.db.batch = nil
+	}
+	b.db.batchMu.Unlock()
+
+retry:
+	for len(b.calls) > 0 {
+		var failIdx = -1
+		err := b.db.Update(func(tx *Tx) error {
+			for i, c := range b.calls {
+				if err := safelyCall(c.fn, tx); err != nil {
+					failIdx = i
+					return err
+				}
+			}
+			return nil
+		})
+
+		if failIdx >= 0 {
+			// take the failing transaction out of the batch. it's
+			// safe to shorten b.calls here because db.batch no longer
+			// points to us, and we hold the mutex anyway.
+			c := b.calls[failIdx]
+			b.calls[failIdx], b.calls = b.calls[len(b.calls)-1], b.calls[:len(b.calls)-1]
+			// tell the submitter re-run it solo, continue with the rest of the batch
+			c.err <- trySolo
+			continue retry
+		}
+
+		// pass success, or bolt internal errors, to all callers
+		for _, c := range b.calls {
+			c.err <- err
+		}
+		break retry
+	}
+}
+
+// trySolo is a special sentinel error value used for signaling that a
+// transaction function should be re-run. It should never be seen by
+// callers.
+var trySolo = errors.New("batch function returned an error and should be re-run solo")
+
+type panicked struct {
+	reason interface{}
+}
+
+func (p panicked) Error() string {
+	if err, ok := p.reason.(error); ok {
+		return err.Error()
+	}
+	return fmt.Sprintf("panic: %v", p.reason)
+}
+
+func safelyCall(fn func(*Tx) error, tx *Tx) (err error) {
+	defer func() {
+		if p := recover(); p != nil {
+			err = panicked{p}
+		}
+	}()
+	return fn(tx)
+}
+
+// Sync executes fdatasync() against the database file handle.
+//
+// This is not necessary under normal operation, however, if you use NoSync
+// then it allows you to force the database file to sync against the disk.
+func (db *DB) Sync() error { return fdatasync(db) }
+
+// Stats retrieves ongoing performance stats for the database.
+// This is only updated when a transaction closes.
+func (db *DB) Stats() Stats {
+	db.statlock.RLock()
+	defer db.statlock.RUnlock()
+	return db.stats
+}
+
+// This is for internal access to the raw data bytes from the C cursor, use
+// carefully, or not at all.
+func (db *DB) Info() *Info {
+	return &Info{uintptr(unsafe.Pointer(&db.data[0])), db.pageSize}
+}
+
+// page retrieves a page reference from the mmap based on the current page size.
+func (db *DB) page(id pgid) *page {
+	pos := id * pgid(db.pageSize)
+	return (*page)(unsafe.Pointer(&db.data[pos]))
+}
+
+// pageInBuffer retrieves a page reference from a given byte array based on the current page size.
+func (db *DB) pageInBuffer(b []byte, id pgid) *page {
+	return (*page)(unsafe.Pointer(&b[id*pgid(db.pageSize)]))
+}
+
+// meta retrieves the current meta page reference.
+func (db *DB) meta() *meta {
+	// We have to return the meta with the highest txid which doesn't fail
+	// validation. Otherwise, we can cause errors when in fact the database is
+	// in a consistent state. metaA is the one with the higher txid.
+	metaA := db.meta0
+	metaB := db.meta1
+	if db.meta1.txid > db.meta0.txid {
+		metaA = db.meta1
+		metaB = db.meta0
+	}
+
+	// Use higher meta page if valid. Otherwise fallback to previous, if valid.
+	if err := metaA.validate(); err == nil {
+		return metaA
+	} else if err := metaB.validate(); err == nil {
+		return metaB
+	}
+
+	// This should never be reached, because both meta1 and meta0 were validated
+	// on mmap() and we do fsync() on every write.
+	panic("bolt.DB.meta(): invalid meta pages")
+}
+
+// allocate returns a contiguous block of memory starting at a given page.
+func (db *DB) allocate(txid txid, count int) (*page, error) {
+	// Allocate a temporary buffer for the page.
+	var buf []byte
+	if count == 1 {
+		buf = db.pagePool.Get().([]byte)
+	} else {
+		buf = make([]byte, count*db.pageSize)
+	}
+	p := (*page)(unsafe.Pointer(&buf[0]))
+	p.overflow = uint32(count - 1)
+
+	// Use pages from the freelist if they are available.
+	if p.id = db.freelist.allocate(txid, count); p.id != 0 {
+		return p, nil
+	}
+
+	// Resize mmap() if we're at the end.
+	p.id = db.rwtx.meta.pgid
+	var minsz = int((p.id+pgid(count))+1) * db.pageSize
+	if minsz >= db.datasz {
+		if err := db.mmap(minsz); err != nil {
+			return nil, fmt.Errorf("mmap allocate error: %s", err)
+		}
+	}
+
+	// Move the page id high water mark.
+	db.rwtx.meta.pgid += pgid(count)
+
+	return p, nil
+}
+
+// grow grows the size of the database to the given sz.
+func (db *DB) grow(sz int) error {
+	// Ignore if the new size is less than available file size.
+	if sz <= db.filesz {
+		return nil
+	}
+
+	// If the data is smaller than the alloc size then only allocate what's needed.
+	// Once it goes over the allocation size then allocate in chunks.
+	if db.datasz < db.AllocSize {
+		sz = db.datasz
+	} else {
+		sz += db.AllocSize
+	}
+
+	// Truncate and fsync to ensure file size metadata is flushed.
+	// https://github.com/boltdb/bolt/issues/284
+	if !db.NoGrowSync && !db.readOnly {
+		if runtime.GOOS != "windows" {
+			if err := db.file.Truncate(int64(sz)); err != nil {
+				return fmt.Errorf("file resize error: %s", err)
+			}
+		}
+		if err := db.file.Sync(); err != nil {
+			return fmt.Errorf("file sync error: %s", err)
+		}
+	}
+
+	db.filesz = sz
+	return nil
+}
+
+func (db *DB) IsReadOnly() bool {
+	return db.readOnly
+}
+
+func (db *DB) freepages() []pgid {
+	tx, err := db.beginTx()
+	defer func() {
+		err = tx.Rollback()
+		if err != nil {
+			panic("freepages: failed to rollback tx")
+

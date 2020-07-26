@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: syscall
+File: syscall_linux.go
+Line: 208
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+return futimesat(dirfd, path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func Futimesat(dirfd int, path string, tv []Timeval) (err error) {
+	if len(tv) != 2 {
+		return EINVAL
+	}
+	return futimesat(dirfd, path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+}
+
+func Futimes(fd int, tv []Timeval) (err error) {
+	// Believe it or not, this is the best we can do on Linux
+	// (and is what glibc does).
+--------------------------------------------------------------
++/- 100 lines context:
+
+//sys	fchmodat(dirfd int, path string, mode uint32) (err error)
+
+func Fchmodat(dirfd int, path string, mode uint32, flags int) (err error) {
+	// Linux fchmodat doesn't support the flags parameter. Mimick glibc's behavior
+	// and check the flags. Otherwise the mode would be applied to the symlink
+	// destination which is not what the user expects.
+	if flags&^_AT_SYMLINK_NOFOLLOW != 0 {
+		return EINVAL
+	} else if flags&_AT_SYMLINK_NOFOLLOW != 0 {
+		return EOPNOTSUPP
+	}
+	return fchmodat(dirfd, path, mode)
+}
+
+//sys	linkat(olddirfd int, oldpath string, newdirfd int, newpath string, flags int) (err error)
+
+func Link(oldpath string, newpath string) (err error) {
+	return linkat(_AT_FDCWD, oldpath, _AT_FDCWD, newpath, 0)
+}
+
+func Mkdir(path string, mode uint32) (err error) {
+	return Mkdirat(_AT_FDCWD, path, mode)
+}
+
+func Mknod(path string, mode uint32, dev int) (err error) {
+	return Mknodat(_AT_FDCWD, path, mode, dev)
+}
+
+func Open(path string, mode int, perm uint32) (fd int, err error) {
+	return openat(_AT_FDCWD, path, mode|O_LARGEFILE, perm)
+}
+
+//sys	openat(dirfd int, path string, flags int, mode uint32) (fd int, err error)
+
+func Openat(dirfd int, path string, flags int, mode uint32) (fd int, err error) {
+	return openat(dirfd, path, flags|O_LARGEFILE, mode)
+}
+
+//sys	readlinkat(dirfd int, path string, buf []byte) (n int, err error)
+
+func Readlink(path string, buf []byte) (n int, err error) {
+	return readlinkat(_AT_FDCWD, path, buf)
+}
+
+func Rename(oldpath string, newpath string) (err error) {
+	return Renameat(_AT_FDCWD, oldpath, _AT_FDCWD, newpath)
+}
+
+func Rmdir(path string) error {
+	return unlinkat(_AT_FDCWD, path, _AT_REMOVEDIR)
+}
+
+//sys	symlinkat(oldpath string, newdirfd int, newpath string) (err error)
+
+func Symlink(oldpath string, newpath string) (err error) {
+	return symlinkat(oldpath, _AT_FDCWD, newpath)
+}
+
+func Unlink(path string) error {
+	return unlinkat(_AT_FDCWD, path, 0)
+}
+
+//sys	unlinkat(dirfd int, path string, flags int) (err error)
+
+func Unlinkat(dirfd int, path string) error {
+	return unlinkat(dirfd, path, 0)
+}
+
+func Utimes(path string, tv []Timeval) (err error) {
+	if len(tv) != 2 {
+		return EINVAL
+	}
+	return utimes(path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+}
+
+//sys	utimensat(dirfd int, path string, times *[2]Timespec, flag int) (err error)
+
+func UtimesNano(path string, ts []Timespec) (err error) {
+	if len(ts) != 2 {
+		return EINVAL
+	}
+	err = utimensat(_AT_FDCWD, path, (*[2]Timespec)(unsafe.Pointer(&ts[0])), 0)
+	if err != ENOSYS {
+		return err
+	}
+	// If the utimensat syscall isn't available (utimensat was added to Linux
+	// in 2.6.22, Released, 8 July 2007) then fall back to utimes
+	var tv [2]Timeval
+	for i := 0; i < 2; i++ {
+		tv[i].Sec = ts[i].Sec
+		tv[i].Usec = ts[i].Nsec / 1000
+	}
+	return utimes(path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+}
+
+func Futimesat(dirfd int, path string, tv []Timeval) (err error) {
+	if len(tv) != 2 {
+		return EINVAL
+	}
+	return futimesat(dirfd, path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+}
+
+func Futimes(fd int, tv []Timeval) (err error) {
+	// Believe it or not, this is the best we can do on Linux
+	// (and is what glibc does).
+	return Utimes("/proc/self/fd/"+itoa(fd), tv)
+}
+
+const ImplementsGetwd = true
+
+//sys	Getcwd(buf []byte) (n int, err error)
+
+func Getwd() (wd string, err error) {
+	var buf [PathMax]byte
+	n, err := Getcwd(buf[0:])
+	if err != nil {
+		return "", err
+	}
+	// Getcwd returns the number of bytes written to buf, including the NUL.
+	if n < 1 || n > len(buf) || buf[n-1] != 0 {
+		return "", EINVAL
+	}
+	return string(buf[0 : n-1]), nil
+}
+
+func Getgroups() (gids []int, err error) {
+	n, err := getgroups(0, nil)
+	if err != nil {
+		return nil, err
+	}
+	if n == 0 {
+		return nil, nil
+	}
+
+	// Sanity check group count. Max is 1<<16 on Linux.
+	if n < 0 || n > 1<<20 {
+		return nil, EINVAL
+	}
+
+	a := make([]_Gid_t, n)
+	n, err = getgroups(n, &a[0])
+	if err != nil {
+		return nil, err
+	}
+	gids = make([]int, n)
+	for i, v := range a[0:n] {
+		gids[i] = int(v)
+	}
+	return
+}
+
+func Setgroups(gids []int) (err error) {
+	if len(gids) == 0 {
+		return setgroups(0, nil)
+	}
+
+	a := make([]_Gid_t, len(gids))
+	for i, v := range gids {
+		a[i] = _Gid_t(v)
+	}
+	return setgroups(len(a), &a[0])
+}
+
+type WaitStatus uint32
+
+// Wait status is 7 bits at bottom, either 0 (exited),
+// 0x7F (stopped), or a signal number that caused an exit.
+// The 0x80 bit is whether there was a core dump.
+// An extra number (exit code, signal causing a stop)
+// is in the high bits. At least that's the idea.
+// There are various irregularities. For example, the
+// "continued" status is 0xFFFF, distinguishing itself
+// from stopped via the core dump bit.
+
+const (
+	mask    = 0x7F
+	core    = 0x80
+	exited  = 0x00
+	stopped = 0x7F
+	shift   = 8
+)
+
+func (w WaitStatus) Exited() bool { return w&mask == exited }
+
+func (w WaitStatus) Signaled() bool { return w&mask != stopped && w&mask != exited }
+
+func (w WaitStatus) Stopped() bool { return w&0xFF == stopped }
+
+func (w WaitStatus) Continued() bool { return w == 0xFFFF }
+
+func (w WaitStatus) CoreDump() bool { return w.Signaled() && w&core != 0 }
+
+func (w WaitStatus) ExitStatus() int {
+	if !w.Exited() {
+		return -1
+	}
+	return int(w>>shift) & 0xFF
+}
+
+func (w WaitStatus) Signal() Signal {
+

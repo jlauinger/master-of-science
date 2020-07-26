@@ -1,0 +1,229 @@
+Module: github.com/vishvananda/netlink
+Version: v1.1.0
+
+Package: github.com/vishvananda/netlink/nl
+File: tc_linux.go
+Line: 779
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+return (*TcSkbEdit)(unsafe.Pointer(&b[0:SizeofTcSkbEdit][0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func (x *TcSkbEdit) Len() int {
+	return SizeofTcSkbEdit
+}
+
+func DeserializeSkbEdit(b []byte) *TcSkbEdit {
+	return (*TcSkbEdit)(unsafe.Pointer(&b[0:SizeofTcSkbEdit][0]))
+}
+
+func (x *TcSkbEdit) Serialize() []byte {
+	return (*(*[SizeofTcSkbEdit]byte)(unsafe.Pointer(x)))[:]
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+func (msg *TcConnmark) Len() int {
+	return SizeofTcConnmark
+}
+
+func DeserializeTcConnmark(b []byte) *TcConnmark {
+	return (*TcConnmark)(unsafe.Pointer(&b[0:SizeofTcConnmark][0]))
+}
+
+func (x *TcConnmark) Serialize() []byte {
+	return (*(*[SizeofTcConnmark]byte)(unsafe.Pointer(x)))[:]
+}
+
+const (
+	TCA_ACT_MIRRED = 8
+)
+
+const (
+	TCA_MIRRED_UNSPEC = iota
+	TCA_MIRRED_TM
+	TCA_MIRRED_PARMS
+	TCA_MIRRED_MAX = TCA_MIRRED_PARMS
+)
+
+// struct tc_mirred {
+// 	tc_gen;
+// 	int                     eaction;   /* one of IN/EGRESS_MIRROR/REDIR */
+// 	__u32                   ifindex;  /* ifindex of egress port */
+// };
+
+type TcMirred struct {
+	TcGen
+	Eaction int32
+	Ifindex uint32
+}
+
+func (msg *TcMirred) Len() int {
+	return SizeofTcMirred
+}
+
+func DeserializeTcMirred(b []byte) *TcMirred {
+	return (*TcMirred)(unsafe.Pointer(&b[0:SizeofTcMirred][0]))
+}
+
+func (x *TcMirred) Serialize() []byte {
+	return (*(*[SizeofTcMirred]byte)(unsafe.Pointer(x)))[:]
+}
+
+const (
+	TCA_TUNNEL_KEY_UNSPEC = iota
+	TCA_TUNNEL_KEY_TM
+	TCA_TUNNEL_KEY_PARMS
+	TCA_TUNNEL_KEY_ENC_IPV4_SRC
+	TCA_TUNNEL_KEY_ENC_IPV4_DST
+	TCA_TUNNEL_KEY_ENC_IPV6_SRC
+	TCA_TUNNEL_KEY_ENC_IPV6_DST
+	TCA_TUNNEL_KEY_ENC_KEY_ID
+	TCA_TUNNEL_KEY_MAX = TCA_TUNNEL_KEY_ENC_KEY_ID
+)
+
+type TcTunnelKey struct {
+	TcGen
+	Action int32
+}
+
+func (x *TcTunnelKey) Len() int {
+	return SizeofTcTunnelKey
+}
+
+func DeserializeTunnelKey(b []byte) *TcTunnelKey {
+	return (*TcTunnelKey)(unsafe.Pointer(&b[0:SizeofTcTunnelKey][0]))
+}
+
+func (x *TcTunnelKey) Serialize() []byte {
+	return (*(*[SizeofTcTunnelKey]byte)(unsafe.Pointer(x)))[:]
+}
+
+const (
+	TCA_SKBEDIT_UNSPEC = iota
+	TCA_SKBEDIT_TM
+	TCA_SKBEDIT_PARMS
+	TCA_SKBEDIT_PRIORITY
+	TCA_SKBEDIT_QUEUE_MAPPING
+	TCA_SKBEDIT_MARK
+	TCA_SKBEDIT_PAD
+	TCA_SKBEDIT_PTYPE
+	TCA_SKBEDIT_MAX = TCA_SKBEDIT_MARK
+)
+
+type TcSkbEdit struct {
+	TcGen
+}
+
+func (x *TcSkbEdit) Len() int {
+	return SizeofTcSkbEdit
+}
+
+func DeserializeSkbEdit(b []byte) *TcSkbEdit {
+	return (*TcSkbEdit)(unsafe.Pointer(&b[0:SizeofTcSkbEdit][0]))
+}
+
+func (x *TcSkbEdit) Serialize() []byte {
+	return (*(*[SizeofTcSkbEdit]byte)(unsafe.Pointer(x)))[:]
+}
+
+// struct tc_police {
+// 	__u32			index;
+// 	int			action;
+// 	__u32			limit;
+// 	__u32			burst;
+// 	__u32			mtu;
+// 	struct tc_ratespec	rate;
+// 	struct tc_ratespec	peakrate;
+// 	int				refcnt;
+// 	int				bindcnt;
+// 	__u32			capab;
+// };
+
+type TcPolice struct {
+	Index    uint32
+	Action   int32
+	Limit    uint32
+	Burst    uint32
+	Mtu      uint32
+	Rate     TcRateSpec
+	PeakRate TcRateSpec
+	Refcnt   int32
+	Bindcnt  int32
+	Capab    uint32
+}
+
+func (msg *TcPolice) Len() int {
+	return SizeofTcPolice
+}
+
+func DeserializeTcPolice(b []byte) *TcPolice {
+	return (*TcPolice)(unsafe.Pointer(&b[0:SizeofTcPolice][0]))
+}
+
+func (x *TcPolice) Serialize() []byte {
+	return (*(*[SizeofTcPolice]byte)(unsafe.Pointer(x)))[:]
+}
+
+const (
+	TCA_FW_UNSPEC = iota
+	TCA_FW_CLASSID
+	TCA_FW_POLICE
+	TCA_FW_INDEV
+	TCA_FW_ACT
+	TCA_FW_MASK
+	TCA_FW_MAX = TCA_FW_MASK
+)
+
+const (
+	TCA_MATCHALL_UNSPEC = iota
+	TCA_MATCHALL_CLASSID
+	TCA_MATCHALL_ACT
+	TCA_MATCHALL_FLAGS
+)
+
+const (
+	TCA_FQ_UNSPEC             = iota
+	TCA_FQ_PLIMIT             // limit of total number of packets in queue
+	TCA_FQ_FLOW_PLIMIT        // limit of packets per flow
+	TCA_FQ_QUANTUM            // RR quantum
+	TCA_FQ_INITIAL_QUANTUM    // RR quantum for new flow
+	TCA_FQ_RATE_ENABLE        // enable/disable rate limiting
+	TCA_FQ_FLOW_DEFAULT_RATE  // obsolete do not use
+	TCA_FQ_FLOW_MAX_RATE      // per flow max rate
+	TCA_FQ_BUCKETS_LOG        // log2(number of buckets)
+	TCA_FQ_FLOW_REFILL_DELAY  // flow credit refill delay in usec
+	TCA_FQ_ORPHAN_MASK        // mask applied to orphaned skb hashes
+	TCA_FQ_LOW_RATE_THRESHOLD // per packet delay under this rate
+)
+
+const (
+	TCA_FQ_CODEL_UNSPEC = iota
+	TCA_FQ_CODEL_TARGET
+	TCA_FQ_CODEL_LIMIT
+	TCA_FQ_CODEL_INTERVAL
+	TCA_FQ_CODEL_ECN
+	TCA_FQ_CODEL_FLOWS
+	TCA_FQ_CODEL_QUANTUM
+	TCA_FQ_CODEL_CE_THRESHOLD
+	TCA_FQ_CODEL_DROP_BATCH_SIZE
+	TCA_FQ_CODEL_MEMORY_LIMIT
+)
+
+const (
+	TCA_HFSC_UNSPEC = iota
+	TCA_HFSC_RSC
+	TCA_HFSC_FSC
+	TCA_HFSC_USC
+)
+

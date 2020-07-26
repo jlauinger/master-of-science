@@ -1,0 +1,34 @@
+Module: github.com/godror/godror
+Version: v0.16.0
+
+Package: github.com/godror/godror
+File: /root/.cache/go-build/3e/3eb68e40305fe81ca0dee558f59e189adc9285fbb731aaeb65e84ab9c38efddf-d
+Line: 2331
+
+Imported (possibly among others) by: xo/usql
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+_cgo_runtime_cgocall(_cgo_6cd21b101e7b_Cfunc_dpiConn_setDbOp, uintptr(unsafe.Pointer(&p0)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+var __cgofn__cgo_6cd21b101e7b_Cfunc_dpiConn_setDbOp byte
+var _cgo_6cd21b101e7b_Cfunc_dpiConn_setDbOp = unsafe.Pointer(&__cgofn__cgo_6cd21b101e7b_Cfunc_dpiConn_setDbOp)
+
+//go:cgo_unsafe_args
+func _Cfunc_dpiConn_setDbOp(p0 *_Ctype_struct_dpiConn, p1 *_Ctype_char, p2 _Ctype_uint32_t) (r1 _Ctype_int) {
+	_cgo_runtime_cgocall(_cgo_6cd21b101e7b_Cfunc_dpiConn_setDbOp, uintptr(unsafe.Pointer(&p0)))
+	if _Cgo_always_false {
+		_Cgo_use(p0)
+		_Cgo_use(p1)
+		_Cgo_use(p2)
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

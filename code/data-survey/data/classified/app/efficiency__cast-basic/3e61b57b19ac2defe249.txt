@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/core/v1
+File: zz_generated.conversion.go
+Line: 7790
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.APIGroup = (*string)(unsafe.Pointer(in.APIGroup))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func Convert_core_TopologySpreadConstraint_To_v1_TopologySpreadConstraint(in *core.TopologySpreadConstraint, out *v1.TopologySpreadConstraint, s conversion.Scope) error {
+	return autoConvert_core_TopologySpreadConstraint_To_v1_TopologySpreadConstraint(in, out, s)
+}
+
+func autoConvert_v1_TypedLocalObjectReference_To_core_TypedLocalObjectReference(in *v1.TypedLocalObjectReference, out *core.TypedLocalObjectReference, s conversion.Scope) error {
+	out.APIGroup = (*string)(unsafe.Pointer(in.APIGroup))
+	out.Kind = in.Kind
+	out.Name = in.Name
+	return nil
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

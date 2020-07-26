@@ -1,0 +1,190 @@
+Module: std
+Version: std
+
+Package: sync
+File: pool.go
+Line: 228
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): atomic
+
+--------------------------------------------------------------
+Snippet line:
+
+atomic.StorePointer(&p.local, unsafe.Pointer(&local[0])) // store-release
+--------------------------------------------------------------
++/- 5 lines context:
+
+		allPools = append(allPools, p)
+	}
+	// If GOMAXPROCS changes between GCs, we re-allocate the array and lose the old one.
+	size := runtime.GOMAXPROCS(0)
+	local := make([]poolLocal, size)
+	atomic.StorePointer(&p.local, unsafe.Pointer(&local[0])) // store-release
+	atomic.StoreUintptr(&p.localSize, uintptr(size))         // store-release
+	return &local[pid], pid
+}
+
+func poolCleanup() {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	x := l.private
+	l.private = nil
+	if x == nil {
+		// Try to pop the head of the local shard. We prefer
+		// the head over the tail for temporal locality of
+		// reuse.
+		x, _ = l.shared.popHead()
+		if x == nil {
+			x = p.getSlow(pid)
+		}
+	}
+	runtime_procUnpin()
+	if race.Enabled {
+		race.Enable()
+		if x != nil {
+			race.Acquire(poolRaceAddr(x))
+		}
+	}
+	if x == nil && p.New != nil {
+		x = p.New()
+	}
+	return x
+}
+
+func (p *Pool) getSlow(pid int) interface{} {
+	// See the comment in pin regarding ordering of the loads.
+	size := atomic.LoadUintptr(&p.localSize) // load-acquire
+	locals := p.local                        // load-consume
+	// Try to steal one element from other procs.
+	for i := 0; i < int(size); i++ {
+		l := indexLocal(locals, (pid+i+1)%int(size))
+		if x, _ := l.shared.popTail(); x != nil {
+			return x
+		}
+	}
+
+	// Try the victim cache. We do this after attempting to steal
+	// from all primary caches because we want objects in the
+	// victim cache to age out if at all possible.
+	size = atomic.LoadUintptr(&p.victimSize)
+	if uintptr(pid) >= size {
+		return nil
+	}
+	locals = p.victim
+	l := indexLocal(locals, pid)
+	if x := l.private; x != nil {
+		l.private = nil
+		return x
+	}
+	for i := 0; i < int(size); i++ {
+		l := indexLocal(locals, (pid+i)%int(size))
+		if x, _ := l.shared.popTail(); x != nil {
+			return x
+		}
+	}
+
+	// Mark the victim cache as empty for future gets don't bother
+	// with it.
+	atomic.StoreUintptr(&p.victimSize, 0)
+
+	return nil
+}
+
+// pin pins the current goroutine to P, disables preemption and
+// returns poolLocal pool for the P and the P's id.
+// Caller must call runtime_procUnpin() when done with the pool.
+func (p *Pool) pin() (*poolLocal, int) {
+	pid := runtime_procPin()
+	// In pinSlow we store to local and then to localSize, here we load in opposite order.
+	// Since we've disabled preemption, GC cannot happen in between.
+	// Thus here we must observe local at least as large localSize.
+	// We can observe a newer/larger local, it is fine (we must observe its zero-initialized-ness).
+	s := atomic.LoadUintptr(&p.localSize) // load-acquire
+	l := p.local                          // load-consume
+	if uintptr(pid) < s {
+		return indexLocal(l, pid), pid
+	}
+	return p.pinSlow()
+}
+
+func (p *Pool) pinSlow() (*poolLocal, int) {
+	// Retry under the mutex.
+	// Can not lock the mutex while pinned.
+	runtime_procUnpin()
+	allPoolsMu.Lock()
+	defer allPoolsMu.Unlock()
+	pid := runtime_procPin()
+	// poolCleanup won't be called while we are pinned.
+	s := p.localSize
+	l := p.local
+	if uintptr(pid) < s {
+		return indexLocal(l, pid), pid
+	}
+	if p.local == nil {
+		allPools = append(allPools, p)
+	}
+	// If GOMAXPROCS changes between GCs, we re-allocate the array and lose the old one.
+	size := runtime.GOMAXPROCS(0)
+	local := make([]poolLocal, size)
+	atomic.StorePointer(&p.local, unsafe.Pointer(&local[0])) // store-release
+	atomic.StoreUintptr(&p.localSize, uintptr(size))         // store-release
+	return &local[pid], pid
+}
+
+func poolCleanup() {
+	// This function is called with the world stopped, at the beginning of a garbage collection.
+	// It must not allocate and probably should not call any runtime functions.
+
+	// Because the world is stopped, no pool user can be in a
+	// pinned section (in effect, this has all Ps pinned).
+
+	// Drop victim caches from all pools.
+	for _, p := range oldPools {
+		p.victim = nil
+		p.victimSize = 0
+	}
+
+	// Move primary cache to victim cache.
+	for _, p := range allPools {
+		p.victim = p.local
+		p.victimSize = p.localSize
+		p.local = nil
+		p.localSize = 0
+	}
+
+	// The pools with non-empty primary caches now have non-empty
+	// victim caches and no pools have primary caches.
+	oldPools, allPools = allPools, nil
+}
+
+var (
+	allPoolsMu Mutex
+
+	// allPools is the set of pools that have non-empty primary
+	// caches. Protected by either 1) allPoolsMu and pinning or 2)
+	// STW.
+	allPools []*Pool
+
+	// oldPools is the set of pools that may have non-empty victim
+	// caches. Protected by STW.
+	oldPools []*Pool
+)
+
+func init() {
+	runtime_registerPoolCleanup(poolCleanup)
+}
+
+func indexLocal(l unsafe.Pointer, i int) *poolLocal {
+	lp := unsafe.Pointer(uintptr(l) + uintptr(i)*unsafe.Sizeof(poolLocal{}))
+	return (*poolLocal)(lp)
+}
+
+// Implemented in runtime.
+func runtime_registerPoolCleanup(cleanup func())
+func runtime_procPin() int
+func runtime_procUnpin()
+

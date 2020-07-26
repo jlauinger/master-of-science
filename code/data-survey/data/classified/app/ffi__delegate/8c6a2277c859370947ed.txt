@@ -1,0 +1,234 @@
+Module: github.com/cilium/ebpf
+Version: v0.0.0-20191113100448-d9fb101ca1fb
+
+Package: github.com/cilium/ebpf
+File: syscalls.go
+Line: 216
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+_, err := bpfCall(cmd, unsafe.Pointer(attr), unsafe.Sizeof(*attr))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		return newBPFFD(uint32(fd)), nil
+	}
+}
+
+func bpfProgAlter(cmd int, attr *bpfProgAlterAttr) error {
+	_, err := bpfCall(cmd, unsafe.Pointer(attr), unsafe.Sizeof(*attr))
+	return err
+}
+
+func bpfMapCreate(attr *bpfMapCreateAttr) (*bpfFD, error) {
+	fd, err := bpfCall(_MapCreate, unsafe.Pointer(attr), unsafe.Sizeof(*attr))
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+type bpfMapInfo struct {
+	mapType    uint32
+	id         uint32
+	keySize    uint32
+	valueSize  uint32
+	maxEntries uint32
+	flags      uint32
+	mapName    bpfObjName // since 4.15 ad5b177bd73f
+}
+
+type bpfPinObjAttr struct {
+	fileName syscallPtr
+	fd       uint32
+	padding  uint32
+}
+
+type bpfProgLoadAttr struct {
+	progType           ProgramType
+	insCount           uint32
+	instructions       syscallPtr
+	license            syscallPtr
+	logLevel           uint32
+	logSize            uint32
+	logBuf             syscallPtr
+	kernelVersion      uint32     // since 4.1  2541517c32be
+	progFlags          uint32     // since 4.11 e07b98d9bffe
+	progName           bpfObjName // since 4.15 067cae47771c
+	progIfIndex        uint32     // since 4.15 1f6f4cb7ba21
+	expectedAttachType AttachType // since 4.17 5e43f899b03a
+}
+
+type bpfProgInfo struct {
+	progType     uint32
+	id           uint32
+	tag          [unix.BPF_TAG_SIZE]byte
+	jitedLen     uint32
+	xlatedLen    uint32
+	jited        syscallPtr
+	xlated       syscallPtr
+	loadTime     uint64 // since 4.15 cb4d2b3f03d8
+	createdByUID uint32
+	nrMapIDs     uint32
+	mapIds       syscallPtr
+	name         bpfObjName
+}
+
+type bpfProgTestRunAttr struct {
+	fd          uint32
+	retval      uint32
+	dataSizeIn  uint32
+	dataSizeOut uint32
+	dataIn      syscallPtr
+	dataOut     syscallPtr
+	repeat      uint32
+	duration    uint32
+}
+
+type bpfProgAlterAttr struct {
+	targetFd    uint32
+	attachBpfFd uint32
+	attachType  uint32
+	attachFlags uint32
+}
+
+type bpfObjGetInfoByFDAttr struct {
+	fd      uint32
+	infoLen uint32
+	info    syscallPtr // May be either bpfMapInfo or bpfProgInfo
+}
+
+type bpfGetFDByIDAttr struct {
+	id   uint32
+	next uint32
+}
+
+func newPtr(ptr unsafe.Pointer) syscallPtr {
+	return syscallPtr{ptr: ptr}
+}
+
+func bpfProgLoad(attr *bpfProgLoadAttr) (*bpfFD, error) {
+	for {
+		fd, err := bpfCall(_ProgLoad, unsafe.Pointer(attr), unsafe.Sizeof(*attr))
+		// As of ~4.20 the verifier can be interrupted by a signal,
+		// and returns EAGAIN in that case.
+		if err == unix.EAGAIN {
+			continue
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		return newBPFFD(uint32(fd)), nil
+	}
+}
+
+func bpfProgAlter(cmd int, attr *bpfProgAlterAttr) error {
+	_, err := bpfCall(cmd, unsafe.Pointer(attr), unsafe.Sizeof(*attr))
+	return err
+}
+
+func bpfMapCreate(attr *bpfMapCreateAttr) (*bpfFD, error) {
+	fd, err := bpfCall(_MapCreate, unsafe.Pointer(attr), unsafe.Sizeof(*attr))
+	if err != nil {
+		return nil, err
+	}
+
+	return newBPFFD(uint32(fd)), nil
+}
+
+func bpfMapLookupElem(m *bpfFD, key, valueOut syscallPtr) error {
+	fd, err := m.value()
+	if err != nil {
+		return err
+	}
+
+	attr := bpfMapOpAttr{
+		mapFd: fd,
+		key:   key,
+		value: valueOut,
+	}
+	_, err = bpfCall(_MapLookupElem, unsafe.Pointer(&attr), unsafe.Sizeof(attr))
+	return err
+}
+
+func bpfMapUpdateElem(m *bpfFD, key, valueOut syscallPtr, flags uint64) error {
+	fd, err := m.value()
+	if err != nil {
+		return err
+	}
+
+	attr := bpfMapOpAttr{
+		mapFd: fd,
+		key:   key,
+		value: valueOut,
+		flags: flags,
+	}
+	_, err = bpfCall(_MapUpdateElem, unsafe.Pointer(&attr), unsafe.Sizeof(attr))
+	return err
+}
+
+func bpfMapDeleteElem(m *bpfFD, key syscallPtr) error {
+	fd, err := m.value()
+	if err != nil {
+		return err
+	}
+
+	attr := bpfMapOpAttr{
+		mapFd: fd,
+		key:   key,
+	}
+	_, err = bpfCall(_MapDeleteElem, unsafe.Pointer(&attr), unsafe.Sizeof(attr))
+	return err
+}
+
+func bpfMapGetNextKey(m *bpfFD, key, nextKeyOut syscallPtr) error {
+	fd, err := m.value()
+	if err != nil {
+		return err
+	}
+
+	attr := bpfMapOpAttr{
+		mapFd: fd,
+		key:   key,
+		value: nextKeyOut,
+	}
+	_, err = bpfCall(_MapGetNextKey, unsafe.Pointer(&attr), unsafe.Sizeof(attr))
+	return err
+}
+
+const bpfFSType = 0xcafe4a11
+
+func bpfPinObject(fileName string, fd *bpfFD) error {
+	dirName := filepath.Dir(fileName)
+	var statfs unix.Statfs_t
+	if err := unix.Statfs(dirName, &statfs); err != nil {
+		return err
+	}
+	if uint64(statfs.Type) != bpfFSType {
+		return errors.Errorf("%s is not on a bpf filesystem", fileName)
+	}
+
+	value, err := fd.value()
+	if err != nil {
+		return err
+	}
+
+	_, err = bpfCall(_ObjPin, unsafe.Pointer(&bpfPinObjAttr{
+		fileName: newPtr(unsafe.Pointer(&[]byte(fileName)[0])),
+		fd:       value,
+	}), 16)
+	return errors.Wrapf(err, "pin object %s", fileName)
+}
+
+func bpfGetObject(fileName string) (*bpfFD, error) {
+	ptr, err := bpfCall(_ObjGet, unsafe.Pointer(&bpfPinObjAttr{
+		fileName: newPtr(unsafe.Pointer(&[]byte(fileName)[0])),
+	}), 16)
+

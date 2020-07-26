@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: type.go
+Line: 475
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-header
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+hdr := (*stringStruct)(unsafe.Pointer(&s))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+	nl := n.nameLen()
+	if nl == 0 {
+		return ""
+	}
+	hdr := (*stringStruct)(unsafe.Pointer(&s))
+	hdr.str = unsafe.Pointer(n.data(3))
+	hdr.len = nl
+	return s
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+// Note: flag values must match those used in the TMAP case
+// in ../cmd/compile/internal/gc/reflect.go:dtypesym.
+func (mt *maptype) indirectkey() bool { // store ptr to key instead of key itself
+	return mt.flags&1 != 0
+}
+func (mt *maptype) indirectelem() bool { // store ptr to elem instead of elem itself
+	return mt.flags&2 != 0
+}
+func (mt *maptype) reflexivekey() bool { // true if k==k for all keys
+	return mt.flags&4 != 0
+}
+func (mt *maptype) needkeyupdate() bool { // true if we need to update key on an overwrite
+	return mt.flags&8 != 0
+}
+func (mt *maptype) hashMightPanic() bool { // true if hash function might panic
+	return mt.flags&16 != 0
+}
+
+type arraytype struct {
+	typ   _type
+	elem  *_type
+	slice *_type
+	len   uintptr
+}
+
+type chantype struct {
+	typ  _type
+	elem *_type
+	dir  uintptr
+}
+
+type slicetype struct {
+	typ  _type
+	elem *_type
+}
+
+type functype struct {
+	typ      _type
+	inCount  uint16
+	outCount uint16
+}
+
+type ptrtype struct {
+	typ  _type
+	elem *_type
+}
+
+type structfield struct {
+	name       name
+	typ        *_type
+	offsetAnon uintptr
+}
+
+func (f *structfield) offset() uintptr {
+	return f.offsetAnon >> 1
+}
+
+type structtype struct {
+	typ     _type
+	pkgPath name
+	fields  []structfield
+}
+
+// name is an encoded type name with optional extra data.
+// See reflect/type.go for details.
+type name struct {
+	bytes *byte
+}
+
+func (n name) data(off int) *byte {
+	return (*byte)(add(unsafe.Pointer(n.bytes), uintptr(off)))
+}
+
+func (n name) isExported() bool {
+	return (*n.bytes)&(1<<0) != 0
+}
+
+func (n name) nameLen() int {
+	return int(uint16(*n.data(1))<<8 | uint16(*n.data(2)))
+}
+
+func (n name) tagLen() int {
+	if *n.data(0)&(1<<1) == 0 {
+		return 0
+	}
+	off := 3 + n.nameLen()
+	return int(uint16(*n.data(off))<<8 | uint16(*n.data(off + 1)))
+}
+
+func (n name) name() (s string) {
+	if n.bytes == nil {
+		return ""
+	}
+	nl := n.nameLen()
+	if nl == 0 {
+		return ""
+	}
+	hdr := (*stringStruct)(unsafe.Pointer(&s))
+	hdr.str = unsafe.Pointer(n.data(3))
+	hdr.len = nl
+	return s
+}
+
+func (n name) tag() (s string) {
+	tl := n.tagLen()
+	if tl == 0 {
+		return ""
+	}
+	nl := n.nameLen()
+	hdr := (*stringStruct)(unsafe.Pointer(&s))
+	hdr.str = unsafe.Pointer(n.data(3 + nl + 2))
+	hdr.len = tl
+	return s
+}
+
+func (n name) pkgPath() string {
+	if n.bytes == nil || *n.data(0)&(1<<2) == 0 {
+		return ""
+	}
+	off := 3 + n.nameLen()
+	if tl := n.tagLen(); tl > 0 {
+		off += 2 + tl
+	}
+	var nameOff nameOff
+	copy((*[4]byte)(unsafe.Pointer(&nameOff))[:], (*[4]byte)(unsafe.Pointer(n.data(off)))[:])
+	pkgPathName := resolveNameOff(unsafe.Pointer(n.bytes), nameOff)
+	return pkgPathName.name()
+}
+
+func (n name) isBlank() bool {
+	if n.bytes == nil {
+		return false
+	}
+	if n.nameLen() != 1 {
+		return false
+	}
+	return *n.data(3) == '_'
+}
+
+// typelinksinit scans the types from extra modules and builds the
+// moduledata typemap used to de-duplicate type pointers.
+func typelinksinit() {
+	if firstmoduledata.next == nil {
+		return
+	}
+	typehash := make(map[uint32][]*_type, len(firstmoduledata.typelinks))
+
+	modules := activeModules()
+	prev := modules[0]
+	for _, md := range modules[1:] {
+		// Collect types from the previous module into typehash.
+	collect:
+		for _, tl := range prev.typelinks {
+			var t *_type
+			if prev.typemap == nil {
+				t = (*_type)(unsafe.Pointer(prev.types + uintptr(tl)))
+			} else {
+				t = prev.typemap[typeOff(tl)]
+			}
+			// Add to typehash if not seen before.
+			tlist := typehash[t.hash]
+			for _, tcur := range tlist {
+				if tcur == t {
+					continue collect
+				}
+			}
+			typehash[t.hash] = append(tlist, t)
+		}
+
+		if md.typemap == nil {
+			// If any of this module's typelinks match a type from a
+			// prior module, prefer that prior type by adding the offset
+			// to this module's typemap.
+			tm := make(map[typeOff]*_type, len(md.typelinks))
+			pinnedTypemaps = append(pinnedTypemaps, tm)
+			md.typemap = tm
+			for _, tl := range md.typelinks {
+				t := (*_type)(unsafe.Pointer(md.types + uintptr(tl)))
+				for _, candidate := range typehash[t.hash] {
+					seen := map[_typePair]struct{}{}
+					if typesEqual(t, candidate, seen) {
+						t = candidate
+						break
+					}
+				}
+				md.typemap[typeOff(tl)] = t
+			}
+		}
+
+		prev = md
+	}
+}
+
+type _typePair struct {
+	t1 *_type
+	t2 *_type
+}
+
+

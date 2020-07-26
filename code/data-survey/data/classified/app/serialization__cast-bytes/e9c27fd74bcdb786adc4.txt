@@ -1,0 +1,173 @@
+Module: github.com/ishidawataru/sctp
+Version: v0.0.0-20180213033435-07191f837fed
+
+Package: github.com/ishidawataru/sctp
+File: sctp.go
+Line: 617
+
+Imported (possibly among others) by: cilium/cilium
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+info := (*SndRcvInfo)(unsafe.Pointer(&b[0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func (c *SCTPSndRcvInfoWrappedConn) Write(b []byte) (int, error) {
+	if len(b) < int(sndRcvInfoSize) {
+		return 0, syscall.EINVAL
+	}
+	info := (*SndRcvInfo)(unsafe.Pointer(&b[0]))
+	n, err := c.conn.SCTPWrite(b[sndRcvInfoSize:], info)
+	return n + int(sndRcvInfoSize), err
+}
+
+func (c *SCTPSndRcvInfoWrappedConn) Read(b []byte) (int, error) {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+	return resolveFromRawAddr(unsafe.Pointer(&param.addrs), int(param.addrNum))
+}
+
+func (c *SCTPConn) SCTPGetPrimaryPeerAddr() (*SCTPAddr, error) {
+
+	type sctpGetSetPrim struct {
+		assocId int32
+		addrs   [128]byte
+	}
+	param := sctpGetSetPrim{
+		assocId: int32(0),
+	}
+	optlen := unsafe.Sizeof(param)
+	_, _, err := getsockopt(c.fd(), SCTP_PRIMARY_ADDR, uintptr(unsafe.Pointer(&param)), uintptr(unsafe.Pointer(&optlen)))
+	if err != nil {
+		return nil, err
+	}
+	return resolveFromRawAddr(unsafe.Pointer(&param.addrs), 1)
+}
+
+func (c *SCTPConn) SCTPLocalAddr(id int) (*SCTPAddr, error) {
+	return sctpGetAddrs(c.fd(), id, SCTP_GET_LOCAL_ADDRS)
+}
+
+func (c *SCTPConn) SCTPRemoteAddr(id int) (*SCTPAddr, error) {
+	return sctpGetAddrs(c.fd(), id, SCTP_GET_PEER_ADDRS)
+}
+
+func (c *SCTPConn) LocalAddr() net.Addr {
+	addr, err := sctpGetAddrs(c.fd(), 0, SCTP_GET_LOCAL_ADDRS)
+	if err != nil {
+		return nil
+	}
+	return addr
+}
+
+func (c *SCTPConn) RemoteAddr() net.Addr {
+	addr, err := sctpGetAddrs(c.fd(), 0, SCTP_GET_PEER_ADDRS)
+	if err != nil {
+		return nil
+	}
+	return addr
+}
+
+func (c *SCTPConn) PeelOff(id int) (*SCTPConn, error) {
+	type peeloffArg struct {
+		assocId int32
+		sd      int
+	}
+	param := peeloffArg{
+		assocId: int32(id),
+	}
+	optlen := unsafe.Sizeof(param)
+	_, _, err := getsockopt(c.fd(), SCTP_SOCKOPT_PEELOFF, uintptr(unsafe.Pointer(&param)), uintptr(unsafe.Pointer(&optlen)))
+	if err != nil {
+		return nil, err
+	}
+	return &SCTPConn{_fd: int32(param.sd)}, nil
+}
+
+func (c *SCTPConn) SetDeadline(t time.Time) error {
+	return syscall.EOPNOTSUPP
+}
+
+func (c *SCTPConn) SetReadDeadline(t time.Time) error {
+	return syscall.EOPNOTSUPP
+}
+
+func (c *SCTPConn) SetWriteDeadline(t time.Time) error {
+	return syscall.EOPNOTSUPP
+}
+
+type SCTPListener struct {
+	fd int
+	m  sync.Mutex
+}
+
+func (ln *SCTPListener) Addr() net.Addr {
+	laddr, err := sctpGetAddrs(ln.fd, 0, SCTP_GET_LOCAL_ADDRS)
+	if err != nil {
+		return nil
+	}
+	return laddr
+}
+
+type SCTPSndRcvInfoWrappedConn struct {
+	conn *SCTPConn
+}
+
+func NewSCTPSndRcvInfoWrappedConn(conn *SCTPConn) *SCTPSndRcvInfoWrappedConn {
+	conn.SubscribeEvents(SCTP_EVENT_DATA_IO)
+	return &SCTPSndRcvInfoWrappedConn{conn}
+}
+
+func (c *SCTPSndRcvInfoWrappedConn) Write(b []byte) (int, error) {
+	if len(b) < int(sndRcvInfoSize) {
+		return 0, syscall.EINVAL
+	}
+	info := (*SndRcvInfo)(unsafe.Pointer(&b[0]))
+	n, err := c.conn.SCTPWrite(b[sndRcvInfoSize:], info)
+	return n + int(sndRcvInfoSize), err
+}
+
+func (c *SCTPSndRcvInfoWrappedConn) Read(b []byte) (int, error) {
+	if len(b) < int(sndRcvInfoSize) {
+		return 0, syscall.EINVAL
+	}
+	n, info, err := c.conn.SCTPRead(b[sndRcvInfoSize:])
+	if err != nil {
+		return n, err
+	}
+	copy(b, toBuf(info))
+	return n + int(sndRcvInfoSize), err
+}
+
+func (c *SCTPSndRcvInfoWrappedConn) Close() error {
+	return c.conn.Close()
+}
+
+func (c *SCTPSndRcvInfoWrappedConn) LocalAddr() net.Addr {
+	return c.conn.LocalAddr()
+}
+
+func (c *SCTPSndRcvInfoWrappedConn) RemoteAddr() net.Addr {
+	return c.conn.RemoteAddr()
+}
+
+func (c *SCTPSndRcvInfoWrappedConn) SetDeadline(t time.Time) error {
+	return c.conn.SetDeadline(t)
+}
+
+func (c *SCTPSndRcvInfoWrappedConn) SetReadDeadline(t time.Time) error {
+	return c.conn.SetReadDeadline(t)
+}
+
+func (c *SCTPSndRcvInfoWrappedConn) SetWriteDeadline(t time.Time) error {
+	return c.conn.SetWriteDeadline(t)
+}
+

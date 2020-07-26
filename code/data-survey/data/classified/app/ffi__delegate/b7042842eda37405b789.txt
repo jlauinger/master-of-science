@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/internal/execution
+File: generic_map.go
+Line: 126
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+func MapUnsafePointer(fn func(unsafe.Pointer) unsafe.Pointer, a []unsafe.Pointer) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapUnsafePointer(fn func(unsafe.Pointer) unsafe.Pointer, a []unsafe.Pointer) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+func MapI16(fn func(int16) int16, a []int16) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapI32(fn func(int32) int32, a []int32) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapI64(fn func(int64) int64, a []int64) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapU(fn func(uint) uint, a []uint) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapU8(fn func(uint8) uint8, a []uint8) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapU16(fn func(uint16) uint16, a []uint16) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapU32(fn func(uint32) uint32, a []uint32) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapU64(fn func(uint64) uint64, a []uint64) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapUintptr(fn func(uintptr) uintptr, a []uintptr) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapF32(fn func(float32) float32, a []float32) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapF64(fn func(float64) float64, a []float64) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapC64(fn func(complex64) complex64, a []complex64) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapC128(fn func(complex128) complex128, a []complex128) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapStr(fn func(string) string, a []string) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapUnsafePointer(fn func(unsafe.Pointer) unsafe.Pointer, a []unsafe.Pointer) {
+	for i := range a {
+		a[i] = fn(a[i])
+	}
+	return
+}
+
+func MapErrB(fn func(bool) (bool, error), a []bool) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrI(fn func(int) (int, error), a []int) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrI8(fn func(int8) (int8, error), a []int8) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrI16(fn func(int16) (int16, error), a []int16) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrI32(fn func(int32) (int32, error), a []int32) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrI64(fn func(int64) (int64, error), a []int64) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrU(fn func(uint) (uint, error), a []uint) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrU8(fn func(uint8) (uint8, error), a []uint8) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrU16(fn func(uint16) (uint16, error), a []uint16) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrU32(fn func(uint32) (uint32, error), a []uint32) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+		}
+	}
+	return
+}
+
+func MapErrU64(fn func(uint64) (uint64, error), a []uint64) (err error) {
+	for i := range a {
+		if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+			return
+

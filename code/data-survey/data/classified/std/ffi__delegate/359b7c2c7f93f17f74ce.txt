@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: syscall
+File: syscall_linux.go
+Line: 816
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+return ptrace(PTRACE_GETREGS, pid, 0, uintptr(unsafe.Pointer(regsout)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func PtracePokeData(pid int, addr uintptr, data []byte) (count int, err error) {
+	return ptracePoke(PTRACE_POKEDATA, PTRACE_PEEKDATA, pid, addr, data)
+}
+
+func PtraceGetRegs(pid int, regsout *PtraceRegs) (err error) {
+	return ptrace(PTRACE_GETREGS, pid, 0, uintptr(unsafe.Pointer(regsout)))
+}
+
+func PtraceSetRegs(pid int, regs *PtraceRegs) (err error) {
+	return ptrace(PTRACE_SETREGS, pid, 0, uintptr(unsafe.Pointer(regs)))
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+	// Leading edge. PEEKTEXT/PEEKDATA don't require aligned
+	// access (PEEKUSER warns that it might), but if we don't
+	// align our reads, we might straddle an unmapped page
+	// boundary and not get the bytes leading up to the page
+	// boundary.
+	n := 0
+	if addr%sizeofPtr != 0 {
+		err = ptrace(req, pid, addr-addr%sizeofPtr, uintptr(unsafe.Pointer(&buf[0])))
+		if err != nil {
+			return 0, err
+		}
+		n += copy(out, buf[addr%sizeofPtr:])
+		out = out[n:]
+	}
+
+	// Remainder.
+	for len(out) > 0 {
+		// We use an internal buffer to guarantee alignment.
+		// It's not documented if this is necessary, but we're paranoid.
+		err = ptrace(req, pid, addr+uintptr(n), uintptr(unsafe.Pointer(&buf[0])))
+		if err != nil {
+			return n, err
+		}
+		copied := copy(out, buf[0:])
+		n += copied
+		out = out[copied:]
+	}
+
+	return n, nil
+}
+
+func PtracePeekText(pid int, addr uintptr, out []byte) (count int, err error) {
+	return ptracePeek(PTRACE_PEEKTEXT, pid, addr, out)
+}
+
+func PtracePeekData(pid int, addr uintptr, out []byte) (count int, err error) {
+	return ptracePeek(PTRACE_PEEKDATA, pid, addr, out)
+}
+
+func ptracePoke(pokeReq int, peekReq int, pid int, addr uintptr, data []byte) (count int, err error) {
+	// As for ptracePeek, we need to align our accesses to deal
+	// with the possibility of straddling an invalid page.
+
+	// Leading edge.
+	n := 0
+	if addr%sizeofPtr != 0 {
+		var buf [sizeofPtr]byte
+		err = ptrace(peekReq, pid, addr-addr%sizeofPtr, uintptr(unsafe.Pointer(&buf[0])))
+		if err != nil {
+			return 0, err
+		}
+		n += copy(buf[addr%sizeofPtr:], data)
+		word := *((*uintptr)(unsafe.Pointer(&buf[0])))
+		err = ptrace(pokeReq, pid, addr-addr%sizeofPtr, word)
+		if err != nil {
+			return 0, err
+		}
+		data = data[n:]
+	}
+
+	// Interior.
+	for len(data) > sizeofPtr {
+		word := *((*uintptr)(unsafe.Pointer(&data[0])))
+		err = ptrace(pokeReq, pid, addr+uintptr(n), word)
+		if err != nil {
+			return n, err
+		}
+		n += sizeofPtr
+		data = data[sizeofPtr:]
+	}
+
+	// Trailing edge.
+	if len(data) > 0 {
+		var buf [sizeofPtr]byte
+		err = ptrace(peekReq, pid, addr+uintptr(n), uintptr(unsafe.Pointer(&buf[0])))
+		if err != nil {
+			return n, err
+		}
+		copy(buf[0:], data)
+		word := *((*uintptr)(unsafe.Pointer(&buf[0])))
+		err = ptrace(pokeReq, pid, addr+uintptr(n), word)
+		if err != nil {
+			return n, err
+		}
+		n += len(data)
+	}
+
+	return n, nil
+}
+
+func PtracePokeText(pid int, addr uintptr, data []byte) (count int, err error) {
+	return ptracePoke(PTRACE_POKETEXT, PTRACE_PEEKTEXT, pid, addr, data)
+}
+
+func PtracePokeData(pid int, addr uintptr, data []byte) (count int, err error) {
+	return ptracePoke(PTRACE_POKEDATA, PTRACE_PEEKDATA, pid, addr, data)
+}
+
+func PtraceGetRegs(pid int, regsout *PtraceRegs) (err error) {
+	return ptrace(PTRACE_GETREGS, pid, 0, uintptr(unsafe.Pointer(regsout)))
+}
+
+func PtraceSetRegs(pid int, regs *PtraceRegs) (err error) {
+	return ptrace(PTRACE_SETREGS, pid, 0, uintptr(unsafe.Pointer(regs)))
+}
+
+func PtraceSetOptions(pid int, options int) (err error) {
+	return ptrace(PTRACE_SETOPTIONS, pid, 0, uintptr(options))
+}
+
+func PtraceGetEventMsg(pid int) (msg uint, err error) {
+	var data _C_long
+	err = ptrace(PTRACE_GETEVENTMSG, pid, 0, uintptr(unsafe.Pointer(&data)))
+	msg = uint(data)
+	return
+}
+
+func PtraceCont(pid int, signal int) (err error) {
+	return ptrace(PTRACE_CONT, pid, 0, uintptr(signal))
+}
+
+func PtraceSyscall(pid int, signal int) (err error) {
+	return ptrace(PTRACE_SYSCALL, pid, 0, uintptr(signal))
+}
+
+func PtraceSingleStep(pid int) (err error) { return ptrace(PTRACE_SINGLESTEP, pid, 0, 0) }
+
+func PtraceAttach(pid int) (err error) { return ptrace(PTRACE_ATTACH, pid, 0, 0) }
+
+func PtraceDetach(pid int) (err error) { return ptrace(PTRACE_DETACH, pid, 0, 0) }
+
+//sys	reboot(magic1 uint, magic2 uint, cmd int, arg string) (err error)
+
+func Reboot(cmd int) (err error) {
+	return reboot(LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, cmd, "")
+}
+
+func ReadDirent(fd int, buf []byte) (n int, err error) {
+	return Getdents(fd, buf)
+}
+
+func direntIno(buf []byte) (uint64, bool) {
+	return readInt(buf, unsafe.Offsetof(Dirent{}.Ino), unsafe.Sizeof(Dirent{}.Ino))
+}
+
+func direntReclen(buf []byte) (uint64, bool) {
+	return readInt(buf, unsafe.Offsetof(Dirent{}.Reclen), unsafe.Sizeof(Dirent{}.Reclen))
+}
+
+func direntNamlen(buf []byte) (uint64, bool) {
+	reclen, ok := direntReclen(buf)
+	if !ok {
+		return 0, false
+	}
+	return reclen - uint64(unsafe.Offsetof(Dirent{}.Name)), true
+}
+
+//sys	mount(source string, target string, fstype string, flags uintptr, data *byte) (err error)
+
+func Mount(source string, target string, fstype string, flags uintptr, data string) (err error) {
+	// Certain file systems get rather angry and EINVAL if you give
+	// them an empty string of data, rather than NULL.
+	if data == "" {
+		return mount(source, target, fstype, flags, nil)
+	}
+	datap, err := BytePtrFromString(data)
+	if err != nil {
+		return err
+	}
+	return mount(source, target, fstype, flags, datap)
+}
+
+// Sendto
+// Recvfrom
+// Socketpair
+
+/*
+ * Direct access
+ */
+//sys	Acct(path string) (err error)
+//sys	Adjtimex(buf *Timex) (state int, err error)
+//sys	Chdir(path string) (err error)
+//sys	Chroot(path string) (err error)
+//sys	Close(fd int) (err error)
+//sys	Dup(oldfd int) (fd int, err error)
+//sys	Dup3(oldfd int, newfd int, flags int) (err error)
+//sysnb	EpollCreate1(flag int) (fd int, err error)
+//sysnb	EpollCtl(epfd int, op int, fd int, event *EpollEvent) (err error)
+//sys	Fallocate(fd int, mode uint32, off int64, len int64) (err error)
+//sys	Fchdir(fd int) (err error)
+//sys	Fchmod(fd int, mode uint32) (err error)
+//sys	Fchownat(dirfd int, path string, uid int, gid int, flags int) (err error)
+//sys	fcntl(fd int, cmd int, arg int) (val int, err error)
+//sys	Fdatasync(fd int) (err error)
+//sys	Flock(fd int, how int) (err error)
+//sys	Fsync(fd int) (err error)
+//sys	Getdents(fd int, buf []byte) (n int, err error) = SYS_GETDENTS64
+//sysnb	Getpgid(pid int) (pgid int, err error)
+
+func Getpgrp() (pid int) {
+

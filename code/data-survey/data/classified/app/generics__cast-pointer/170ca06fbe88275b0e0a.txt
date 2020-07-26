@@ -1,0 +1,190 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor
+File: array.go
+Line: 487
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): generics
+
+--------------------------------------------------------------
+Snippet line:
+
+return unsafe.Pointer(&at)
+--------------------------------------------------------------
++/- 5 lines context:
+
+	case complex64:
+		return unsafe.Pointer(&at)
+	case complex128:
+		return unsafe.Pointer(&at)
+	case string:
+		return unsafe.Pointer(&at)
+	case uintptr:
+		return unsafe.Pointer(at)
+	case unsafe.Pointer:
+		return at
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+			// A variant can still be seen in the NonStdEngine case above.
+			//
+			// The `array.slice()` method has been optimized to return `array2`, which is a
+			// non-heap allocated type.
+			// a value of `array2` cannot have its address taken - e.g.
+			// 	var a array2
+			// 	doSomething(&a) // ← this cannot be done
+			//
+			// We *could* make `array2` implement Memory. But then a lot of runtime.convT2I and
+			// runtime.convI2T would be called. Which defeats the purpose of making things fast.
+			//
+			// So instead, we check to see if the Engine uses standard allocation methods.
+			// Typically this means `StdEng`.
+			//
+			// If so, we directly use storage.Copy instead of using the engine
+			storage.Copy(d.t.Type, &d.Header, &s.Header)
+		}
+
+		return d.Len()
+	}
+	return copyArraySliced(dst.arr(), dstart, dend, src.arr(), sstart, send)
+}
+
+// copyDenseIter copies a DenseTensor, with iterator
+func copyDenseIter(dst, src DenseTensor, diter, siter Iterator) (int, error) {
+	if dst.Dtype() != src.Dtype() {
+		panic("Cannot copy Dense arrays of different types")
+	}
+
+	// if they all don't need iterators, and have the same data order
+	if !dst.RequiresIterator() && !src.RequiresIterator() && dst.DataOrder().HasSameOrder(src.DataOrder()) {
+		return copyDense(dst, src), nil
+	}
+
+	if !dst.IsNativelyAccessible() {
+		return 0, errors.Errorf(inaccessibleData, dst)
+	}
+	if !src.IsNativelyAccessible() {
+		return 0, errors.Errorf(inaccessibleData, src)
+	}
+
+	if diter == nil {
+		diter = FlatIteratorFromDense(dst)
+	}
+	if siter == nil {
+		siter = FlatIteratorFromDense(src)
+	}
+
+	// if it's a masked tensor, we copy the mask as well
+	if ms, ok := src.(MaskedTensor); ok && ms.IsMasked() {
+		if md, ok := dst.(MaskedTensor); ok {
+			dmask := md.Mask()
+			smask := ms.Mask()
+			if cap(dmask) < len(smask) {
+				dmask = make([]bool, len(smask))
+				copy(dmask, md.Mask())
+				md.SetMask(dmask)
+			}
+			copy(dmask, smask)
+		}
+	}
+	return storage.CopyIter(dst.rtype(), dst.hdr(), src.hdr(), diter, siter), nil
+}
+
+func getPointer(a interface{}) unsafe.Pointer {
+	switch at := a.(type) {
+	case Memory:
+		return at.Pointer()
+	case bool:
+		return unsafe.Pointer(&at)
+	case int:
+		return unsafe.Pointer(&at)
+	case int8:
+		return unsafe.Pointer(&at)
+	case int16:
+		return unsafe.Pointer(&at)
+	case int32:
+		return unsafe.Pointer(&at)
+	case int64:
+		return unsafe.Pointer(&at)
+	case uint:
+		return unsafe.Pointer(&at)
+	case uint8:
+		return unsafe.Pointer(&at)
+	case uint16:
+		return unsafe.Pointer(&at)
+	case uint32:
+		return unsafe.Pointer(&at)
+	case uint64:
+		return unsafe.Pointer(&at)
+	case float32:
+		return unsafe.Pointer(&at)
+	case float64:
+		return unsafe.Pointer(&at)
+	case complex64:
+		return unsafe.Pointer(&at)
+	case complex128:
+		return unsafe.Pointer(&at)
+	case string:
+		return unsafe.Pointer(&at)
+	case uintptr:
+		return unsafe.Pointer(at)
+	case unsafe.Pointer:
+		return at
+
+		// POINTERS
+
+	case *bool:
+		return unsafe.Pointer(at)
+	case *int:
+		return unsafe.Pointer(at)
+	case *int8:
+		return unsafe.Pointer(at)
+	case *int16:
+		return unsafe.Pointer(at)
+	case *int32:
+		return unsafe.Pointer(at)
+	case *int64:
+		return unsafe.Pointer(at)
+	case *uint:
+		return unsafe.Pointer(at)
+	case *uint8:
+		return unsafe.Pointer(at)
+	case *uint16:
+		return unsafe.Pointer(at)
+	case *uint32:
+		return unsafe.Pointer(at)
+	case *uint64:
+		return unsafe.Pointer(at)
+	case *float32:
+		return unsafe.Pointer(at)
+	case *float64:
+		return unsafe.Pointer(at)
+	case *complex64:
+		return unsafe.Pointer(at)
+	case *complex128:
+		return unsafe.Pointer(at)
+	case *string:
+		return unsafe.Pointer(at)
+	case *uintptr:
+		return unsafe.Pointer(*at)
+	case *unsafe.Pointer:
+		return *at
+	}
+
+	panic("Cannot get pointer")
+}
+
+// scalarToHeader creates a Header from a scalar value
+func scalarToHeader(a interface{}) *storage.Header {
+	hdr := borrowHeader()
+	hdr.Ptr = getPointer(a)
+	hdr.L = 1
+	hdr.C = 1
+	return hdr
+}
+
