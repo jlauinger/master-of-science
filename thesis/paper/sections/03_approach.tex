@@ -55,7 +55,7 @@ It is triggered either by a certain increase of heap memory usage or after a fix
 The garbage collector treats pointer types, \texttt{unsafe.Pointer} values, and slice/string headers that belong to actual slices/strings as references and will mark them as still in use. %, preventing them from being freed.
 Importantly, string or slice headers that are created manually as well as \texttt{uintptr} values are not treated as references.
 The last point, although documented in the \texttt{unsafe} package, is a major pitfall.
-Casting an \texttt{uintptr} variable to a pointer type  creates potentially dangling pointers because the memory at that address might have already been freed if the garbage collector was triggered right before the conversion.
+Casting an \texttt{uintptr} variable back to a pointer type creates a potentially dangling pointer because the memory at that address might have already been freed if the garbage collector was triggered right before the conversion.
 
 Although not directly obvious, Listing~\ref{lst:string-to-bytes} contains such a condition.
 Because the \texttt{reflect.SliceHeader} value is created as a composite literal instead of being derived from an actual slice value, its \texttt{Data} field is not treated as a reference if the garbage collector runs between lines 3 and 8. 
