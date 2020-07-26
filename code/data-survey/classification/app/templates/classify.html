@@ -28,7 +28,7 @@
     {% for label in quick_labels2 %}
     <button class="btn btn-info btn-margin-bottom quick-classify2" data-label="{{ label }}">{{ label }}</button>
     {% endfor %}
-    <a href="/classify/{{ next_index }}" class="btn btn-success pull-right quick-next">Next snippet</a>
+    <a href="/classify/{{ next_index }}" class="btn btn-success pull-right quick-next" id="quick-next1">Next snippet</a>
 </p>
 
 <form action="" method="post" novalidate id="classification-form-2">
@@ -58,6 +58,12 @@
         $('.quick-classify1').click(function() {
             $('#label1').val($(this).data('label'));
             $('#submit1').click();
+        });
+
+        $(document).keydown(function(e){
+            if (e.which == 39) { // right arrow
+                location.href = "/classify/{{ next_index }}";
+            }
         });
     });
 </script>
