@@ -18,7 +18,8 @@ type Config struct {
 	PrintUnsafeLines     bool
 
 	ShowStandardPackages bool
-	Filter               string
+	MatchFilter          string
+	ContextFilter        string
 
 	Output               io.Writer
 }
@@ -44,16 +45,16 @@ func Run(config Config, paths... string) {
 		initCache()
 
 		table := tablewriter.NewWriter(config.Output)
-		if config.DetailedStats && config.Filter == "all" {
+		if config.DetailedStats && config.ContextFilter == "all" {
 			table.SetHeader([]string{"With Dependencies", "Local Package", "Variable", "Parameter", "Assignment", "Call", "Other", "Package Path"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER,
 				tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER,
 				tablewriter.ALIGN_LEFT})
-		} else if config.Filter == "all" {
+		} else if config.ContextFilter == "all" {
 			table.SetHeader([]string{"With Dependencies", "Local Package", "Package Path"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_LEFT})
 		} else {
-			table.SetHeader([]string{"With Dependencies", fmt.Sprintf("Local Package %s", config.Filter), "Package Path"})
+			table.SetHeader([]string{"With Dependencies", fmt.Sprintf("Local Package %s", config.ContextFilter), "Package Path"})
 			table.SetColumnAlignment([]int{tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_LEFT})
 		}
 		table.SetBorder(false)

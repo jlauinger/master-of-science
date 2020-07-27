@@ -30,7 +30,7 @@ func TestRun (t *testing.T) {
 		PrintUnsafeLines:     false,
 
 		ShowStandardPackages: false,
-		Filter:               "all",
+		ContextFilter:        "all",
 		Output:               output,
 	}, "./testdata")
 
