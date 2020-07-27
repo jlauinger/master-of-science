@@ -8,5 +8,6 @@ require (
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5 // indirect
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
 	golang.org/x/tools v0.0.0-20200504193531-9bfbc385433f
 )
