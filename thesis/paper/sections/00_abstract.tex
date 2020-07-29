@@ -1,12 +1,15 @@
 The Go programming language aims to provide memory and thread safety through compile-time measures such as a strict type system that prevents invalid memory accesses. 
 However, it also offers a way of circumventing this safety net through the use of the \unsafe{} package.
 While there are legitimate use cases for \unsafe{}, developers must exercise caution to avoid introducing vulnerabilities like buffer overflows or memory corruption in general.
-%Common uses for \unsafe{} are efficiency reasons and to create functionality of generics, which are not available in current versions of Go.
+%Common uses for \unsafe{} are efficient marshalling and casting, and the foreign function interface.
 %Usages of \unsafe{} may be present not only in a project's source code, but can also be introduced through dependencies.
 In this work, we present \toolUsage{}, a novel tool for Go developers to quantify \unsafe{} usages in a projects source code and all of its dependencies.
 %Using \toolUsage{}, we conducted a large-scale study on the usage of \unsafe{} in the \projsAnalyzed{} most popular open-source Go projects on GitHub, including a manual analysis of \numberCodeSnippets{} code samples on how \unsafe{} is used.
 Using \toolUsage{}, we conducted a study on the usage of \unsafe{} in the top 500 most popular open-source Go projects on GitHub, including a manual analysis of \numberCodeSnippets{} code samples on how \unsafe{} is used.
 From the projects using Go's module system  \percentagePackagesWithUnsafe{} of the dependencies contain \unsafe{} usages. 
-Of these modularized projects \percentageProjectsWithUnsafe{} contain at least one usage that is not part of the standard library, and \percentageProjectsAndDependenciesUnsafe{} of projects contain at least one \unsafe{} in the project itself or one of its transitive dependencies.
+%Of these modularized projects 
+\percentageProjectsWithUnsafe{} of the projects directly contain at least one usage,
+%that is not part of the standard library
+and \percentageProjectsAndDependenciesUnsafe{} contain at least one \unsafe{} usage in the project itself or one of its transitive dependencies.
 Based on the usage patterns found, we present possible exploit vectors in different scenarios. 
 Finally, we present \toolSA{}, a novel static analysis tool to identify dangerous and common usage patterns that were previously undetected with existing tools.

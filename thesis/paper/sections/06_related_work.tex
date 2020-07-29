@@ -3,27 +3,27 @@
 
 % Analyses in Go / Go and Security
 %\textbf{Analyses in Go}
-Previous research on Go mostly concentrated on issues related to Go's concurrency model including their channel implementation~\cite{tu2019,dilley2019,giunti2020,gabet2020,lange2017,bodden2016information}.
-The work by Wang et al.~\cite{wang2020} suggests an improvement of the existing escape analysis in Go which we discussed in our paper as well. 
+Previous research on Go mostly concentrated on issues related to its concurrency model including the channel implementation~\cite{tu2019,dilley2019,giunti2020,gabet2020,lange2017,bodden2016information}.
+The work by Wang et al.~\cite{wang2020} suggests an improvement of the existing escape analysis in Go which we also discussed in our paper. 
 
-%Security issues can be analyzed in project code like we did, or in a project's commit history~\cite{zhou2017}.
 % Unsafe in other languages
 %\textbf{Unsafe usages in memory safe languages}
 
-While previous research on Go did not answer the question on the influence of \unsafe{} code, related studies exist for other languages. 
-For Java, Mastrangelo et al.~\cite{mastrangelo2015} identified that 25~\% of the analyzed artefacts depend on the Java \unsafe{} library.
+%While previous research on Go did not answer the question on the influence of \unsafe{} code, related studies exist for other languages. 
+Moreover, the usage of \unsafe{} in other languages has already been studied to varying degrees. 
+For Java, Mastrangelo et al.~\cite{mastrangelo2015} identified that 25\% of the analyzed artefacts depend on the Java \unsafe{} library.
 The different JVM crash patterns caused by those usages are analyzed by Huang et al.~\cite{huang2019}.
 Recently, two studies analyzed \unsafe{} usages in Rust projects and identified that \unsafe{} is widely used to improve performance or to reuse existing code~\cite{qin2020,evans2020}.
 Furthermore, work was presented on how to ensure memory safety while using \unsafe{} in Rust~\cite{hussain2018Fidelius}.
-Lehmann et al.~\cite{lehmann-everything-2020} studied to which extend \unsafe{} programs compiled to WebAssembly can lead to vulnerabilities within the virtual machine environment. %and it is possible to compile Go code to WebAssembly. 
+Lehmann et al.~\cite{lehmann-everything-2020} studied to which extent \unsafe{} programs compiled to WebAssembly can lead to vulnerabilities within the virtual machine environment. %and it is possible to compile Go code to WebAssembly. 
 %
 % Shorter version 
 %Recently, related studies were published that focus on unsafe code and its usage in Rust~\cite{qin2020,evans2020} and Java~\cite{mastrangelo2015,huang2019}.
 %Lehmann et al.~\cite{lehmann-everything-2020} studied to which extend unsafe programs can lead to vulnerabilities in WebAssembly. %and it is possible to compile Go code to WebAssembly. 
 %
 % Memory vulnerabilities and C/C++
-For C and C++, non memory-safe languages, research exists on how to support at least partial memory safety~\cite{burow2018CUP, nagarkatte2009SoftBound} and work on identifying vulnerabilities by program analyses~\cite{song2019sok}.
-A comprehensive study on memory management related vulnerabilities, like the ones we discussed earlier, and their mitigation's is presented in earlier work~\cite{szekeres2013sok}.
+For C/C++, non memory-safe languages, research exists on how to support at least partial memory safety~\cite{burow2018CUP, nagarkatte2009SoftBound} and work on identifying vulnerabilities by program analyses~\cite{song2019sok}.
+A comprehensive study on memory management related vulnerabilities, like the ones we discussed earlier, and their mitigations is presented in earlier work~\cite{szekeres2013sok}.
 
 %Dependencies
 Concerning project dependencies, it is difficult to count the dependencies that matter the most, e.g. by excluding test dependencies~\cite{pashchenko2018}.

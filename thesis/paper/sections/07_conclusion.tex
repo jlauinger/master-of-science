@@ -1,19 +1,19 @@
 \section{Conclusion}
 \label{sec:concl}
 
-In this paper, we took an in-depth look into how and why \unsafe{} is used on Go projects.
-A systematical description of different dangerous programming patterns involving \unsafe{} and novel evidence on how to exploit these patterns is given.
+%In this paper, we took an in-depth look into how and why \unsafe{} is used on Go projects.
+In this paper, we gave a systematic description of different dangerous programming patterns involving \unsafe{} and novel evidence on how to exploit these patterns. % is given.
 Furthermore, we presented two novel tools to help Go developers write safer code with respect to \unsafe{} Go and security analysts to evaluate \unsafe{} code.
 First, \toolUsage{} identifies \unsafe{} usages not only within the main project package, but also in its transitive dependencies. 
-Therefore it represents an effective tool to focus audit efforts on the code locations that are the most dangerous, raising awareness into how \unsafe{} code is included into a project, and helps getting a general sense for the potential risks by deploying a specific project.
+Therefore it represents an effective tool to focus audit efforts on the code locations that are the most dangerous, raising awareness into how \unsafe{} is included into a project, and helps getting a general sense for the potential risks of deploying a specific project.
 Second, \toolSA{} is a new static code analysis tool that helps developers identify dangerous code patterns that were previously uncaught with existing tools for linting.
-Additionally, we conducted a scale study of \packagesAnalyzed{} packages from \projsAnalyzed{} top-starred open-source Go projects.
+Additionally, we conducted a study of \packagesAnalyzed{} packages from \projsAnalyzed{} top-starred open-source Go projects.
 Here, we have shown that \unsafe{} is very common, especially when taking project dependencies into account. 
 %We presented novel evidence of how to exploit common unsafe code patterns, and submitted fixes to \numberBugsFixed{} bugs.
 %We conducted a large-scale study of \packagesAnalyzed{} in \projsAnalyzed{} top-starred open-source Go projects and found that \percentagePackagesWithUnsafe{} of packages used transitively by the projects contain \unsafe{} usages. 
 %\percentageProjectsWithUnsafe{} of projects contain at least one usage that is not part of the standard library, and \percentageProjectsAndDependenciesUnsafe{} of projects contain at least one \unsafe{} in the project or one of its transitive dependencies.
 Finally, derived from this study, we presented a new data set of manually labeled code snippets, providing insight into how and for what purpose \unsafe{} is used by developers.
-This has also shown the reasons for introducing \unsafe{} operations is often tied to optimization, interoperability with external libraries or to circumvent language limitations.
+The reasons for introducing \unsafe{} operations are often tied to optimization, interoperability with external libraries or to circumvent language limitations.
 
 In the future, supervised learning algorithms could use our labeled data set to train classifiers, which can then identify the purpose and domain of \unsafe{} usages by looking at new code. 
 Furthermore, plugins for common IDEs that integrate our tools, \toolUsage{} and \toolSA{}, could be built to incorporate them into developers' workflow.% as Smith et al.~\cite{smith2020} suggests.
