@@ -1,9 +1,8 @@
 \section{A Study of Go's \unsafe{} Usages in the Wild}
 \label{sec:eval}
 
-%The goal of our real-world study is to understand how \unsafe{} is used in open-source projects, and what the implications of this are on the security of Go applications. 
 
-We designed and performed a study in the wild to answer the following research questions:
+We designed and performed a study of Go \unsafe{} usage to answer the following research questions:
 
 \begin{enumerate}[leftmargin=*,label={RQ\arabic*}]
     \item How prevalent is \unsafe{} in Go projects? \label{rq:prevalApp}
@@ -36,7 +35,7 @@ To further understand the influence of dependencies, we then selected the applic
 With the introduction of Go \checkNum{1.13}, \textit{go modules}\footnote{\url{https://blog.golang.org/using-go-modules}} are the official way to include dependencies.
 Unfortunately, \withoutModules{} of the projects did not yet support Go modules.
 Thus, we excluded them from our set.
-Furthermore, \notCompiled{} projects that did not compile were removed.
+Furthermore, \notCompiled{} projects that did not compile were also removed.
 As a result, we ended up with \projsAnalyzed{} top-rated Go projects. % collected from GitHub.
 These have between 72,988 and 3,075 stars, with an average of 7,860. % and median of 5,345. %, thus, this evaluation focuses on very popular projects.
 %and save all findings into CSV files.
@@ -46,11 +45,12 @@ These have between 72,988 and 3,075 stars, with an average of 7,860. % and media
 %% ---------------------------------------------------
 
 \subsection{Unsafe Usages in Projects and Dependencies}
+\label{sec:eval:unsafewild}
 
 We used the Go tool chain to identify the root module of each project. 
 This is the module defined by the top-level \textit{go.mod} file in the project.
 Then we enumerated the dependencies of the project, and build the dependency tree.
-For each package, we use \toolUsage{} to generate CSV reports of the found \unsafe{} usages.
+For each package, we used \toolUsage{} to generate CSV reports of the found \unsafe{} usages.
 Through these analyses we answer the research questions of how many projects use \unsafe{} either in their own code or dependencies (\ref{rq:prevalApp}), and how deep in the dependency tree are the most \unsafe{} code usages (\ref{rq:depsDepth}). 
 By selecting only results from the project root modules, we can easily find out how many applications contain a first-hand use of \unsafe{} code.
 Our data shows that \checkNum{131} (\checkNum{38.19\%}) projects have at least one \unsafe{} usage within the project code itself.
@@ -85,8 +85,9 @@ Most imported packages containing \unsafe{} usages are found around a depth of \
 %% ---------------------------------------------------
 
 \subsection{Types and Purpose of Unsafe in Practice}
+\label{sec:eval:labeledData}
 
-This section answers \ref{rq:distTypes}) and \ref{rq:purpose}.
+This section answers \ref{rq:distTypes} and \ref{rq:purpose}.
 %This section answers the research questions which \unsafe{} keywords are used most (\ref{rq:distTypes}), as well as which \unsafe{} operations are used in practice for what purpose (\ref{rq:purpose}).
 %
 Figure~\ref{fig:unsafe-tokens-distribution} shows the distribution of the different \unsafe{} types in our data set.
@@ -115,7 +116,7 @@ The results of this process are shown in Table~\ref{tbl:dataset-classes}.
 \input{gfx/tables/dataset-labels}
 
 In the following, we outline the identified usage type classes describing what is being done in code.
-The most prevalent are cast operations from arbitrary types to other structs, basic Go types such as integers, slice/string headers, byte slices, or raw \textit{unsafe.Pointer} values. 
+The most prevalent are \textit{cast} operations from arbitrary types to other structs, basic Go types such as integers, slice/string headers, byte slices, or raw \textit{unsafe.Pointer} values. 
 %The most prevalent are \textit{cast-struct}, \textit{cast-basic}, \textit{cast-header}, \textit{cast-bytes}, and \textit{cast-pointer}, which are all cast operations from arbitrary types to other arbitrary structs, basic Go types such as integers, slice or string headers, byte slices, or raw \textit{unsafe.Pointer} values.
 The \textit{memory-access} class is applied where \textit{unsafe.Pointer} values are dereferenced, used to manipulate corresponding memory or for comparison with another address.
 \textit{Pointer-arithmetic} denotes usages of \unsafe{} to do some form of arithmetic manipulation of addresses, such as advancing an array.
@@ -126,7 +127,7 @@ Thus, the need to use \unsafe{} is actually located elsewhere.
 As the name suggests, \textit{unused} is a class of occurrences that are not actually used in the analyzed code, e.g. dead code or unused parameters.
 
 Our identified purpose classes, providing hints on why \unsafe{} is used, are described in the following.
-\textit{Efficiency} includes cases where \unsafe{} is used to improve time or space efficiency.
+\textit{Efficiency} includes cases where \unsafe{} is used only for the aim to improve time or space efficiency of the code.
 The \textit{serialization} class contains (un)marshalling and (de)serialization operations such as in-place casts from complex types to bytes.
 \textit{Generics} applies when \unsafe{} is used to build functionality that would otherwise be solved with generics if they were available in Go.
 Samples in the \textit{avoid garbage collection} class are used to tell the Go compiler to not free a value while it is used, e.g., by a function written in assembly.
@@ -141,7 +142,7 @@ Again, \textit{unused} is a class of unused occurrences.
 %Among the \checkNum{1,400} labeled snippets, \checkNum{683} are located in automatically generated code.
 %It might be safe to assume that generated code is less dangerous, however, as bugs in the code generator can have very serious effects of scale, we included them in the study nonetheless.
 
-Improving the efficiency of Go code is the most prevalent motivation to use \unsafe{} in the wild covering \checkNum{58\%} in application code, whereas it is only used for this purpose in \checkNum{5\%} of the cases in std. 
+Using \unsafe{} for the sake of efficiency is the most prevalent motivation to use \unsafe{} in the wild covering \checkNum{58\%} in application code, whereas it is only used for this purpose in \checkNum{5\%} of the cases in std. 
 From these, \checkNum{97\%} resp. \checkNum{80\%} are achieved by casting different types. 
 The second biggest reason to use \unsafe{} in app is to perform some form of (de)serialization, accounting for \checkNum{28\%}.
 %Interestingly, we observe efficiency improvements for \checkNum{4\%} and \checkNum{58\%} of the usages for the standard library and the remaining libraries, respectively.
@@ -168,7 +169,7 @@ In the Go standard library, \checkNum{every third} use of \unsafe{} is to avoid 
 \label{sec:discussion}
 Looking at the study results, we see that \unsafe{} is used consistently and wide-spread in the most popular open-source Go projects.
 One might argue that the patterns found by \toolUsage{} are only minor annoyances, not severe or would require a manual case-to-case inspection. 
-The exploitability of several of these patterns was discussed in Section~\ref{sec:appr} with a link to proof-of-concept exploits that we developed, clearly showing that it is indeed possible to use the memory corruptions to one's advantage.
+The exploitability of several of these patterns was discussed in Section~\ref{sec:appr} with a link to proof-of-concept exploit code that we developed, clearly showing that it is indeed possible to use the memory corruptions to one's advantage.
 However, not all \unsafe{} usages contain a vulnerability. 
 As already discussed, we implemented more specific checks for some of our patterns known to be problematic in \toolSA{}.
 The application of \toolSA{} to our data set revealed more than \numberBugsFixed{} bugs in different projects.
