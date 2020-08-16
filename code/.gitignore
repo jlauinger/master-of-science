@@ -11,6 +11,8 @@ data-survey/data/ast/ast_findings*
 data-survey/data/ast/functions*
 data-survey/data/ast/statements*
 data-survey/data/figures/
+data-survey/data/geiger/errors*
+data-survey/data/geiger/geiger_findings*
 backup-data/
 dev-data/
 dev-copy/
