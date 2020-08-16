@@ -1,4 +1,4 @@
-package eval2
+package geiger
 
 import (
 	"bytes"

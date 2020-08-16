@@ -1,4 +1,4 @@
-package eval2
+package geiger
 
 import (
 	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
