@@ -5,7 +5,7 @@ import (
 	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/geiger"
 )
 
-var Eval2Cmd = &cobra.Command{
+var GeigerCmd = &cobra.Command{
 	Use:   "geiger",
 	Short: "run evaluation with go-geiger implementation",
 	Long:  ``,
@@ -15,5 +15,5 @@ var Eval2Cmd = &cobra.Command{
 }
 
 func init() {
-	analyzeCmd.AddCommand(Eval2Cmd)
+	analyzeCmd.AddCommand(GeigerCmd)
 }
