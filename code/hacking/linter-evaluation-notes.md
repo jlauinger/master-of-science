@@ -68,6 +68,8 @@ finds none of the patterns found by go-safer.
 
 Plan:
 
- - [ ] ???
- - [ ] Profit
+ - [ ] Identify data set instances with `cast-header` label
+ - [ ] Run go-safer on all of those files
+ - [ ] See if there are false negatives or false positives
+ - [ ] Probably conclude that there is 100% recall and precision
  
