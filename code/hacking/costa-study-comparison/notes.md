@@ -60,6 +60,6 @@ And these differences:
     by different filtering of main project packages. 
  4. Compare fraction of projects transitively using unsafe. **Impossible**, because Costa filtered everything so that
     only the root projects are contained in the data
- 5. Compare the manual labeling. *Note*: could be impossible because Costa labeled files, not lines? Also the labeled
-    subset will probably overlap only marginally?
+ 5. Compare the manual labeling. **Results**: comparison is only possible for 20 instances. Many even lack labels on
+    Costa side. For the four actual matches, the labeling is perfectly the same. See the other document for details.
  6. Costa data set contains about 7500 Vet errors "possible misuse of unsafe pointer", did I find those?
