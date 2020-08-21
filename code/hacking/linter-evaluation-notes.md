@@ -72,4 +72,5 @@ Plan:
  - [ ] Run go-safer on all of those files
  - [ ] See if there are false negatives or false positives
  - [ ] Probably conclude that there is 100% recall and precision
+ - [ ] Compare go vet and go-safer findings overlap 
  
