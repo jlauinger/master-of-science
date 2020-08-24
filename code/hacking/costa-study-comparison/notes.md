@@ -61,7 +61,8 @@ And these differences:
  4. Compare fraction of projects transitively using unsafe. **Impossible**, because Costa filtered everything so that
     only the root projects are contained in the data
  5. Compare the manual labeling. **Results**: comparison is only possible for 20 instances. Many even lack labels on
-    Costa side. For the four actual matches, the labeling is perfectly the same. See the other document for details.
+    Costa side. Also Costa labels files, not lines. For the four actual matches, the labeling is perfectly the same. 
+    See the other document for details.
  6. Costa data set contains about 7500 Vet errors "possible misuse of unsafe pointer", did I find those? **Results**:
     yes, I found about 60k of those Vet errors. It is only about 200 after deduplication, but Costa would also need
     deduplication and also the data sets do not overlap that much anyways.

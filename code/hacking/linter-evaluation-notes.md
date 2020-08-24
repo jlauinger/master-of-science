@@ -73,4 +73,7 @@ Plan:
  - [ ] See if there are false negatives or false positives
  - [ ] Probably conclude that there is 100% recall and precision
  - [ ] Compare go vet and go-safer findings overlap 
+ - [ ] Manually go through some projects und look through slice header cast security, then run go-safer und see if there
+       are false positive / false negatives. Idea: two projects each with many / medium / few unsafe usages / project
+       size
  
