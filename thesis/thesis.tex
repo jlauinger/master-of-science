@@ -8,7 +8,7 @@
     accentcolor=9c,
     custommargins=false, % true ist default
     marginpar=false,
-    %BCOR=5mm, % Bindekorrektur, falls notwendig
+    %BCOR=8mm, % Bindekorrektur, falls notwendig
     parskip=half-,
     fontsize=11pt,
     logofile=assets/images/tuda_logo,
@@ -42,22 +42,18 @@
 
 %% content chapters
 \include{chapters/01-introduction}
-\include{chapters/02-background-unsafe-code}
-\include{chapters/03-background-code-dependencies}
-\include{chapters/04-related-work}
-\include{chapters/05-geiger-tool}
-\include{chapters/06-survey-large-scale}
-\include{chapters/07-survey-small-scale}
-\include{chapters/08-code-vulnerabilities}
-\include{chapters/09-linter-tool}
-\include{chapters/10-conclusions}
+\include{chapters/02-background}
+\include{chapters/03-unsafe-security-problems}
+\include{chapters/04-go-geiger}
+\include{chapters/05-go-safer}
+\include{chapters/06-related-work}
+\include{chapters/07-discussion}
+\include{chapters/08-conclusion}
 
 %% appendix chapters
 \appendix
-\include{appendix/A-blog}
-\include{appendix/B-projects}
-\include{appendix/C-data-structure}
-\include{appendix/D-small-study-sampled-packages}
+\include{appendix/A-studied-projects}
+\include{appendix/B-evaluation-data-set-structure}
 
 %% list of acronyms
 \clearpage\phantomsection

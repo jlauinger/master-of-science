@@ -1,0 +1,39 @@
+\chapter{\textit{go-safer}: Detecting Unsafe Misuses}\label{ch:go-safer}
+
+Another major contribution of this thesis is the developement of a Go Vet-style, open-source linter tool. It can
+identify some of the unsafe code patterns.
+
+\input{assets/figures/study-methodology.tex}
+
+
+\section{Design}
+
+Top-level approach
+Usage example
+Publication
+
+\input{assets/figures/go-safer-architecture.tex}
+
+
+\section{Implementation}
+
+Go vet analysis pass infrastructure
+Low-level details
+Verification with tests
+
+
+\section{Evaluation}
+
+\subsection{Labeled Data Set}
+
+Precision, Recall, calculated using manually labeled usages data set
+
+
+\subsection{Case Studies}
+
+Manual inspection of some projects, used to calculate precision / recall of go-safer
+
+
+\subsection{Comparison with Existing Tools}
+
+Go vet / golint

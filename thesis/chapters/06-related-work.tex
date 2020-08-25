@@ -1,0 +1,473 @@
+\chapter{Related Work}\label{ch:related-work}
+
+\section{Concurrent Study on Unsafe Go}
+
+Costa et al Studie \cite{costa2020}
+Comparison of projects in data set, including dependencies
+Different numbers worked out, difference due to different project data set and counting 1st/3rd party differently
+Manual Labeling Comparison: Costa not complete, those that overlap match
+Vet errors seem to match
+
+
+\section{Unsafe APIs Across Languages}
+
+Rust \cite{evans2020, qin2020}, Java \cite{huang2019, mastrangelo2015, wickert2019}, WebAssembly, C++ \cite{alnaeli2017, larochelle2001}
+
+Other empirical studies \cite{difranco2017, lu2013, chou2001, leesatapornwonga2017, lauinger2017, jin2012, gunawi2014, gu2015}
+
+
+\section{Other Go Vulnerabilities}
+
+Concurrency, channels, escape analysis \cite{wang2020, sibiryov2017, tu2019, giunti2020, lange2017, zhou2017, dilley2019, hill2002, hannan1998, choi1999}
+
+
+\section{Static Code Analysis}
+
+cryptolint, CogniCryptSAST, wickert19, DLint \cite{egele2013, kruger2018, gong2015, smith2020, gabet2020}
+
+
+\section{Security Issues in Dependencies}
+
+counting, updating, introducing vulnerabilities \cite{xia2014, mirhosseini2017, kula2017, watanabe2017, pashchenko2018}
+
+
+%%% -----------------------------------------------------------------------------
+%
+%\chapter{Related work}\label{ch:related-work}
+%
+%Put the work in context with current literature.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\section{Dependency analysis in Rust with Cargo Geiger}\label{sec:cargo-geiger}
+%
+%Cargo Geiger is the template for the Go dependency check tool.
+%It does the same thing for the Rust programming language.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\section{OWASP Dependency Checker}\label{sec:owasp-dependency-checker}
+%
+%Explain OWASP security project.
+%
+%Show OWASP Dependency Checker program, show experimental Go extension for it.
+%This tool does no unsafe code analysis though, it checks for known vulnerabilities of the dependencies in the
+%OWASP database.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\section{Work in progress: paper summaries}\label{sec:paper-summaries}
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Understanding Memory and Thread Safety Practices and Issues in Real-World Rust Programs}
+%\label{subsec:understanding-memory-and-thread-safety-practices-and-issues-in-real-world-rust-programs}
+%
+%Qin et al.~\cite{qin2020} contribute the first to their knowledge empirical study of bugs related to unsafe code blocks
+%in Rust.
+%They mention other empirical studies~\cite{difranco2017, lu2013, chou2001, leesatapornwongsa2016, jin2012, gunawi2014, gu2015}
+%none of which seem to be related to Rust or Go.
+%The authors analyze 5 projects, 5 libraries and 2 databases.
+%They randomly sample 850 unsafe usages out of those.
+%They analyze the usages, categorize them into classes, analyze the impact of the bugs and develop two new static code
+%checking tools.
+%In essence, this is exactly my thesis but done for Rust, and it's probably an excellent example of how to structure a
+%paper on this.
+%
+%A main difference to this thesis is that the authors not only look into the current revision code, but explicitly look
+%through the Git history, filtering for commits that remove unsafe usages.
+%They further go through reported bugs on the software under analysis and look into the code how those bugs were fixed.
+%Bug data is retrieved from CVE and RustSec.
+%This is something I should probably do as well!
+%
+%Within the 850 unsafe usages, the authors analyze 70 memory-safety issues and 100 concurrency bugs.
+%It sounds like they found all of those, but this high number is because they look at real-world bugs that were previously
+%reported.
+%Using their tools however, they also find about 5 to 10 new bugs that they disclosed to the developers.
+%
+%Similar to my thesis, they explain the purpose of safe code and reasons why unsafe code might be needed.
+%They obviously focus on Rust, but some of the points will apply to Go as well.
+%
+%The reasons to use unsafe code are clustered into these groups: Reuse existing code, convert C-array to Rust slice,
+%improve performance.
+%The authors find that often the use of unsafe code has good or unavoidable reasons.
+%Looking at the commit diffs, they find that unsafe code gets removed to fix memory safety, improve code structure,
+%improve thread safety, fix bugs, or because it was unnecessary in the first place.
+%
+%The authors also look into the Rust standard library, which has similar uses of unsafe as the Go standard library.
+%Unsafe code often requires some preconditions on lifetime or input data to hold, and this can be achieved by encapsulating
+%it into an interior unsafe function that checks these conditions and might skip the unsafe code if they do not hold.
+%
+%The areas of problems identified are buffer overflows, null-pointer dereferencing, reading uninitialized memory, invalid
+%free, use after free, and double free.
+%Fixing strategies were conditionally skipping the unsafe code, adjusting variable lifetime, or changing unsafe operands.
+%
+%Rust also has thread safety problems, and problems the authors identified can be grouped into blocking and non-blocking.
+%Blocking bugs are caused due to incorrect scoping of auto-releasing mutexes.
+%Channels might also block.
+%Non-blocking bugs include data races and stem from incorrect scoping of shared data or confused ownership.
+%
+%If a function's safety depends on how it is used, it might be better put into an encapsulation.
+%
+%The authors suggest development of IDE extension visualizing scopes and lifetimes, development of Rust-tailored static
+%analysis tools (which they already contributed two), and dynamic analysis tools.
+%Due to the study language developers can also learn from design issues concerning the Rust language itself, because it
+%shows how developers adapt to new language concepts over time.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Is Rust Used Safely by Software Developers?}
+%\label{subsec:is-rust-used-safely-by-software-developers?}
+%
+%Evens et al.~\cite{evans2020} present an empirical study of unsafe usages in Rust crates.
+%They only include statistical facts such as total number of unsage usages.
+%This is different from Qin et al.~\cite{qin2020} in that they did not do an in-depth analysis of potential bugs.
+%Still they got accepted at ICSE!
+%
+%They found that most unsafe usage is to call other unsafe Rust code, while calling C code is less of a concern.
+%About a third of libraries contain unsafe code and more than half of them transitively do through dependencies.
+%The usage count in crates did not change much over the course of 10 months work.
+%More popular libraries are more likely to contain more unsafe code because they encapsulate more popular C libraries.
+%
+%The authors conducted a N=20 survey on Reddit, revealing that 10\% of developers used unsafe to make the code compile.
+%Other popular reasons included performance optimizations, advanced data structures, and unsafe code offering a slicker
+%and "more elegant" interface.
+%Most developers employed more testing, static and dynamic analysis, and fuzzing when using unsafe code, but many also
+%said they would "look carefully on the code".
+%I'd suspect this is not an effective approach.
+%
+%The authors developed an augmented Rust CFG and algorithm to detect potentially unsafe functions in all Rust crates that
+%would compile.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Escape from Escape Analysis of Golang}
+%\label{subsec:escape-from-escape-analysis-of-golang}
+%
+%Wang et al.~\cite{wang2020} propose an approach to make heap memory usage in Go more effective by improving the escape
+%analysis algorithm.
+%The current algorithm is very conservative.
+%In particular, the authors try improve a specific type of escape analysis: passing a pointer into a function call will
+%make that object escape.
+%They contribute an optimizer that always replaces such calls by an intermediate cast of the pointer into a uintptr
+%variable and then back to a pointer, both through the use of unsafe.Pointer.
+%This breaks the escape analysis chain and will make Go escape only the new pointer to the heap, not the entire previous
+%data structure.
+%After the identification of such snippets in the code comes a verification stage that will check whether the function
+%call is synchronous.
+%In that case, the underlying variable cannot be freed before the end of the function, and the optimization is correct.
+%If the call is asynchronous, the optimizer checks if the variable is used in any other Goroutine, in which case the
+%optimization will not be done.
+%Otherwise it is deemed valid.
+%
+%The authors mention escape analysis in other language~\cite{hill2002, hannan1998, choi1999}.
+%
+%This is an interesting related work because the tool to break escape analysis, the cast to uintptr and back, is exactly
+%the problem in the common unsafe slice cast that I describe in the other sections.
+%
+%The authors evaluate performance and correctness on 10 open-source and 10 industrial projects.
+%Their data set includes kubernetes.
+%
+%The paper includes advertisement for a company and curiously uses Go 1.9 although the paper is to be published at ICSE
+%2020.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Why Can’t Johnny Fix Vulnerabilities: A Usability Evaluation of Static Analysis Tools for Security}
+%\label{subsec:why-can’t-johnny-fix-vulnerabilities:-a-usability-evaluation-of-static-analysis-tools-for-security}
+%
+%Smith et al.~\cite{smith2020} conduct a developer survey on usability problems with static code analysis tools.
+%They contribute insights into why developers can often not get the most beneficial outcome from such tools.
+%The mainly analyze Java analysis tools such as Find Bugs, CheckStyle and PMD\@.
+%
+%The problem areas found are code navigation issues, missing or buried information, interface scalability for large
+%projects (such as a huge control flow graph), inaccuracy of analysis, code disconnect (meaning the proposed fix to a
+%problem did not resemble the previous problem anymore), and workflow continuity (meaning the developers had to
+%constantly switch between the tool report and the code editor).
+%
+%The authors propose as improvements a clear communication of what and how to fix, alerts that are located within the
+%editable source code, contextualized and meaningful notifications, and a good integration into existing development
+%workflows such as CI.
+%
+%Minor relevance, probably cite in the chapter about the linting tools.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Source Code Vulnerabilities in IoT Software Systems}
+%\label{subsec:source-code-vulnerabilities-in-iot-software-systems}
+%
+%Alnaeli et al.~\cite{alnaeli2017} contribute a study of unsafe C code patterns, that is well-known unsafe
+%functions such as strcpy, in IoT software.
+%They count how many unsafe and how many safe functions they find, and compare them with each other to discover trends.
+%
+%Similar to my work, they search for unsafe code patterns in open-source code.
+%Similar to my work, they also look at changes over time.
+%In contrast to my work, they analyze C code instead of Go code.
+%
+%The authors find that the systems under review have neither introduced more nor removed some of the unsafe functions
+%over time.
+%They conclude that developers might be unaware of the presence of the functions, their implications, or both.
+%They suggest better developer education on security-related consequences of these functions.
+%
+%Minor relevance, cite in survey chapter.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Statically Detecting Likely Buffer Overflow Vulnerabilities}
+%\label{subsec:statically-detecting-likely-buffer-overflow-vulnerabilities}
+%
+%In their (quite old) 2001 paper, Larochelle and David Evans~\cite{larochelle2001} write about static code analysis to
+%detect likely buffer overflow vulnerabilities in C code.
+%They cite a paper assuming that buffer overflows would still be relevant in 20 years, that would be 2019.
+%That would be true but I'll have to see if it makes sense to also cite this and add a comment.
+%
+%Similar to my work, this is using static analysis to find problems in code.
+%But contrary to my work, it's for C code, not Go.
+%They also talk about simple overflow exploitation techniques, in the context of C\@.
+%I can and probably should do the same, with a focus on Go.
+%
+%The authors exploit semantic comments to enable local checking of interprocedural properties, they focus on lightweight
+%analysis that does not add much overhead, and they use heuristics.
+%They conduct their study using the LClint annotation tool also developed by Evans.
+%They note that annotating the standard library would bring a lot of security even without annotating actual programs,
+%because most vulnerabilities come from using insecure or improperly used functions.
+%This I can use too to argue for better auditing of standard libraries and developer education as well.
+%
+%The annotations available include data constraints, such as x > y, and control flow constraints such as branch-specific
+%annotations.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Vulnerable Open Source Dependencies: Counting Those That Matter}
+%\label{subsec:vulnerable-open-source-dependencies:-counting-those-that-matter}
+%
+%Pashchenko et al.~\cite{pashchenko2018} in a quite recent study propose a way of counting relevant dependencies in a
+%project and identifying whether the dependencies are vulnerable.
+%The study is done for Java, and specifically for Maven dependency management.
+%The authors note that failure of identifying relevant dependencies might lead to bad allocation of development resources.
+%
+%A central point is dependency scoping (production versus testing) which many studies did not incorporate in the past.
+%If a vulnerability is found in a dependency only relevant for testing, it might not be worth to put resources onto its
+%mitigation.
+%This is extremely relevant for me!
+%As of now, I also do not distinguish between testing and production library.
+%This is probably not even possible with the Go dependency management system.
+%A key insight for distiguishing this related work from my work would be to highlight the relative instability of the
+%incredibly new Golang dependency system compared to the very seasoned Maven system.
+%The authors find that around 20 \% of dependencies are for testing only (not deployed).
+%
+%Furthermore, it is very important to transitively look at dependencies of dependencies because they can just as well
+%introduce problems into the main project.
+%This is something my study already perfectly does.
+%
+%The authors contribute a method of determining whether a dependency is actively maintained or halted.
+%It is done by looking at the release cycle with an exponential smoothing model.
+%There are only a few vulnerabilities in halted libraries that they found, but those are especially important because
+%mitigation cannot be done by a simple upgrade.
+%
+%The authors introduce the important concept of reliability for bug fixing.
+%This is, the developers are directly reliable for fixing their main package and own dependencies, and they need to
+%make sure their direct dependencies are up to date but cannot fix them.
+%The indirect, or transitive, depencies are out of responsiblity for the developers since they cannot even be upgraded
+%manually.
+%A major finding is that grouping the dependencies of a project into these reliability groups gives a better picture into
+%how much the developers can actually do, and the authors find that for more than 80 \% of the problems the developers
+%can mitigate themselves through an upgrade or fixing their own code.
+%
+%Identification of vulnerabilities is done by matching code patterns to vulnerability databases both in a manual and an
+%automated fashion.
+%The developers contribute a tool that can provide annotations to the code as to which vulnerablity it might belong.
+%
+%A very relevant insight for me: the authors first did an incorrect dependency popularity measurement.
+%They counted the times the dependency gets imported, possibly distorting the popularity if a project is decomposed into
+%many small own dependencies~\cite{sajnani2014}.
+%A better way is to count the projects that include the dependency.
+%I already use the second approach in Table~\ref{tbl:pull-requests} for the supplied pull requests for fixes.
+%However, I need to make sure in the plot generation that I use the same metrics.
+%
+%The authors compare to other ecosystems such as Pip and NPM, but not Go.
+%For NPM, they cite a relevant study on Javascript dependency vulnerabilites~\cite{lauinger2017}, which showed that
+%transitive project dependencies are more vulnerable than direct dependencies.
+%They reason that this might be the case because developers are less aware of the existence of those dependencies, and
+%have less control about them.
+%The authors highlight that this is a finding specific to Javascript because NPM allows several versions of the same
+%library to be used in the same project, while Maven does not.
+%I need to find out if this is possible with Go modules too, I think it is not.
+%I think Go behaves like Maven.
+%However, I need to highlight that in my data survey there are of course different versions of the same library, and this
+%is even necessary to analyze unsafe usage over time.
+%
+%Within threats to validity, the authors note that the selection of libraries was potentially biased, that the
+%vulnerability database may not cover all vulnerabilites, the study only used Maven, and that project IDs were approximated.
+%
+%This is an extremely valuable related work that I definitely need to cite both in the background on Go dependencies
+%and the survey as well.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Do developers update their library dependencies?}
+%\label{subsec:do-developers-update-their-library-dependencies?}
+%
+%Kula et al.~\cite{kula2017} conduct a study on Github projects and developer survey on how dependencies are updated.
+%They find that developers often think library updates are extra work and deprioritize it.
+%The study is done on Maven and Java and finds that libraries are rarely updated.
+%Specifically, security updates are included less often because developers were unaware of them.
+%Upon getting the news, developers promptly updated away from vulnerable dependencies.
+%
+%Available updates are traditionally announced on the homepage of the library, through change logs and semantic versioning.
+%Other possibilities include security advisories.
+%
+%When selecting vulnerabilities for analyzing security advisories, the authors only use denial of service and man in the
+%middle vulnerabilities.
+%This means that the survey is both rather shallow and biased towards web projects.
+%
+%This work is minor to medium relevant.
+%It's to include in a list of examples to cite, but on its own it is less effective as a related work than the others
+%I read.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Can automated pull requests encourage software developers to upgrade out-of-date dependencies?}
+%\label{subsec:can-automated-pull-requests-encourage-software-developers-to-upgrade-out-of-date-dependencies?}
+%
+%Mirhosseini et al.~\cite{mirhosseini2017} answer the research question whether automated pull requests such as greenkeeper
+%or pyup can encourage developers to update dependencies.
+%They find that badges provide a good incentive to developers to keep them green by updating.
+%Automated pull requests offer an actionable solution to update, but notification fatigue can work against update
+%discipline.
+%That is, maintaining many open source projects can lead to a lot of pull request notifications, especially if there is
+%one opened for every single dependency.
+%
+%The authors analyze about 7,400 Github projects, grouped into badges, automated pull requests, and a baseline.
+%Automated pull requests lead to 1.6 times, badges to 1.4 higher probability to update.
+%Pull requests also mean faster updates.
+%On purpose, they use a broad sample of Github projects instead of the most popular ones.
+%This is something I should talk about too in my work!
+%In summary, both versions of update helpers had a positive impact, with pull requests being in the lead.
+%
+%A surprising finding was that only about 30 \% of automated PRs was merged, compared to about 80 \% of general PRs.
+%Some merged update PRs were also downgraded again after some days, hinting incompatibilities introduced.
+%Using CI correlated with marginally higher merge rate.
+%
+%They also conduct a developer survey.
+%Developers had mixed feelings about badges versus automated pull requests.
+%They suggested to use batched updates, resulting in fewer pull requests and less fatigue.
+%
+%The authors identified through survey different updating strategies: quick, scheduled, reactive.
+%A developer said, reasoned through possible new errors in libraries and minor benefits, that in the reality of commercial
+%software engineering, staying on bleeding edge library versions usually costs more than it benefits, and the better
+%approach is to update infrequently.
+%My work should act on this and argue that this is true for feature releases but very bad for security releases.
+%Maybe one could do something with semver here.
+%
+%The survey also showed that a single bad update of one library can very strongly cause developers to be reluctant from
+%updating in the future.
+%From this, we can argue for high responsible in library releasing to not destroy the necessary environment for timely
+%ships of security fixes.
+%
+%The authors further cite another work stating that vulnerabilities are often contained in dependencies~\cite{xia2014}.
+%CI is not always a guarantee that an update does not break the software.
+%Badges can counteract fatigue, and more importantly they rely on a different mechanism: social pressure.
+%
+%This has very relevance for me because of the survey on update preferences.
+%It is interesting to cite this within the argument that libraries must be updated in order to remove already fixed
+%vulnerabilities from dependent projects.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Understanding the Origins of Mobile App Vulnerabilities: A Large-scale Measurement Study of Free and Paid Apps}
+%\label{subsec:understanding-the-origins-of-mobile-app-vulnerabilities:-a-large-scale-measurement-study-of-free-and-paid-apps}
+%
+%Watanabe et al.~\cite{watanabe2017} conduct a study on the origins of mobile vulnerabilities.
+%They inspect both free and paid Android apps.
+%They find that 70 \% of bugs come from dependencies, 50 \% from third-party dependencies.
+%More expensive and/or popular apps tended to have more vulnerabilities.
+%
+%An interesting finding for me: 50 \% of vulnerabilities were found in unreachable code.
+%As I also already found one manual vulnerability that was unreachable, it might be interesting to argue that there is a
+%very feasible risk that the studies are distorted due to failure to identify dead code.
+%
+%The authors claim that a limitation of static analysis is that obfuscated, runtime-dynamic code might introduce
+%vulnerabilities that the analysis missed.
+%This might be true, but such code is also to be treated as dangerous in my opinion.
+%
+%In contrast to my work, this is based on Android and Java at best, not Go.
+%
+%This is only minor relevant as another study.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Understanding Real-World Concurrency Bugs in Go}
+%\label{subsec:understanding-real-world-concurrency-bugs-in-go}
+%
+%Tu et al.~\cite{tu2019} present a very recent (2019) study on Go concurrency bugs.
+%They summarize how Go was designed to be an especially safe and easy-to-use language for concurrency.
+%Every Go major release has improved on concurrency.
+%Go offers both shared memory (through use of Mutex, RWMutex, Cond, atomic, Once, WaitGroup) and message passing(through
+%chan).
+%Channels can be buffered and unbuffered.
+%New additions include the select statement, context, and Pipe.
+%
+%The authors analyzed six open-source Go applications, and inspected about 170 bugs.
+%They used commit logs and keywords to find concurrency-related bugs and fixes.
+%Then they grouped them on two dimensions into blocking / non-blocking, and message passing / shared memory.
+%They answered the research question of how often goroutines get used in the real world, statically and dynamically.
+%
+%Similar to my work, their static analysis just involved finding instances of the go keyword.
+%Dynamic analysis is more complicated though.
+%They found that goroutines are used very often in the sample programs.
+%Similar to my work, they compared the frequency of the two methods of concurrency synchronization.
+%I can do a similar argument when comparing different keywords of unsafe code.
+%The authors find that usage trends were stable over time.
+%
+%The authors analyzed commit messages and filtered for the following keywords: race, deadlock, synchronization,
+%concurrency, lock, mutex, atomic, compete, context, once, goroutine leak.
+%They randomly sampled, filtered for actual bug fixings, and then manually analzed and grouped them.
+%This is something I should do as well.
+%Bugs were split about 50/50 between message passing and shared memory.
+%
+%The conclusion is that new Go mechanisms that should make concurrency easier and safer can actually introduce new bugs.
+%
+%This is an extremely relevant related work.
+%Cite this both in related work, background, and survey.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{A Dataset of Parametric Cryptographic Misuses}
+%\label{subsec:a-dataset-of-parametric-cryptographic-misuses}
+%
+%Wickert et al.~\cite{wickert2019} present a labeled data set of 201 crypto API misuses.
+%They focus on Java crypto API JCA parametric misuses, that is the usage of insecure configuration and/or wrong
+%parameters to the crypto API.
+%They initially downloaded more than 1300 Java projects from Github, but only about 130 of them contained the crypto
+%APIs, 53 of them could be built, and 39 of them could be analyzed successfully by a static analysis tool.
+%Still, in the remaining 39 projects plus some manual investigation they found 201 misuses in 44 projects.
+%
+%The authors sorted the misuses by two dimensions: API used (e.g. Cipher, MessageDigest, \ldots) and misuse category (e.g.
+%transformation algorithm, incorrect randomization, key, initialization vector, or iteration count).
+%
+%The authors included their findings into MUBench and performed a benchmark on precision and recall on the FindBugs tool.
+%Furthermore, they iterate on how their data set can be used as a foundation for further research, e.g. benchmarking new
+%static analysis tools or training classifiers.
+%
+%Similar to my work, they mined projects from Github and looked for security problems.
+%In contrast to my work, they focused on Java and crypto APIs, not Go and unsafe pointers.
+%They state that there exists possible bias in project selection, and that approaches that are secure today might become
+%insecure in the future.
+%
+%Medium relevant, cite in related work and both survey chapters I think.
