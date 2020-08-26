@@ -14,6 +14,6 @@ This set contains the raw project code and dependencies data that we used for an
 
 ## Further information
 
-Further documentation and our analysis scripts can be obtained from our GitHub repository at
+Further documentation as well as our analysis scripts can be obtained from our GitHub repository at
 [https://github.com/stg-tud/unsafe_go_study_results](https://github.com/stg-tud/unsafe_go_study_results).
 
