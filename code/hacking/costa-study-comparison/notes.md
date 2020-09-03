@@ -91,6 +91,11 @@ downloaded in Costa, this matches the recorded difference.
 
 The changes add and remove (change) usages of unsafe exclusively for efficient in-place conversion between struct types.
 
+When running my tool at v.0.11.0-alpha.0, I get a difference of -4, which fits the suggestion by the diff reasonably
+well. I would have expected -6 here.
+
+Therefore, I can safely assume that the counts match for this project.
+
  
 **kubernetes/kubernetes**:
 
@@ -105,7 +110,15 @@ All of those unsafe additions are within generated code, so the difference might
 this code? No, this does not explain it, as it is actually exactly wrong. If Costa had ignored the generated code, then
 I should have seen an even bigger positive difference.
 
-TODO: why is this?
+When running my tool at v1.16.1, I get a difference of -370. This means that I am probably not counting some modules
+that are part of the repository but not the root module, in fact there are 26 `go.mod` files in the repository
+excluding the vendor directory.
+Then the difference gets smaller over time since the diff suggests there are unsafe usages being added. 
+
+Using grep, I can manually verify that I get 2065 matches (reasonably close to the 2058 reported by Costa) with plain
+search in the repository: `rg 'unsafe\.' -g '!vendor' -g '*.go' | wc -l`.
+The difference to my implementation here is that it double-counts code that is available for multiple architectures,
+while I don't.
 
 
 **golang/mobile**: 
@@ -117,7 +130,13 @@ Project description: Go on Mobile
 The diff between 6d0d39b (02.10.2019) and 4c31acba00 (28.05.2020) shows 2 additions and 1 deletion of `unsafe`, so this
 really doesn't explain the difference at all.
 
-TODO: why is this?
+When running my tool at 6d0d39b, I get a difference of -119 exactly as the diff would suggest.
+Additionally, there is only one `go.mod` file in the repository.
+
+Using grep, I can manually verify that I get 207 matches (reasonably close to the 211 reported by Costa) with plain
+search in the repository: `rg 'unsafe\.' -g '!vendor' -g '*.go' | wc -l`.
+The difference to my implementation here is that it double-counts code that is available for multiple architectures,
+while I don't.
 
 
 **TykTechnologies/tyk**: 
@@ -127,9 +146,14 @@ difference is +108.
 Project description: Tyk Open Source API Gateway written in Go
 
 The diff between v2.8.5 (01.10.2019) and ce0ee257b6 (28.05.2020) shows 4002 additions and 1757 deletions of unsafe. 
-In version v2.8.5, there isn't a `go.mod` file yet, instead there is a vendor directory inside the directory. 
+In version v2.8.5, there isn't a `go.mod` file yet, instead there is a vendor directory inside the directory.
 
-TODO: why is this?
+I cannot run my tool at v2.8.5 because of the missing `go.mod` file. 
+
+Running grep shows an unsafe count of 36, which is still different from the 79 reported by Costa.
+Therefore, I assume there are differences in vendoring here.
+
+TODO: refine?
 
 
 **elastic/beats**: 
@@ -141,7 +165,11 @@ Project description: Beats - Lightweight shippers for Elasticsearch & Logstash
 The diff between v7.4.0 (01.10.2019) and df6f2169c5 (28.05.2020) shows 3367 additions and 775 deletions of unsafe.
 In version v7.4.0, there isn't a `go.mod` file yet, instead there is a vendor directory inside the directory. 
 
-TODO: why is this?
+Using grep, excluding vendor and test files as well as comments, but counting all occurences even on the same line with
+`rg '^[^/]*unsafe\.' -g '!vendor' -g '*.go' -g '!*_test.go' | rg 'unsafe\.' -o | wc -l`, I can manually verify that
+the repository then contains 160 usages, which is reasonably close to the 164 reported by Costa. The difference to my
+number six months later is then due to different vendoring.
+
 
 
 **golang/tools**: 
@@ -153,7 +181,12 @@ Project description: Go Tools golang.org/x/tools
 The diff between c337991 (30.09.2019) and 6be401e3f7 (28.05.2020) shows 13 additions and 1 deletion of unsafe, therefore
 there is a difference of +12 unsafe usages.
 
-TODO: why is this?
+When running my tool at c337991, I see a difference of -77, which fits the suggestion by the diff reasonably well, I
+would have expected -81.
+
+Using grep, I can manually verify that at c337991, counting unsafe matches excluding those in comments etc. using 
+`rg '^[^/]*unsafe\.' -g '!vendor' -g '*.go' | wc -l`, there are 111 usages which is reasonably close to the 113 as
+reported by Costa. This is because this repository contains lots of architecture-duplicated code which I ignore.
 
 
 **peterq/pan-light**: 
@@ -165,7 +198,10 @@ Project description: 百度网盘不限速客户端, golang + qt5, 跨平台图�
 The diff between 482eb093f (31.08.2019) and 867eee7a92 (28.05.2020) shows no additions or deletions of unsafe.
 Additionally, there are no dependencies whatsoever.
 
-TODO: why is this?
+When running my tool at 482eb093f, I still see a difference of -64 as the diff also suggests.
+
+This repository contains 7 `go.mod` files excluding the demo directory, which means my count of 0 is explained by
+submodules in the repository which Costa counted.
 
 
 **cilium/cilium**: 
@@ -178,7 +214,12 @@ The diff between v1.6.2 (25.09.2019) and 9b0ae85b5f (28.05.2020) shows 2689 addi
 should see a difference of +204.
 In version v1.6.2, there isn't a `go.mod` file yet, instead there is a vendor directory inside the directory.
 
-TODO: why is this?
+I cannot run my tool at v1.6.2 because of the missing `go.mod` file.
+
+Using grep, excluding vendor and test files as well as comments, but counting all occurences even on the same line with
+`rg '^[^/]*unsafe\.' -g '!vendor' -g '*.go' -g '!*_test.go' | rg 'unsafe\.' -o | wc -l`, I can manually verify that
+the repository then contains 286 usages, which is reasonably close to the 290 reported by Costa. The difference to my
+number six months later is then due to different vendoring.
 
 
 **go-delve/delve**: 
@@ -190,7 +231,11 @@ Project description: Delve is a debugger for the Go programming language
 The diff between v1.3.0 (28.08.2019) and 4a9b3419d1 (28.05.2020) shows 56 additions and 35 deletions, therefore I
 should see a difference of +21.
 
-TODO: why is this?
+When running my tool at v1.3.0, I see a difference of -32. Following the diff, I should have seen -73 actually.
+
+Using grep, I can manually verify that the repository contains 70 usages with `rg '^[^/]*unsafe\.' -g '!vendor' -g '*.go' | wc -l`,
+which reasonably matches the 72 as reported by Costa. This is because the repository contains architecture-duplicated
+code.
 
 
 **ethereum/go-ethereum**: 
@@ -203,4 +248,7 @@ The diff between v1.9.5 (20.09.2019) and 389da6aa48 (28.05.2020) shows 1 additio
 should see a difference of -6857. This is clearly completely different from the actual evidence.
 In version v1.9.5, there isn't a `go.mod` file yet, instead there is a vendor directory inside the directory.
 
-TODO: why is this?
+I cannot run my tool at v1.9.5 because of the missing `go.mod` file.
+
+Using grep `rg '^[^/]*unsafe\.' -g '!vendor' -g '*.go' | wc -l`, I get 42 usages which exactly matches the number
+reported by Costa. The difference to my value six months later then is due to vendoring differences.
