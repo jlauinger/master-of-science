@@ -42,6 +42,9 @@ And these differences:
 
  - Costa data set contains a set of unsafe related issues and pull requests (about 280), which I did not collect
    
+Differences in project selection: within 6 months of time between data collection, the stars counts can change a lot!   
+I have no possibility to compare the star situation at Costa collect time.
+
    
 ## Replication approaches
 
@@ -66,3 +69,138 @@ And these differences:
  6. Costa data set contains about 7500 Vet errors "possible misuse of unsafe pointer", did I find those? **Results**:
     yes, I found about 60k of those Vet errors. It is only about 200 after deduplication, but Costa would also need
     deduplication and also the data sets do not overlap that much anyways.
+    
+    
+## Unsafe count differences evaluation
+
+There are 86 projects with a different unsafe count. 5 of those differ around 100 usages.
+
+Top 10 projects to compare, with an unsafe difference ranging between 49 and 234.
+
+Example compare: `grep -- '^+' v1.16.1...fb9e1946b0.diff | grep -v '^+++' | grep -Pno 'unsafe\.' | wc -l`
+
+**jetstack/cert-manager**: 
+
+difference is +234.
+
+Project description: Automatically provision and manage TLS certificates in Kubernetes
+
+The diff between v0.11.0-alpha.0 (27.09.2019) and 78ee463a98 (28.05.2020) shows 248 additions and 8 
+deletions of `unsafe`, this explains a difference of +240. Dependending on when exactly the code is
+downloaded in Costa, this matches the recorded difference.
+
+The changes add and remove (change) usages of unsafe exclusively for efficient in-place conversion between struct types.
+
+ 
+**kubernetes/kubernetes**:
+
+difference is -173.
+
+Project description: Production-Grade Container Scheduling and Management
+
+The diff between v1.16.1 (02.10.2019) and fb9e1946b0 (28.05.2020) shows 951 additions and 331 deletions of `unsafe`,
+meaning there would be a difference of +620.
+
+All of those unsafe additions are within generated code, so the difference might be caused by Costa et al ignoring
+this code? No, this does not explain it, as it is actually exactly wrong. If Costa had ignored the generated code, then
+I should have seen an even bigger positive difference.
+
+TODO: why is this?
+
+
+**golang/mobile**: 
+
+difference is -118.
+
+Project description: Go on Mobile
+
+The diff between 6d0d39b (02.10.2019) and 4c31acba00 (28.05.2020) shows 2 additions and 1 deletion of `unsafe`, so this
+really doesn't explain the difference at all.
+
+TODO: why is this?
+
+
+**TykTechnologies/tyk**: 
+
+difference is +108.
+
+Project description: Tyk Open Source API Gateway written in Go
+
+The diff between v2.8.5 (01.10.2019) and ce0ee257b6 (28.05.2020) shows 4002 additions and 1757 deletions of unsafe. 
+In version v2.8.5, there isn't a `go.mod` file yet, instead there is a vendor directory inside the directory. 
+
+TODO: why is this?
+
+
+**elastic/beats**: 
+
+difference is -94.
+
+Project description: Beats - Lightweight shippers for Elasticsearch & Logstash
+                     
+The diff between v7.4.0 (01.10.2019) and df6f2169c5 (28.05.2020) shows 3367 additions and 775 deletions of unsafe.
+In version v7.4.0, there isn't a `go.mod` file yet, instead there is a vendor directory inside the directory. 
+
+TODO: why is this?
+
+
+**golang/tools**: 
+
+difference is -69.
+
+Project description: Go Tools golang.org/x/tools
+
+The diff between c337991 (30.09.2019) and 6be401e3f7 (28.05.2020) shows 13 additions and 1 deletion of unsafe, therefore
+there is a difference of +12 unsafe usages.
+
+TODO: why is this?
+
+
+**peterq/pan-light**: 
+
+difference is -64.
+
+Project description: 百度网盘不限速客户端, golang + qt5, 跨平台图形界面
+
+The diff between 482eb093f (31.08.2019) and 867eee7a92 (28.05.2020) shows no additions or deletions of unsafe.
+Additionally, there are no dependencies whatsoever.
+
+TODO: why is this?
+
+
+**cilium/cilium**: 
+
+difference is +55.
+
+Project description: eBPF-based Networking, Security, and Observability
+
+The diff between v1.6.2 (25.09.2019) and 9b0ae85b5f (28.05.2020) shows 2689 additions and 2485 deletions, therefore I
+should see a difference of +204.
+In version v1.6.2, there isn't a `go.mod` file yet, instead there is a vendor directory inside the directory.
+
+TODO: why is this?
+
+
+**go-delve/delve**: 
+
+difference is -52.
+
+Project description: Delve is a debugger for the Go programming language
+
+The diff between v1.3.0 (28.08.2019) and 4a9b3419d1 (28.05.2020) shows 56 additions and 35 deletions, therefore I
+should see a difference of +21.
+
+TODO: why is this?
+
+
+**ethereum/go-ethereum**: 
+
+difference is +49.
+
+Project description: Official Go implementation of the Ethereum protocol
+
+The diff between v1.9.5 (20.09.2019) and 389da6aa48 (28.05.2020) shows 1 addition and 6858 deletions, therefore I
+should see a difference of -6857. This is clearly completely different from the actual evidence.
+In version v1.9.5, there isn't a `go.mod` file yet, instead there is a vendor directory inside the directory.
+
+TODO: why is this?
