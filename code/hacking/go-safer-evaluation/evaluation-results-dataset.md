@@ -1,6 +1,6 @@
-# go-safer evaluation
+# go-safer evaluation step 1: evaluation with labeled data set
 
-## Step 1: evaluation with labeled data set
+## Labeled instances
 
 Instances with label `cast-header` in the labeled data set: 40 in app, 4 in std.
  
@@ -102,6 +102,9 @@ Are those a security problem? Let's look at all of them.
 
 Therefore in summary, I have 44 labeled verification snippets of which 14 are negative and 30 are positive.
 
+
+## Files to check
+
 I need to check the following files with go-safer, go vet, and gosec:
 
  - github.com/cespare/xxhash/v2@v2.1.0/xxhash_unsafe.go
@@ -128,6 +131,9 @@ I need to check the following files with go-safer, go vet, and gosec:
  - runtime/alg.go
  - runtime/type.go
  
+ 
+## Running the tools
+
 The following are the finding results of the tools:
 
 **std**:
@@ -224,7 +230,8 @@ The following are the finding results of the tools:
  40. bytestostr.go:21 in package github.com/mailru/easyjson/jlexer of module github.com/mailru/easyjson: **YES**  
      go-safer: 22 **POSITIVE** (true), go vet: **NEGATIVE** (false), gosec: **POSITIVE** (true)
 
-## Step 1 evaluation summary
+
+## Evaluation summary
 
 In summary, we have:
 
@@ -242,6 +249,3 @@ We see that Go Vet does not find anything at all, while Gosec just marks everyth
 when there is a compilation error. This shows that the existing tools are useless for this specific pattern.
 Go-safer on the other hand achieved excellent scores with 96.7% recall and accuracy due to only 1 false negative / 
 positive, yielding 95.5% accuracy for this task!
-
-
-## Step 2: evaluation with manually analyzed projects
