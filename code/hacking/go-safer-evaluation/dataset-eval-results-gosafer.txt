@@ -1,0 +1,305 @@
+--- /root/go/pkg/mod/github.com/cespare/xxhash/v2@v2.1.0/xxhash_unsafe.go ---
+
+--- /root/go/pkg/mod/github.com/cilium/ebpf@v0.0.0-20191113100448-d9fb101ca1fb/marshalers.go ---
+/root/go/pkg/mod/github.com/cilium/ebpf@v0.0.0-20191113100448-d9fb101ca1fb/marshalers.go:67:10: reflect header composite literal found
+
+--- /root/go/pkg/mod/github.com/elastic/go-structform@v0.0.6/internal/unsafe/unsafe.go ---
+/root/go/pkg/mod/github.com/elastic/go-structform@v0.0.6/internal/unsafe/unsafe.go:32:8: reflect header composite literal found
+/root/go/pkg/mod/github.com/elastic/go-structform@v0.0.6/internal/unsafe/unsafe.go:39:8: reflect header composite literal found
+
+--- /root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap.go ---
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:170:8: could not import C (no metadata for C)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:195:17: h.ts undefined (type *pcapPkthdr has no field or method ts)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:199:17: h.ts undefined (type *pcapPkthdr has no field or method ts)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:203:15: h.len undefined (type *pcapPkthdr has no field or method len)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:207:15: h.caplen undefined (type *pcapPkthdr has no field or method caplen)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:297:77: p.bf_insns undefined (type pcapBpfProgram has no field or method bf_insns)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:297:92: p.bf_len undefined (type pcapBpfProgram has no field or method bf_len)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:297:101: p.bf_len undefined (type pcapBpfProgram has no field or method bf_len)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:311:6: bpf.bf_len undefined (type pcapBpfProgram has no field or method bf_len)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:322:6: bpf.bf_insns undefined (type pcapBpfProgram has no field or method bf_insns)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:170:8: could not import C (no metadata for C)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:195:17: h.ts undefined (type *pcapPkthdr has no field or method ts)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:199:17: h.ts undefined (type *pcapPkthdr has no field or method ts)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:203:15: h.len undefined (type *pcapPkthdr has no field or method len)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:207:15: h.caplen undefined (type *pcapPkthdr has no field or method caplen)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:297:77: p.bf_insns undefined (type pcapBpfProgram has no field or method bf_insns)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:297:92: p.bf_len undefined (type pcapBpfProgram has no field or method bf_len)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:297:101: p.bf_len undefined (type pcapBpfProgram has no field or method bf_len)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:311:6: bpf.bf_len undefined (type pcapBpfProgram has no field or method bf_len)
+/root/go/pkg/mod/github.com/google/gopacket@v1.1.17/pcap/pcap_unix.go:322:6: bpf.bf_insns undefined (type pcapBpfProgram has no field or method bf_insns)
+sliceheader: 20 errors during loading
+
+--- /root/go/pkg/mod/github.com/hashicorp/go-msgpack@v1.1.5/codec/helper_unsafe.go ---
+sliceheader: go [-e -json -compiled=true -test=true -export=false -deps=true -find=false -- .]: exit status 1: go: updates to go.sum needed, disabled by -mod=readonly
+
+--- /root/go/pkg/mod/github.com/mailru/easyjson@v0.7.0/jlexer/bytestostr.go ---
+/root/go/pkg/mod/github.com/mailru/easyjson@v0.7.0/jlexer/bytestostr.go:22:10: reflect header composite literal found
+
+--- /root/go/pkg/mod/github.com/modern-go/reflect2@v1.0.1/unsafe_slice.go ---
+reflect2.go:4:2: cannot find package "github.com/modern-go/concurrent" in any of:
+	/usr/local/go/src/github.com/modern-go/concurrent (from $GOROOT)
+	/root/go/src/github.com/modern-go/concurrent (from $GOPATH)
+/root/go/pkg/mod/github.com/modern-go/reflect2@v1.0.1/reflect2.go:4:2: could not import github.com/modern-go/concurrent (invalid package name: "")
+sliceheader: 2 errors during loading
+
+--- /root/go/pkg/mod/github.com/philhofer/fwd@v1.0.0/writer_unsafe.go ---
+/root/go/pkg/mod/github.com/philhofer/fwd@v1.0.0/writer_unsafe.go:13:36: reflect header composite literal found
+
+--- /root/go/pkg/mod/github.com/ugorji/go@v0.0.0-20170918222552-54210f4e076c/codec/helper_unsafe.go ---
+/root/go/pkg/mod/github.com/ugorji/go@v0.0.0-20170918222552-54210f4e076c/codec/helper_unsafe.go:49:8: reflect header composite literal found
+/root/go/pkg/mod/github.com/ugorji/go@v0.0.0-20170918222552-54210f4e076c/codec/helper_unsafe.go:59:8: reflect header composite literal found
+
+--- /root/go/pkg/mod/github.com/weaveworks/ps@v0.0.0-20160725183535-70d17b2d6f76/map.go ---
+/root/go/pkg/mod/github.com/weaveworks/ps@v0.0.0-20160725183535-70d17b2d6f76/map.go:129:8: reflect header composite literal found
+
+--- /root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/alloc.go ---
+compile.go:5:2: cannot find package "github.com/yuin/gopher-lua/ast" in any of:
+	/usr/local/go/src/github.com/yuin/gopher-lua/ast (from $GOROOT)
+	/root/go/src/github.com/yuin/gopher-lua/ast (from $GOPATH)
+state.go:9:2: cannot find package "github.com/yuin/gopher-lua/parse" in any of:
+	/usr/local/go/src/github.com/yuin/gopher-lua/parse (from $GOROOT)
+	/root/go/src/github.com/yuin/gopher-lua/parse (from $GOPATH)
+stringlib.go:7:2: cannot find package "github.com/yuin/gopher-lua/pm" in any of:
+	/usr/local/go/src/github.com/yuin/gopher-lua/pm (from $GOROOT)
+	/root/go/src/github.com/yuin/gopher-lua/pm (from $GOPATH)
+state.go:10:2: cannot find package "golang.org/x/net/context" in any of:
+	/usr/local/go/src/golang.org/x/net/context (from $GOROOT)
+	/root/go/src/golang.org/x/net/context (from $GOPATH)
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:5:2: could not import github.com/yuin/gopher-lua/ast (invalid package name: "")
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/state.go:9:2: could not import github.com/yuin/gopher-lua/parse (invalid package name: "")
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/state.go:10:2: could not import golang.org/x/net/context (invalid package name: "")
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/stringlib.go:7:2: could not import github.com/yuin/gopher-lua/pm (invalid package name: "")
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:513:3: islast declared but not used
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:696:2: code declared but not used
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:943:2: code declared but not used
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:7:2: "reflect" imported but not used
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:5:2: could not import github.com/yuin/gopher-lua/ast (invalid package name: "")
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/state.go:9:2: could not import github.com/yuin/gopher-lua/parse (invalid package name: "")
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/state.go:10:2: could not import golang.org/x/net/context (invalid package name: "")
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/stringlib.go:7:2: could not import github.com/yuin/gopher-lua/pm (invalid package name: "")
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:513:3: islast declared but not used
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:696:2: code declared but not used
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:943:2: code declared but not used
+/root/go/pkg/mod/github.com/yuin/gopher-lua@v0.0.0-20170403160031-b402f3114ec7/compile.go:7:2: "reflect" imported but not used
+sliceheader: 20 errors during loading
+
+--- /root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/node.go ---
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/freelist.go:107:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/freelist.go:297:37: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/node.go:234:35: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:68:47: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:86:49: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:95:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:118:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:135:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:144:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/tx.go:540:38: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/tx.go:579:37: reflect header composite literal found
+
+--- /root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go ---
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/freelist.go:107:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/freelist.go:297:37: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/node.go:234:35: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:68:47: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:86:49: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:95:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:118:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:135:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/page.go:144:36: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/tx.go:540:38: reflect header composite literal found
+/root/go/pkg/mod/go.etcd.io/bbolt@v1.3.4/tx.go:579:37: reflect header composite literal found
+
+--- /root/go/pkg/mod/golang.org/x/tools@v0.0.0-20200428021058-7ae4988eb4d9/internal/event/label/label.go ---
+
+--- /root/go/pkg/mod/google.golang.org/protobuf@v1.23.0/internal/strs/strings_unsafe.go ---
+
+--- /root/go/pkg/mod/google.golang.org/protobuf@v1.23.0/reflect/protoreflect/value_unsafe.go ---
+
+--- /root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/array.go ---
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/array.go:251:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/dense.go:118:11: reflect header composite literal found
+
+--- /root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go ---
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:62:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:93:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:132:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:163:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:202:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:233:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:272:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:303:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:342:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:373:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:412:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:443:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:482:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:513:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:552:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:583:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:622:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:653:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:692:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:723:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:762:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:793:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:832:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:863:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:902:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:933:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:972:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1003:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1042:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1073:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1112:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1143:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:53:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:91:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:129:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:167:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:205:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:243:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:281:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:319:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:357:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:395:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:433:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:471:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:509:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:547:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:585:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:623:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:34:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:35:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:36:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:62:4: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:63:4: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:64:4: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:67:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:68:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:69:3: assigning to reflect header object
+
+--- /root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go ---
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:62:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:93:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:132:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:163:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:202:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:233:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:272:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:303:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:342:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:373:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:412:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:443:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:482:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:513:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:552:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:583:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:622:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:653:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:692:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:723:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:762:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:793:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:832:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:863:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:902:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:933:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:972:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1003:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1042:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1073:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1112:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1143:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:53:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:91:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:129:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:167:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:205:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:243:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:281:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:319:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:357:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:395:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:433:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:471:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:509:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:547:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:585:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:623:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:34:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:35:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:36:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:62:4: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:63:4: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:64:4: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:67:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:68:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:69:3: assigning to reflect header object
+
+--- /root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go ---
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:62:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:93:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:132:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:163:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:202:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:233:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:272:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:303:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:342:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:373:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:412:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:443:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:482:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:513:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:552:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:583:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:622:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:653:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:692:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:723:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:762:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:793:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:832:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:863:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:902:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:933:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:972:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1003:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1042:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1073:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1112:11: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native.go:1143:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:53:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:91:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:129:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:167:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:205:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:243:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:281:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:319:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:357:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:395:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:433:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:471:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:509:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:547:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:585:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/iterator_native2.go:623:12: reflect header composite literal found
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:34:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:35:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:36:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:62:4: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:63:4: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:64:4: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:67:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:68:3: assigning to reflect header object
+/root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native/generic.go:69:3: assigning to reflect header object
+
+--- /usr/local/go/src/reflect/value.go ---
+
+--- /usr/local/go/src/runtime/alg.go ---
+
+--- /usr/local/go/src/runtime/type.go ---
+
