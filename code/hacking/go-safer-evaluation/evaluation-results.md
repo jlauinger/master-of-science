@@ -132,105 +132,114 @@ The following are the finding results of the tools:
 
 **std**:
 
- 1. Label: **NO**
-    go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 2. Label: **NO**
-    go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 3. Label: **NO**
-    go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 4. Label: **NO**
-    go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
+ 1. type.go:475 in package runtime of module std: **NO**
+    go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 2. value.go:1815 in package reflect of module std: **NO**
+    go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 3. alg.go:317 in package runtime of module std: **NO**
+    go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 4. value.go:1800 in package reflect of module std: **NO**
+    go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
 
 **app**:
 
-  1. Label: **NO**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
-  2. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
-  3. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
-  4. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
-  5. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
-  6. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
-  7. Label: **NO**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
-  8. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
-  9. Label: **NO**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 10. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 11. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 12. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 13. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 14. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 15. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 16. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 17. Label: **YES**
-      go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 18. Label: **NO**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 19. Label: **NO**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 20. Label: **NO**
-      go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 21. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 22. Label: **NO**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 23. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 24. Label: **NO**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 25. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 26. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 27. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 28. Label: **NO**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 29. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 30. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 31. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 32. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 33. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 34. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 35. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 36. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 37. Label: **NO**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 38. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 39. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
- 40. Label: **YES**
-     go-safer: **UNKNOWN**, go vet: **UNKNOWN**, golint: **UNKNOWN**
+  1. label.go:118 in package golang.org/x/tools/internal/event/label of module golang.org/x/tools: **NO**
+     go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: 117 **POSITIVE** (false)
+  2. iterator_native2.go:282 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 281 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+  3. iterator_native.go:1078 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 1073 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+  4. iterator_native2.go:324 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 319 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+  5. array.go:257 in package gorgonia.org/tensor of module gorgonia.org/tensor: **YES**
+     go-safer: 251 **POSTIIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+  6. iterator_native2.go:434 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 433 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+  7. alloc.go:62 in package github.com/yuin/gopher-lua of module github.com/yuin/gopher-lua: **NO**
+     go-safer: errors **NEGATIVE** (true), go vet: errors **NEGATIVE** (true), golint: **POSITIVE** (false)
+  8. iterator_native.go:654 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 653 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+  9. value_unsafe.go:92 in package google.golang.org/protobuf/reflect/protoreflect of module google.golang.org/protobuf: **NO**
+     go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 10. iterator_native.go:763 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 762 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 11. writer_unsafe.go:13 in package github.com/philhofer/fwd of module github.com/philhofer/fwd: **YES**
+     go-safer: **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 12. iterator_native2.go:134 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 129 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 13. iterator_native2.go:206 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 205 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 14. iterator_native.go:514 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 513 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 15. iterator_native.go:304 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 303 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 16. iterator_native.go:623 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 622 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 17. iterator_native.go:794 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 793 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 18. pcap.go:355 in package github.com/google/gopacket/pcap of module github.com/google/gopacket: **NO**
+     go-safer: errors **NEGATIVE** (true), go vet: errors **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 19. label.go:117 in package golang.org/x/tools/internal/event/label of module golang.org/x/tools: **NO**
+     go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 20. strings_unsafe.go:46 in package google.golang.org/protobuf/internal/strs of module google.golang.org/protobuf: **NO**
+     go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 21. marshalers.go:66 in package github.com/cilium/ebpf of module github.com/cilium/ebpf: **YES**
+     go-safer: 67 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: 73 **POSITIVE** (true)
+ 22. xxhash_unsafe.go:30 in package github.com/cespare/xxhash/v2 of module github.com/cespare/xxhash/v2: **NO**
+     go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 23. node.go:234 in package go.etcd.io/bbolt of module go.etcd.io/bbolt: **YES**
+     go-safer: **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 24. unsafe_slice.go:140 in package github.com/modern-go/reflect2 of module github.com/modern-go/reflect2: **NO**
+     go-safer: errors **NEGATIVE** (true), go vet: errors **NEGATIVE** (true), golint: errors **NEGATIVE** (true)
+ 25. iterator_native.go:798 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 793 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 26. map.go:128 in package github.com/weaveworks/ps of module github.com/weaveworks/ps: **YES**
+     go-safer: 129 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 27. iterator_native.go:277 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 272 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 28. generic.go:61 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **NO**
+     go-safer: 62 **POSITIVE** (false), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 29. helper_unsafe.go:50 in package github.com/ugorji/go/codec of module github.com/ugorji/go: **YES**
+     go-safer: 49 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 30. helper_unsafe.go:52 in package github.com/hashicorp/go-msgpack/codec of module github.com/hashicorp/go-msgpack: **YES**
+     go-safer: errors **NEGATIVE** (false), go vet: errors **NEGATIVE** (false), golint: errors **NEGATIVE** (false)
+ 31. iterator_native.go:907 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 902 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 32. iterator_native2.go:168 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 167 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 33. page.go:135 in package go.etcd.io/bbolt of module go.etcd.io/bbolt: **YES**
+     go-safer: **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 34. unsafe.go:31 in package github.com/elastic/go-structform/internal/unsafe of module github.com/elastic/go-structform: **YES**
+     go-safer: 32 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 35. iterator_native.go:1148 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 1143 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: 1143,1147 **POSITIVE** (true)
+ 36. iterator_native2.go:476 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 471 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 37. value_unsafe.go:75 in package google.golang.org/protobuf/reflect/protoreflect of module google.golang.org/protobuf: **NO**
+     go-safer: **NEGATIVE** (true), go vet: **NEGATIVE** (true), golint: **POSITIVE** (false)
+ 38. iterator_native2.go:438 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 433 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
+ 39. iterator_native.go:588 in package gorgonia.org/tensor/native of module gorgonia.org/tensor: **YES**
+     go-safer: 583 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: 586 **POSITIVE** (true)
+ 40. bytestostr.go:21 in package github.com/mailru/easyjson/jlexer of module github.com/mailru/easyjson: **YES**
+     go-safer: 22 **POSITIVE** (true), go vet: **NEGATIVE** (false), golint: **POSITIVE** (true)
 
 In summary, we have:
 
 | **Tool** | **TP** | **FP** | **TN** | **FN** | **Recall** | **Precision** | **Accuracy** |
 |----------|--------|--------|--------|--------|------------|---------------|--------------|
-| go-safer |        |        |        |        |            |               |              |
-| go vet   |        |        |        |        |            |               |              |
-| golint   |        |        |        |        |            |               |              |
+| go-safer |   29   |    1   |   13   |    1   |   0.967    |     0.967     |    0.955     |
+| go vet   |    0   |    0   |   14   |   30   |   0        |     -         |    0.318     |
+| golint   |   29   |   13   |    1   |    1   |   0.967    |     0.690     |    0.681     |
+
+Recall = TP/(TP+FN)
+Precision = TP/(TP+FP)
+Accuracy = (TP+TN)/(TP+TN+FP+FN)
+
+We see that Go Vet does not find anything at all, while Golint just marks everything as potentially unsafe except for
+when there is a compilation error. This shows that the existing tools are useless for this specific pattern.
+Go-safer on the other hand achieved excellent scores with 96.7% recall and accuracy due to only 1 false negative / 
+positive, yielding 95.5% accuracy for this task!
 
 
 ## Step 2: evaluation with manually analyzed projects
