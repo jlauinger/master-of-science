@@ -1,0 +1,18 @@
+file_name,line_number,message
+iovec_64bit.go,17,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+msghdr_linux.go,18,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+msghdr_linux.go,25,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+msghdr_linux_64bit.go,22,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+socket.go,139,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+socket.go,151,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+socket.go,162,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+socket.go,176,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+sys.go,22,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+sys_linux.go,16,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+sys_linux.go,20,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+sys_linux.go,25,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+sys_unix.go,16,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+sys_unix.go,16,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+sys_unix.go,21,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+sys_unix.go,26,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+sys_unix.go,31,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW

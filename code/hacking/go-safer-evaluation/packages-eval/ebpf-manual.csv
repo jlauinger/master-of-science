@@ -1,0 +1,59 @@
+file_name,line_number,text,label
+map.go,255, valuePtr := newPtr(unsafe.Pointer(&valueBytes[0])),UNKNOWN
+map.go,354, nextKeyPtr := newPtr(unsafe.Pointer(&nextKey[0])),UNKNOWN
+marshalers.go,17, if ptr; ok := data.(unsafe.Pointer); ok {,UNKNOWN
+marshalers.go,26, return newPtr(unsafe.Pointer(&buf[0])); nil,UNKNOWN
+marshalers.go,37, case unsafe.Pointer:,UNKNOWN
+marshalers.go,38, err = errors.New("can't marshal from unsafe.Pointer"),UNKNOWN
+marshalers.go,56, if ptr; ok := dst.(unsafe.Pointer); ok {,UNKNOWN
+marshalers.go,61, return newPtr(unsafe.Pointer(&buf[0])); buf,UNKNOWN
+marshalers.go,66, case unsafe.Pointer:,UNKNOWN
+marshalers.go,67, sh := &reflect.SliceHeader{,UNKNOWN
+marshalers.go,68, Data: uintptr(value);,UNKNOWN
+marshalers.go,73, dst := *(*[]byte)(unsafe.Pointer(sh)),UNKNOWN
+marshalers.go,103, sliceType := reflect.TypeOf(slice),UNKNOWN
+marshalers.go,104, if sliceType.Kind() != reflect.Slice {,UNKNOWN
+marshalers.go,113, sliceValue := reflect.ValueOf(slice),UNKNOWN
+marshalers.go,133, return newPtr(unsafe.Pointer(&buf[0])); nil,UNKNOWN
+marshalers.go,141, slicePtrType := reflect.TypeOf(slicePtr),UNKNOWN
+marshalers.go,142, if slicePtrType.Kind() != reflect.Ptr || slicePtrType.Elem().Kind() != reflect.Slice {,UNKNOWN
+marshalers.go,152, slice := reflect.MakeSlice(sliceType; possibleCPUs; possibleCPUs),UNKNOWN
+marshalers.go,155, sliceElemIsPointer := sliceElemType.Kind() == reflect.Ptr,UNKNOWN
+marshalers.go,167, newElem := reflect.New(sliceElemType),UNKNOWN
+marshalers.go,186, reflect.ValueOf(slicePtr).Elem().Set(slice),UNKNOWN
+prog.go,108, attr.logBuf = newPtr(unsafe.Pointer(&logBuf[0])),UNKNOWN
+prog.go,124, attr.logBuf = newPtr(unsafe.Pointer(&logBuf[0])),UNKNOWN
+prog.go,186, instructions: newPtr(unsafe.Pointer(&bytecode[0]));,UNKNOWN
+prog.go,187, license: newPtr(unsafe.Pointer(&lic[0]));,UNKNOWN
+prog.go,312, dataIn: newPtr(unsafe.Pointer(&in[0]));,UNKNOWN
+prog.go,315, _; err = bpfCall(_ProgTestRun; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),UNKNOWN
+prog.go,353, dataIn: newPtr(unsafe.Pointer(&in[0]));,UNKNOWN
+prog.go,354, dataOut: newPtr(unsafe.Pointer(&out[0]));,UNKNOWN
+prog.go,358, _; err = bpfCall(_ProgTestRun; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),UNKNOWN
+ptr_32_be.go,9,// ptr wraps an unsafe.Pointer to be 64bit to,UNKNOWN
+ptr_32_be.go,13, ptr unsafe.Pointer,UNKNOWN
+ptr_32_le.go,9,// ptr wraps an unsafe.Pointer to be 64bit to,UNKNOWN
+ptr_32_le.go,12, ptr unsafe.Pointer,UNKNOWN
+ptr_64.go,10,// ptr wraps an unsafe.Pointer to be 64bit to,UNKNOWN
+ptr_64.go,13, ptr unsafe.Pointer,UNKNOWN
+syscalls.go,61, dup; err := unix.FcntlInt(uintptr(fd.raw); unix.F_DUPFD_CLOEXEC; 0),UNKNOWN
+syscalls.go,194,func newPtr(ptr unsafe.Pointer) syscallPtr {,UNKNOWN
+syscalls.go,200, fd; err := bpfCall(_ProgLoad; unsafe.Pointer(attr); unsafe.Sizeof(*attr)),UNKNOWN
+syscalls.go,216, _; err := bpfCall(cmd; unsafe.Pointer(attr); unsafe.Sizeof(*attr)),UNKNOWN
+syscalls.go,221, fd; err := bpfCall(_MapCreate; unsafe.Pointer(attr); unsafe.Sizeof(*attr)),UNKNOWN
+syscalls.go,240, _; err = bpfCall(_MapLookupElem; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),UNKNOWN
+syscalls.go,256, _; err = bpfCall(_MapUpdateElem; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),UNKNOWN
+syscalls.go,270, _; err = bpfCall(_MapDeleteElem; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),UNKNOWN
+syscalls.go,285, _; err = bpfCall(_MapGetNextKey; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),UNKNOWN
+syscalls.go,306, _; err = bpfCall(_ObjPin; unsafe.Pointer(&bpfPinObjAttr{,UNKNOWN
+syscalls.go,307, fileName: newPtr(unsafe.Pointer(&[]byte(fileName)[0]));,UNKNOWN
+syscalls.go,314, ptr; err := bpfCall(_ObjGet; unsafe.Pointer(&bpfPinObjAttr{,UNKNOWN
+syscalls.go,315, fileName: newPtr(unsafe.Pointer(&[]byte(fileName)[0]));,UNKNOWN
+syscalls.go,323,func bpfGetObjectInfoByFD(fd *bpfFD; info unsafe.Pointer; size uintptr) error {,UNKNOWN
+syscalls.go,335, _; err = bpfCall(_ObjGetInfoByFD; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),UNKNOWN
+syscalls.go,341, err := bpfGetObjectInfoByFD(fd; unsafe.Pointer(&info); unsafe.Sizeof(info)),UNKNOWN
+syscalls.go,347, err := bpfGetObjectInfoByFD(fd; unsafe.Pointer(&info); unsafe.Sizeof(info)),UNKNOWN
+syscalls.go,383, ptr; err := bpfCall(_MapGetFDByID; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),UNKNOWN
+syscalls.go,395, ptr; err := bpfCall(_ProgGetFDByID; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),UNKNOWN
+syscalls.go,402,func bpfCall(cmd int; attr unsafe.Pointer; size uintptr) (uintptr; error) {,UNKNOWN
+syscalls.go,403, r1; _; errNo := unix.Syscall(unix.SYS_BPF; uintptr(cmd); uintptr(attr); size),UNKNOWN

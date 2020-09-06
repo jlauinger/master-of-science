@@ -1,0 +1,8 @@
+file_name,line_number,message
+label.go,103,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+label.go,107,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+label.go,117,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+label.go,120,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+label.go,132,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
+label.go,135,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
+label.go,136,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW

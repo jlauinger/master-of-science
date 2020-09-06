@@ -1,0 +1,153 @@
+file_name,line_number,text,label
+generic.go,29, retVal := reflect.MakeSlice(reflect.SliceOf(reflect.SliceOf(typ)); rows; rows),UNKNOWN
+generic.go,33, sh := (*reflect.SliceHeader)(unsafe.Pointer(e.Addr().Pointer())),UNKNOWN
+generic.go,34, sh.Data = uintptr(i*rowStride)*typ.Size() + ptr,UNKNOWN
+generic.go,54, retVal := reflect.MakeSlice(reflect.SliceOf(reflect.SliceOf(reflect.SliceOf(typ))); layers; layers),UNKNOWN
+generic.go,58, inner := reflect.MakeSlice(reflect.SliceOf(reflect.SliceOf(typ)); rows; rows),UNKNOWN
+generic.go,61, sh := (*reflect.SliceHeader)(unsafe.Pointer(e.Addr().Pointer())),UNKNOWN
+generic.go,62, sh.Data = uintptr(i*layerStride+j*rowStride)*typ.Size() + ptr,UNKNOWN
+generic.go,66, sh := (*reflect.SliceHeader)(unsafe.Pointer(el.Addr().Pointer())),UNKNOWN
+iterator_native.go,62, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,63, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,67, retVal[i] = *(*[]bool)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,93, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,94, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,98, retVal[i][j] = *(*[]bool)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,132, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,133, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,137, retVal[i] = *(*[]int)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,163, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,164, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,168, retVal[i][j] = *(*[]int)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,202, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,203, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,207, retVal[i] = *(*[]int8)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,233, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,234, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,238, retVal[i][j] = *(*[]int8)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,272, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,273, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,277, retVal[i] = *(*[]int16)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,303, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,304, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,308, retVal[i][j] = *(*[]int16)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,342, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,343, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,347, retVal[i] = *(*[]int32)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,373, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,374, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,378, retVal[i][j] = *(*[]int32)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,412, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,413, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,417, retVal[i] = *(*[]int64)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,443, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,444, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,448, retVal[i][j] = *(*[]int64)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,482, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,483, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,487, retVal[i] = *(*[]uint)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,513, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,514, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,518, retVal[i][j] = *(*[]uint)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,552, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,553, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,557, retVal[i] = *(*[]uint8)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,583, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,584, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,588, retVal[i][j] = *(*[]uint8)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,622, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,623, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,627, retVal[i] = *(*[]uint16)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,653, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,654, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,658, retVal[i][j] = *(*[]uint16)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,692, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,693, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,697, retVal[i] = *(*[]uint32)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,723, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,724, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,728, retVal[i][j] = *(*[]uint32)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,762, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,763, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,767, retVal[i] = *(*[]uint64)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,793, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,794, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,798, retVal[i][j] = *(*[]uint64)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,832, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,833, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,837, retVal[i] = *(*[]float32)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,863, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,864, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,868, retVal[i][j] = *(*[]float32)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,902, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,903, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,907, retVal[i] = *(*[]float64)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,933, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,934, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,938, retVal[i][j] = *(*[]float64)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,972, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,973, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,977, retVal[i] = *(*[]complex64)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,1003, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,1004, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,1008, retVal[i][j] = *(*[]complex64)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,1042, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,1043, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,1047, retVal[i] = *(*[]complex128)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,1073, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,1074, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,1078, retVal[i][j] = *(*[]complex128)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,1112, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,1113, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,1117, retVal[i] = *(*[]string)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native.go,1143, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native.go,1144, Data: uintptr(unsafe.Pointer(&data[start]));,UNKNOWN
+iterator_native.go,1148, retVal[i][j] = *(*[]string)(unsafe.Pointer(hdr)),UNKNOWN
+iterator_native2.go,53, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,54, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,58, retVal = append(retVal; *(*[]bool)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,91, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,92, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,96, retVal = append(retVal; *(*[]int)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,129, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,130, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,134, retVal = append(retVal; *(*[]int8)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,167, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,168, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,172, retVal = append(retVal; *(*[]int16)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,205, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,206, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,210, retVal = append(retVal; *(*[]int32)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,243, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,244, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,248, retVal = append(retVal; *(*[]int64)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,281, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,282, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,286, retVal = append(retVal; *(*[]uint)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,319, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,320, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,324, retVal = append(retVal; *(*[]uint8)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,357, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,358, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,362, retVal = append(retVal; *(*[]uint16)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,395, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,396, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,400, retVal = append(retVal; *(*[]uint32)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,433, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,434, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,438, retVal = append(retVal; *(*[]uint64)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,471, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,472, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,476, retVal = append(retVal; *(*[]float32)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,509, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,510, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,514, retVal = append(retVal; *(*[]float64)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,547, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,548, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,552, retVal = append(retVal; *(*[]complex64)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,585, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,586, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,590, retVal = append(retVal; *(*[]complex128)(unsafe.Pointer(hdr))),UNKNOWN
+iterator_native2.go,623, hdr := &reflect.SliceHeader{,UNKNOWN
+iterator_native2.go,624, Data: uintptr(unsafe.Pointer(&data[i]));,UNKNOWN
+iterator_native2.go,628, retVal = append(retVal; *(*[]string)(unsafe.Pointer(hdr))),UNKNOWN

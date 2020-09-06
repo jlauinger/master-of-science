@@ -1,0 +1,3 @@
+file_name,line_number,message
+bytestostr.go,21,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+bytestostr.go,23,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW

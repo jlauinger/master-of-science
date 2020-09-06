@@ -1,0 +1,53 @@
+file_name,line_number,message
+elf_reader.go,25,G304 CWE-22: Potential file inclusion via variable Confidence: HIGH; Severity: MEDIUM
+abi.go,145,G307 CWE-: Deferring unsafe method "*os.File" on type "Close" Confidence: HIGH; Severity: MEDIUM
+elf_reader.go,29,G307 CWE-: Deferring unsafe method "*os.File" on type "Close" Confidence: HIGH; Severity: MEDIUM
+map.go,237,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
+collection.go,124,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
+map.go,223,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
+collection.go,121,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
+map.go,255,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+map.go,354,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+marshalers.go,26,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+marshalers.go,61,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+marshalers.go,73,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+marshalers.go,133,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,108,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,124,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,186,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,187,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,312,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,315,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,315,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,353,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,354,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,358,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+prog.go,358,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,200,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,200,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,216,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,216,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,221,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,221,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,240,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,240,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,256,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,256,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,270,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,270,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,285,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,285,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,306-309,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,307,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,314-316,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,315,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,335,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,335,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,341,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,341,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,347,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,347,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,383,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,383,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,395,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,395,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW

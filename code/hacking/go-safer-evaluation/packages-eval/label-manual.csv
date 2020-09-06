@@ -1,0 +1,6 @@
+file_name,line_number,text,label
+label.go,103, hdr := (*reflect.StringHeader)(unsafe.Pointer(&v)),UNKNOWN
+label.go,107, untyped: unsafe.Pointer(hdr.Data);,UNKNOWN
+label.go,117, hdr := (*reflect.StringHeader)(unsafe.Pointer(&v)),UNKNOWN
+label.go,118, hdr.Data = uintptr(t.untyped.(unsafe.Pointer)),UNKNOWN
+label.go,120, return *(*string)(unsafe.Pointer(hdr)),UNKNOWN

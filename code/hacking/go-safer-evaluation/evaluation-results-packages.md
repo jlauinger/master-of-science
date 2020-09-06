@@ -4,30 +4,46 @@
 
 Choose six packages: 2 with few, medium, and many unsafe usages each, and mixing small and large packages by LOC.
 
-| **Package**                        | **Directory**                                                                       | **LOC** | **Number Go Files** | **Unsafe Usages** |
-|------------------------------------|-------------------------------------------------------------------------------------|---------|---------------------|-------------------|
-| k8s.io/kubernetes/pkg/apis/core/v1 | /root/download/kubernetes/kubernetes/pkg/apis/core/v1                               | 10,048  | 6                   | 675               |
-| gopkg.in/olebedev/go-duktape.v3    | /root/go/pkg/mod/gopkg.in/olebedev/go-duktape.v3@v3.0.0-20200316214253-d7b0ff38cac9 | 2,687   | 7                   | 125               |
-| github.com/cilium/cilium/pkg/bpf   | /root/download/cilium/cilium/pkg/bpf                                                | 2,851   | 13                  | 98                |
-| github.com/tsg/gopacket/pcap       | /root/go/pkg/mod/github.com/tsg/gopacket@v0.0.0-20190320122513-dd3d0e41124a/pcap    | 1,009   | 3                   | 28                |
-| github.com/elastic/go-perf         | /root/go/pkg/mod/github.com/elastic/go-perf@v0.0.0-20191212140718-9c656876f595      | 3,400   | 5                   | 27                |
-| github.com/karalabe/usb            | /root/go/pkg/mod/github.com/karalabe/usb@v0.0.0-20190919080040-51dc0efba356         | 1,031   | 7                   | 20                |
+| **Package**                             | **Directory**                                                                               | **LOC** | **Number Go Files** | **Unsafe Usages** |
+|-----------------------------------------|---------------------------------------------------------------------------------------------|---------|---------------------|-------------------|
+| k8s.io/kubernetes/pkg/apis/core/v1      | /root/download/kubernetes/kubernetes/pkg/apis/core/v1                                       | 10,048  | 6                   | 675               |
+| gorgonia.org/tensor/native              | /root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native                                          | 1,867   | 4                   | 151               |
+| github.com/anacrolix/mmsg/socket        | /root/go/pkg/mod/github.com/anacrolix/mmsg@v1.0.0/socket                                    | 4,087   | 88                  | 114               |
+| github.com/cilium/ebpf                  | /root/go/pkg/mod/github.com/cilium/ebpf@v0.0.0-20191113100448-d9fb101ca1fb                  | 2,851   | 16                  | 58                |
+| golang.org/x/tools/internal/event/label | /root/go/pkg/mod/golang.org/x/tools@v0.0.0-20200502202811-ed308ab3e770/internal/event/label | 213     | 1                   | 6                 |
+| github.com/mailru/easyjson/jlexer       | /root/go/pkg/mod/github.com/mailru/easyjson@v0.7.0/jlexer                                   | 1,234   | 4                   | 6                 |
 
 These packages all contain unsafe usages, some contain slice header conversions as looked at in part 1 of the evaluation.
-There are some packages around 30 usages, two with around 100 usages and one with more than 500. Furthermore, there is
-a large package with more than 10k LOC, 3 around 3k LOC and two small around 1k LOC.
+There are two packages with less than 10 usages, three around 50 to 200 usages and one with more than 500. Furthermore, there is
+a large package with more than 10k LOC, 4 around 1k to 4k LOC and one small around 200 LOC.
 
-In this study, I only analyze the package on its own, no dependencies.
+In this study, I only analyze the package on its own, no dependencies. I also look at all the files except test files,
+other than go-safer which will only look at the current architecture files.
+
+
+## Evaluation
+
+Plan:
+
+ - [x] use a script that executes `grep` to find usages of `unsafe.`, `reflect.` and `uintptr` and writes those to a CSV
+       file
+ - [ ] when manually going through the code, annotate that CSV file manually
+ - [x] run `go-safer`, `go vet` and `gosec`, capture output and write all findings in a CSV file
+ - [ ] then use Pandas to calculate the resulting PRF scores
+ - [ ] when `go-safer` etc. find something that was not even listed in the unsafe usages, add that finding as negative to
+       be correctly counted as a false positive
+ - [ ] when looking through the code, when there is a finding that is outside of an unsafe usage line, add that finding as
+       positive
 
 
 ## Evaluation summary
 
-| **Package**                        | **TP**                |            |           | **FP**                 |            |           | **TN**                |            |           | **FN**                 |            |           | **Recall**   |            |           | **Precision** |            |           | **Accuracy** |            |           |
-|------------------------------------|-----------------------|------------|-----------|------------------------|------------|-----------|-----------------------|------------|-----------|------------------------|------------|-----------|--------------|------------|-----------|---------------|------------|-----------|--------------|------------|-----------|
-|                                    | **go-safer**          | **vet**    | **gosec** | **go-safer**           | **vet**    | **gosec** | **go-safer**          | **vet**    | **gosec** | **go-safer**           | **vet**    | **gosec** | **go-safer** | **vet**    | **gosec** | **go-safer**  | **vet**    | **gosec** | **go-safer** | **vet**    | **gosec** |
-| k8s.io/kubernetes/pkg/apis/core/v1 |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
-| gopkg.in/olebedev/go-duktape.v3    |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
-| github.com/cilium/cilium/pkg/bpf   |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
-| github.com/tsg/gopacket/pcap       |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
-| github.com/elastic/go-perf         |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
-| github.com/karalabe/usb            |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
+| **Package**                              | **TP**                |            |           | **FP**                 |            |           | **TN**                |            |           | **FN**                 |            |           | **Recall**   |            |           | **Precision** |            |           | **Accuracy** |            |           |
+|------------------------------------------|-----------------------|------------|-----------|------------------------|------------|-----------|-----------------------|------------|-----------|------------------------|------------|-----------|--------------|------------|-----------|---------------|------------|-----------|--------------|------------|-----------|
+|                                          | **go-safer**          | **vet**    | **gosec** | **go-safer**           | **vet**    | **gosec** | **go-safer**          | **vet**    | **gosec** | **go-safer**           | **vet**    | **gosec** | **go-safer** | **vet**    | **gosec** | **go-safer**  | **vet**    | **gosec** | **go-safer** | **vet**    | **gosec** |
+| k8s.io/kubernetes/pkg/apis/core/v1       |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
+| gorgonia.org/tensor/native               |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
+| github.com/anacrolix/mmsg/socket         |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
+| github.com/cilium/ebpf                   |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
+| golang.org/x/tools/internal/event/label  |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
+| github.com/mailru/easyjson/jlexer        |                       |            |           |                        |            |           |                       |            |           |                        |            |           |              |            |           |               |            |           |              |            |           |
