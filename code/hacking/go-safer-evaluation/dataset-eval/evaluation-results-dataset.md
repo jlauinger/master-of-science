@@ -235,14 +235,14 @@ The following are the finding results of the tools:
 
 In summary, we have:
 
-| **Tool** | **TP** | **FP** | **TN** | **FN** | **Recall** | **Precision** | **Accuracy** |
-|----------|--------|--------|--------|--------|------------|---------------|--------------|
-| go-safer |   29   |    1   |   13   |    1   |   0.967    |     0.967     |    0.955     |
-| go vet   |    0   |    0   |   14   |   30   |   0        |     -         |    0.318     |
-| gosec    |   29   |   13   |    1   |    1   |   0.967    |     0.690     |    0.681     |
+| **Tool** | **TP** | **FP** | **TN** | **FN** | **Precision** | **Recall** | **Accuracy** |
+|----------|--------|--------|--------|--------|---------------|------------|--------------|
+| go-safer |   29   |    1   |   13   |    1   |   0.967       |  0.967     |    0.955     |
+| go vet   |    0   |    0   |   14   |   30   |   -           |  0         |    0.318     |
+| gosec    |   29   |   13   |    1   |    1   |   0.690       |  0.967     |    0.681     |
 
-Recall = TP/(TP+FN)  
 Precision = TP/(TP+FP)  
+Recall = TP/(TP+FN)  
 Accuracy = (TP+TN)/(TP+TN+FP+FN)
 
 We see that Go Vet does not find anything at all, while Gosec just marks everything as potentially unsafe except for
