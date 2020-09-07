@@ -11,7 +11,7 @@ Choose six packages: 2 with few, medium, and many unsafe usages each, and mixing
 | github.com/anacrolix/mmsg/socket        | /root/go/pkg/mod/github.com/anacrolix/mmsg@v1.0.0/socket                                    | 3,782   | 86                  | 114               |
 | github.com/cilium/ebpf                  | /root/go/pkg/mod/github.com/cilium/ebpf@v0.0.0-20191113100448-d9fb101ca1fb                  | 2,851   | 15                  | 58                |
 | golang.org/x/tools/internal/event/label | /root/go/pkg/mod/golang.org/x/tools@v0.0.0-20200502202811-ed308ab3e770/internal/event/label | 213     | 1                   | 6                 |
-| github.com/mailru/easyjson/jlexer       | /root/go/pkg/mod/github.com/mailru/easyjson@v0.7.0/jlexer                                   | 1,234   | 4                   | 6                 |
+| github.com/mailru/easyjson/jlexer       | /root/go/pkg/mod/github.com/mailru/easyjson@v0.7.0/jlexer                                   | 1,234   | 4                   | 5                 |
 
 These packages all contain unsafe usages, some contain slice header conversions as looked at in part 1 of the evaluation.
 There are two packages with less than 10 usages, three around 50 to 200 usages and one with more than 500. Furthermore, there is
