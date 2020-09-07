@@ -9,7 +9,7 @@ Choose six packages: 2 with few, medium, and many unsafe usages each, and mixing
 | k8s.io/kubernetes/pkg/apis/core/v1      | /root/download/kubernetes/kubernetes/pkg/apis/core/v1                                       | 10,048  | 6                   | 675               |
 | gorgonia.org/tensor/native              | /root/go/pkg/mod/gorgonia.org/tensor@v0.9.6/native                                          | 1,867   | 4                   | 151               |
 | github.com/anacrolix/mmsg/socket        | /root/go/pkg/mod/github.com/anacrolix/mmsg@v1.0.0/socket                                    | 3,782   | 86                  | 114               |
-| github.com/cilium/ebpf                  | /root/go/pkg/mod/github.com/cilium/ebpf@v0.0.0-20191113100448-d9fb101ca1fb                  | 2,851   | 15                  | 58                |
+| github.com/cilium/ebpf                  | /root/go/pkg/mod/github.com/cilium/ebpf@v0.0.0-20191113100448-d9fb101ca1fb                  | 2,851   | 14                  | 58                |
 | golang.org/x/tools/internal/event/label | /root/go/pkg/mod/golang.org/x/tools@v0.0.0-20200502202811-ed308ab3e770/internal/event/label | 213     | 1                   | 6                 |
 | github.com/mailru/easyjson/jlexer       | /root/go/pkg/mod/github.com/mailru/easyjson@v0.7.0/jlexer                                   | 1,234   | 4                   | 5                 |
 
@@ -27,12 +27,12 @@ Plan:
 
  - [x] use a script that executes `grep` to find usages of `unsafe.`, `reflect.` and `uintptr` and writes those to a CSV
        file
- - [ ] when manually going through the code, annotate that CSV file manually
+ - [x] when manually going through the code, annotate that CSV file manually
  - [x] run `go-safer`, `go vet` and `gosec`, capture output and write all findings in a CSV file
  - [x] then use Pandas to calculate the resulting PRF scores
- - [ ] when `go-safer` etc. find something that was not even listed in the unsafe usages, add that finding as negative to
+ - [x] when `go-safer` etc. find something that was not even listed in the unsafe usages, add that finding as negative to
        be correctly counted as a false positive
- - [ ] when looking through the code, when there is a finding that is outside of an unsafe usage line, add that finding as
+ - [x] when looking through the code, when there is a finding that is outside of an unsafe usage line, add that finding as
        positive
        
 Evaluated packages:
@@ -40,9 +40,9 @@ Evaluated packages:
  - [x] jlexer
  - [x] label
  - [x] native
- - [ ] v1
- - [ ] ebpf
- - [ ] socket
+ - [x] v1
+ - [x] ebpf
+ - [x] socket
 
 
 ## Evaluation summary

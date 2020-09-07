@@ -1,116 +1,116 @@
 file_name,line_number,text,label
-iovec_32bit.go,17, v.Base = (*byte)(unsafe.Pointer(&b[0])),UNKNOWN
-iovec_64bit.go,17, v.Base = (*byte)(unsafe.Pointer(&b[0])),UNKNOWN
-iovec_solaris_64bit.go,17, v.Base = (*int8)(unsafe.Pointer(&b[0])),UNKNOWN
-msghdr_bsd.go,17, h.Control = (*byte)(unsafe.Pointer(&oob[0])),UNKNOWN
-msghdr_bsd.go,21, h.Name = (*byte)(unsafe.Pointer(&sa[0])),UNKNOWN
-msghdr_bsd.go,28, return (*[sizeofSockaddrInet6]byte)(unsafe.Pointer(h.Name))[:h.Namelen],UNKNOWN
-msghdr_linux.go,18, h.Name = (*byte)(unsafe.Pointer(&sa[0])),UNKNOWN
-msghdr_linux.go,25, return (*[sizeofSockaddrInet6]byte)(unsafe.Pointer(h.Name))[:h.Namelen],UNKNOWN
-msghdr_linux_32bit.go,22, h.Control = (*byte)(unsafe.Pointer(&b[0])),UNKNOWN
-msghdr_linux_64bit.go,22, h.Control = (*byte)(unsafe.Pointer(&b[0])),UNKNOWN
-msghdr_solaris_64bit.go,21, h.Accrights = (*int8)(unsafe.Pointer(&oob[0])),UNKNOWN
-msghdr_solaris_64bit.go,25, h.Name = (*byte)(unsafe.Pointer(&sa[0])),UNKNOWN
-rawconn.go,48, fn := func(s uintptr) {,UNKNOWN
-rawconn.go,59, fn := func(s uintptr) {,UNKNOWN
-rawconn_mmsg.go,27, fn := func(s uintptr) bool {,UNKNOWN
-rawconn_mmsg.go,57, fn := func(s uintptr) bool {,UNKNOWN
-rawconn_msg.go,25, fn := func(s uintptr) bool {,UNKNOWN
-rawconn_msg.go,61, fn := func(s uintptr) bool {,UNKNOWN
-reflect.go,44,func socketOf(c net.Conn) (uintptr; error) {,UNKNOWN
-reflect.go,47, v := reflect.ValueOf(c),UNKNOWN
-reflect.go,49, case reflect.Struct:,UNKNOWN
-reflect.go,52, case reflect.Struct:,UNKNOWN
-reflect.go,55, return uintptr(sysfd.Uint()); nil,UNKNOWN
-reflect.go,57, return uintptr(sysfd.Int()); nil,UNKNOWN
-socket.go,139, h := (*cmsghdr)(unsafe.Pointer(&m[0])),UNKNOWN
-socket.go,151, h := (*cmsghdr)(unsafe.Pointer(&m[0])),UNKNOWN
-socket.go,162, h := (*cmsghdr)(unsafe.Pointer(&m[0])),UNKNOWN
-socket.go,176, h := (*cmsghdr)(unsafe.Pointer(&m[0])),UNKNOWN
-sys.go,22, b := (*[4]byte)(unsafe.Pointer(&i)),UNKNOWN
-sys_bsd.go,11,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_bsd.go,15,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_bsdvar.go,12, var p uintptr,UNKNOWN
-sys_bsdvar.go,13, return int(unsafe.Sizeof(p)),UNKNOWN
-sys_linux.go,15, var p uintptr,UNKNOWN
-sys_linux.go,16, return int(unsafe.Sizeof(p)),UNKNOWN
-sys_linux.go,19,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_linux.go,20, n; _; errno := syscall.Syscall6(sysRECVMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),UNKNOWN
-sys_linux.go,24,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_linux.go,25, n; _; errno := syscall.Syscall6(sysSENDMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),UNKNOWN
-sys_linux_386.go,23,func socketcall(call; a0; a1; a2; a3; a4; a5 uintptr) (uintptr; syscall.Errno),UNKNOWN
-sys_linux_386.go,24,func rawsocketcall(call; a0; a1; a2; a3; a4; a5 uintptr) (uintptr; syscall.Errno),UNKNOWN
-sys_linux_386.go,26,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,UNKNOWN
-sys_linux_386.go,28, _; errno := socketcall(sysGETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(unsafe.Pointer(&l)); 0),UNKNOWN
-sys_linux_386.go,32,func setsockopt(s uintptr; level; name int; b []byte) error {,UNKNOWN
-sys_linux_386.go,33, _; errno := socketcall(sysSETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(len(b)); 0),UNKNOWN
-sys_linux_386.go,37,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_linux_386.go,38, n; errno := socketcall(sysRECVMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),UNKNOWN
-sys_linux_386.go,42,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_linux_386.go,43, n; errno := socketcall(sysSENDMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),UNKNOWN
-sys_linux_386.go,47,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_linux_386.go,48, n; errno := socketcall(sysRECVMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),UNKNOWN
-sys_linux_386.go,52,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_linux_386.go,53, n; errno := socketcall(sysSENDMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),UNKNOWN
-sys_linux_s390x.go,23,func socketcall(call; a0; a1; a2; a3; a4; a5 uintptr) (uintptr; syscall.Errno),UNKNOWN
-sys_linux_s390x.go,24,func rawsocketcall(call; a0; a1; a2; a3; a4; a5 uintptr) (uintptr; syscall.Errno),UNKNOWN
-sys_linux_s390x.go,26,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,UNKNOWN
-sys_linux_s390x.go,28, _; errno := socketcall(sysGETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(unsafe.Pointer(&l)); 0),UNKNOWN
-sys_linux_s390x.go,32,func setsockopt(s uintptr; level; name int; b []byte) error {,UNKNOWN
-sys_linux_s390x.go,33, _; errno := socketcall(sysSETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(len(b)); 0),UNKNOWN
-sys_linux_s390x.go,37,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_linux_s390x.go,38, n; errno := socketcall(sysRECVMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),UNKNOWN
-sys_linux_s390x.go,42,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_linux_s390x.go,43, n; errno := socketcall(sysSENDMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),UNKNOWN
-sys_linux_s390x.go,47,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_linux_s390x.go,48, n; errno := socketcall(sysRECVMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),UNKNOWN
-sys_linux_s390x.go,52,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_linux_s390x.go,53, n; errno := socketcall(sysSENDMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),UNKNOWN
-sys_netbsd.go,17,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_netbsd.go,18, n; _; errno := syscall.Syscall6(sysRECVMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),UNKNOWN
-sys_netbsd.go,22,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_netbsd.go,23, n; _; errno := syscall.Syscall6(sysSENDMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),UNKNOWN
-sys_solaris.go,19, var p uintptr,UNKNOWN
-sys_solaris.go,20, return int(unsafe.Sizeof(p)),UNKNOWN
-sys_solaris.go,35, procGetsockopt uintptr,UNKNOWN
-sys_solaris.go,36, procSetsockopt uintptr,UNKNOWN
-sys_solaris.go,37, procRecvmsg uintptr,UNKNOWN
-sys_solaris.go,38, procSendmsg uintptr,UNKNOWN
-sys_solaris.go,41,func sysvicall6(trap; nargs; a1; a2; a3; a4; a5; a6 uintptr) (uintptr; uintptr; syscall.Errno),UNKNOWN
-sys_solaris.go,42,func rawSysvicall6(trap; nargs; a1; a2; a3; a4; a5; a6 uintptr) (uintptr; uintptr; syscall.Errno),UNKNOWN
-sys_solaris.go,44,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,UNKNOWN
-sys_solaris.go,46, _; _; errno := sysvicall6(uintptr(unsafe.Pointer(&procGetsockopt)); 5; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(unsafe.Pointer(&l)); 0),UNKNOWN
-sys_solaris.go,50,func setsockopt(s uintptr; level; name int; b []byte) error {,UNKNOWN
-sys_solaris.go,51, _; _; errno := sysvicall6(uintptr(unsafe.Pointer(&procSetsockopt)); 5; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(len(b)); 0),UNKNOWN
-sys_solaris.go,55,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_solaris.go,56, n; _; errno := sysvicall6(uintptr(unsafe.Pointer(&procRecvmsg)); 3; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),UNKNOWN
-sys_solaris.go,60,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_solaris.go,61, n; _; errno := sysvicall6(uintptr(unsafe.Pointer(&procSendmsg)); 3; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),UNKNOWN
-sys_solaris.go,65,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_solaris.go,69,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_stub.go,29, var p uintptr,UNKNOWN
-sys_stub.go,30, return int(unsafe.Sizeof(p)),UNKNOWN
-sys_stub.go,42,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,UNKNOWN
-sys_stub.go,46,func setsockopt(s uintptr; level; name int; b []byte) error {,UNKNOWN
-sys_stub.go,50,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_stub.go,54,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_stub.go,58,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_stub.go,62,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_unix.go,14,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,UNKNOWN
-sys_unix.go,16, _; _; errno := syscall.Syscall6(syscall.SYS_GETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(unsafe.Pointer(&l)); 0),UNKNOWN
-sys_unix.go,20,func setsockopt(s uintptr; level; name int; b []byte) error {,UNKNOWN
-sys_unix.go,21, _; _; errno := syscall.Syscall6(syscall.SYS_SETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(len(b)); 0),UNKNOWN
-sys_unix.go,25,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_unix.go,26, n; _; errno := syscall.Syscall(syscall.SYS_RECVMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags)),UNKNOWN
-sys_unix.go,30,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_unix.go,31, n; _; errno := syscall.Syscall(syscall.SYS_SENDMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags)),UNKNOWN
-sys_windows.go,14, var p uintptr,UNKNOWN
-sys_windows.go,15, return int(unsafe.Sizeof(p)),UNKNOWN
-sys_windows.go,46,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,UNKNOWN
-sys_windows.go,48, err := syscall.Getsockopt(syscall.Handle(s); int32(level); int32(name); (*byte)(unsafe.Pointer(&b[0])); (*int32)(unsafe.Pointer(&l))),UNKNOWN
-sys_windows.go,52,func setsockopt(s uintptr; level; name int; b []byte) error {,UNKNOWN
-sys_windows.go,53, return syscall.Setsockopt(syscall.Handle(s); int32(level); int32(name); (*byte)(unsafe.Pointer(&b[0])); int32(len(b))),UNKNOWN
-sys_windows.go,56,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_windows.go,60,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,UNKNOWN
-sys_windows.go,64,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
-sys_windows.go,68,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,UNKNOWN
+iovec_32bit.go,17, v.Base = (*byte)(unsafe.Pointer(&b[0])),NO
+iovec_64bit.go,17, v.Base = (*byte)(unsafe.Pointer(&b[0])),NO
+iovec_solaris_64bit.go,17, v.Base = (*int8)(unsafe.Pointer(&b[0])),NO
+msghdr_bsd.go,17, h.Control = (*byte)(unsafe.Pointer(&oob[0])),NO
+msghdr_bsd.go,21, h.Name = (*byte)(unsafe.Pointer(&sa[0])),NO
+msghdr_bsd.go,28, return (*[sizeofSockaddrInet6]byte)(unsafe.Pointer(h.Name))[:h.Namelen],NO
+msghdr_linux.go,18, h.Name = (*byte)(unsafe.Pointer(&sa[0])),NO
+msghdr_linux.go,25, return (*[sizeofSockaddrInet6]byte)(unsafe.Pointer(h.Name))[:h.Namelen],NO
+msghdr_linux_32bit.go,22, h.Control = (*byte)(unsafe.Pointer(&b[0])),NO
+msghdr_linux_64bit.go,22, h.Control = (*byte)(unsafe.Pointer(&b[0])),NO
+msghdr_solaris_64bit.go,21, h.Accrights = (*int8)(unsafe.Pointer(&oob[0])),NO
+msghdr_solaris_64bit.go,25, h.Name = (*byte)(unsafe.Pointer(&sa[0])),NO
+rawconn.go,48, fn := func(s uintptr) {,NO
+rawconn.go,59, fn := func(s uintptr) {,NO
+rawconn_mmsg.go,27, fn := func(s uintptr) bool {,NO
+rawconn_mmsg.go,57, fn := func(s uintptr) bool {,NO
+rawconn_msg.go,25, fn := func(s uintptr) bool {,NO
+rawconn_msg.go,61, fn := func(s uintptr) bool {,NO
+reflect.go,44,func socketOf(c net.Conn) (uintptr; error) {,NO
+reflect.go,47, v := reflect.ValueOf(c),NO
+reflect.go,49, case reflect.Struct:,NO
+reflect.go,52, case reflect.Struct:,NO
+reflect.go,55, return uintptr(sysfd.Uint()); nil,NO
+reflect.go,57, return uintptr(sysfd.Int()); nil,NO
+socket.go,139, h := (*cmsghdr)(unsafe.Pointer(&m[0])),NO
+socket.go,151, h := (*cmsghdr)(unsafe.Pointer(&m[0])),NO
+socket.go,162, h := (*cmsghdr)(unsafe.Pointer(&m[0])),NO
+socket.go,176, h := (*cmsghdr)(unsafe.Pointer(&m[0])),NO
+sys.go,22, b := (*[4]byte)(unsafe.Pointer(&i)),NO
+sys_bsd.go,11,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_bsd.go,15,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_bsdvar.go,12, var p uintptr,NO
+sys_bsdvar.go,13, return int(unsafe.Sizeof(p)),NO
+sys_linux.go,15, var p uintptr,NO
+sys_linux.go,16, return int(unsafe.Sizeof(p)),NO
+sys_linux.go,19,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_linux.go,20, n; _; errno := syscall.Syscall6(sysRECVMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),NO
+sys_linux.go,24,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_linux.go,25, n; _; errno := syscall.Syscall6(sysSENDMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),NO
+sys_linux_386.go,23,func socketcall(call; a0; a1; a2; a3; a4; a5 uintptr) (uintptr; syscall.Errno),NO
+sys_linux_386.go,24,func rawsocketcall(call; a0; a1; a2; a3; a4; a5 uintptr) (uintptr; syscall.Errno),NO
+sys_linux_386.go,26,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,NO
+sys_linux_386.go,28, _; errno := socketcall(sysGETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(unsafe.Pointer(&l)); 0),NO
+sys_linux_386.go,32,func setsockopt(s uintptr; level; name int; b []byte) error {,NO
+sys_linux_386.go,33, _; errno := socketcall(sysSETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(len(b)); 0),NO
+sys_linux_386.go,37,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_linux_386.go,38, n; errno := socketcall(sysRECVMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),NO
+sys_linux_386.go,42,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_linux_386.go,43, n; errno := socketcall(sysSENDMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),NO
+sys_linux_386.go,47,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_linux_386.go,48, n; errno := socketcall(sysRECVMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),NO
+sys_linux_386.go,52,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_linux_386.go,53, n; errno := socketcall(sysSENDMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),NO
+sys_linux_s390x.go,23,func socketcall(call; a0; a1; a2; a3; a4; a5 uintptr) (uintptr; syscall.Errno),NO
+sys_linux_s390x.go,24,func rawsocketcall(call; a0; a1; a2; a3; a4; a5 uintptr) (uintptr; syscall.Errno),NO
+sys_linux_s390x.go,26,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,NO
+sys_linux_s390x.go,28, _; errno := socketcall(sysGETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(unsafe.Pointer(&l)); 0),NO
+sys_linux_s390x.go,32,func setsockopt(s uintptr; level; name int; b []byte) error {,NO
+sys_linux_s390x.go,33, _; errno := socketcall(sysSETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(len(b)); 0),NO
+sys_linux_s390x.go,37,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_linux_s390x.go,38, n; errno := socketcall(sysRECVMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),NO
+sys_linux_s390x.go,42,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_linux_s390x.go,43, n; errno := socketcall(sysSENDMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),NO
+sys_linux_s390x.go,47,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_linux_s390x.go,48, n; errno := socketcall(sysRECVMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),NO
+sys_linux_s390x.go,52,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_linux_s390x.go,53, n; errno := socketcall(sysSENDMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),NO
+sys_netbsd.go,17,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_netbsd.go,18, n; _; errno := syscall.Syscall6(sysRECVMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),NO
+sys_netbsd.go,22,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_netbsd.go,23, n; _; errno := syscall.Syscall6(sysSENDMMSG; s; uintptr(unsafe.Pointer(&hs[0])); uintptr(len(hs)); uintptr(flags); 0; 0),NO
+sys_solaris.go,19, var p uintptr,NO
+sys_solaris.go,20, return int(unsafe.Sizeof(p)),NO
+sys_solaris.go,35, procGetsockopt uintptr,NO
+sys_solaris.go,36, procSetsockopt uintptr,NO
+sys_solaris.go,37, procRecvmsg uintptr,NO
+sys_solaris.go,38, procSendmsg uintptr,NO
+sys_solaris.go,41,func sysvicall6(trap; nargs; a1; a2; a3; a4; a5; a6 uintptr) (uintptr; uintptr; syscall.Errno),NO
+sys_solaris.go,42,func rawSysvicall6(trap; nargs; a1; a2; a3; a4; a5; a6 uintptr) (uintptr; uintptr; syscall.Errno),NO
+sys_solaris.go,44,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,NO
+sys_solaris.go,46, _; _; errno := sysvicall6(uintptr(unsafe.Pointer(&procGetsockopt)); 5; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(unsafe.Pointer(&l)); 0),NO
+sys_solaris.go,50,func setsockopt(s uintptr; level; name int; b []byte) error {,NO
+sys_solaris.go,51, _; _; errno := sysvicall6(uintptr(unsafe.Pointer(&procSetsockopt)); 5; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(len(b)); 0),NO
+sys_solaris.go,55,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_solaris.go,56, n; _; errno := sysvicall6(uintptr(unsafe.Pointer(&procRecvmsg)); 3; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),NO
+sys_solaris.go,60,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_solaris.go,61, n; _; errno := sysvicall6(uintptr(unsafe.Pointer(&procSendmsg)); 3; s; uintptr(unsafe.Pointer(h)); uintptr(flags); 0; 0; 0),NO
+sys_solaris.go,65,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_solaris.go,69,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_stub.go,29, var p uintptr,NO
+sys_stub.go,30, return int(unsafe.Sizeof(p)),NO
+sys_stub.go,42,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,NO
+sys_stub.go,46,func setsockopt(s uintptr; level; name int; b []byte) error {,NO
+sys_stub.go,50,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_stub.go,54,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_stub.go,58,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_stub.go,62,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_unix.go,14,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,NO
+sys_unix.go,16, _; _; errno := syscall.Syscall6(syscall.SYS_GETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(unsafe.Pointer(&l)); 0),NO
+sys_unix.go,20,func setsockopt(s uintptr; level; name int; b []byte) error {,NO
+sys_unix.go,21, _; _; errno := syscall.Syscall6(syscall.SYS_SETSOCKOPT; s; uintptr(level); uintptr(name); uintptr(unsafe.Pointer(&b[0])); uintptr(len(b)); 0),NO
+sys_unix.go,25,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_unix.go,26, n; _; errno := syscall.Syscall(syscall.SYS_RECVMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags)),NO
+sys_unix.go,30,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_unix.go,31, n; _; errno := syscall.Syscall(syscall.SYS_SENDMSG; s; uintptr(unsafe.Pointer(h)); uintptr(flags)),NO
+sys_windows.go,14, var p uintptr,NO
+sys_windows.go,15, return int(unsafe.Sizeof(p)),NO
+sys_windows.go,46,func getsockopt(s uintptr; level; name int; b []byte) (int; error) {,NO
+sys_windows.go,48, err := syscall.Getsockopt(syscall.Handle(s); int32(level); int32(name); (*byte)(unsafe.Pointer(&b[0])); (*int32)(unsafe.Pointer(&l))),NO
+sys_windows.go,52,func setsockopt(s uintptr; level; name int; b []byte) error {,NO
+sys_windows.go,53, return syscall.Setsockopt(syscall.Handle(s); int32(level); int32(name); (*byte)(unsafe.Pointer(&b[0])); int32(len(b))),NO
+sys_windows.go,56,func recvmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_windows.go,60,func sendmsg(s uintptr; h *msghdr; flags int) (int; error) {,NO
+sys_windows.go,64,func recvmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
+sys_windows.go,68,func sendmmsg(s uintptr; hs []mmsghdr; flags int) (int; error) {,NO
