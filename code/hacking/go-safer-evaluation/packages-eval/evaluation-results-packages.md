@@ -29,7 +29,7 @@ Plan:
        file
  - [ ] when manually going through the code, annotate that CSV file manually
  - [x] run `go-safer`, `go vet` and `gosec`, capture output and write all findings in a CSV file
- - [ ] then use Pandas to calculate the resulting PRF scores
+ - [x] then use Pandas to calculate the resulting PRF scores
  - [ ] when `go-safer` etc. find something that was not even listed in the unsafe usages, add that finding as negative to
        be correctly counted as a false positive
  - [ ] when looking through the code, when there is a finding that is outside of an unsafe usage line, add that finding as

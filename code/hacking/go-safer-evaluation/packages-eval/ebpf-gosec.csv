@@ -37,9 +37,9 @@ syscalls.go,270,G103 CWE-242: Use of unsafe calls should be audited Confidence: 
 syscalls.go,270,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 syscalls.go,285,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 syscalls.go,285,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
-syscalls.go,306-309,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,306,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 syscalls.go,307,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
-syscalls.go,314-316,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
+syscalls.go,314,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 syscalls.go,315,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 syscalls.go,335,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 syscalls.go,335,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
