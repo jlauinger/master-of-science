@@ -34,6 +34,15 @@ Plan:
        be correctly counted as a false positive
  - [ ] when looking through the code, when there is a finding that is outside of an unsafe usage line, add that finding as
        positive
+       
+Evaluated packages:
+
+ - [x] jlexer
+ - [x] label
+ - [x] native
+ - [ ] v1
+ - [ ] ebpf
+ - [ ] socket
 
 
 ## Evaluation summary
