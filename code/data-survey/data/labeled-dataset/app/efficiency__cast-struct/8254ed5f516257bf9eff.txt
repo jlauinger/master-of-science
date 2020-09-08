@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/extensions/v1beta1
+File: zz_generated.conversion.go
+Line: 1803
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.RequiredDropCapabilities = *(*[]core.Capability)(unsafe.Pointer(&in.RequiredDropCapabilities))
+--------------------------------------------------------------
++/- 5 lines context:
+
+}
+
+func autoConvert_v1beta1_PodSecurityPolicySpec_To_policy_PodSecurityPolicySpec(in *v1beta1.PodSecurityPolicySpec, out *policy.PodSecurityPolicySpec, s conversion.Scope) error {
+	out.Privileged = in.Privileged
+	out.DefaultAddCapabilities = *(*[]core.Capability)(unsafe.Pointer(&in.DefaultAddCapabilities))
+	out.RequiredDropCapabilities = *(*[]core.Capability)(unsafe.Pointer(&in.RequiredDropCapabilities))
+	out.AllowedCapabilities = *(*[]core.Capability)(unsafe.Pointer(&in.AllowedCapabilities))
+	out.Volumes = *(*[]policy.FSType)(unsafe.Pointer(&in.Volumes))
+	out.HostNetwork = in.HostNetwork
+	out.HostPorts = *(*[]policy.HostPortRange)(unsafe.Pointer(&in.HostPorts))
+	out.HostPID = in.HostPID
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

@@ -1,0 +1,234 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20200106162015-b016eb3dc98e
+
+Package: golang.org/x/sys/unix
+File: syscall_linux.go
+Line: 1084
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+--------------------------------------------------------------
++/- 5 lines context:
+
+}
+
+func GetsockoptTpacketStatsV3(fd, level, opt int) (*TpacketStatsV3, error) {
+	var value TpacketStatsV3
+	vallen := _Socklen(SizeofTpacketStatsV3)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func SetsockoptIPMreqn(fd, level, opt int, mreq *IPMreqn) (err error) {
+	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), unsafe.Sizeof(*mreq))
+--------------------------------------------------------------
++/- 100 lines context:
+
+			return nil, EINVAL
+		}
+
+		return sa, nil
+	}
+	return nil, EAFNOSUPPORT
+}
+
+func Accept(fd int) (nfd int, sa Sockaddr, err error) {
+	var rsa RawSockaddrAny
+	var len _Socklen = SizeofSockaddrAny
+	nfd, err = accept(fd, &rsa, &len)
+	if err != nil {
+		return
+	}
+	sa, err = anyToSockaddr(fd, &rsa)
+	if err != nil {
+		Close(nfd)
+		nfd = 0
+	}
+	return
+}
+
+func Accept4(fd int, flags int) (nfd int, sa Sockaddr, err error) {
+	var rsa RawSockaddrAny
+	var len _Socklen = SizeofSockaddrAny
+	nfd, err = accept4(fd, &rsa, &len, flags)
+	if err != nil {
+		return
+	}
+	if len > SizeofSockaddrAny {
+		panic("RawSockaddrAny too small")
+	}
+	sa, err = anyToSockaddr(fd, &rsa)
+	if err != nil {
+		Close(nfd)
+		nfd = 0
+	}
+	return
+}
+
+func Getsockname(fd int) (sa Sockaddr, err error) {
+	var rsa RawSockaddrAny
+	var len _Socklen = SizeofSockaddrAny
+	if err = getsockname(fd, &rsa, &len); err != nil {
+		return
+	}
+	return anyToSockaddr(fd, &rsa)
+}
+
+func GetsockoptIPMreqn(fd, level, opt int) (*IPMreqn, error) {
+	var value IPMreqn
+	vallen := _Socklen(SizeofIPMreqn)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func GetsockoptUcred(fd, level, opt int) (*Ucred, error) {
+	var value Ucred
+	vallen := _Socklen(SizeofUcred)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func GetsockoptTCPInfo(fd, level, opt int) (*TCPInfo, error) {
+	var value TCPInfo
+	vallen := _Socklen(SizeofTCPInfo)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+// GetsockoptString returns the string value of the socket option opt for the
+// socket associated with fd at the given socket level.
+func GetsockoptString(fd, level, opt int) (string, error) {
+	buf := make([]byte, 256)
+	vallen := _Socklen(len(buf))
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&buf[0]), &vallen)
+	if err != nil {
+		if err == ERANGE {
+			buf = make([]byte, vallen)
+			err = getsockopt(fd, level, opt, unsafe.Pointer(&buf[0]), &vallen)
+		}
+		if err != nil {
+			return "", err
+		}
+	}
+	return string(buf[:vallen-1]), nil
+}
+
+func GetsockoptTpacketStats(fd, level, opt int) (*TpacketStats, error) {
+	var value TpacketStats
+	vallen := _Socklen(SizeofTpacketStats)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func GetsockoptTpacketStatsV3(fd, level, opt int) (*TpacketStatsV3, error) {
+	var value TpacketStatsV3
+	vallen := _Socklen(SizeofTpacketStatsV3)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func SetsockoptIPMreqn(fd, level, opt int, mreq *IPMreqn) (err error) {
+	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), unsafe.Sizeof(*mreq))
+}
+
+func SetsockoptPacketMreq(fd, level, opt int, mreq *PacketMreq) error {
+	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), unsafe.Sizeof(*mreq))
+}
+
+// SetsockoptSockFprog attaches a classic BPF or an extended BPF program to a
+// socket to filter incoming packets.  See 'man 7 socket' for usage information.
+func SetsockoptSockFprog(fd, level, opt int, fprog *SockFprog) error {
+	return setsockopt(fd, level, opt, unsafe.Pointer(fprog), unsafe.Sizeof(*fprog))
+}
+
+func SetsockoptCanRawFilter(fd, level, opt int, filter []CanFilter) error {
+	var p unsafe.Pointer
+	if len(filter) > 0 {
+		p = unsafe.Pointer(&filter[0])
+	}
+	return setsockopt(fd, level, opt, p, uintptr(len(filter)*SizeofCanFilter))
+}
+
+func SetsockoptTpacketReq(fd, level, opt int, tp *TpacketReq) error {
+	return setsockopt(fd, level, opt, unsafe.Pointer(tp), unsafe.Sizeof(*tp))
+}
+
+func SetsockoptTpacketReq3(fd, level, opt int, tp *TpacketReq3) error {
+	return setsockopt(fd, level, opt, unsafe.Pointer(tp), unsafe.Sizeof(*tp))
+}
+
+// Keyctl Commands (http://man7.org/linux/man-pages/man2/keyctl.2.html)
+
+// KeyctlInt calls keyctl commands in which each argument is an int.
+// These commands are KEYCTL_REVOKE, KEYCTL_CHOWN, KEYCTL_CLEAR, KEYCTL_LINK,
+// KEYCTL_UNLINK, KEYCTL_NEGATE, KEYCTL_SET_REQKEY_KEYRING, KEYCTL_SET_TIMEOUT,
+// KEYCTL_ASSUME_AUTHORITY, KEYCTL_SESSION_TO_PARENT, KEYCTL_REJECT,
+// KEYCTL_INVALIDATE, and KEYCTL_GET_PERSISTENT.
+//sys	KeyctlInt(cmd int, arg2 int, arg3 int, arg4 int, arg5 int) (ret int, err error) = SYS_KEYCTL
+
+// KeyctlBuffer calls keyctl commands in which the third and fourth
+// arguments are a buffer and its length, respectively.
+// These commands are KEYCTL_UPDATE, KEYCTL_READ, and KEYCTL_INSTANTIATE.
+//sys	KeyctlBuffer(cmd int, arg2 int, buf []byte, arg5 int) (ret int, err error) = SYS_KEYCTL
+
+// KeyctlString calls keyctl commands which return a string.
+// These commands are KEYCTL_DESCRIBE and KEYCTL_GET_SECURITY.
+func KeyctlString(cmd int, id int) (string, error) {
+	// We must loop as the string data may change in between the syscalls.
+	// We could allocate a large buffer here to reduce the chance that the
+	// syscall needs to be called twice; however, this is unnecessary as
+	// the performance loss is negligible.
+	var buffer []byte
+	for {
+		// Try to fill the buffer with data
+		length, err := KeyctlBuffer(cmd, id, buffer, 0)
+		if err != nil {
+			return "", err
+		}
+
+		// Check if the data was written
+		if length <= len(buffer) {
+			// Exclude the null terminator
+			return string(buffer[:length-1]), nil
+		}
+
+		// Make a bigger buffer if needed
+		buffer = make([]byte, length)
+	}
+}
+
+// Keyctl commands with special signatures.
+
+// KeyctlGetKeyringID implements the KEYCTL_GET_KEYRING_ID command.
+// See the full documentation at:
+// http://man7.org/linux/man-pages/man3/keyctl_get_keyring_ID.3.html
+func KeyctlGetKeyringID(id int, create bool) (ringid int, err error) {
+	createInt := 0
+	if create {
+		createInt = 1
+	}
+	return KeyctlInt(KEYCTL_GET_KEYRING_ID, id, createInt, 0, 0)
+}
+
+// KeyctlSetperm implements the KEYCTL_SETPERM command. The perm value is the
+// key handle permission mask as described in the "keyctl setperm" section of
+// http://man7.org/linux/man-pages/man1/keyctl.1.html.
+// See the full documentation at:
+// http://man7.org/linux/man-pages/man3/keyctl_setperm.3.html
+func KeyctlSetperm(id int, perm uint32) error {
+	_, err := KeyctlInt(KEYCTL_SETPERM, id, int(perm), 0, 0)
+	return err
+}
+
+//sys	keyctlJoin(cmd int, arg2 string) (ret int, err error) = SYS_KEYCTL
+
+// KeyctlJoinSessionKeyring implements the KEYCTL_JOIN_SESSION_KEYRING command.
+// See the full documentation at:
+

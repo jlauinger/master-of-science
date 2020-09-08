@@ -1,0 +1,137 @@
+Module: github.com/godror/godror
+Version: v0.16.0
+
+Package: github.com/godror/godror
+File: lob.go
+Line: 257
+
+Imported (possibly among others) by: xo/usql
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+if C.dpiLob_writeBytes(dl.dpiLob, C.uint64_t(offset)+1, (*C.char)(unsafe.Pointer(&p[0])), n) == C.DPI_FAILURE {
+--------------------------------------------------------------
++/- 5 lines context:
+
+		}
+		dl.opened = true
+	}
+
+	n := C.uint64_t(len(p))
+	if C.dpiLob_writeBytes(dl.dpiLob, C.uint64_t(offset)+1, (*C.char)(unsafe.Pointer(&p[0])), n) == C.DPI_FAILURE {
+		return int(n), errors.Errorf("writeBytes: %w", dl.conn.getError())
+	}
+	return int(n), nil
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+func (dlw *dpiLobWriter) Close() error {
+	if dlw == nil || dlw.dpiLob == nil {
+		return nil
+	}
+	lob := dlw.dpiLob
+	dlw.dpiLob = nil
+	//C.dpiLob_flushBuffer(lob)
+	if C.dpiLob_closeResource(lob) == C.DPI_FAILURE {
+		err := dlw.getError()
+		if ec, ok := err.(interface{ Code() int }); ok && !dlw.opened && ec.Code() == 22289 { // cannot perform %s operation on an unopened file or LOB
+			return nil
+		}
+		return errors.Errorf("closeResource(%p): %w", lob, err)
+	}
+	return nil
+}
+
+// DirectLob holds a Lob and allows direct (Read/WriteAt, not streaming Read/Write) operations on it.
+type DirectLob struct {
+	conn   *conn
+	dpiLob *C.dpiLob
+	opened bool
+}
+
+var _ = io.ReaderAt((*DirectLob)(nil))
+var _ = io.WriterAt((*DirectLob)(nil))
+
+// NewTempLob returns a temporary LOB as DirectLob.
+func (c *conn) NewTempLob(isClob bool) (*DirectLob, error) {
+	typ := C.uint(C.DPI_ORACLE_TYPE_BLOB)
+	if isClob {
+		typ = C.DPI_ORACLE_TYPE_CLOB
+	}
+	lob := DirectLob{conn: c}
+	if C.dpiConn_newTempLob(c.dpiConn, typ, &lob.dpiLob) == C.DPI_FAILURE {
+		return nil, errors.Errorf("newTempLob: %w", c.getError())
+	}
+	return &lob, nil
+}
+
+// Close the Lob.
+func (dl *DirectLob) Close() error {
+	if !dl.opened {
+		return nil
+	}
+	dl.opened = false
+	if C.dpiLob_closeResource(dl.dpiLob) == C.DPI_FAILURE {
+		return errors.Errorf("closeResource: %w", dl.conn.getError())
+	}
+	return nil
+}
+
+// Size returns the size of the LOB.
+func (dl *DirectLob) Size() (int64, error) {
+	var n C.uint64_t
+	if C.dpiLob_getSize(dl.dpiLob, &n) == C.DPI_FAILURE {
+		return int64(n), errors.Errorf("getSize: %w", dl.conn.getError())
+	}
+	return int64(n), nil
+}
+
+// Trim the LOB to the given size.
+func (dl *DirectLob) Trim(size int64) error {
+	if C.dpiLob_trim(dl.dpiLob, C.uint64_t(size)) == C.DPI_FAILURE {
+		return errors.Errorf("trim: %w", dl.conn.getError())
+	}
+	return nil
+}
+
+// Set the contents of the LOB to the given byte slice.
+// The LOB is cleared first.
+func (dl *DirectLob) Set(p []byte) error {
+	if C.dpiLob_setFromBytes(dl.dpiLob, (*C.char)(unsafe.Pointer(&p[0])), C.uint64_t(len(p))) == C.DPI_FAILURE {
+		return errors.Errorf("setFromBytes: %w", dl.conn.getError())
+	}
+	return nil
+}
+
+// ReadAt reads at most len(p) bytes into p at offset.
+func (dl *DirectLob) ReadAt(p []byte, offset int64) (int, error) {
+	n := C.uint64_t(len(p))
+	if C.dpiLob_readBytes(dl.dpiLob, C.uint64_t(offset)+1, n, (*C.char)(unsafe.Pointer(&p[0])), &n) == C.DPI_FAILURE {
+		return int(n), errors.Errorf("readBytes: %w", dl.conn.getError())
+	}
+	return int(n), nil
+}
+
+// WriteAt writes p starting at offset.
+func (dl *DirectLob) WriteAt(p []byte, offset int64) (int, error) {
+	if !dl.opened {
+		//fmt.Printf("open %p\n", lob)
+		if C.dpiLob_openResource(dl.dpiLob) == C.DPI_FAILURE {
+			return 0, errors.Errorf("openResources(%p): %w", dl.dpiLob, dl.conn.getError())
+		}
+		dl.opened = true
+	}
+
+	n := C.uint64_t(len(p))
+	if C.dpiLob_writeBytes(dl.dpiLob, C.uint64_t(offset)+1, (*C.char)(unsafe.Pointer(&p[0])), n) == C.DPI_FAILURE {
+		return int(n), errors.Errorf("writeBytes: %w", dl.conn.getError())
+	}
+	return int(n), nil
+}
+

@@ -1,0 +1,154 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/internal/execution
+File: generic_reduce.go
+Line: 1698
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+func reduceDefaultUnsafePointer(data, retVal []unsafe.Pointer, dim0, dimSize, outerStride, stride, expected int, fn func(a, b unsafe.Pointer) unsafe.Pointer) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+			innerStart++
+		}
+	}
+}
+
+func reduceDefaultUnsafePointer(data, retVal []unsafe.Pointer, dim0, dimSize, outerStride, stride, expected int, fn func(a, b unsafe.Pointer) unsafe.Pointer) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+--------------------------------------------------------------
++/- 100 lines context:
+
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+			innerStart++
+		}
+	}
+}
+
+func reduceDefaultF64(data, retVal []float64, dim0, dimSize, outerStride, stride, expected int, fn func(a, b float64) float64) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+			writeTo := i*expected + j
+			retVal[writeTo] = sliced[innerStart]
+			for k := 1; k < dimSize; k++ {
+				readFrom := innerStart + k*stride
+				retVal[writeTo] = fn(retVal[writeTo], sliced[readFrom])
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+			innerStart++
+		}
+	}
+}
+
+func reduceDefaultC64(data, retVal []complex64, dim0, dimSize, outerStride, stride, expected int, fn func(a, b complex64) complex64) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+			writeTo := i*expected + j
+			retVal[writeTo] = sliced[innerStart]
+			for k := 1; k < dimSize; k++ {
+				readFrom := innerStart + k*stride
+				retVal[writeTo] = fn(retVal[writeTo], sliced[readFrom])
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+			innerStart++
+		}
+	}
+}
+
+func reduceDefaultC128(data, retVal []complex128, dim0, dimSize, outerStride, stride, expected int, fn func(a, b complex128) complex128) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+			writeTo := i*expected + j
+			retVal[writeTo] = sliced[innerStart]
+			for k := 1; k < dimSize; k++ {
+				readFrom := innerStart + k*stride
+				retVal[writeTo] = fn(retVal[writeTo], sliced[readFrom])
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+			innerStart++
+		}
+	}
+}
+
+func reduceDefaultStr(data, retVal []string, dim0, dimSize, outerStride, stride, expected int, fn func(a, b string) string) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+			writeTo := i*expected + j
+			retVal[writeTo] = sliced[innerStart]
+			for k := 1; k < dimSize; k++ {
+				readFrom := innerStart + k*stride
+				retVal[writeTo] = fn(retVal[writeTo], sliced[readFrom])
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+			innerStart++
+		}
+	}
+}
+
+func reduceDefaultUnsafePointer(data, retVal []unsafe.Pointer, dim0, dimSize, outerStride, stride, expected int, fn func(a, b unsafe.Pointer) unsafe.Pointer) {
+	for i := 0; i < dim0; i++ {
+		start := i * outerStride
+		sliced := data[start : start+outerStride]
+		var innerStart, strideTrack int
+		for j := 0; j < expected; j++ {
+			writeTo := i*expected + j
+			retVal[writeTo] = sliced[innerStart]
+			for k := 1; k < dimSize; k++ {
+				readFrom := innerStart + k*stride
+				retVal[writeTo] = fn(retVal[writeTo], sliced[readFrom])
+			}
+			strideTrack++
+			if strideTrack >= stride {
+				strideTrack = 0
+				innerStart += stride
+			}
+			innerStart++
+		}
+	}
+}
+

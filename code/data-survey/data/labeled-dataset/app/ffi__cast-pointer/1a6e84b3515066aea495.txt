@@ -1,0 +1,34 @@
+Module: github.com/mattn/go-sqlite3
+Version: v2.0.3+incompatible
+
+Package: github.com/mattn/go-sqlite3
+File: /root/.cache/go-build/b0/b0116489868972a541e55dc89eb83e9a029e18900b05b2c6e0dffd9ef11405a4-d
+Line: 964
+
+Imported (possibly among others) by: xo/usql
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+var _cgo_c4d9cd38b989_Cfunc_sqlite3_result_double = unsafe.Pointer(&__cgofn__cgo_c4d9cd38b989_Cfunc_sqlite3_result_double)
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return
+}
+//go:cgo_import_static _cgo_c4d9cd38b989_Cfunc_sqlite3_result_double
+//go:linkname __cgofn__cgo_c4d9cd38b989_Cfunc_sqlite3_result_double _cgo_c4d9cd38b989_Cfunc_sqlite3_result_double
+var __cgofn__cgo_c4d9cd38b989_Cfunc_sqlite3_result_double byte
+var _cgo_c4d9cd38b989_Cfunc_sqlite3_result_double = unsafe.Pointer(&__cgofn__cgo_c4d9cd38b989_Cfunc_sqlite3_result_double)
+
+//go:cgo_unsafe_args
+func _Cfunc_sqlite3_result_double(p0 *_Ctype_struct_sqlite3_context, p1 _Ctype_double) (r1 _Ctype_void) {
+	_cgo_runtime_cgocall(_cgo_c4d9cd38b989_Cfunc_sqlite3_result_double, uintptr(unsafe.Pointer(&p0)))
+	if _Cgo_always_false {
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

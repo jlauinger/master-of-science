@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: mgcmark.go
+Line: 735
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): unused
+Label 2 (For what purpose?): unused
+
+--------------------------------------------------------------
+Snippet line:
+
+scanframe := func(frame *stkframe, unused unsafe.Pointer) bool {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	if gp.sched.ctxt != nil {
+		scanblock(uintptr(unsafe.Pointer(&gp.sched.ctxt)), sys.PtrSize, &oneptrmask[0], gcw, &state)
+	}
+
+	// Scan the stack. Accumulate a list of stack objects.
+	scanframe := func(frame *stkframe, unused unsafe.Pointer) bool {
+		scanframeworker(frame, &state, gcw)
+		return true
+	}
+	gentraceback(^uintptr(0), ^uintptr(0), 0, gp, 0, nil, 0x7fffffff, scanframe, nil, 0)
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+	lock(&work.assistQueue.lock)
+	for !work.assistQueue.q.empty() && scanBytes > 0 {
+		gp := work.assistQueue.q.pop()
+		// Note that gp.gcAssistBytes is negative because gp
+		// is in debt. Think carefully about the signs below.
+		if scanBytes+gp.gcAssistBytes >= 0 {
+			// Satisfy this entire assist debt.
+			scanBytes += gp.gcAssistBytes
+			gp.gcAssistBytes = 0
+			// It's important that we *not* put gp in
+			// runnext. Otherwise, it's possible for user
+			// code to exploit the GC worker's high
+			// scheduler priority to get itself always run
+			// before other goroutines and always in the
+			// fresh quantum started by GC.
+			ready(gp, 0, false)
+		} else {
+			// Partially satisfy this assist.
+			gp.gcAssistBytes += scanBytes
+			scanBytes = 0
+			// As a heuristic, we move this assist to the
+			// back of the queue so that large assists
+			// can't clog up the assist queue and
+			// substantially delay small assists.
+			work.assistQueue.q.pushBack(gp)
+			break
+		}
+	}
+
+	if scanBytes > 0 {
+		// Convert from scan bytes back to work.
+		scanWork = int64(float64(scanBytes) * gcController.assistWorkPerByte)
+		atomic.Xaddint64(&gcController.bgScanCredit, scanWork)
+	}
+	unlock(&work.assistQueue.lock)
+}
+
+// scanstack scans gp's stack, greying all pointers found on the stack.
+//
+// scanstack will also shrink the stack if it is safe to do so. If it
+// is not, it schedules a stack shrink for the next synchronous safe
+// point.
+//
+// scanstack is marked go:systemstack because it must not be preempted
+// while using a workbuf.
+//
+//go:nowritebarrier
+//go:systemstack
+func scanstack(gp *g, gcw *gcWork) {
+	if readgstatus(gp)&_Gscan == 0 {
+		print("runtime:scanstack: gp=", gp, ", goid=", gp.goid, ", gp->atomicstatus=", hex(readgstatus(gp)), "\n")
+		throw("scanstack - bad status")
+	}
+
+	switch readgstatus(gp) &^ _Gscan {
+	default:
+		print("runtime: gp=", gp, ", goid=", gp.goid, ", gp->atomicstatus=", readgstatus(gp), "\n")
+		throw("mark - bad status")
+	case _Gdead:
+		return
+	case _Grunning:
+		print("runtime: gp=", gp, ", goid=", gp.goid, ", gp->atomicstatus=", readgstatus(gp), "\n")
+		throw("scanstack: goroutine not stopped")
+	case _Grunnable, _Gsyscall, _Gwaiting:
+		// ok
+	}
+
+	if gp == getg() {
+		throw("can't scan our own stack")
+	}
+
+	if isShrinkStackSafe(gp) {
+		// Shrink the stack if not much of it is being used.
+		shrinkstack(gp)
+	} else {
+		// Otherwise, shrink the stack at the next sync safe point.
+		gp.preemptShrink = true
+	}
+
+	var state stackScanState
+	state.stack = gp.stack
+
+	if stackTraceDebug {
+		println("stack trace goroutine", gp.goid)
+	}
+
+	if debugScanConservative && gp.asyncSafePoint {
+		print("scanning async preempted goroutine ", gp.goid, " stack [", hex(gp.stack.lo), ",", hex(gp.stack.hi), ")\n")
+	}
+
+	// Scan the saved context register. This is effectively a live
+	// register that gets moved back and forth between the
+	// register and sched.ctxt without a write barrier.
+	if gp.sched.ctxt != nil {
+		scanblock(uintptr(unsafe.Pointer(&gp.sched.ctxt)), sys.PtrSize, &oneptrmask[0], gcw, &state)
+	}
+
+	// Scan the stack. Accumulate a list of stack objects.
+	scanframe := func(frame *stkframe, unused unsafe.Pointer) bool {
+		scanframeworker(frame, &state, gcw)
+		return true
+	}
+	gentraceback(^uintptr(0), ^uintptr(0), 0, gp, 0, nil, 0x7fffffff, scanframe, nil, 0)
+
+	// Find additional pointers that point into the stack from the heap.
+	// Currently this includes defers and panics. See also function copystack.
+
+	// Find and trace all defer arguments.
+	tracebackdefers(gp, scanframe, nil)
+
+	// Find and trace other pointers in defer records.
+	for d := gp._defer; d != nil; d = d.link {
+		if d.fn != nil {
+			// tracebackdefers above does not scan the func value, which could
+			// be a stack allocated closure. See issue 30453.
+			scanblock(uintptr(unsafe.Pointer(&d.fn)), sys.PtrSize, &oneptrmask[0], gcw, &state)
+		}
+		if d.link != nil {
+			// The link field of a stack-allocated defer record might point
+			// to a heap-allocated defer record. Keep that heap record live.
+			scanblock(uintptr(unsafe.Pointer(&d.link)), sys.PtrSize, &oneptrmask[0], gcw, &state)
+		}
+		// Retain defers records themselves.
+		// Defer records might not be reachable from the G through regular heap
+		// tracing because the defer linked list might weave between the stack and the heap.
+		if d.heap {
+			scanblock(uintptr(unsafe.Pointer(&d)), sys.PtrSize, &oneptrmask[0], gcw, &state)
+		}
+	}
+	if gp._panic != nil {
+		// Panics are always stack allocated.
+		state.putPtr(uintptr(unsafe.Pointer(gp._panic)), false)
+	}
+
+	// Find and scan all reachable stack objects.
+	//
+	// The state's pointer queue prioritizes precise pointers over
+	// conservative pointers so that we'll prefer scanning stack
+	// objects precisely.
+	state.buildIndex()
+	for {
+		p, conservative := state.getPtr()
+		if p == 0 {
+			break
+		}
+		obj := state.findObject(p)
+		if obj == nil {
+			continue
+		}
+		t := obj.typ
+		if t == nil {
+			// We've already scanned this object.
+			continue
+		}
+		obj.setType(nil) // Don't scan it again.
+		if stackTraceDebug {
+			printlock()
+			print("  live stkobj at", hex(state.stack.lo+uintptr(obj.off)), "of type", t.string())
+			if conservative {
+				print(" (conservative)")
+			}
+			println()
+			printunlock()
+		}
+		gcdata := t.gcdata
+		var s *mspan
+		if t.kind&kindGCProg != 0 {
+			// This path is pretty unlikely, an object large enough
+			// to have a GC program allocated on the stack.
+			// We need some space to unpack the program into a straight
+			// bitmask, which we allocate/free here.
+			// TODO: it would be nice if there were a way to run a GC
+			// program without having to store all its bits. We'd have
+			// to change from a Lempel-Ziv style program to something else.
+			// Or we can forbid putting objects on stacks if they require
+			// a gc program (see issue 27447).
+			s = materializeGCProg(t.ptrdata, gcdata)
+			gcdata = (*byte)(unsafe.Pointer(s.startAddr))
+		}
+
+		b := state.stack.lo + uintptr(obj.off)
+		if conservative {
+			scanConservative(b, t.ptrdata, gcdata, gcw, &state)
+		} else {
+			scanblock(b, t.ptrdata, gcdata, gcw, &state)
+		}
+
+		if s != nil {
+			dematerializeGCProg(s)
+		}
+	}
+
+	// Deallocate object buffers.
+	// (Pointer buffers were all deallocated in the loop above.)
+	for state.head != nil {
+		x := state.head
+		state.head = x.next
+		if stackTraceDebug {
+			for _, obj := range x.obj[:x.nobj] {
+

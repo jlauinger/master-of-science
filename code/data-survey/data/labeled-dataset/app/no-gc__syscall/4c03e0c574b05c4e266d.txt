@@ -1,0 +1,186 @@
+Module: github.com/vishvananda/netlink
+Version: v1.1.1-0.20200210222539-bfba8e4149db
+
+Package: github.com/vishvananda/netlink
+File: link_linux.go
+Line: 2971
+
+Imported (possibly among others) by: cilium/cilium
+
+Label 1 (What is happening?): syscall
+Label 2 (For what purpose?): no-gc
+
+--------------------------------------------------------------
+Snippet line:
+
+ifreq.Data = uintptr(unsafe.Pointer(&buffer[0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	buffer, err := vethStatsSerialize(stats)
+	if err != nil {
+		return -1, err
+	}
+
+	ifreq.Data = uintptr(unsafe.Pointer(&buffer[0]))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf("SIOCETHTOOL request for %q failed, errno=%v", link.Attrs().Name, errno)
+	}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+func parseXfrmiData(link Link, data []syscall.NetlinkRouteAttr) {
+	xfrmi := link.(*Xfrmi)
+	for _, datum := range data {
+		switch datum.Attr.Type {
+		case nl.IFLA_XFRM_LINK:
+			xfrmi.ParentIndex = int(native.Uint32(datum.Value))
+		case nl.IFLA_XFRM_IF_ID:
+			xfrmi.Ifid = native.Uint32(datum.Value)
+		}
+	}
+}
+
+// LinkSetBondSlave add slave to bond link via ioctl interface.
+func LinkSetBondSlave(link Link, master *Bond) error {
+	fd, err := getSocketUDP()
+	if err != nil {
+		return err
+	}
+	defer syscall.Close(fd)
+
+	ifreq := newIocltSlaveReq(link.Attrs().Name, master.Attrs().Name)
+
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), unix.SIOCBONDENSLAVE, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return fmt.Errorf("Failed to enslave %q to %q, errno=%v", link.Attrs().Name, master.Attrs().Name, errno)
+	}
+	return nil
+}
+
+// LinkSetBondSlaveQueueId modify bond slave queue-id.
+func (h *Handle) LinkSetBondSlaveQueueId(link Link, queueId uint16) error {
+	base := link.Attrs()
+	h.ensureIndex(base)
+	req := h.newNetlinkRequest(unix.RTM_SETLINK, unix.NLM_F_ACK)
+
+	msg := nl.NewIfInfomsg(unix.AF_UNSPEC)
+	msg.Index = int32(base.Index)
+	req.AddData(msg)
+
+	linkInfo := nl.NewRtAttr(unix.IFLA_LINKINFO, nil)
+	data := linkInfo.AddRtAttr(nl.IFLA_INFO_SLAVE_DATA, nil)
+	data.AddRtAttr(nl.IFLA_BOND_SLAVE_QUEUE_ID, nl.Uint16Attr(queueId))
+
+	req.AddData(linkInfo)
+	_, err := req.Execute(unix.NETLINK_ROUTE, 0)
+	return err
+}
+
+// LinkSetBondSlaveQueueId modify bond slave queue-id.
+func LinkSetBondSlaveQueueId(link Link, queueId uint16) error {
+	return pkgHandle.LinkSetBondSlaveQueueId(link, queueId)
+}
+
+func vethStatsSerialize(stats ethtoolStats) ([]byte, error) {
+	statsSize := int(unsafe.Sizeof(stats)) + int(stats.nStats)*int(unsafe.Sizeof(uint64(0)))
+	b := make([]byte, 0, statsSize)
+	buf := bytes.NewBuffer(b)
+	err := binary.Write(buf, nl.NativeEndian(), stats)
+	return buf.Bytes()[:statsSize], err
+}
+
+type vethEthtoolStats struct {
+	Cmd    uint32
+	NStats uint32
+	Peer   uint64
+	// Newer kernels have XDP stats in here, but we only care
+	// to extract the peer ifindex here.
+}
+
+func vethStatsDeserialize(b []byte) (vethEthtoolStats, error) {
+	var stats = vethEthtoolStats{}
+	err := binary.Read(bytes.NewReader(b), nl.NativeEndian(), &stats)
+	return stats, err
+}
+
+// VethPeerIndex get veth peer index.
+func VethPeerIndex(link *Veth) (int, error) {
+	fd, err := getSocketUDP()
+	if err != nil {
+		return -1, err
+	}
+	defer syscall.Close(fd)
+
+	ifreq, sSet := newIocltStringSetReq(link.Name)
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf("SIOCETHTOOL request for %q failed, errno=%v", link.Attrs().Name, errno)
+	}
+
+	stats := ethtoolStats{
+		cmd:    ETHTOOL_GSTATS,
+		nStats: sSet.data[0],
+	}
+
+	buffer, err := vethStatsSerialize(stats)
+	if err != nil {
+		return -1, err
+	}
+
+	ifreq.Data = uintptr(unsafe.Pointer(&buffer[0]))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf("SIOCETHTOOL request for %q failed, errno=%v", link.Attrs().Name, errno)
+	}
+
+	vstats, err := vethStatsDeserialize(buffer)
+	if err != nil {
+		return -1, err
+	}
+
+	return int(vstats.Peer), nil
+}
+
+func parseTuntapData(link Link, data []syscall.NetlinkRouteAttr) {
+	tuntap := link.(*Tuntap)
+	for _, datum := range data {
+		switch datum.Attr.Type {
+		case nl.IFLA_TUN_OWNER:
+			tuntap.Owner = native.Uint32(datum.Value)
+		case nl.IFLA_TUN_GROUP:
+			tuntap.Group = native.Uint32(datum.Value)
+		case nl.IFLA_TUN_TYPE:
+			tuntap.Mode = TuntapMode(uint8(datum.Value[0]))
+		case nl.IFLA_TUN_PERSIST:
+			tuntap.NonPersist = false
+			if uint8(datum.Value[0]) == 0 {
+				tuntap.NonPersist = true
+			}
+		}
+	}
+}
+
+func parseIPoIBData(link Link, data []syscall.NetlinkRouteAttr) {
+	ipoib := link.(*IPoIB)
+	for _, datum := range data {
+		switch datum.Attr.Type {
+		case nl.IFLA_IPOIB_PKEY:
+			ipoib.Pkey = uint16(native.Uint16(datum.Value))
+		case nl.IFLA_IPOIB_MODE:
+			ipoib.Mode = IPoIBMode(native.Uint16(datum.Value))
+		case nl.IFLA_IPOIB_UMCAST:
+			ipoib.Umcast = uint16(native.Uint16(datum.Value))
+		}
+	}
+}
+
+func addIPoIBAttrs(ipoib *IPoIB, linkInfo *nl.RtAttr) {
+	data := linkInfo.AddRtAttr(nl.IFLA_INFO_DATA, nil)
+	data.AddRtAttr(nl.IFLA_IPOIB_PKEY, nl.Uint16Attr(uint16(ipoib.Pkey)))
+	data.AddRtAttr(nl.IFLA_IPOIB_MODE, nl.Uint16Attr(uint16(ipoib.Mode)))
+	data.AddRtAttr(nl.IFLA_IPOIB_UMCAST, nl.Uint16Attr(uint16(ipoib.Umcast)))
+}
+

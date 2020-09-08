@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: type.go
+Line: 793
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+tt := (*interfaceType)(unsafe.Pointer(t))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return ut.exportedMethods()
+}
+
+func (t *rtype) NumMethod() int {
+	if t.Kind() == Interface {
+		tt := (*interfaceType)(unsafe.Pointer(t))
+		return tt.NumMethod()
+	}
+	return len(t.exportedMethods())
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+func (t *rtype) uncommon() *uncommonType {
+	if t.tflag&tflagUncommon == 0 {
+		return nil
+	}
+	switch t.Kind() {
+	case Struct:
+		return &(*structTypeUncommon)(unsafe.Pointer(t)).u
+	case Ptr:
+		type u struct {
+			ptrType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Func:
+		type u struct {
+			funcType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Slice:
+		type u struct {
+			sliceType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Array:
+		type u struct {
+			arrayType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Chan:
+		type u struct {
+			chanType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Map:
+		type u struct {
+			mapType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Interface:
+		type u struct {
+			interfaceType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	default:
+		type u struct {
+			rtype
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	}
+}
+
+func (t *rtype) String() string {
+	s := t.nameOff(t.str).name()
+	if t.tflag&tflagExtraStar != 0 {
+		return s[1:]
+	}
+	return s
+}
+
+func (t *rtype) Size() uintptr { return t.size }
+
+func (t *rtype) Bits() int {
+	if t == nil {
+		panic("reflect: Bits of nil Type")
+	}
+	k := t.Kind()
+	if k < Int || k > Complex128 {
+		panic("reflect: Bits of non-arithmetic Type " + t.String())
+	}
+	return int(t.size) * 8
+}
+
+func (t *rtype) Align() int { return int(t.align) }
+
+func (t *rtype) FieldAlign() int { return int(t.fieldAlign) }
+
+func (t *rtype) Kind() Kind { return Kind(t.kind & kindMask) }
+
+func (t *rtype) pointers() bool { return t.ptrdata != 0 }
+
+func (t *rtype) common() *rtype { return t }
+
+func (t *rtype) exportedMethods() []method {
+	ut := t.uncommon()
+	if ut == nil {
+		return nil
+	}
+	return ut.exportedMethods()
+}
+
+func (t *rtype) NumMethod() int {
+	if t.Kind() == Interface {
+		tt := (*interfaceType)(unsafe.Pointer(t))
+		return tt.NumMethod()
+	}
+	return len(t.exportedMethods())
+}
+
+func (t *rtype) Method(i int) (m Method) {
+	if t.Kind() == Interface {
+		tt := (*interfaceType)(unsafe.Pointer(t))
+		return tt.Method(i)
+	}
+	methods := t.exportedMethods()
+	if i < 0 || i >= len(methods) {
+		panic("reflect: Method index out of range")
+	}
+	p := methods[i]
+	pname := t.nameOff(p.name)
+	m.Name = pname.name()
+	fl := flag(Func)
+	mtyp := t.typeOff(p.mtyp)
+	ft := (*funcType)(unsafe.Pointer(mtyp))
+	in := make([]Type, 0, 1+len(ft.in()))
+	in = append(in, t)
+	for _, arg := range ft.in() {
+		in = append(in, arg)
+	}
+	out := make([]Type, 0, len(ft.out()))
+	for _, ret := range ft.out() {
+		out = append(out, ret)
+	}
+	mt := FuncOf(in, out, ft.IsVariadic())
+	m.Type = mt
+	tfn := t.textOff(p.tfn)
+	fn := unsafe.Pointer(&tfn)
+	m.Func = Value{mt.(*rtype), fn, fl}
+
+	m.Index = i
+	return m
+}
+
+func (t *rtype) MethodByName(name string) (m Method, ok bool) {
+	if t.Kind() == Interface {
+		tt := (*interfaceType)(unsafe.Pointer(t))
+		return tt.MethodByName(name)
+	}
+	ut := t.uncommon()
+	if ut == nil {
+		return Method{}, false
+	}
+	// TODO(mdempsky): Binary search.
+	for i, p := range ut.exportedMethods() {
+		if t.nameOff(p.name).name() == name {
+			return t.Method(i), true
+		}
+	}
+	return Method{}, false
+}
+
+func (t *rtype) PkgPath() string {
+	if t.tflag&tflagNamed == 0 {
+		return ""
+	}
+	ut := t.uncommon()
+	if ut == nil {
+		return ""
+	}
+	return t.nameOff(ut.pkgPath).name()
+}
+
+func (t *rtype) hasName() bool {
+	return t.tflag&tflagNamed != 0
+}
+
+func (t *rtype) Name() string {
+	if !t.hasName() {
+		return ""
+	}
+	s := t.String()
+	i := len(s) - 1
+	for i >= 0 && s[i] != '.' {
+		i--
+	}
+	return s[i+1:]
+}
+
+func (t *rtype) ChanDir() ChanDir {
+	if t.Kind() != Chan {
+		panic("reflect: ChanDir of non-chan type " + t.String())
+	}
+	tt := (*chanType)(unsafe.Pointer(t))
+	return ChanDir(tt.dir)
+}
+
+func (t *rtype) IsVariadic() bool {
+	if t.Kind() != Func {
+		panic("reflect: IsVariadic of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return tt.outCount&(1<<15) != 0
+}
+
+

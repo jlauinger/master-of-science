@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: internal/reflectlite
+File: type.go
+Line: 428
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+return &(*structTypeUncommon)(unsafe.Pointer(t)).u
+--------------------------------------------------------------
++/- 5 lines context:
+
+	if t.tflag&tflagUncommon == 0 {
+		return nil
+	}
+	switch t.Kind() {
+	case Struct:
+		return &(*structTypeUncommon)(unsafe.Pointer(t)).u
+	case Ptr:
+		type u struct {
+			ptrType
+			u uncommonType
+		}
+--------------------------------------------------------------
++/- 100 lines context:
+
+		return 0
+	}
+	off := 3 + n.nameLen()
+	return int(uint16(*n.data(off, "name taglen field"))<<8 | uint16(*n.data(off+1, "name taglen field")))
+}
+
+func (n name) name() (s string) {
+	if n.bytes == nil {
+		return
+	}
+	b := (*[4]byte)(unsafe.Pointer(n.bytes))
+
+	hdr := (*stringHeader)(unsafe.Pointer(&s))
+	hdr.Data = unsafe.Pointer(&b[3])
+	hdr.Len = int(b[1])<<8 | int(b[2])
+	return s
+}
+
+func (n name) tag() (s string) {
+	tl := n.tagLen()
+	if tl == 0 {
+		return ""
+	}
+	nl := n.nameLen()
+	hdr := (*stringHeader)(unsafe.Pointer(&s))
+	hdr.Data = unsafe.Pointer(n.data(3+nl+2, "non-empty string"))
+	hdr.Len = tl
+	return s
+}
+
+func (n name) pkgPath() string {
+	if n.bytes == nil || *n.data(0, "name flag field")&(1<<2) == 0 {
+		return ""
+	}
+	off := 3 + n.nameLen()
+	if tl := n.tagLen(); tl > 0 {
+		off += 2 + tl
+	}
+	var nameOff int32
+	// Note that this field may not be aligned in memory,
+	// so we cannot use a direct int32 assignment here.
+	copy((*[4]byte)(unsafe.Pointer(&nameOff))[:], (*[4]byte)(unsafe.Pointer(n.data(off, "name offset field")))[:])
+	pkgPathName := name{(*byte)(resolveTypeOff(unsafe.Pointer(n.bytes), nameOff))}
+	return pkgPathName.name()
+}
+
+/*
+ * The compiler knows the exact layout of all the data structures above.
+ * The compiler does not know about the data structures and methods below.
+ */
+
+const (
+	kindDirectIface = 1 << 5
+	kindGCProg      = 1 << 6 // Type.gc points to GC program
+	kindMask        = (1 << 5) - 1
+)
+
+func (t *uncommonType) methods() []method {
+	if t.mcount == 0 {
+		return nil
+	}
+	return (*[1 << 16]method)(add(unsafe.Pointer(t), uintptr(t.moff), "t.mcount > 0"))[:t.mcount:t.mcount]
+}
+
+func (t *uncommonType) exportedMethods() []method {
+	if t.xcount == 0 {
+		return nil
+	}
+	return (*[1 << 16]method)(add(unsafe.Pointer(t), uintptr(t.moff), "t.xcount > 0"))[:t.xcount:t.xcount]
+}
+
+// resolveNameOff resolves a name offset from a base pointer.
+// The (*rtype).nameOff method is a convenience wrapper for this function.
+// Implemented in the runtime package.
+func resolveNameOff(ptrInModule unsafe.Pointer, off int32) unsafe.Pointer
+
+// resolveTypeOff resolves an *rtype offset from a base type.
+// The (*rtype).typeOff method is a convenience wrapper for this function.
+// Implemented in the runtime package.
+func resolveTypeOff(rtype unsafe.Pointer, off int32) unsafe.Pointer
+
+type nameOff int32 // offset to a name
+type typeOff int32 // offset to an *rtype
+type textOff int32 // offset from top of text section
+
+func (t *rtype) nameOff(off nameOff) name {
+	return name{(*byte)(resolveNameOff(unsafe.Pointer(t), int32(off)))}
+}
+
+func (t *rtype) typeOff(off typeOff) *rtype {
+	return (*rtype)(resolveTypeOff(unsafe.Pointer(t), int32(off)))
+}
+
+func (t *rtype) uncommon() *uncommonType {
+	if t.tflag&tflagUncommon == 0 {
+		return nil
+	}
+	switch t.Kind() {
+	case Struct:
+		return &(*structTypeUncommon)(unsafe.Pointer(t)).u
+	case Ptr:
+		type u struct {
+			ptrType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Func:
+		type u struct {
+			funcType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Slice:
+		type u struct {
+			sliceType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Array:
+		type u struct {
+			arrayType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Chan:
+		type u struct {
+			chanType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Map:
+		type u struct {
+			mapType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	case Interface:
+		type u struct {
+			interfaceType
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	default:
+		type u struct {
+			rtype
+			u uncommonType
+		}
+		return &(*u)(unsafe.Pointer(t)).u
+	}
+}
+
+func (t *rtype) String() string {
+	s := t.nameOff(t.str).name()
+	if t.tflag&tflagExtraStar != 0 {
+		return s[1:]
+	}
+	return s
+}
+
+func (t *rtype) Size() uintptr { return t.size }
+
+func (t *rtype) Kind() Kind { return Kind(t.kind & kindMask) }
+
+func (t *rtype) pointers() bool { return t.ptrdata != 0 }
+
+func (t *rtype) common() *rtype { return t }
+
+func (t *rtype) exportedMethods() []method {
+	ut := t.uncommon()
+	if ut == nil {
+		return nil
+	}
+	return ut.exportedMethods()
+}
+
+func (t *rtype) NumMethod() int {
+	if t.Kind() == Interface {
+		tt := (*interfaceType)(unsafe.Pointer(t))
+		return tt.NumMethod()
+	}
+	return len(t.exportedMethods())
+}
+
+func (t *rtype) PkgPath() string {
+	if t.tflag&tflagNamed == 0 {
+		return ""
+	}
+	ut := t.uncommon()
+	if ut == nil {
+		return ""
+	}
+	return t.nameOff(ut.pkgPath).name()
+}
+
+func (t *rtype) hasName() bool {
+	return t.tflag&tflagNamed != 0
+}
+
+func (t *rtype) Name() string {
+	if !t.hasName() {
+

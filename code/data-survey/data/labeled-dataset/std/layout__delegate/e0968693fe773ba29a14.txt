@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: proc.go
+Line: 4118
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+mheap_.spanalloc.free(unsafe.Pointer(pp.mspancache.buf[i]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		pp.deferpool[i] = pp.deferpoolbuf[i][:0]
+	}
+	systemstack(func() {
+		for i := 0; i < pp.mspancache.len; i++ {
+			// Safe to call since the world is stopped.
+			mheap_.spanalloc.free(unsafe.Pointer(pp.mspancache.buf[i]))
+		}
+		pp.mspancache.len = 0
+		pp.pcache.flush(&mheap_.pages)
+	})
+	freemcache(pp.mcache)
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+
+	_g_.m.locks--
+}
+
+// init initializes pp, which may be a freshly allocated p or a
+// previously destroyed p, and transitions it to status _Pgcstop.
+func (pp *p) init(id int32) {
+	pp.id = id
+	pp.status = _Pgcstop
+	pp.sudogcache = pp.sudogbuf[:0]
+	for i := range pp.deferpool {
+		pp.deferpool[i] = pp.deferpoolbuf[i][:0]
+	}
+	pp.wbBuf.reset()
+	if pp.mcache == nil {
+		if id == 0 {
+			if getg().m.mcache == nil {
+				throw("missing mcache?")
+			}
+			pp.mcache = getg().m.mcache // bootstrap
+		} else {
+			pp.mcache = allocmcache()
+		}
+	}
+	if raceenabled && pp.raceprocctx == 0 {
+		if id == 0 {
+			pp.raceprocctx = raceprocctx0
+			raceprocctx0 = 0 // bootstrap
+		} else {
+			pp.raceprocctx = raceproccreate()
+		}
+	}
+}
+
+// destroy releases all of the resources associated with pp and
+// transitions it to status _Pdead.
+//
+// sched.lock must be held and the world must be stopped.
+func (pp *p) destroy() {
+	// Move all runnable goroutines to the global queue
+	for pp.runqhead != pp.runqtail {
+		// Pop from tail of local queue
+		pp.runqtail--
+		gp := pp.runq[pp.runqtail%uint32(len(pp.runq))].ptr()
+		// Push onto head of global queue
+		globrunqputhead(gp)
+	}
+	if pp.runnext != 0 {
+		globrunqputhead(pp.runnext.ptr())
+		pp.runnext = 0
+	}
+	if len(pp.timers) > 0 {
+		plocal := getg().m.p.ptr()
+		// The world is stopped, but we acquire timersLock to
+		// protect against sysmon calling timeSleepUntil.
+		// This is the only case where we hold the timersLock of
+		// more than one P, so there are no deadlock concerns.
+		lock(&plocal.timersLock)
+		lock(&pp.timersLock)
+		moveTimers(plocal, pp.timers)
+		pp.timers = nil
+		pp.numTimers = 0
+		pp.adjustTimers = 0
+		pp.deletedTimers = 0
+		atomic.Store64(&pp.timer0When, 0)
+		unlock(&pp.timersLock)
+		unlock(&plocal.timersLock)
+	}
+	// If there's a background worker, make it runnable and put
+	// it on the global queue so it can clean itself up.
+	if gp := pp.gcBgMarkWorker.ptr(); gp != nil {
+		casgstatus(gp, _Gwaiting, _Grunnable)
+		if trace.enabled {
+			traceGoUnpark(gp, 0)
+		}
+		globrunqput(gp)
+		// This assignment doesn't race because the
+		// world is stopped.
+		pp.gcBgMarkWorker.set(nil)
+	}
+	// Flush p's write barrier buffer.
+	if gcphase != _GCoff {
+		wbBufFlush1(pp)
+		pp.gcw.dispose()
+	}
+	for i := range pp.sudogbuf {
+		pp.sudogbuf[i] = nil
+	}
+	pp.sudogcache = pp.sudogbuf[:0]
+	for i := range pp.deferpool {
+		for j := range pp.deferpoolbuf[i] {
+			pp.deferpoolbuf[i][j] = nil
+		}
+		pp.deferpool[i] = pp.deferpoolbuf[i][:0]
+	}
+	systemstack(func() {
+		for i := 0; i < pp.mspancache.len; i++ {
+			// Safe to call since the world is stopped.
+			mheap_.spanalloc.free(unsafe.Pointer(pp.mspancache.buf[i]))
+		}
+		pp.mspancache.len = 0
+		pp.pcache.flush(&mheap_.pages)
+	})
+	freemcache(pp.mcache)
+	pp.mcache = nil
+	gfpurge(pp)
+	traceProcFree(pp)
+	if raceenabled {
+		if pp.timerRaceCtx != 0 {
+			// The race detector code uses a callback to fetch
+			// the proc context, so arrange for that callback
+			// to see the right thing.
+			// This hack only works because we are the only
+			// thread running.
+			mp := getg().m
+			phold := mp.p.ptr()
+			mp.p.set(pp)
+
+			racectxend(pp.timerRaceCtx)
+			pp.timerRaceCtx = 0
+
+			mp.p.set(phold)
+		}
+		raceprocdestroy(pp.raceprocctx)
+		pp.raceprocctx = 0
+	}
+	pp.gcAssistTime = 0
+	pp.status = _Pdead
+}
+
+// Change number of processors. The world is stopped, sched is locked.
+// gcworkbufs are not being modified by either the GC or
+// the write barrier code.
+// Returns list of Ps with local work, they need to be scheduled by the caller.
+func procresize(nprocs int32) *p {
+	old := gomaxprocs
+	if old < 0 || nprocs <= 0 {
+		throw("procresize: invalid arg")
+	}
+	if trace.enabled {
+		traceGomaxprocs(nprocs)
+	}
+
+	// update statistics
+	now := nanotime()
+	if sched.procresizetime != 0 {
+		sched.totaltime += int64(old) * (now - sched.procresizetime)
+	}
+	sched.procresizetime = now
+
+	// Grow allp if necessary.
+	if nprocs > int32(len(allp)) {
+		// Synchronize with retake, which could be running
+		// concurrently since it doesn't run on a P.
+		lock(&allpLock)
+		if nprocs <= int32(cap(allp)) {
+			allp = allp[:nprocs]
+		} else {
+			nallp := make([]*p, nprocs)
+			// Copy everything up to allp's cap so we
+			// never lose old allocated Ps.
+			copy(nallp, allp[:cap(allp)])
+			allp = nallp
+		}
+		unlock(&allpLock)
+	}
+
+	// initialize new P's
+	for i := old; i < nprocs; i++ {
+		pp := allp[i]
+		if pp == nil {
+			pp = new(p)
+		}
+		pp.init(i)
+		atomicstorep(unsafe.Pointer(&allp[i]), unsafe.Pointer(pp))
+	}
+
+	_g_ := getg()
+	if _g_.m.p != 0 && _g_.m.p.ptr().id < nprocs {
+		// continue to use the current P
+		_g_.m.p.ptr().status = _Prunning
+		_g_.m.p.ptr().mcache.prepareForSweep()
+	} else {
+		// release the current P and acquire allp[0].
+		//
+		// We must do this before destroying our current P
+		// because p.destroy itself has write barriers, so we
+		// need to do that from a valid P.
+		if _g_.m.p != 0 {
+			if trace.enabled {
+				// Pretend that we were descheduled
+				// and then scheduled again to keep
+				// the trace sane.
+				traceGoSched()
+				traceProcStop(_g_.m.p.ptr())
+			}
+			_g_.m.p.ptr().m = 0
+		}
+		_g_.m.p = 0
+

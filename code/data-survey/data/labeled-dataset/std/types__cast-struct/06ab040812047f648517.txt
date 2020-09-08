@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: internal/reflectlite
+File: type.go
+Line: 596
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+tt := (*structType)(unsafe.Pointer(t))
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func (t *rtype) NumField() int {
+	if t.Kind() != Struct {
+		panic("reflect: NumField of non-struct type")
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return len(tt.fields)
+}
+
+func (t *rtype) NumIn() int {
+	if t.Kind() != Func {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	ut := t.uncommon()
+	if ut == nil {
+		return nil
+	}
+	return ut.exportedMethods()
+}
+
+func (t *rtype) NumMethod() int {
+	if t.Kind() == Interface {
+		tt := (*interfaceType)(unsafe.Pointer(t))
+		return tt.NumMethod()
+	}
+	return len(t.exportedMethods())
+}
+
+func (t *rtype) PkgPath() string {
+	if t.tflag&tflagNamed == 0 {
+		return ""
+	}
+	ut := t.uncommon()
+	if ut == nil {
+		return ""
+	}
+	return t.nameOff(ut.pkgPath).name()
+}
+
+func (t *rtype) hasName() bool {
+	return t.tflag&tflagNamed != 0
+}
+
+func (t *rtype) Name() string {
+	if !t.hasName() {
+		return ""
+	}
+	s := t.String()
+	i := len(s) - 1
+	for i >= 0 && s[i] != '.' {
+		i--
+	}
+	return s[i+1:]
+}
+
+func (t *rtype) chanDir() chanDir {
+	if t.Kind() != Chan {
+		panic("reflect: chanDir of non-chan type")
+	}
+	tt := (*chanType)(unsafe.Pointer(t))
+	return chanDir(tt.dir)
+}
+
+func (t *rtype) Elem() Type {
+	switch t.Kind() {
+	case Array:
+		tt := (*arrayType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	case Chan:
+		tt := (*chanType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	case Map:
+		tt := (*mapType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	case Ptr:
+		tt := (*ptrType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	case Slice:
+		tt := (*sliceType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	}
+	panic("reflect: Elem of invalid type")
+}
+
+func (t *rtype) In(i int) Type {
+	if t.Kind() != Func {
+		panic("reflect: In of non-func type")
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return toType(tt.in()[i])
+}
+
+func (t *rtype) Key() Type {
+	if t.Kind() != Map {
+		panic("reflect: Key of non-map type")
+	}
+	tt := (*mapType)(unsafe.Pointer(t))
+	return toType(tt.key)
+}
+
+func (t *rtype) Len() int {
+	if t.Kind() != Array {
+		panic("reflect: Len of non-array type")
+	}
+	tt := (*arrayType)(unsafe.Pointer(t))
+	return int(tt.len)
+}
+
+func (t *rtype) NumField() int {
+	if t.Kind() != Struct {
+		panic("reflect: NumField of non-struct type")
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return len(tt.fields)
+}
+
+func (t *rtype) NumIn() int {
+	if t.Kind() != Func {
+		panic("reflect: NumIn of non-func type")
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return int(tt.inCount)
+}
+
+func (t *rtype) NumOut() int {
+	if t.Kind() != Func {
+		panic("reflect: NumOut of non-func type")
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return len(tt.out())
+}
+
+func (t *rtype) Out(i int) Type {
+	if t.Kind() != Func {
+		panic("reflect: Out of non-func type")
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return toType(tt.out()[i])
+}
+
+func (t *funcType) in() []*rtype {
+	uadd := unsafe.Sizeof(*t)
+	if t.tflag&tflagUncommon != 0 {
+		uadd += unsafe.Sizeof(uncommonType{})
+	}
+	if t.inCount == 0 {
+		return nil
+	}
+	return (*[1 << 20]*rtype)(add(unsafe.Pointer(t), uadd, "t.inCount > 0"))[:t.inCount:t.inCount]
+}
+
+func (t *funcType) out() []*rtype {
+	uadd := unsafe.Sizeof(*t)
+	if t.tflag&tflagUncommon != 0 {
+		uadd += unsafe.Sizeof(uncommonType{})
+	}
+	outCount := t.outCount & (1<<15 - 1)
+	if outCount == 0 {
+		return nil
+	}
+	return (*[1 << 20]*rtype)(add(unsafe.Pointer(t), uadd, "outCount > 0"))[t.inCount : t.inCount+outCount : t.inCount+outCount]
+}
+
+// add returns p+x.
+//
+// The whySafe string is ignored, so that the function still inlines
+// as efficiently as p+x, but all call sites should use the string to
+// record why the addition is safe, which is to say why the addition
+// does not cause x to advance to the very end of p's allocation
+// and therefore point incorrectly at the next block in memory.
+func add(p unsafe.Pointer, x uintptr, whySafe string) unsafe.Pointer {
+	return unsafe.Pointer(uintptr(p) + x)
+}
+
+// NumMethod returns the number of interface methods in the type's method set.
+func (t *interfaceType) NumMethod() int { return len(t.methods) }
+
+// TypeOf returns the reflection Type that represents the dynamic type of i.
+// If i is a nil interface value, TypeOf returns nil.
+func TypeOf(i interface{}) Type {
+	eface := *(*emptyInterface)(unsafe.Pointer(&i))
+	return toType(eface.typ)
+}
+
+func (t *rtype) Implements(u Type) bool {
+	if u == nil {
+		panic("reflect: nil type passed to Type.Implements")
+	}
+	if u.Kind() != Interface {
+		panic("reflect: non-interface type passed to Type.Implements")
+	}
+	return implements(u.(*rtype), t)
+}
+
+func (t *rtype) AssignableTo(u Type) bool {
+	if u == nil {
+		panic("reflect: nil type passed to Type.AssignableTo")
+	}
+	uu := u.(*rtype)
+	return directlyAssignable(uu, t) || implements(uu, t)
+}
+
+func (t *rtype) Comparable() bool {
+	return t.equal != nil
+}
+
+// implements reports whether the type V implements the interface type T.
+func implements(T, V *rtype) bool {
+	if T.Kind() != Interface {
+		return false
+	}
+	t := (*interfaceType)(unsafe.Pointer(T))
+	if len(t.methods) == 0 {
+

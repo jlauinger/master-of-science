@@ -1,0 +1,149 @@
+Module: std
+Version: std
+
+Package: runtime
+File: cgocall.go
+Line: 660
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): pointer-arithmetic
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func cgoInRange(p unsafe.Pointer, start, end uintptr) bool {
+--------------------------------------------------------------
++/- 5 lines context:
+
+}
+
+// cgoInRange reports whether p is between start and end.
+//go:nosplit
+//go:nowritebarrierrec
+func cgoInRange(p unsafe.Pointer, start, end uintptr) bool {
+	return start <= uintptr(p) && uintptr(p) < end
+}
+
+// cgoCheckResult is called to check the result parameter of an
+// exported Go function. It panics if the result is or contains a Go
+--------------------------------------------------------------
++/- 100 lines context:
+
+		st := (*structtype)(unsafe.Pointer(t))
+		if !indir {
+			if len(st.fields) != 1 {
+				throw("can't happen")
+			}
+			cgoCheckArg(st.fields[0].typ, p, st.fields[0].typ.kind&kindDirectIface == 0, top, msg)
+			return
+		}
+		for _, f := range st.fields {
+			if f.typ.ptrdata == 0 {
+				continue
+			}
+			cgoCheckArg(f.typ, add(p, f.offset()), true, top, msg)
+		}
+	case kindPtr, kindUnsafePointer:
+		if indir {
+			p = *(*unsafe.Pointer)(p)
+			if p == nil {
+				return
+			}
+		}
+
+		if !cgoIsGoPointer(p) {
+			return
+		}
+		if !top {
+			panic(errorString(msg))
+		}
+
+		cgoCheckUnknownPointer(p, msg)
+	}
+}
+
+// cgoCheckUnknownPointer is called for an arbitrary pointer into Go
+// memory. It checks whether that Go memory contains any other
+// pointer into Go memory. If it does, we panic.
+// The return values are unused but useful to see in panic tracebacks.
+func cgoCheckUnknownPointer(p unsafe.Pointer, msg string) (base, i uintptr) {
+	if inheap(uintptr(p)) {
+		b, span, _ := findObject(uintptr(p), 0, 0)
+		base = b
+		if base == 0 {
+			return
+		}
+		hbits := heapBitsForAddr(base)
+		n := span.elemsize
+		for i = uintptr(0); i < n; i += sys.PtrSize {
+			if i != 1*sys.PtrSize && !hbits.morePointers() {
+				// No more possible pointers.
+				break
+			}
+			if hbits.isPointer() && cgoIsGoPointer(*(*unsafe.Pointer)(unsafe.Pointer(base + i))) {
+				panic(errorString(msg))
+			}
+			hbits = hbits.next()
+		}
+
+		return
+	}
+
+	for _, datap := range activeModules() {
+		if cgoInRange(p, datap.data, datap.edata) || cgoInRange(p, datap.bss, datap.ebss) {
+			// We have no way to know the size of the object.
+			// We have to assume that it might contain a pointer.
+			panic(errorString(msg))
+		}
+		// In the text or noptr sections, we know that the
+		// pointer does not point to a Go pointer.
+	}
+
+	return
+}
+
+// cgoIsGoPointer reports whether the pointer is a Go pointer--a
+// pointer to Go memory. We only care about Go memory that might
+// contain pointers.
+//go:nosplit
+//go:nowritebarrierrec
+func cgoIsGoPointer(p unsafe.Pointer) bool {
+	if p == nil {
+		return false
+	}
+
+	if inHeapOrStack(uintptr(p)) {
+		return true
+	}
+
+	for _, datap := range activeModules() {
+		if cgoInRange(p, datap.data, datap.edata) || cgoInRange(p, datap.bss, datap.ebss) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// cgoInRange reports whether p is between start and end.
+//go:nosplit
+//go:nowritebarrierrec
+func cgoInRange(p unsafe.Pointer, start, end uintptr) bool {
+	return start <= uintptr(p) && uintptr(p) < end
+}
+
+// cgoCheckResult is called to check the result parameter of an
+// exported Go function. It panics if the result is or contains a Go
+// pointer.
+func cgoCheckResult(val interface{}) {
+	if debug.cgocheck == 0 {
+		return
+	}
+
+	ep := efaceOf(&val)
+	t := ep._type
+	cgoCheckArg(t, ep.data, t.kind&kindDirectIface == 0, false, cgoResultFail)
+}
+

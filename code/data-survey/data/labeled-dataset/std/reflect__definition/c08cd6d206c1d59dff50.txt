@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: value.go
+Line: 196
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): definition
+Label 2 (For what purpose?): reflect
+
+--------------------------------------------------------------
+Snippet line:
+
+word unsafe.Pointer
+--------------------------------------------------------------
++/- 5 lines context:
+
+		typ  *rtype // dynamic concrete type
+		hash uint32 // copy of typ.hash
+		_    [4]byte
+		fun  [100000]unsafe.Pointer // method table
+	}
+	word unsafe.Pointer
+}
+
+// mustBe panics if f's kind is not expected.
+// Making this a method on flag instead of on Value
+// (and embedding flag in Value) means that we can write
+--------------------------------------------------------------
++/- 100 lines context:
+
+		return *(*unsafe.Pointer)(v.ptr)
+	}
+	return v.ptr
+}
+
+// packEface converts v to the empty interface.
+func packEface(v Value) interface{} {
+	t := v.typ
+	var i interface{}
+	e := (*emptyInterface)(unsafe.Pointer(&i))
+	// First, fill in the data portion of the interface.
+	switch {
+	case ifaceIndir(t):
+		if v.flag&flagIndir == 0 {
+			panic("bad indir")
+		}
+		// Value is indirect, and so is the interface we're making.
+		ptr := v.ptr
+		if v.flag&flagAddr != 0 {
+			// TODO: pass safe boolean from valueInterface so
+			// we don't need to copy if safe==true?
+			c := unsafe_New(t)
+			typedmemmove(t, c, ptr)
+			ptr = c
+		}
+		e.word = ptr
+	case v.flag&flagIndir != 0:
+		// Value is indirect, but interface is direct. We need
+		// to load the data at v.ptr into the interface data word.
+		e.word = *(*unsafe.Pointer)(v.ptr)
+	default:
+		// Value is direct, and so is the interface.
+		e.word = v.ptr
+	}
+	// Now, fill in the type portion. We're very careful here not
+	// to have any operation between the e.word and e.typ assignments
+	// that would let the garbage collector observe the partially-built
+	// interface value.
+	e.typ = t
+	return i
+}
+
+// unpackEface converts the empty interface i to a Value.
+func unpackEface(i interface{}) Value {
+	e := (*emptyInterface)(unsafe.Pointer(&i))
+	// NOTE: don't read e.word until we know whether it is really a pointer or not.
+	t := e.typ
+	if t == nil {
+		return Value{}
+	}
+	f := flag(t.Kind())
+	if ifaceIndir(t) {
+		f |= flagIndir
+	}
+	return Value{t, e.word, f}
+}
+
+// A ValueError occurs when a Value method is invoked on
+// a Value that does not support it. Such cases are documented
+// in the description of each method.
+type ValueError struct {
+	Method string
+	Kind   Kind
+}
+
+func (e *ValueError) Error() string {
+	if e.Kind == 0 {
+		return "reflect: call of " + e.Method + " on zero Value"
+	}
+	return "reflect: call of " + e.Method + " on " + e.Kind.String() + " Value"
+}
+
+// methodName returns the name of the calling method,
+// assumed to be two stack frames above.
+func methodName() string {
+	pc, _, _, _ := runtime.Caller(2)
+	f := runtime.FuncForPC(pc)
+	if f == nil {
+		return "unknown method"
+	}
+	return f.Name()
+}
+
+// emptyInterface is the header for an interface{} value.
+type emptyInterface struct {
+	typ  *rtype
+	word unsafe.Pointer
+}
+
+// nonEmptyInterface is the header for an interface value with methods.
+type nonEmptyInterface struct {
+	// see ../runtime/iface.go:/Itab
+	itab *struct {
+		ityp *rtype // static interface type
+		typ  *rtype // dynamic concrete type
+		hash uint32 // copy of typ.hash
+		_    [4]byte
+		fun  [100000]unsafe.Pointer // method table
+	}
+	word unsafe.Pointer
+}
+
+// mustBe panics if f's kind is not expected.
+// Making this a method on flag instead of on Value
+// (and embedding flag in Value) means that we can write
+// the very clear v.mustBe(Bool) and have it compile into
+// v.flag.mustBe(Bool), which will only bother to copy the
+// single important word for the receiver.
+func (f flag) mustBe(expected Kind) {
+	// TODO(mvdan): use f.kind() again once mid-stack inlining gets better
+	if Kind(f&flagKindMask) != expected {
+		panic(&ValueError{methodName(), f.kind()})
+	}
+}
+
+// mustBeExported panics if f records that the value was obtained using
+// an unexported field.
+func (f flag) mustBeExported() {
+	if f == 0 || f&flagRO != 0 {
+		f.mustBeExportedSlow()
+	}
+}
+
+func (f flag) mustBeExportedSlow() {
+	if f == 0 {
+		panic(&ValueError{methodName(), Invalid})
+	}
+	if f&flagRO != 0 {
+		panic("reflect: " + methodName() + " using value obtained using unexported field")
+	}
+}
+
+// mustBeAssignable panics if f records that the value is not assignable,
+// which is to say that either it was obtained using an unexported field
+// or it is not addressable.
+func (f flag) mustBeAssignable() {
+	if f&flagRO != 0 || f&flagAddr == 0 {
+		f.mustBeAssignableSlow()
+	}
+}
+
+func (f flag) mustBeAssignableSlow() {
+	if f == 0 {
+		panic(&ValueError{methodName(), Invalid})
+	}
+	// Assignable if addressable and not read-only.
+	if f&flagRO != 0 {
+		panic("reflect: " + methodName() + " using value obtained using unexported field")
+	}
+	if f&flagAddr == 0 {
+		panic("reflect: " + methodName() + " using unaddressable value")
+	}
+}
+
+// Addr returns a pointer value representing the address of v.
+// It panics if CanAddr() returns false.
+// Addr is typically used to obtain a pointer to a struct field
+// or slice element in order to call a method that requires a
+// pointer receiver.
+func (v Value) Addr() Value {
+	if v.flag&flagAddr == 0 {
+		panic("reflect.Value.Addr of unaddressable value")
+	}
+	return Value{v.typ.ptrTo(), v.ptr, v.flag.ro() | flag(Ptr)}
+}
+
+// Bool returns v's underlying value.
+// It panics if v's kind is not Bool.
+func (v Value) Bool() bool {
+	v.mustBe(Bool)
+	return *(*bool)(v.ptr)
+}
+
+// Bytes returns v's underlying value.
+// It panics if v's underlying value is not a slice of bytes.
+func (v Value) Bytes() []byte {
+	v.mustBe(Slice)
+	if v.typ.Elem().Kind() != Uint8 {
+		panic("reflect.Value.Bytes of non-byte slice")
+	}
+	// Slice is always bigger than a word; assume flagIndir.
+	return *(*[]byte)(v.ptr)
+}
+
+// runes returns v's underlying value.
+// It panics if v's underlying value is not a slice of runes (int32s).
+func (v Value) runes() []rune {
+	v.mustBe(Slice)
+	if v.typ.Elem().Kind() != Int32 {
+		panic("reflect.Value.Bytes of non-rune slice")
+	}
+	// Slice is always bigger than a word; assume flagIndir.
+	return *(*[]rune)(v.ptr)
+}
+
+// CanAddr reports whether the value's address can be obtained with Addr.
+// Such values are called addressable. A value is addressable if it is
+// an element of a slice, an element of an addressable array,
+// a field of an addressable struct, or the result of dereferencing a pointer.
+// If CanAddr returns false, calling Addr will panic.
+

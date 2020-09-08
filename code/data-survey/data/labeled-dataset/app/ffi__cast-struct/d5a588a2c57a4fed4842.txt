@@ -1,0 +1,234 @@
+Module: github.com/iovisor/gobpf
+Version: v0.0.0-20180826141936-4ece6c56f936
+
+Package: github.com/iovisor/gobpf/elf
+File: elf.go
+Line: 683
+
+Imported (possibly among others) by: weaveworks/scope
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+insns := (*C.struct_bpf_insn)(unsafe.Pointer(&data[0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+			if len(data) == 0 {
+				continue
+			}
+
+			insns := (*C.struct_bpf_insn)(unsafe.Pointer(&data[0]))
+
+			progFd, err := C.bpf_prog_load(progType,
+				insns, C.int(section.Size),
+				(*C.char)(lp), C.int(version),
+				(*C.char)(unsafe.Pointer(&b.log[0])), C.int(len(b.log)))
+--------------------------------------------------------------
++/- 100 lines context:
+
+				insns := (*C.struct_bpf_insn)(unsafe.Pointer(&rdata[0]))
+
+				progFd, err := C.bpf_prog_load(progType,
+					insns, C.int(rsection.Size),
+					(*C.char)(lp), C.int(version),
+					(*C.char)(unsafe.Pointer(&b.log[0])), C.int(len(b.log)))
+				if progFd < 0 {
+					return fmt.Errorf("error while loading %q (%v):\n%s", secName, err, b.log)
+				}
+
+				switch {
+				case isKprobe:
+					fallthrough
+				case isKretprobe:
+					b.probes[secName] = &Kprobe{
+						Name:  secName,
+						insns: insns,
+						fd:    int(progFd),
+						efd:   -1,
+					}
+				case isCgroupSkb:
+					fallthrough
+				case isCgroupSock:
+					b.cgroupPrograms[secName] = &CgroupProgram{
+						Name:  secName,
+						insns: insns,
+						fd:    int(progFd),
+					}
+				case isSocketFilter:
+					b.socketFilters[secName] = &SocketFilter{
+						Name:  secName,
+						insns: insns,
+						fd:    int(progFd),
+					}
+				case isTracepoint:
+					b.tracepointPrograms[secName] = &TracepointProgram{
+						Name:  secName,
+						insns: insns,
+						fd:    int(progFd),
+					}
+				case isSchedCls:
+					fallthrough
+				case isSchedAct:
+					b.schedPrograms[secName] = &SchedProgram{
+						Name:  secName,
+						insns: insns,
+						fd:    int(progFd),
+					}
+				}
+			}
+		}
+	}
+
+	for i, section := range b.file.Sections {
+		if processed[i] {
+			continue
+		}
+
+		secName := section.Name
+
+		isKprobe := strings.HasPrefix(secName, "kprobe/")
+		isKretprobe := strings.HasPrefix(secName, "kretprobe/")
+		isCgroupSkb := strings.HasPrefix(secName, "cgroup/skb")
+		isCgroupSock := strings.HasPrefix(secName, "cgroup/sock")
+		isSocketFilter := strings.HasPrefix(secName, "socket")
+		isTracepoint := strings.HasPrefix(secName, "tracepoint/")
+		isSchedCls := strings.HasPrefix(secName, "sched_cls/")
+		isSchedAct := strings.HasPrefix(secName, "sched_act/")
+
+		var progType uint32
+		switch {
+		case isKprobe:
+			fallthrough
+		case isKretprobe:
+			progType = uint32(C.BPF_PROG_TYPE_KPROBE)
+		case isCgroupSkb:
+			progType = uint32(C.BPF_PROG_TYPE_CGROUP_SKB)
+		case isCgroupSock:
+			progType = uint32(C.BPF_PROG_TYPE_CGROUP_SOCK)
+		case isSocketFilter:
+			progType = uint32(C.BPF_PROG_TYPE_SOCKET_FILTER)
+		case isTracepoint:
+			progType = uint32(C.BPF_PROG_TYPE_TRACEPOINT)
+		case isSchedCls:
+			progType = uint32(C.BPF_PROG_TYPE_SCHED_CLS)
+		case isSchedAct:
+			progType = uint32(C.BPF_PROG_TYPE_SCHED_ACT)
+		}
+
+		if isKprobe || isKretprobe || isCgroupSkb || isCgroupSock || isSocketFilter || isTracepoint || isSchedCls || isSchedAct {
+			data, err := section.Data()
+			if err != nil {
+				return err
+			}
+
+			if len(data) == 0 {
+				continue
+			}
+
+			insns := (*C.struct_bpf_insn)(unsafe.Pointer(&data[0]))
+
+			progFd, err := C.bpf_prog_load(progType,
+				insns, C.int(section.Size),
+				(*C.char)(lp), C.int(version),
+				(*C.char)(unsafe.Pointer(&b.log[0])), C.int(len(b.log)))
+			if progFd < 0 {
+				return fmt.Errorf("error while loading %q (%v):\n%s", section.Name, err, b.log)
+			}
+
+			switch {
+			case isKprobe:
+				fallthrough
+			case isKretprobe:
+				b.probes[secName] = &Kprobe{
+					Name:  secName,
+					insns: insns,
+					fd:    int(progFd),
+					efd:   -1,
+				}
+			case isCgroupSkb:
+				fallthrough
+			case isCgroupSock:
+				b.cgroupPrograms[secName] = &CgroupProgram{
+					Name:  secName,
+					insns: insns,
+					fd:    int(progFd),
+				}
+			case isSocketFilter:
+				b.socketFilters[secName] = &SocketFilter{
+					Name:  secName,
+					insns: insns,
+					fd:    int(progFd),
+				}
+			case isTracepoint:
+				b.tracepointPrograms[secName] = &TracepointProgram{
+					Name:  secName,
+					insns: insns,
+					fd:    int(progFd),
+				}
+			case isSchedCls:
+				fallthrough
+			case isSchedAct:
+				b.schedPrograms[secName] = &SchedProgram{
+					Name:  secName,
+					insns: insns,
+					fd:    int(progFd),
+				}
+			}
+		}
+	}
+
+	return b.initializePerfMaps(parameters)
+}
+
+func (b *Module) initializePerfMaps(parameters map[string]SectionParams) error {
+	for name, m := range b.maps {
+		if m.m != nil && m.m.def._type != C.BPF_MAP_TYPE_PERF_EVENT_ARRAY {
+			continue
+		}
+
+		pageSize := os.Getpagesize()
+		b.maps[name].pageCount = 8 // reasonable default
+
+		sectionName := "maps/" + name
+		if params, ok := parameters[sectionName]; ok {
+			if params.SkipPerfMapInitialization {
+				continue
+			}
+			if params.PerfRingBufferPageCount > 0 {
+				if (params.PerfRingBufferPageCount & (params.PerfRingBufferPageCount - 1)) != 0 {
+					return fmt.Errorf("number of pages (%d) must be stricly positive and a power of 2", params.PerfRingBufferPageCount)
+				}
+				b.maps[name].pageCount = params.PerfRingBufferPageCount
+			}
+		}
+
+		cpus, err := cpuonline.Get()
+		if err != nil {
+			return fmt.Errorf("failed to determine online cpus: %v", err)
+		}
+
+		for _, cpu := range cpus {
+			cpuC := C.int(cpu)
+			pmuFD, err := C.perf_event_open_map(-1 /* pid */, cpuC /* cpu */, -1 /* group_fd */, C.PERF_FLAG_FD_CLOEXEC)
+			if pmuFD < 0 {
+				return fmt.Errorf("perf_event_open for map error: %v", err)
+			}
+
+			// mmap
+			mmapSize := pageSize * (b.maps[name].pageCount + 1)
+
+			base, err := syscall.Mmap(int(pmuFD), 0, mmapSize, syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_SHARED)
+			if err != nil {
+				return fmt.Errorf("mmap error: %v", err)
+			}
+
+			// enable
+			_, _, err2 := syscall.Syscall(syscall.SYS_IOCTL, uintptr(pmuFD), C.PERF_EVENT_IOC_ENABLE, 0)
+			if err2 != 0 {
+				return fmt.Errorf("error enabling perf event: %v", err2)
+

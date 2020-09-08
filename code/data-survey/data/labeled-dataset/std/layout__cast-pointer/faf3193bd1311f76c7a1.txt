@@ -1,0 +1,173 @@
+Module: std
+Version: std
+
+Package: runtime
+File: signal_unix.go
+Line: 1143
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+stsp := uintptr(unsafe.Pointer(st.ss_sp))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		old.stack = g.m.gsignal.stack
+		old.stackguard0 = g.m.gsignal.stackguard0
+		old.stackguard1 = g.m.gsignal.stackguard1
+		old.stktopsp = g.m.gsignal.stktopsp
+	}
+	stsp := uintptr(unsafe.Pointer(st.ss_sp))
+	g.m.gsignal.stack.lo = stsp
+	g.m.gsignal.stack.hi = stsp + st.ss_size
+	g.m.gsignal.stackguard0 = stsp + _StackGuard
+	g.m.gsignal.stackguard1 = stsp + _StackGuard
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+// stack to the gsignal stack. If the alternate signal stack is set
+// for the thread (the case when a non-Go thread sets the alternate
+// signal stack and then calls a Go function) then set the gsignal
+// stack to the alternate signal stack. We also set the alternate
+// signal stack to the gsignal stack if cgo is not used (regardless
+// of whether it is already set). Record which choice was made in
+// newSigstack, so that it can be undone in unminit.
+func minitSignalStack() {
+	_g_ := getg()
+	var st stackt
+	sigaltstack(nil, &st)
+	if st.ss_flags&_SS_DISABLE != 0 || !iscgo {
+		signalstack(&_g_.m.gsignal.stack)
+		_g_.m.newSigstack = true
+	} else {
+		setGsignalStack(&st, &_g_.m.goSigStack)
+		_g_.m.newSigstack = false
+	}
+}
+
+// minitSignalMask is called when initializing a new m to set the
+// thread's signal mask. When this is called all signals have been
+// blocked for the thread.  This starts with m.sigmask, which was set
+// either from initSigmask for a newly created thread or by calling
+// msigsave if this is a non-Go thread calling a Go function. It
+// removes all essential signals from the mask, thus causing those
+// signals to not be blocked. Then it sets the thread's signal mask.
+// After this is called the thread can receive signals.
+func minitSignalMask() {
+	nmask := getg().m.sigmask
+	for i := range sigtable {
+		if !blockableSig(uint32(i)) {
+			sigdelset(&nmask, i)
+		}
+	}
+	sigprocmask(_SIG_SETMASK, &nmask, nil)
+}
+
+// unminitSignals is called from dropm, via unminit, to undo the
+// effect of calling minit on a non-Go thread.
+//go:nosplit
+func unminitSignals() {
+	if getg().m.newSigstack {
+		st := stackt{ss_flags: _SS_DISABLE}
+		sigaltstack(&st, nil)
+	} else {
+		// We got the signal stack from someone else. Restore
+		// the Go-allocated stack in case this M gets reused
+		// for another thread (e.g., it's an extram). Also, on
+		// Android, libc allocates a signal stack for all
+		// threads, so it's important to restore the Go stack
+		// even on Go-created threads so we can free it.
+		restoreGsignalStack(&getg().m.goSigStack)
+	}
+}
+
+// blockableSig reports whether sig may be blocked by the signal mask.
+// We never want to block the signals marked _SigUnblock;
+// these are the synchronous signals that turn into a Go panic.
+// In a Go program--not a c-archive/c-shared--we never want to block
+// the signals marked _SigKill or _SigThrow, as otherwise it's possible
+// for all running threads to block them and delay their delivery until
+// we start a new thread. When linked into a C program we let the C code
+// decide on the disposition of those signals.
+func blockableSig(sig uint32) bool {
+	flags := sigtable[sig].flags
+	if flags&_SigUnblock != 0 {
+		return false
+	}
+	if isarchive || islibrary {
+		return true
+	}
+	return flags&(_SigKill|_SigThrow) == 0
+}
+
+// gsignalStack saves the fields of the gsignal stack changed by
+// setGsignalStack.
+type gsignalStack struct {
+	stack       stack
+	stackguard0 uintptr
+	stackguard1 uintptr
+	stktopsp    uintptr
+}
+
+// setGsignalStack sets the gsignal stack of the current m to an
+// alternate signal stack returned from the sigaltstack system call.
+// It saves the old values in *old for use by restoreGsignalStack.
+// This is used when handling a signal if non-Go code has set the
+// alternate signal stack.
+//go:nosplit
+//go:nowritebarrierrec
+func setGsignalStack(st *stackt, old *gsignalStack) {
+	g := getg()
+	if old != nil {
+		old.stack = g.m.gsignal.stack
+		old.stackguard0 = g.m.gsignal.stackguard0
+		old.stackguard1 = g.m.gsignal.stackguard1
+		old.stktopsp = g.m.gsignal.stktopsp
+	}
+	stsp := uintptr(unsafe.Pointer(st.ss_sp))
+	g.m.gsignal.stack.lo = stsp
+	g.m.gsignal.stack.hi = stsp + st.ss_size
+	g.m.gsignal.stackguard0 = stsp + _StackGuard
+	g.m.gsignal.stackguard1 = stsp + _StackGuard
+}
+
+// restoreGsignalStack restores the gsignal stack to the value it had
+// before entering the signal handler.
+//go:nosplit
+//go:nowritebarrierrec
+func restoreGsignalStack(st *gsignalStack) {
+	gp := getg().m.gsignal
+	gp.stack = st.stack
+	gp.stackguard0 = st.stackguard0
+	gp.stackguard1 = st.stackguard1
+	gp.stktopsp = st.stktopsp
+}
+
+// signalstack sets the current thread's alternate signal stack to s.
+//go:nosplit
+func signalstack(s *stack) {
+	st := stackt{ss_size: s.hi - s.lo}
+	setSignalstackSP(&st, s.lo)
+	sigaltstack(&st, nil)
+}
+
+// setsigsegv is used on darwin/arm{,64} to fake a segmentation fault.
+//
+// This is exported via linkname to assembly in runtime/cgo.
+//
+//go:nosplit
+//go:linkname setsigsegv
+func setsigsegv(pc uintptr) {
+	g := getg()
+	g.sig = _SIGSEGV
+	g.sigpc = pc
+	g.sigcode0 = _SEGV_MAPERR
+	g.sigcode1 = 0 // TODO: emulate si_addr
+}
+

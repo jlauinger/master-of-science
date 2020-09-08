@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: chan.go
+Line: 667
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+func selectnbrecv2(elem unsafe.Pointer, received *bool, c *hchan) (selected bool) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+//		... foo
+//	} else {
+//		... bar
+//	}
+//
+func selectnbrecv2(elem unsafe.Pointer, received *bool, c *hchan) (selected bool) {
+	// TODO(khr): just return 2 values from this function, now that it is in Go.
+	selected, *received = chanrecv(c, elem, false)
+	return
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+		// its item at the tail of the queue. Since the
+		// queue is full, those are both the same slot.
+		qp := chanbuf(c, c.recvx)
+		if raceenabled {
+			raceacquire(qp)
+			racerelease(qp)
+			raceacquireg(sg.g, qp)
+			racereleaseg(sg.g, qp)
+		}
+		// copy data from queue to receiver
+		if ep != nil {
+			typedmemmove(c.elemtype, ep, qp)
+		}
+		// copy data from sender to queue
+		typedmemmove(c.elemtype, qp, sg.elem)
+		c.recvx++
+		if c.recvx == c.dataqsiz {
+			c.recvx = 0
+		}
+		c.sendx = c.recvx // c.sendx = (c.sendx+1) % c.dataqsiz
+	}
+	sg.elem = nil
+	gp := sg.g
+	unlockf()
+	gp.param = unsafe.Pointer(sg)
+	if sg.releasetime != 0 {
+		sg.releasetime = cputicks()
+	}
+	goready(gp, skip+1)
+}
+
+func chanparkcommit(gp *g, chanLock unsafe.Pointer) bool {
+	// There are unlocked sudogs that point into gp's stack. Stack
+	// copying must lock the channels of those sudogs.
+	gp.activeStackChans = true
+	unlock((*mutex)(chanLock))
+	return true
+}
+
+// compiler implements
+//
+//	select {
+//	case c <- v:
+//		... foo
+//	default:
+//		... bar
+//	}
+//
+// as
+//
+//	if selectnbsend(c, v) {
+//		... foo
+//	} else {
+//		... bar
+//	}
+//
+func selectnbsend(c *hchan, elem unsafe.Pointer) (selected bool) {
+	return chansend(c, elem, false, getcallerpc())
+}
+
+// compiler implements
+//
+//	select {
+//	case v = <-c:
+//		... foo
+//	default:
+//		... bar
+//	}
+//
+// as
+//
+//	if selectnbrecv(&v, c) {
+//		... foo
+//	} else {
+//		... bar
+//	}
+//
+func selectnbrecv(elem unsafe.Pointer, c *hchan) (selected bool) {
+	selected, _ = chanrecv(c, elem, false)
+	return
+}
+
+// compiler implements
+//
+//	select {
+//	case v, ok = <-c:
+//		... foo
+//	default:
+//		... bar
+//	}
+//
+// as
+//
+//	if c != nil && selectnbrecv2(&v, &ok, c) {
+//		... foo
+//	} else {
+//		... bar
+//	}
+//
+func selectnbrecv2(elem unsafe.Pointer, received *bool, c *hchan) (selected bool) {
+	// TODO(khr): just return 2 values from this function, now that it is in Go.
+	selected, *received = chanrecv(c, elem, false)
+	return
+}
+
+//go:linkname reflect_chansend reflect.chansend
+func reflect_chansend(c *hchan, elem unsafe.Pointer, nb bool) (selected bool) {
+	return chansend(c, elem, !nb, getcallerpc())
+}
+
+//go:linkname reflect_chanrecv reflect.chanrecv
+func reflect_chanrecv(c *hchan, nb bool, elem unsafe.Pointer) (selected bool, received bool) {
+	return chanrecv(c, elem, !nb)
+}
+
+//go:linkname reflect_chanlen reflect.chanlen
+func reflect_chanlen(c *hchan) int {
+	if c == nil {
+		return 0
+	}
+	return int(c.qcount)
+}
+
+//go:linkname reflectlite_chanlen internal/reflectlite.chanlen
+func reflectlite_chanlen(c *hchan) int {
+	if c == nil {
+		return 0
+	}
+	return int(c.qcount)
+}
+
+//go:linkname reflect_chancap reflect.chancap
+func reflect_chancap(c *hchan) int {
+	if c == nil {
+		return 0
+	}
+	return int(c.dataqsiz)
+}
+
+//go:linkname reflect_chanclose reflect.chanclose
+func reflect_chanclose(c *hchan) {
+	closechan(c)
+}
+
+func (q *waitq) enqueue(sgp *sudog) {
+	sgp.next = nil
+	x := q.last
+	if x == nil {
+		sgp.prev = nil
+		q.first = sgp
+		q.last = sgp
+		return
+	}
+	sgp.prev = x
+	x.next = sgp
+	q.last = sgp
+}
+
+func (q *waitq) dequeue() *sudog {
+	for {
+		sgp := q.first
+		if sgp == nil {
+			return nil
+		}
+		y := sgp.next
+		if y == nil {
+			q.first = nil
+			q.last = nil
+		} else {
+			y.prev = nil
+			q.first = y
+			sgp.next = nil // mark as removed (see dequeueSudog)
+		}
+
+		// if a goroutine was put on this queue because of a
+		// select, there is a small window between the goroutine
+		// being woken up by a different case and it grabbing the
+		// channel locks. Once it has the lock
+		// it removes itself from the queue, so we won't see it after that.
+		// We use a flag in the G struct to tell us when someone
+		// else has won the race to signal this goroutine but the goroutine
+		// hasn't removed itself from the queue yet.
+		if sgp.isSelect && !atomic.Cas(&sgp.g.selectDone, 0, 1) {
+			continue
+		}
+
+		return sgp
+	}
+}
+
+func (c *hchan) raceaddr() unsafe.Pointer {
+	// Treat read-like and write-like operations on the channel to
+	// happen at this address. Avoid using the address of qcount
+	// or dataqsiz, because the len() and cap() builtins read
+	// those addresses, and we don't want them racing with
+	// operations like close().
+	return unsafe.Pointer(&c.buf)
+}
+
+func racesync(c *hchan, sg *sudog) {
+

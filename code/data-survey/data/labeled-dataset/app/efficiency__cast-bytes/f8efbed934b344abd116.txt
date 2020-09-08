@@ -1,0 +1,140 @@
+Module: k8s.io/apiserver
+Version: v0.18.0
+
+Package: k8s.io/apiserver/pkg/authentication/token/cache
+File: cached_token_authenticator.go
+Line: 235
+
+Imported (possibly among others) by: rancher/rancher
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+return *(*[]byte)(unsafe.Pointer(&s))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+}
+
+// toBytes performs unholy acts to avoid allocations
+func toBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&s))
+}
+
+// toString performs unholy acts to avoid allocations
+func toString(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+--------------------------------------------------------------
++/- 100 lines context:
+
+		// ourselves. Log a stack trace and return a 500 if something panics.
+		defer func() {
+			if r := recover(); r != nil {
+				err = errAuthnCrash
+				// Same as stdlib http server code. Manually allocate stack
+				// trace buffer size to prevent excessively large logs
+				const size = 64 << 10
+				buf := make([]byte, size)
+				buf = buf[:runtime.Stack(buf, false)]
+				klog.Errorf("%v\n%s", r, buf)
+			}
+			doneFetching(err == nil)
+		}()
+
+		// Check again for a cached record. We may have raced with a fetch.
+		if record, ok := a.cache.get(key); ok {
+			return lookup{record.resp, record.ok}, record.err
+		}
+
+		// Detach the context because the lookup may be shared by multiple callers,
+		// however propagate the audience.
+		ctx, cancel := context.WithTimeout(context.Background(), sharedLookupTimeout)
+		defer cancel()
+
+		if audsOk {
+			ctx = authenticator.WithAudiences(ctx, auds)
+		}
+
+		resp, ok, err := a.authenticator.AuthenticateToken(ctx, token)
+		if !a.cacheErrs && err != nil {
+			return nil, err
+		}
+
+		switch {
+		case ok && a.successTTL > 0:
+			a.cache.set(key, &cacheRecord{resp: resp, ok: ok, err: err}, a.successTTL)
+		case !ok && a.failureTTL > 0:
+			a.cache.set(key, &cacheRecord{resp: resp, ok: ok, err: err}, a.failureTTL)
+		}
+		return lookup{resp, ok}, err
+	})
+
+	select {
+	case result := <-c:
+		if result.Err != nil {
+			return nil, false, result.Err
+		}
+		lookup := result.Val.(lookup)
+		return lookup.resp, lookup.ok, nil
+	case <-ctx.Done():
+		return nil, false, ctx.Err()
+	}
+}
+
+// keyFunc generates a string key by hashing the inputs.
+// This lowers the memory requirement of the cache and keeps tokens out of memory.
+func keyFunc(hashPool *sync.Pool, auds []string, token string) string {
+	h := hashPool.Get().(hash.Hash)
+
+	h.Reset()
+
+	// try to force stack allocation
+	var a [4]byte
+	b := a[:]
+
+	writeLengthPrefixedString(h, b, token)
+	// encode the length of audiences to avoid ambiguities
+	writeLength(h, b, len(auds))
+	for _, aud := range auds {
+		writeLengthPrefixedString(h, b, aud)
+	}
+
+	key := toString(h.Sum(nil)) // skip base64 encoding to save an allocation
+
+	hashPool.Put(h)
+
+	return key
+}
+
+// writeLengthPrefixedString writes s with a length prefix to prevent ambiguities, i.e. "xy" + "z" == "x" + "yz"
+// the length of b is assumed to be 4 (b is mutated by this function to store the length of s)
+func writeLengthPrefixedString(w io.Writer, b []byte, s string) {
+	writeLength(w, b, len(s))
+	if _, err := w.Write(toBytes(s)); err != nil {
+		panic(err) // Write() on hash never fails
+	}
+}
+
+// writeLength encodes length into b and then writes it via the given writer
+// the length of b is assumed to be 4
+func writeLength(w io.Writer, b []byte, length int) {
+	binary.BigEndian.PutUint32(b, uint32(length))
+	if _, err := w.Write(b); err != nil {
+		panic(err) // Write() on hash never fails
+	}
+}
+
+// toBytes performs unholy acts to avoid allocations
+func toBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&s))
+}
+
+// toString performs unholy acts to avoid allocations
+func toString(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+}
+

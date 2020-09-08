@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: value.go
+Line: 814
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+tt := (*ptrType)(unsafe.Pointer(v.typ))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		}
+		// The returned value's address is v's value.
+		if ptr == nil {
+			return Value{}
+		}
+		tt := (*ptrType)(unsafe.Pointer(v.typ))
+		typ := tt.elem
+		fl := v.flag&flagRO | flagIndir | flagAddr
+		fl |= flag(typ.Kind())
+		return Value{typ, ptr, fl}
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+	if frametype.size-retOffset > 0 {
+		callerRetOffset := retOffset - argOffset
+		// This copies to the stack. Write barriers are not needed.
+		memmove(add(frame, callerRetOffset, "frametype.size > retOffset"),
+			add(scratch, retOffset, "frametype.size > retOffset"),
+			frametype.size-retOffset)
+	}
+
+	// Tell the runtime it can now depend on the return values
+	// being properly initialized.
+	*retValid = true
+
+	// Clear the scratch space and put it back in the pool.
+	// This must happen after the statement above, so that the return
+	// values will always be scanned by someone.
+	typedmemclr(frametype, scratch)
+	framePool.Put(scratch)
+
+	// See the comment in callReflect.
+	runtime.KeepAlive(ctxt)
+}
+
+// funcName returns the name of f, for use in error messages.
+func funcName(f func([]Value) []Value) string {
+	pc := *(*uintptr)(unsafe.Pointer(&f))
+	rf := runtime.FuncForPC(pc)
+	if rf != nil {
+		return rf.Name()
+	}
+	return "closure"
+}
+
+// Cap returns v's capacity.
+// It panics if v's Kind is not Array, Chan, or Slice.
+func (v Value) Cap() int {
+	k := v.kind()
+	switch k {
+	case Array:
+		return v.typ.Len()
+	case Chan:
+		return chancap(v.pointer())
+	case Slice:
+		// Slice is always bigger than a word; assume flagIndir.
+		return (*sliceHeader)(v.ptr).Cap
+	}
+	panic(&ValueError{"reflect.Value.Cap", v.kind()})
+}
+
+// Close closes the channel v.
+// It panics if v's Kind is not Chan.
+func (v Value) Close() {
+	v.mustBe(Chan)
+	v.mustBeExported()
+	chanclose(v.pointer())
+}
+
+// Complex returns v's underlying value, as a complex128.
+// It panics if v's Kind is not Complex64 or Complex128
+func (v Value) Complex() complex128 {
+	k := v.kind()
+	switch k {
+	case Complex64:
+		return complex128(*(*complex64)(v.ptr))
+	case Complex128:
+		return *(*complex128)(v.ptr)
+	}
+	panic(&ValueError{"reflect.Value.Complex", v.kind()})
+}
+
+// Elem returns the value that the interface v contains
+// or that the pointer v points to.
+// It panics if v's Kind is not Interface or Ptr.
+// It returns the zero Value if v is nil.
+func (v Value) Elem() Value {
+	k := v.kind()
+	switch k {
+	case Interface:
+		var eface interface{}
+		if v.typ.NumMethod() == 0 {
+			eface = *(*interface{})(v.ptr)
+		} else {
+			eface = (interface{})(*(*interface {
+				M()
+			})(v.ptr))
+		}
+		x := unpackEface(eface)
+		if x.flag != 0 {
+			x.flag |= v.flag.ro()
+		}
+		return x
+	case Ptr:
+		ptr := v.ptr
+		if v.flag&flagIndir != 0 {
+			ptr = *(*unsafe.Pointer)(ptr)
+		}
+		// The returned value's address is v's value.
+		if ptr == nil {
+			return Value{}
+		}
+		tt := (*ptrType)(unsafe.Pointer(v.typ))
+		typ := tt.elem
+		fl := v.flag&flagRO | flagIndir | flagAddr
+		fl |= flag(typ.Kind())
+		return Value{typ, ptr, fl}
+	}
+	panic(&ValueError{"reflect.Value.Elem", v.kind()})
+}
+
+// Field returns the i'th field of the struct v.
+// It panics if v's Kind is not Struct or i is out of range.
+func (v Value) Field(i int) Value {
+	if v.kind() != Struct {
+		panic(&ValueError{"reflect.Value.Field", v.kind()})
+	}
+	tt := (*structType)(unsafe.Pointer(v.typ))
+	if uint(i) >= uint(len(tt.fields)) {
+		panic("reflect: Field index out of range")
+	}
+	field := &tt.fields[i]
+	typ := field.typ
+
+	// Inherit permission bits from v, but clear flagEmbedRO.
+	fl := v.flag&(flagStickyRO|flagIndir|flagAddr) | flag(typ.Kind())
+	// Using an unexported field forces flagRO.
+	if !field.name.isExported() {
+		if field.embedded() {
+			fl |= flagEmbedRO
+		} else {
+			fl |= flagStickyRO
+		}
+	}
+	// Either flagIndir is set and v.ptr points at struct,
+	// or flagIndir is not set and v.ptr is the actual struct data.
+	// In the former case, we want v.ptr + offset.
+	// In the latter case, we must have field.offset = 0,
+	// so v.ptr + field.offset is still the correct address.
+	ptr := add(v.ptr, field.offset(), "same as non-reflect &v.field")
+	return Value{typ, ptr, fl}
+}
+
+// FieldByIndex returns the nested field corresponding to index.
+// It panics if v's Kind is not struct.
+func (v Value) FieldByIndex(index []int) Value {
+	if len(index) == 1 {
+		return v.Field(index[0])
+	}
+	v.mustBe(Struct)
+	for i, x := range index {
+		if i > 0 {
+			if v.Kind() == Ptr && v.typ.Elem().Kind() == Struct {
+				if v.IsNil() {
+					panic("reflect: indirection through nil pointer to embedded struct")
+				}
+				v = v.Elem()
+			}
+		}
+		v = v.Field(x)
+	}
+	return v
+}
+
+// FieldByName returns the struct field with the given name.
+// It returns the zero Value if no field was found.
+// It panics if v's Kind is not struct.
+func (v Value) FieldByName(name string) Value {
+	v.mustBe(Struct)
+	if f, ok := v.typ.FieldByName(name); ok {
+		return v.FieldByIndex(f.Index)
+	}
+	return Value{}
+}
+
+// FieldByNameFunc returns the struct field with a name
+// that satisfies the match function.
+// It panics if v's Kind is not struct.
+// It returns the zero Value if no field was found.
+func (v Value) FieldByNameFunc(match func(string) bool) Value {
+	if f, ok := v.typ.FieldByNameFunc(match); ok {
+		return v.FieldByIndex(f.Index)
+	}
+	return Value{}
+}
+
+// Float returns v's underlying value, as a float64.
+// It panics if v's Kind is not Float32 or Float64
+func (v Value) Float() float64 {
+	k := v.kind()
+	switch k {
+	case Float32:
+		return float64(*(*float32)(v.ptr))
+	case Float64:
+		return *(*float64)(v.ptr)
+	}
+	panic(&ValueError{"reflect.Value.Float", v.kind()})
+}
+
+var uint8Type = TypeOf(uint8(0)).(*rtype)
+
+// Index returns v's i'th element.
+// It panics if v's Kind is not Array, Slice, or String or i is out of range.
+

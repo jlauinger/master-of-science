@@ -1,0 +1,234 @@
+Module: github.com/json-iterator/go
+Version: v1.1.9
+
+Package: github.com/json-iterator/go
+File: reflect_struct_decoder.go
+Line: 681
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (decoder *fourFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	fieldDecoder3 *structFieldDecoder
+	fieldHash4    int64
+	fieldDecoder4 *structFieldDecoder
+}
+
+func (decoder *fourFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+--------------------------------------------------------------
++/- 100 lines context:
+
+		if iter.readFieldHash() == decoder.fieldHash {
+			decoder.fieldDecoder.Decode(ptr, iter)
+		} else {
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+	iter.decrementDepth()
+}
+
+type twoFieldsStructDecoder struct {
+	typ           reflect2.Type
+	fieldHash1    int64
+	fieldDecoder1 *structFieldDecoder
+	fieldHash2    int64
+	fieldDecoder2 *structFieldDecoder
+}
+
+func (decoder *twoFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+	}
+	for {
+		switch iter.readFieldHash() {
+		case decoder.fieldHash1:
+			decoder.fieldDecoder1.Decode(ptr, iter)
+		case decoder.fieldHash2:
+			decoder.fieldDecoder2.Decode(ptr, iter)
+		default:
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+	iter.decrementDepth()
+}
+
+type threeFieldsStructDecoder struct {
+	typ           reflect2.Type
+	fieldHash1    int64
+	fieldDecoder1 *structFieldDecoder
+	fieldHash2    int64
+	fieldDecoder2 *structFieldDecoder
+	fieldHash3    int64
+	fieldDecoder3 *structFieldDecoder
+}
+
+func (decoder *threeFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+	}
+	for {
+		switch iter.readFieldHash() {
+		case decoder.fieldHash1:
+			decoder.fieldDecoder1.Decode(ptr, iter)
+		case decoder.fieldHash2:
+			decoder.fieldDecoder2.Decode(ptr, iter)
+		case decoder.fieldHash3:
+			decoder.fieldDecoder3.Decode(ptr, iter)
+		default:
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+	iter.decrementDepth()
+}
+
+type fourFieldsStructDecoder struct {
+	typ           reflect2.Type
+	fieldHash1    int64
+	fieldDecoder1 *structFieldDecoder
+	fieldHash2    int64
+	fieldDecoder2 *structFieldDecoder
+	fieldHash3    int64
+	fieldDecoder3 *structFieldDecoder
+	fieldHash4    int64
+	fieldDecoder4 *structFieldDecoder
+}
+
+func (decoder *fourFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+	}
+	for {
+		switch iter.readFieldHash() {
+		case decoder.fieldHash1:
+			decoder.fieldDecoder1.Decode(ptr, iter)
+		case decoder.fieldHash2:
+			decoder.fieldDecoder2.Decode(ptr, iter)
+		case decoder.fieldHash3:
+			decoder.fieldDecoder3.Decode(ptr, iter)
+		case decoder.fieldHash4:
+			decoder.fieldDecoder4.Decode(ptr, iter)
+		default:
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+	iter.decrementDepth()
+}
+
+type fiveFieldsStructDecoder struct {
+	typ           reflect2.Type
+	fieldHash1    int64
+	fieldDecoder1 *structFieldDecoder
+	fieldHash2    int64
+	fieldDecoder2 *structFieldDecoder
+	fieldHash3    int64
+	fieldDecoder3 *structFieldDecoder
+	fieldHash4    int64
+	fieldDecoder4 *structFieldDecoder
+	fieldHash5    int64
+	fieldDecoder5 *structFieldDecoder
+}
+
+func (decoder *fiveFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+	}
+	for {
+		switch iter.readFieldHash() {
+		case decoder.fieldHash1:
+			decoder.fieldDecoder1.Decode(ptr, iter)
+		case decoder.fieldHash2:
+			decoder.fieldDecoder2.Decode(ptr, iter)
+		case decoder.fieldHash3:
+			decoder.fieldDecoder3.Decode(ptr, iter)
+		case decoder.fieldHash4:
+			decoder.fieldDecoder4.Decode(ptr, iter)
+		case decoder.fieldHash5:
+			decoder.fieldDecoder5.Decode(ptr, iter)
+		default:
+			iter.Skip()
+		}
+		if iter.isObjectEnd() {
+			break
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		iter.Error = fmt.Errorf("%v.%s", decoder.typ, iter.Error.Error())
+	}
+	iter.decrementDepth()
+}
+
+type sixFieldsStructDecoder struct {
+	typ           reflect2.Type
+	fieldHash1    int64
+	fieldDecoder1 *structFieldDecoder
+	fieldHash2    int64
+	fieldDecoder2 *structFieldDecoder
+	fieldHash3    int64
+	fieldDecoder3 *structFieldDecoder
+	fieldHash4    int64
+	fieldDecoder4 *structFieldDecoder
+	fieldHash5    int64
+	fieldDecoder5 *structFieldDecoder
+	fieldHash6    int64
+	fieldDecoder6 *structFieldDecoder
+}
+
+func (decoder *sixFieldsStructDecoder) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.readObjectStart() {
+		return
+	}
+	if !iter.incrementDepth() {
+		return
+	}
+	for {
+		switch iter.readFieldHash() {
+

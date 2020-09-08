@@ -1,0 +1,201 @@
+Module: std
+Version: std
+
+Package: runtime
+File: alg.go
+Line: 67
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): definition
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+func memhash32(p unsafe.Pointer, h uintptr) uintptr
+--------------------------------------------------------------
++/- 5 lines context:
+
+// hash implementation.
+var useAeshash bool
+
+// in asm_*.s
+func memhash(p unsafe.Pointer, h, s uintptr) uintptr
+func memhash32(p unsafe.Pointer, h uintptr) uintptr
+func memhash64(p unsafe.Pointer, h uintptr) uintptr
+func strhash(p unsafe.Pointer, h uintptr) uintptr
+
+func strhashFallback(a unsafe.Pointer, h uintptr) uintptr {
+	x := (*stringStruct)(a)
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Copyright 2014 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package runtime
+
+import (
+	"internal/cpu"
+	"runtime/internal/sys"
+	"unsafe"
+)
+
+const (
+	c0 = uintptr((8-sys.PtrSize)/4*2860486313 + (sys.PtrSize-4)/4*33054211828000289)
+	c1 = uintptr((8-sys.PtrSize)/4*3267000013 + (sys.PtrSize-4)/4*23344194077549503)
+)
+
+// type algorithms - known to compiler
+const (
+	alg_NOEQ = iota
+	alg_MEM0
+	alg_MEM8
+	alg_MEM16
+	alg_MEM32
+	alg_MEM64
+	alg_MEM128
+	alg_STRING
+	alg_INTER
+	alg_NILINTER
+	alg_FLOAT32
+	alg_FLOAT64
+	alg_CPLX64
+	alg_CPLX128
+	alg_max
+)
+
+func memhash0(p unsafe.Pointer, h uintptr) uintptr {
+	return h
+}
+
+func memhash8(p unsafe.Pointer, h uintptr) uintptr {
+	return memhash(p, h, 1)
+}
+
+func memhash16(p unsafe.Pointer, h uintptr) uintptr {
+	return memhash(p, h, 2)
+}
+
+func memhash128(p unsafe.Pointer, h uintptr) uintptr {
+	return memhash(p, h, 16)
+}
+
+//go:nosplit
+func memhash_varlen(p unsafe.Pointer, h uintptr) uintptr {
+	ptr := getclosureptr()
+	size := *(*uintptr)(unsafe.Pointer(ptr + unsafe.Sizeof(h)))
+	return memhash(p, h, size)
+}
+
+// runtime variable to check if the processor we're running on
+// actually supports the instructions used by the AES-based
+// hash implementation.
+var useAeshash bool
+
+// in asm_*.s
+func memhash(p unsafe.Pointer, h, s uintptr) uintptr
+func memhash32(p unsafe.Pointer, h uintptr) uintptr
+func memhash64(p unsafe.Pointer, h uintptr) uintptr
+func strhash(p unsafe.Pointer, h uintptr) uintptr
+
+func strhashFallback(a unsafe.Pointer, h uintptr) uintptr {
+	x := (*stringStruct)(a)
+	return memhashFallback(x.str, h, uintptr(x.len))
+}
+
+// NOTE: Because NaN != NaN, a map can contain any
+// number of (mostly useless) entries keyed with NaNs.
+// To avoid long hash chains, we assign a random number
+// as the hash value for a NaN.
+
+func f32hash(p unsafe.Pointer, h uintptr) uintptr {
+	f := *(*float32)(p)
+	switch {
+	case f == 0:
+		return c1 * (c0 ^ h) // +0, -0
+	case f != f:
+		return c1 * (c0 ^ h ^ uintptr(fastrand())) // any kind of NaN
+	default:
+		return memhash(p, h, 4)
+	}
+}
+
+func f64hash(p unsafe.Pointer, h uintptr) uintptr {
+	f := *(*float64)(p)
+	switch {
+	case f == 0:
+		return c1 * (c0 ^ h) // +0, -0
+	case f != f:
+		return c1 * (c0 ^ h ^ uintptr(fastrand())) // any kind of NaN
+	default:
+		return memhash(p, h, 8)
+	}
+}
+
+func c64hash(p unsafe.Pointer, h uintptr) uintptr {
+	x := (*[2]float32)(p)
+	return f32hash(unsafe.Pointer(&x[1]), f32hash(unsafe.Pointer(&x[0]), h))
+}
+
+func c128hash(p unsafe.Pointer, h uintptr) uintptr {
+	x := (*[2]float64)(p)
+	return f64hash(unsafe.Pointer(&x[1]), f64hash(unsafe.Pointer(&x[0]), h))
+}
+
+func interhash(p unsafe.Pointer, h uintptr) uintptr {
+	a := (*iface)(p)
+	tab := a.tab
+	if tab == nil {
+		return h
+	}
+	t := tab._type
+	if t.equal == nil {
+		// Check hashability here. We could do this check inside
+		// typehash, but we want to report the topmost type in
+		// the error text (e.g. in a struct with a field of slice type
+		// we want to report the struct, not the slice).
+		panic(errorString("hash of unhashable type " + t.string()))
+	}
+	if isDirectIface(t) {
+		return c1 * typehash(t, unsafe.Pointer(&a.data), h^c0)
+	} else {
+		return c1 * typehash(t, a.data, h^c0)
+	}
+}
+
+func nilinterhash(p unsafe.Pointer, h uintptr) uintptr {
+	a := (*eface)(p)
+	t := a._type
+	if t == nil {
+		return h
+	}
+	if t.equal == nil {
+		// See comment in interhash above.
+		panic(errorString("hash of unhashable type " + t.string()))
+	}
+	if isDirectIface(t) {
+		return c1 * typehash(t, unsafe.Pointer(&a.data), h^c0)
+	} else {
+		return c1 * typehash(t, a.data, h^c0)
+	}
+}
+
+// typehash computes the hash of the object of type t at address p.
+// h is the seed.
+// This function is seldom used. Most maps use for hashing either
+// fixed functions (e.g. f32hash) or compiler-generated functions
+// (e.g. for a type like struct { x, y string }). This implementation
+// is slower but more general and is used for hashing interface types
+// (called from interhash or nilinterhash, above) or for hashing in
+// maps generated by reflect.MapOf (reflect_typehash, below).
+// Note: this function must match the compiler generated
+// functions exactly. See issue 37716.
+func typehash(t *_type, p unsafe.Pointer, h uintptr) uintptr {
+	if t.tflag&tflagRegularMemory != 0 {
+		// Handle ptr sizes specially, see issue 37086.
+		switch t.size {
+		case 4:
+

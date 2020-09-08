@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/core/v1
+File: zz_generated.conversion.go
+Line: 7200
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.RunAsUser = (*int64)(unsafe.Pointer(in.RunAsUser))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func autoConvert_v1_SecurityContext_To_core_SecurityContext(in *v1.SecurityContext, out *core.SecurityContext, s conversion.Scope) error {
+	out.Capabilities = (*core.Capabilities)(unsafe.Pointer(in.Capabilities))
+	out.Privileged = (*bool)(unsafe.Pointer(in.Privileged))
+	out.SELinuxOptions = (*core.SELinuxOptions)(unsafe.Pointer(in.SELinuxOptions))
+	out.WindowsOptions = (*core.WindowsSecurityContextOptions)(unsafe.Pointer(in.WindowsOptions))
+	out.RunAsUser = (*int64)(unsafe.Pointer(in.RunAsUser))
+	out.RunAsGroup = (*int64)(unsafe.Pointer(in.RunAsGroup))
+	out.RunAsNonRoot = (*bool)(unsafe.Pointer(in.RunAsNonRoot))
+	out.ReadOnlyRootFilesystem = (*bool)(unsafe.Pointer(in.ReadOnlyRootFilesystem))
+	out.AllowPrivilegeEscalation = (*bool)(unsafe.Pointer(in.AllowPrivilegeEscalation))
+	out.ProcMount = (*core.ProcMountType)(unsafe.Pointer(in.ProcMount))
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

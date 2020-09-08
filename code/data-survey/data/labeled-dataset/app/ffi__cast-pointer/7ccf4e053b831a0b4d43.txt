@@ -1,0 +1,34 @@
+Module: github.com/godror/godror
+Version: v0.10.4
+
+Package: github.com/godror/godror
+File: /root/.cache/go-build/78/787a19ec3f5b1966eb6d8630f6718f98a09fcc68d65c47292525acb413109525-d
+Line: 4273
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+var _cgo_2934851b4e75_Cfunc_dpiStmt_getNumQueryColumns = unsafe.Pointer(&__cgofn__cgo_2934851b4e75_Cfunc_dpiStmt_getNumQueryColumns)
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return
+}
+//go:cgo_import_static _cgo_2934851b4e75_Cfunc_dpiStmt_getNumQueryColumns
+//go:linkname __cgofn__cgo_2934851b4e75_Cfunc_dpiStmt_getNumQueryColumns _cgo_2934851b4e75_Cfunc_dpiStmt_getNumQueryColumns
+var __cgofn__cgo_2934851b4e75_Cfunc_dpiStmt_getNumQueryColumns byte
+var _cgo_2934851b4e75_Cfunc_dpiStmt_getNumQueryColumns = unsafe.Pointer(&__cgofn__cgo_2934851b4e75_Cfunc_dpiStmt_getNumQueryColumns)
+
+//go:cgo_unsafe_args
+func _Cfunc_dpiStmt_getNumQueryColumns(p0 *_Ctype_struct_dpiStmt, p1 *_Ctype_uint32_t) (r1 _Ctype_int) {
+	_cgo_runtime_cgocall(_cgo_2934851b4e75_Cfunc_dpiStmt_getNumQueryColumns, uintptr(unsafe.Pointer(&p0)))
+	if _Cgo_always_false {
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

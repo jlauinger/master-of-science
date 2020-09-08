@@ -1,0 +1,34 @@
+Module: github.com/containers/storage
+Version: v1.20.1
+
+Package: github.com/containers/storage/drivers/quota
+File: /root/.cache/go-build/23/23cb0ba99212f1a25b90b9b4a7042fc51b40fa37c038303a036400af0abb1698-d
+Line: 159
+
+Imported (possibly among others) by: containers/libpod
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+func _Cfunc_free(p0 unsafe.Pointer) (r1 _Ctype_void) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+//go:linkname __cgofn__cgo_aec12049ad55_Cfunc_free _cgo_aec12049ad55_Cfunc_free
+var __cgofn__cgo_aec12049ad55_Cfunc_free byte
+var _cgo_aec12049ad55_Cfunc_free = unsafe.Pointer(&__cgofn__cgo_aec12049ad55_Cfunc_free)
+
+//go:cgo_unsafe_args
+func _Cfunc_free(p0 unsafe.Pointer) (r1 _Ctype_void) {
+	_cgo_runtime_cgocall(_cgo_aec12049ad55_Cfunc_free, uintptr(unsafe.Pointer(&p0)))
+	if _Cgo_always_false {
+		_Cgo_use(p0)
+	}
+	return
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

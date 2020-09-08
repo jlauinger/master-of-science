@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: iface.go
+Line: 204
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+methods := (*[1 << 16]unsafe.Pointer)(unsafe.Pointer(&m.fun[0]))[:ni:ni]
+--------------------------------------------------------------
++/- 5 lines context:
+
+	// the loop is O(ni+nt) not O(ni*nt).
+	ni := len(inter.mhdr)
+	nt := int(x.mcount)
+	xmhdr := (*[1 << 16]method)(add(unsafe.Pointer(x), uintptr(x.moff)))[:nt:nt]
+	j := 0
+	methods := (*[1 << 16]unsafe.Pointer)(unsafe.Pointer(&m.fun[0]))[:ni:ni]
+	var fun0 unsafe.Pointer
+imethods:
+	for k := 0; k < ni; k++ {
+		i := &inter.mhdr[k]
+		itype := inter.typ.typeOff(i.ityp)
+--------------------------------------------------------------
++/- 100 lines context:
+
+		// the initializations of the fields of m.
+		// m := *p
+		m := (*itab)(atomic.Loadp(unsafe.Pointer(p)))
+		if m == nil {
+			return nil
+		}
+		if m.inter == inter && m._type == typ {
+			return m
+		}
+		h += i
+		h &= mask
+	}
+}
+
+// itabAdd adds the given itab to the itab hash table.
+// itabLock must be held.
+func itabAdd(m *itab) {
+	// Bugs can lead to calling this while mallocing is set,
+	// typically because this is called while panicing.
+	// Crash reliably, rather than only when we need to grow
+	// the hash table.
+	if getg().m.mallocing != 0 {
+		throw("malloc deadlock")
+	}
+
+	t := itabTable
+	if t.count >= 3*(t.size/4) { // 75% load factor
+		// Grow hash table.
+		// t2 = new(itabTableType) + some additional entries
+		// We lie and tell malloc we want pointer-free memory because
+		// all the pointed-to values are not in the heap.
+		t2 := (*itabTableType)(mallocgc((2+2*t.size)*sys.PtrSize, nil, true))
+		t2.size = t.size * 2
+
+		// Copy over entries.
+		// Note: while copying, other threads may look for an itab and
+		// fail to find it. That's ok, they will then try to get the itab lock
+		// and as a consequence wait until this copying is complete.
+		iterate_itabs(t2.add)
+		if t2.count != t.count {
+			throw("mismatched count during itab table copy")
+		}
+		// Publish new hash table. Use an atomic write: see comment in getitab.
+		atomicstorep(unsafe.Pointer(&itabTable), unsafe.Pointer(t2))
+		// Adopt the new table as our own.
+		t = itabTable
+		// Note: the old table can be GC'ed here.
+	}
+	t.add(m)
+}
+
+// add adds the given itab to itab table t.
+// itabLock must be held.
+func (t *itabTableType) add(m *itab) {
+	// See comment in find about the probe sequence.
+	// Insert new itab in the first empty spot in the probe sequence.
+	mask := t.size - 1
+	h := itabHashFunc(m.inter, m._type) & mask
+	for i := uintptr(1); ; i++ {
+		p := (**itab)(add(unsafe.Pointer(&t.entries), h*sys.PtrSize))
+		m2 := *p
+		if m2 == m {
+			// A given itab may be used in more than one module
+			// and thanks to the way global symbol resolution works, the
+			// pointed-to itab may already have been inserted into the
+			// global 'hash'.
+			return
+		}
+		if m2 == nil {
+			// Use atomic write here so if a reader sees m, it also
+			// sees the correctly initialized fields of m.
+			// NoWB is ok because m is not in heap memory.
+			// *p = m
+			atomic.StorepNoWB(unsafe.Pointer(p), unsafe.Pointer(m))
+			t.count++
+			return
+		}
+		h += i
+		h &= mask
+	}
+}
+
+// init fills in the m.fun array with all the code pointers for
+// the m.inter/m._type pair. If the type does not implement the interface,
+// it sets m.fun[0] to 0 and returns the name of an interface function that is missing.
+// It is ok to call this multiple times on the same m, even concurrently.
+func (m *itab) init() string {
+	inter := m.inter
+	typ := m._type
+	x := typ.uncommon()
+
+	// both inter and typ have method sorted by name,
+	// and interface names are unique,
+	// so can iterate over both in lock step;
+	// the loop is O(ni+nt) not O(ni*nt).
+	ni := len(inter.mhdr)
+	nt := int(x.mcount)
+	xmhdr := (*[1 << 16]method)(add(unsafe.Pointer(x), uintptr(x.moff)))[:nt:nt]
+	j := 0
+	methods := (*[1 << 16]unsafe.Pointer)(unsafe.Pointer(&m.fun[0]))[:ni:ni]
+	var fun0 unsafe.Pointer
+imethods:
+	for k := 0; k < ni; k++ {
+		i := &inter.mhdr[k]
+		itype := inter.typ.typeOff(i.ityp)
+		name := inter.typ.nameOff(i.name)
+		iname := name.name()
+		ipkg := name.pkgPath()
+		if ipkg == "" {
+			ipkg = inter.pkgpath.name()
+		}
+		for ; j < nt; j++ {
+			t := &xmhdr[j]
+			tname := typ.nameOff(t.name)
+			if typ.typeOff(t.mtyp) == itype && tname.name() == iname {
+				pkgPath := tname.pkgPath()
+				if pkgPath == "" {
+					pkgPath = typ.nameOff(x.pkgpath).name()
+				}
+				if tname.isExported() || pkgPath == ipkg {
+					if m != nil {
+						ifn := typ.textOff(t.ifn)
+						if k == 0 {
+							fun0 = ifn // we'll set m.fun[0] at the end
+						} else {
+							methods[k] = ifn
+						}
+					}
+					continue imethods
+				}
+			}
+		}
+		// didn't find method
+		m.fun[0] = 0
+		return iname
+	}
+	m.fun[0] = uintptr(fun0)
+	return ""
+}
+
+func itabsinit() {
+	lock(&itabLock)
+	for _, md := range activeModules() {
+		for _, i := range md.itablinks {
+			itabAdd(i)
+		}
+	}
+	unlock(&itabLock)
+}
+
+// panicdottypeE is called when doing an e.(T) conversion and the conversion fails.
+// have = the dynamic type we have.
+// want = the static type we're trying to convert to.
+// iface = the static type we're converting from.
+func panicdottypeE(have, want, iface *_type) {
+	panic(&TypeAssertionError{iface, have, want, ""})
+}
+
+// panicdottypeI is called when doing an i.(T) conversion and the conversion fails.
+// Same args as panicdottypeE, but "have" is the dynamic itab we have.
+func panicdottypeI(have *itab, want, iface *_type) {
+	var t *_type
+	if have != nil {
+		t = have._type
+	}
+	panicdottypeE(t, want, iface)
+}
+
+// panicnildottype is called when doing a i.(T) conversion and the interface i is nil.
+// want = the static type we're trying to convert to.
+func panicnildottype(want *_type) {
+	panic(&TypeAssertionError{nil, nil, want, ""})
+	// TODO: Add the static type we're converting from as well.
+	// It might generate a better error message.
+	// Just to match other nil conversion errors, we don't for now.
+}
+
+// The specialized convTx routines need a type descriptor to use when calling mallocgc.
+// We don't need the type to be exact, just to have the correct size, alignment, and pointer-ness.
+// However, when debugging, it'd be nice to have some indication in mallocgc where the types came from,
+// so we use named types here.
+// We then construct interface values of these types,
+// and then extract the type word to use as needed.
+type (
+	uint16InterfacePtr uint16
+	uint32InterfacePtr uint32
+	uint64InterfacePtr uint64
+	stringInterfacePtr string
+	sliceInterfacePtr  []byte
+)
+
+var (
+	uint16Eface interface{} = uint16InterfacePtr(0)
+	uint32Eface interface{} = uint32InterfacePtr(0)
+	uint64Eface interface{} = uint64InterfacePtr(0)
+	stringEface interface{} = stringInterfacePtr("")
+	sliceEface  interface{} = sliceInterfacePtr(nil)
+
+	uint16Type *_type = efaceOf(&uint16Eface)._type
+	uint32Type *_type = efaceOf(&uint32Eface)._type
+

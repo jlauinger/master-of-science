@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: stack.go
+Line: 1063
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+fn = unsafe.Pointer(funcPC(nilfunc))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func gostartcallfn(gobuf *gobuf, fv *funcval) {
+	var fn unsafe.Pointer
+	if fv != nil {
+		fn = unsafe.Pointer(fv.fn)
+	} else {
+		fn = unsafe.Pointer(funcPC(nilfunc))
+	}
+	gostartcall(gobuf, fn, unsafe.Pointer(fv))
+}
+
+// isShrinkStackSafe returns whether it's safe to attempt to shrink
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+	// Be conservative about where we preempt.
+	// We are interested in preempting user Go code, not runtime code.
+	// If we're holding locks, mallocing, or preemption is disabled, don't
+	// preempt.
+	// This check is very early in newstack so that even the status change
+	// from Grunning to Gwaiting and back doesn't happen in this case.
+	// That status change by itself can be viewed as a small preemption,
+	// because the GC might change Gwaiting to Gscanwaiting, and then
+	// this goroutine has to wait for the GC to finish before continuing.
+	// If the GC is in some way dependent on this goroutine (for example,
+	// it needs a lock held by the goroutine), that small preemption turns
+	// into a real deadlock.
+	if preempt {
+		if !canPreemptM(thisg.m) {
+			// Let the goroutine keep running for now.
+			// gp->preempt is set, so it will be preempted next time.
+			gp.stackguard0 = gp.stack.lo + _StackGuard
+			gogo(&gp.sched) // never return
+		}
+	}
+
+	if gp.stack.lo == 0 {
+		throw("missing stack in newstack")
+	}
+	sp := gp.sched.sp
+	if sys.ArchFamily == sys.AMD64 || sys.ArchFamily == sys.I386 || sys.ArchFamily == sys.WASM {
+		// The call to morestack cost a word.
+		sp -= sys.PtrSize
+	}
+	if stackDebug >= 1 || sp < gp.stack.lo {
+		print("runtime: newstack sp=", hex(sp), " stack=[", hex(gp.stack.lo), ", ", hex(gp.stack.hi), "]\n",
+			"\tmorebuf={pc:", hex(morebuf.pc), " sp:", hex(morebuf.sp), " lr:", hex(morebuf.lr), "}\n",
+			"\tsched={pc:", hex(gp.sched.pc), " sp:", hex(gp.sched.sp), " lr:", hex(gp.sched.lr), " ctxt:", gp.sched.ctxt, "}\n")
+	}
+	if sp < gp.stack.lo {
+		print("runtime: gp=", gp, ", goid=", gp.goid, ", gp->status=", hex(readgstatus(gp)), "\n ")
+		print("runtime: split stack overflow: ", hex(sp), " < ", hex(gp.stack.lo), "\n")
+		throw("runtime: split stack overflow")
+	}
+
+	if preempt {
+		if gp == thisg.m.g0 {
+			throw("runtime: preempt g0")
+		}
+		if thisg.m.p == 0 && thisg.m.locks == 0 {
+			throw("runtime: g is running but p is not")
+		}
+
+		if gp.preemptShrink {
+			// We're at a synchronous safe point now, so
+			// do the pending stack shrink.
+			gp.preemptShrink = false
+			shrinkstack(gp)
+		}
+
+		if gp.preemptStop {
+			preemptPark(gp) // never returns
+		}
+
+		// Act like goroutine called runtime.Gosched.
+		gopreempt_m(gp) // never return
+	}
+
+	// Allocate a bigger segment and move the stack.
+	oldsize := gp.stack.hi - gp.stack.lo
+	newsize := oldsize * 2
+	if newsize > maxstacksize {
+		print("runtime: goroutine stack exceeds ", maxstacksize, "-byte limit\n")
+		print("runtime: sp=", hex(sp), " stack=[", hex(gp.stack.lo), ", ", hex(gp.stack.hi), "]\n")
+		throw("stack overflow")
+	}
+
+	// The goroutine must be executing in order to call newstack,
+	// so it must be Grunning (or Gscanrunning).
+	casgstatus(gp, _Grunning, _Gcopystack)
+
+	// The concurrent GC will not scan the stack while we are doing the copy since
+	// the gp is in a Gcopystack status.
+	copystack(gp, newsize)
+	if stackDebug >= 1 {
+		print("stack grow done\n")
+	}
+	casgstatus(gp, _Gcopystack, _Grunning)
+	gogo(&gp.sched)
+}
+
+//go:nosplit
+func nilfunc() {
+	*(*uint8)(nil) = 0
+}
+
+// adjust Gobuf as if it executed a call to fn
+// and then did an immediate gosave.
+func gostartcallfn(gobuf *gobuf, fv *funcval) {
+	var fn unsafe.Pointer
+	if fv != nil {
+		fn = unsafe.Pointer(fv.fn)
+	} else {
+		fn = unsafe.Pointer(funcPC(nilfunc))
+	}
+	gostartcall(gobuf, fn, unsafe.Pointer(fv))
+}
+
+// isShrinkStackSafe returns whether it's safe to attempt to shrink
+// gp's stack. Shrinking the stack is only safe when we have precise
+// pointer maps for all frames on the stack.
+func isShrinkStackSafe(gp *g) bool {
+	// We can't copy the stack if we're in a syscall.
+	// The syscall might have pointers into the stack and
+	// often we don't have precise pointer maps for the innermost
+	// frames.
+	//
+	// We also can't copy the stack if we're at an asynchronous
+	// safe-point because we don't have precise pointer maps for
+	// all frames.
+	return gp.syscallsp == 0 && !gp.asyncSafePoint
+}
+
+// Maybe shrink the stack being used by gp.
+//
+// gp must be stopped and we must own its stack. It may be in
+// _Grunning, but only if this is our own user G.
+func shrinkstack(gp *g) {
+	if gp.stack.lo == 0 {
+		throw("missing stack in shrinkstack")
+	}
+	if s := readgstatus(gp); s&_Gscan == 0 {
+		// We don't own the stack via _Gscan. We could still
+		// own it if this is our own user G and we're on the
+		// system stack.
+		if !(gp == getg().m.curg && getg() != getg().m.curg && s == _Grunning) {
+			// We don't own the stack.
+			throw("bad status in shrinkstack")
+		}
+	}
+	if !isShrinkStackSafe(gp) {
+		throw("shrinkstack at bad time")
+	}
+	// Check for self-shrinks while in a libcall. These may have
+	// pointers into the stack disguised as uintptrs, but these
+	// code paths should all be nosplit.
+	if gp == getg().m.curg && gp.m.libcallsp != 0 {
+		throw("shrinking stack in libcall")
+	}
+
+	if debug.gcshrinkstackoff > 0 {
+		return
+	}
+	f := findfunc(gp.startpc)
+	if f.valid() && f.funcID == funcID_gcBgMarkWorker {
+		// We're not allowed to shrink the gcBgMarkWorker
+		// stack (see gcBgMarkWorker for explanation).
+		return
+	}
+
+	oldsize := gp.stack.hi - gp.stack.lo
+	newsize := oldsize / 2
+	// Don't shrink the allocation below the minimum-sized stack
+	// allocation.
+	if newsize < _FixedStack {
+		return
+	}
+	// Compute how much of the stack is currently in use and only
+	// shrink the stack if gp is using less than a quarter of its
+	// current stack. The currently used stack includes everything
+	// down to the SP plus the stack guard space that ensures
+	// there's room for nosplit functions.
+	avail := gp.stack.hi - gp.stack.lo
+	if used := gp.stack.hi - gp.sched.sp + _StackLimit; used >= avail/4 {
+		return
+	}
+
+	if stackDebug > 0 {
+		print("shrinking stack ", oldsize, "->", newsize, "\n")
+	}
+
+	copystack(gp, newsize)
+}
+
+// freeStackSpans frees unused stack spans at the end of GC.
+func freeStackSpans() {
+
+	// Scan stack pools for empty stack spans.
+	for order := range stackpool {
+		lock(&stackpool[order].item.mu)
+		list := &stackpool[order].item.span
+		for s := list.first; s != nil; {
+			next := s.next
+			if s.allocCount == 0 {
+				list.remove(s)
+				s.manualFreeList = 0
+				osStackFree(s)
+				mheap_.freeManual(s, &memstats.stacks_inuse)
+			}
+			s = next
+		}
+		unlock(&stackpool[order].item.mu)
+	}
+
+

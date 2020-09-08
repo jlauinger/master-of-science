@@ -1,0 +1,234 @@
+Module: gorgonia.org/cu
+Version: v0.9.2
+
+Package: gorgonia.org/cu/blas
+File: blas.go
+Line: 1965
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+impl.e = status(C.cublasZtrsv(C.cublasHandle_t(impl.h), uplo2cublasUplo(ul), trans2cublasTrans(tA), diag2cublasDiag(d), C.int(n), (*C.cuDoubleComplex)(unsafe.Pointer(&a[0])), C.int(lda), (*C.cuDoubleComplex)(unsafe.Pointer(&x[0])), C.int(incX)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		panic("blas: zero x index increment")
+	}
+	if (incX > 0 && (n-1)*incX >= len(x)) || (incX < 0 && (1-n)*incX >= len(x)) {
+		panic("blas: x index out of range")
+	}
+	impl.e = status(C.cublasZtrsv(C.cublasHandle_t(impl.h), uplo2cublasUplo(ul), trans2cublasTrans(tA), diag2cublasDiag(d), C.int(n), (*C.cuDoubleComplex)(unsafe.Pointer(&a[0])), C.int(lda), (*C.cuDoubleComplex)(unsafe.Pointer(&x[0])), C.int(incX)))
+}
+
+// Stpsv solves
+//  A * x = b if tA == blas.NoTrans
+//  A^T * x = b if tA == blas.Trans or blas.ConjTrans
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Strsv solves
+//  A * x = b if tA == blas.NoTrans
+//  A^T * x = b if tA == blas.Trans or blas.ConjTrans
+// A is an n×n triangular matrix and x is a vector.
+// At entry to the function, x contains the values of b, and the result is
+// stored in place into x.
+//
+// No test for singularity or near-singularity is included in this
+// routine. Such tests must be performed before calling this routine.
+func (impl *Standard) Strsv(ul blas.Uplo, tA blas.Transpose, d blas.Diag, n int, a []float32, lda int, x []float32, incX int) {
+	// declared at cublasgen.h:803:17 enum CUBLAS_STATUS { ... } cublasStrsv ...
+	if impl.e != nil {
+		return
+	}
+
+	if tA != blas.NoTrans && tA != blas.Trans && tA != blas.ConjTrans {
+		panic("blas: illegal transpose")
+	}
+	if n < 0 {
+		panic("blas: n < 0")
+	}
+	if incX == 0 {
+		panic("blas: zero x index increment")
+	}
+	if (incX > 0 && (n-1)*incX >= len(x)) || (incX < 0 && (1-n)*incX >= len(x)) {
+		panic("blas: x index out of range")
+	}
+	impl.e = status(C.cublasStrsv(C.cublasHandle_t(impl.h), uplo2cublasUplo(ul), trans2cublasTrans(tA), diag2cublasDiag(d), C.int(n), (*C.float)(&a[0]), C.int(lda), (*C.float)(&x[0]), C.int(incX)))
+}
+
+// Dtrsv solves
+//  A * x = b if tA == blas.NoTrans
+//  A^T * x = b if tA == blas.Trans or blas.ConjTrans
+// A is an n×n triangular matrix and x is a vector.
+// At entry to the function, x contains the values of b, and the result is
+// stored in place into x.
+//
+// No test for singularity or near-singularity is included in this
+// routine. Such tests must be performed before calling this routine.
+func (impl *Standard) Dtrsv(ul blas.Uplo, tA blas.Transpose, d blas.Diag, n int, a []float64, lda int, x []float64, incX int) {
+	// declared at cublasgen.h:813:17 enum CUBLAS_STATUS { ... } cublasDtrsv ...
+	if impl.e != nil {
+		return
+	}
+
+	if tA != blas.NoTrans && tA != blas.Trans && tA != blas.ConjTrans {
+		panic("blas: illegal transpose")
+	}
+	if n < 0 {
+		panic("blas: n < 0")
+	}
+	if incX == 0 {
+		panic("blas: zero x index increment")
+	}
+	if (incX > 0 && (n-1)*incX >= len(x)) || (incX < 0 && (1-n)*incX >= len(x)) {
+		panic("blas: x index out of range")
+	}
+	impl.e = status(C.cublasDtrsv(C.cublasHandle_t(impl.h), uplo2cublasUplo(ul), trans2cublasTrans(tA), diag2cublasDiag(d), C.int(n), (*C.double)(&a[0]), C.int(lda), (*C.double)(&x[0]), C.int(incX)))
+}
+
+func (impl *Standard) Ctrsv(ul blas.Uplo, tA blas.Transpose, d blas.Diag, n int, a []complex64, lda int, x []complex64, incX int) {
+	// declared at cublasgen.h:823:17 enum CUBLAS_STATUS { ... } cublasCtrsv ...
+	if impl.e != nil {
+		return
+	}
+
+	if tA != blas.NoTrans && tA != blas.Trans && tA != blas.ConjTrans {
+		panic("blas: illegal transpose")
+	}
+	if n < 0 {
+		panic("blas: n < 0")
+	}
+	if incX == 0 {
+		panic("blas: zero x index increment")
+	}
+	if (incX > 0 && (n-1)*incX >= len(x)) || (incX < 0 && (1-n)*incX >= len(x)) {
+		panic("blas: x index out of range")
+	}
+	impl.e = status(C.cublasCtrsv(C.cublasHandle_t(impl.h), uplo2cublasUplo(ul), trans2cublasTrans(tA), diag2cublasDiag(d), C.int(n), (*C.cuComplex)(unsafe.Pointer(&a[0])), C.int(lda), (*C.cuComplex)(unsafe.Pointer(&x[0])), C.int(incX)))
+}
+
+func (impl *Standard) Ztrsv(ul blas.Uplo, tA blas.Transpose, d blas.Diag, n int, a []complex128, lda int, x []complex128, incX int) {
+	// declared at cublasgen.h:833:17 enum CUBLAS_STATUS { ... } cublasZtrsv ...
+	if impl.e != nil {
+		return
+	}
+
+	if tA != blas.NoTrans && tA != blas.Trans && tA != blas.ConjTrans {
+		panic("blas: illegal transpose")
+	}
+	if n < 0 {
+		panic("blas: n < 0")
+	}
+	if incX == 0 {
+		panic("blas: zero x index increment")
+	}
+	if (incX > 0 && (n-1)*incX >= len(x)) || (incX < 0 && (1-n)*incX >= len(x)) {
+		panic("blas: x index out of range")
+	}
+	impl.e = status(C.cublasZtrsv(C.cublasHandle_t(impl.h), uplo2cublasUplo(ul), trans2cublasTrans(tA), diag2cublasDiag(d), C.int(n), (*C.cuDoubleComplex)(unsafe.Pointer(&a[0])), C.int(lda), (*C.cuDoubleComplex)(unsafe.Pointer(&x[0])), C.int(incX)))
+}
+
+// Stpsv solves
+//  A * x = b if tA == blas.NoTrans
+//  A^T * x = b if tA == blas.Trans or blas.ConjTrans
+// where A is an n×n triangular matrix in packed format and x is a vector.
+// At entry to the function, x contains the values of b, and the result is
+// stored in place into x.
+//
+// No test for singularity or near-singularity is included in this
+// routine. Such tests must be performed before calling this routine.
+func (impl *Standard) Stpsv(ul blas.Uplo, tA blas.Transpose, d blas.Diag, n int, aP, x []float32, incX int) {
+	// declared at cublasgen.h:844:17 enum CUBLAS_STATUS { ... } cublasStpsv ...
+	if impl.e != nil {
+		return
+	}
+
+	if tA != blas.NoTrans && tA != blas.Trans && tA != blas.ConjTrans {
+		panic("blas: illegal transpose")
+	}
+	if n < 0 {
+		panic("blas: n < 0")
+	}
+	if incX == 0 {
+		panic("blas: zero x index increment")
+	}
+	if (incX > 0 && (n-1)*incX >= len(x)) || (incX < 0 && (1-n)*incX >= len(x)) {
+		panic("blas: x index out of range")
+	}
+	if n == 0 {
+		return
+	}
+	impl.e = status(C.cublasStpsv(C.cublasHandle_t(impl.h), uplo2cublasUplo(ul), trans2cublasTrans(tA), diag2cublasDiag(d), C.int(n), (*C.float)(&aP[0]), (*C.float)(&x[0]), C.int(incX)))
+}
+
+// Dtpsv solves
+//  A * x = b if tA == blas.NoTrans
+//  A^T * x = b if tA == blas.Trans or blas.ConjTrans
+// where A is an n×n triangular matrix in packed format and x is a vector.
+// At entry to the function, x contains the values of b, and the result is
+// stored in place into x.
+//
+// No test for singularity or near-singularity is included in this
+// routine. Such tests must be performed before calling this routine.
+func (impl *Standard) Dtpsv(ul blas.Uplo, tA blas.Transpose, d blas.Diag, n int, aP, x []float64, incX int) {
+	// declared at cublasgen.h:853:17 enum CUBLAS_STATUS { ... } cublasDtpsv ...
+	if impl.e != nil {
+		return
+	}
+
+	if tA != blas.NoTrans && tA != blas.Trans && tA != blas.ConjTrans {
+		panic("blas: illegal transpose")
+	}
+	if n < 0 {
+		panic("blas: n < 0")
+	}
+	if incX == 0 {
+		panic("blas: zero x index increment")
+	}
+	if (incX > 0 && (n-1)*incX >= len(x)) || (incX < 0 && (1-n)*incX >= len(x)) {
+		panic("blas: x index out of range")
+	}
+	if n == 0 {
+		return
+	}
+	impl.e = status(C.cublasDtpsv(C.cublasHandle_t(impl.h), uplo2cublasUplo(ul), trans2cublasTrans(tA), diag2cublasDiag(d), C.int(n), (*C.double)(&aP[0]), (*C.double)(&x[0]), C.int(incX)))
+}
+
+func (impl *Standard) Ctpsv(ul blas.Uplo, tA blas.Transpose, d blas.Diag, n int, aP, x []complex64, incX int) {
+	// declared at cublasgen.h:862:17 enum CUBLAS_STATUS { ... } cublasCtpsv ...
+	if impl.e != nil {
+		return
+	}
+
+	if tA != blas.NoTrans && tA != blas.Trans && tA != blas.ConjTrans {
+		panic("blas: illegal transpose")
+	}
+	if n < 0 {
+		panic("blas: n < 0")
+	}
+	if incX == 0 {
+		panic("blas: zero x index increment")
+	}
+	if (incX > 0 && (n-1)*incX >= len(x)) || (incX < 0 && (1-n)*incX >= len(x)) {
+		panic("blas: x index out of range")
+	}
+	if n == 0 {
+		return
+	}
+	impl.e = status(C.cublasCtpsv(C.cublasHandle_t(impl.h), uplo2cublasUplo(ul), trans2cublasTrans(tA), diag2cublasDiag(d), C.int(n), (*C.cuComplex)(unsafe.Pointer(&aP[0])), (*C.cuComplex)(unsafe.Pointer(&x[0])), C.int(incX)))
+}
+
+func (impl *Standard) Ztpsv(ul blas.Uplo, tA blas.Transpose, d blas.Diag, n int, aP, x []complex128, incX int) {
+	// declared at cublasgen.h:871:17 enum CUBLAS_STATUS { ... } cublasZtpsv ...
+	if impl.e != nil {
+		return
+	}
+
+	if tA != blas.NoTrans && tA != blas.Trans && tA != blas.ConjTrans {
+		panic("blas: illegal transpose")
+

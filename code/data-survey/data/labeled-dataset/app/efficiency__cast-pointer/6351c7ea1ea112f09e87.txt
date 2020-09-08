@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor
+File: dense.go
+Line: 380
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+t.viewOf = uintptr(unsafe.Pointer(d))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func (t *Dense) setParentTensor(d *Dense) {
+	if d == nil {
+		t.viewOf = 0
+		return
+	}
+	t.viewOf = uintptr(unsafe.Pointer(d))
+}
+
+/* ------ Mask operations */
+
+//ResetMask fills the mask with either false, or the provided boolean value
+--------------------------------------------------------------
++/- 100 lines context:
+
+	case t.IsScalar() && t.array.Ptr == nil:
+		t.makeArray(1)
+	case t.Shape() == nil && t.array.Ptr != nil:
+		size := t.L
+		if size == 1 {
+			t.SetShape() // scalar
+		} else {
+			t.SetShape(size) // vector
+		}
+	case t.array.Ptr == nil && t.t != Dtype{}:
+		size := t.Shape().TotalSize()
+		t.makeArray(size)
+
+	}
+	if len(t.mask) != t.len() {
+		t.mask = t.mask[:0]
+	}
+	t.lock() // don't put this in a defer - if t.array.Ptr == nil and t.Shape() == nil. then leave it unlocked
+}
+
+// makeMask adds a mask slice to tensor if required
+func (t *Dense) makeMask() {
+	var size int
+	size = t.shape.TotalSize()
+	if len(t.mask) >= size {
+		t.mask = t.mask[:size]
+	}
+	if cap(t.mask) < size {
+		t.mask = make([]bool, size)
+	}
+	t.mask = t.mask[:size]
+	memsetBools(t.mask, false)
+}
+
+// sanity is a function that sanity checks that a tensor is correct.
+func (t *Dense) sanity() error {
+	if !t.AP.IsZero() && t.Shape() == nil && t.array.Ptr == nil {
+		return errors.New(emptyTensor)
+	}
+
+	size := t.L
+	expected := t.Size()
+	if t.viewOf == 0 && size != expected && !t.IsScalar() {
+		return errors.Wrap(errors.Errorf(shapeMismatch, t.Shape(), size), "sanity check failed")
+	}
+	// TODO: sanity check for views
+	return nil
+}
+
+// isTransposed returns true if the *Dense holds a transposed array.
+func (t *Dense) isTransposed() bool { return t.old.IsZero() }
+
+// oshape returns the original shape
+func (t *Dense) oshape() Shape {
+	if !t.old.IsZero() {
+		return t.old.Shape()
+	}
+	return t.Shape()
+}
+
+// ostrides returns the original strides
+func (t *Dense) ostrides() []int {
+	if !t.old.IsZero() {
+		return t.old.Strides()
+	}
+	return t.Strides()
+}
+
+// ShallowClone clones the *Dense without making a copy of the underlying array
+func (t *Dense) ShallowClone() *Dense {
+	retVal := borrowDense()
+	retVal.e = t.e
+	retVal.oe = t.oe
+	t.AP.CloneTo(&retVal.AP)
+	retVal.flag = t.flag
+	retVal.array = t.array
+
+	retVal.old = t.old
+	retVal.transposeWith = t.transposeWith
+	retVal.viewOf = t.viewOf
+	retVal.mask = t.mask
+	retVal.maskIsSoft = t.maskIsSoft
+	return retVal
+}
+
+func (t *Dense) oldAP() *AP           { return &t.old }
+func (t *Dense) setOldAP(ap *AP)      { t.old = *ap }
+func (t *Dense) transposeAxes() []int { return t.transposeWith }
+func (t *Dense) parentTensor() *Dense {
+	if t.viewOf != 0 {
+		return (*Dense)(unsafe.Pointer(t.viewOf))
+	}
+	return nil
+}
+func (t *Dense) setParentTensor(d *Dense) {
+	if d == nil {
+		t.viewOf = 0
+		return
+	}
+	t.viewOf = uintptr(unsafe.Pointer(d))
+}
+
+/* ------ Mask operations */
+
+//ResetMask fills the mask with either false, or the provided boolean value
+func (t *Dense) ResetMask(val ...bool) error {
+	if !t.IsMasked() {
+		t.makeMask()
+	}
+	var fillValue = false
+	if len(val) > 0 {
+		fillValue = val[0]
+	}
+	memsetBools(t.mask, fillValue)
+	return nil
+}
+
+// HardenMask forces the mask to hard. If mask is hard, then true mask values can not be unset
+func (t *Dense) HardenMask() bool {
+	t.maskIsSoft = false
+	return t.maskIsSoft
+}
+
+// SoftenMask forces the mask to soft
+func (t *Dense) SoftenMask() bool {
+	t.maskIsSoft = true
+	return t.maskIsSoft
+}
+
+// MaskFromSlice makes mask from supplied slice
+func (t *Dense) MaskFromSlice(x interface{}) {
+	t.makeMask()
+	n := len(t.mask)
+	switch m := x.(type) {
+	case []bool:
+		copy(t.mask, m)
+		return
+	case []int:
+		for i, v := range m {
+			if v != 0 {
+				t.mask[i] = true
+			}
+			if i >= n {
+				return
+			}
+		}
+	case []int8:
+		for i, v := range m {
+			if v != 0 {
+				t.mask[i] = true
+			}
+			if i >= n {
+				return
+			}
+		}
+	case []int16:
+		for i, v := range m {
+			if v != 0 {
+				t.mask[i] = true
+			}
+			if i >= n {
+				return
+			}
+		}
+	case []int32:
+		for i, v := range m {
+			if v != 0 {
+				t.mask[i] = true
+			}
+			if i >= n {
+				return
+			}
+		}
+	case []int64:
+		for i, v := range m {
+			if v != 0 {
+				t.mask[i] = true
+			}
+			if i >= n {
+				return
+			}
+		}
+	case []uint:
+		for i, v := range m {
+			if v != 0 {
+				t.mask[i] = true
+			}
+			if i >= n {
+				return
+			}
+		}
+	case []byte:
+		for i, v := range m {
+			if v != 0 {
+				t.mask[i] = true
+			}
+			if i >= n {
+				return
+			}
+		}
+

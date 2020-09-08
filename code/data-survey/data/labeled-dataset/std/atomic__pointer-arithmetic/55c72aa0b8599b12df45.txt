@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: stack.go
+Line: 607
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): pointer-arithmetic
+Label 2 (For what purpose?): atomic
+
+--------------------------------------------------------------
+Snippet line:
+
+if !atomic.Casp1(ppu, unsafe.Pointer(p), unsafe.Pointer(p+delta)) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+				if stackDebug >= 3 {
+					print("adjust ptr ", hex(p), " ", funcname(f), "\n")
+				}
+				if useCAS {
+					ppu := (*unsafe.Pointer)(unsafe.Pointer(pp))
+					if !atomic.Casp1(ppu, unsafe.Pointer(p), unsafe.Pointer(p+delta)) {
+						goto retry
+					}
+				} else {
+					*pp = p + delta
+				}
+--------------------------------------------------------------
++/- 100 lines context:
+
+// |  caller's BP (*) | (*) if framepointer_enabled && varp < sp
+// +------------------+ <- frame->varp
+// |     locals       |
+// +------------------+
+// |  args to callee  |
+// +------------------+ <- frame->sp
+//
+// (arm)
+// +------------------+
+// | args from caller |
+// +------------------+ <- frame->argp
+// | caller's retaddr |
+// +------------------+ <- frame->varp
+// |     locals       |
+// +------------------+
+// |  args to callee  |
+// +------------------+
+// |  return address  |
+// +------------------+ <- frame->sp
+
+type adjustinfo struct {
+	old   stack
+	delta uintptr // ptr distance from old to new stack (newbase - oldbase)
+	cache pcvalueCache
+
+	// sghi is the highest sudog.elem on the stack.
+	sghi uintptr
+}
+
+// Adjustpointer checks whether *vpp is in the old stack described by adjinfo.
+// If so, it rewrites *vpp to point into the new stack.
+func adjustpointer(adjinfo *adjustinfo, vpp unsafe.Pointer) {
+	pp := (*uintptr)(vpp)
+	p := *pp
+	if stackDebug >= 4 {
+		print("        ", pp, ":", hex(p), "\n")
+	}
+	if adjinfo.old.lo <= p && p < adjinfo.old.hi {
+		*pp = p + adjinfo.delta
+		if stackDebug >= 3 {
+			print("        adjust ptr ", pp, ":", hex(p), " -> ", hex(*pp), "\n")
+		}
+	}
+}
+
+// Information from the compiler about the layout of stack frames.
+type bitvector struct {
+	n        int32 // # of bits
+	bytedata *uint8
+}
+
+// ptrbit returns the i'th bit in bv.
+// ptrbit is less efficient than iterating directly over bitvector bits,
+// and should only be used in non-performance-critical code.
+// See adjustpointers for an example of a high-efficiency walk of a bitvector.
+func (bv *bitvector) ptrbit(i uintptr) uint8 {
+	b := *(addb(bv.bytedata, i/8))
+	return (b >> (i % 8)) & 1
+}
+
+// bv describes the memory starting at address scanp.
+// Adjust any pointers contained therein.
+func adjustpointers(scanp unsafe.Pointer, bv *bitvector, adjinfo *adjustinfo, f funcInfo) {
+	minp := adjinfo.old.lo
+	maxp := adjinfo.old.hi
+	delta := adjinfo.delta
+	num := uintptr(bv.n)
+	// If this frame might contain channel receive slots, use CAS
+	// to adjust pointers. If the slot hasn't been received into
+	// yet, it may contain stack pointers and a concurrent send
+	// could race with adjusting those pointers. (The sent value
+	// itself can never contain stack pointers.)
+	useCAS := uintptr(scanp) < adjinfo.sghi
+	for i := uintptr(0); i < num; i += 8 {
+		if stackDebug >= 4 {
+			for j := uintptr(0); j < 8; j++ {
+				print("        ", add(scanp, (i+j)*sys.PtrSize), ":", ptrnames[bv.ptrbit(i+j)], ":", hex(*(*uintptr)(add(scanp, (i+j)*sys.PtrSize))), " # ", i, " ", *addb(bv.bytedata, i/8), "\n")
+			}
+		}
+		b := *(addb(bv.bytedata, i/8))
+		for b != 0 {
+			j := uintptr(sys.Ctz8(b))
+			b &= b - 1
+			pp := (*uintptr)(add(scanp, (i+j)*sys.PtrSize))
+		retry:
+			p := *pp
+			if f.valid() && 0 < p && p < minLegalPointer && debug.invalidptr != 0 {
+				// Looks like a junk value in a pointer slot.
+				// Live analysis wrong?
+				getg().m.traceback = 2
+				print("runtime: bad pointer in frame ", funcname(f), " at ", pp, ": ", hex(p), "\n")
+				throw("invalid pointer found on stack")
+			}
+			if minp <= p && p < maxp {
+				if stackDebug >= 3 {
+					print("adjust ptr ", hex(p), " ", funcname(f), "\n")
+				}
+				if useCAS {
+					ppu := (*unsafe.Pointer)(unsafe.Pointer(pp))
+					if !atomic.Casp1(ppu, unsafe.Pointer(p), unsafe.Pointer(p+delta)) {
+						goto retry
+					}
+				} else {
+					*pp = p + delta
+				}
+			}
+		}
+	}
+}
+
+// Note: the argument/return area is adjusted by the callee.
+func adjustframe(frame *stkframe, arg unsafe.Pointer) bool {
+	adjinfo := (*adjustinfo)(arg)
+	if frame.continpc == 0 {
+		// Frame is dead.
+		return true
+	}
+	f := frame.fn
+	if stackDebug >= 2 {
+		print("    adjusting ", funcname(f), " frame=[", hex(frame.sp), ",", hex(frame.fp), "] pc=", hex(frame.pc), " continpc=", hex(frame.continpc), "\n")
+	}
+	if f.funcID == funcID_systemstack_switch {
+		// A special routine at the bottom of stack of a goroutine that does a systemstack call.
+		// We will allow it to be copied even though we don't
+		// have full GC info for it (because it is written in asm).
+		return true
+	}
+
+	locals, args, objs := getStackMap(frame, &adjinfo.cache, true)
+
+	// Adjust local variables if stack frame has been allocated.
+	if locals.n > 0 {
+		size := uintptr(locals.n) * sys.PtrSize
+		adjustpointers(unsafe.Pointer(frame.varp-size), &locals, adjinfo, f)
+	}
+
+	// Adjust saved base pointer if there is one.
+	if sys.ArchFamily == sys.AMD64 && frame.argp-frame.varp == 2*sys.RegSize {
+		if !framepointer_enabled {
+			print("runtime: found space for saved base pointer, but no framepointer experiment\n")
+			print("argp=", hex(frame.argp), " varp=", hex(frame.varp), "\n")
+			throw("bad frame layout")
+		}
+		if stackDebug >= 3 {
+			print("      saved bp\n")
+		}
+		if debugCheckBP {
+			// Frame pointers should always point to the next higher frame on
+			// the Go stack (or be nil, for the top frame on the stack).
+			bp := *(*uintptr)(unsafe.Pointer(frame.varp))
+			if bp != 0 && (bp < adjinfo.old.lo || bp >= adjinfo.old.hi) {
+				println("runtime: found invalid frame pointer")
+				print("bp=", hex(bp), " min=", hex(adjinfo.old.lo), " max=", hex(adjinfo.old.hi), "\n")
+				throw("bad frame pointer")
+			}
+		}
+		adjustpointer(adjinfo, unsafe.Pointer(frame.varp))
+	}
+
+	// Adjust arguments.
+	if args.n > 0 {
+		if stackDebug >= 3 {
+			print("      args\n")
+		}
+		adjustpointers(unsafe.Pointer(frame.argp), &args, adjinfo, funcInfo{})
+	}
+
+	// Adjust pointers in all stack objects (whether they are live or not).
+	// See comments in mgcmark.go:scanframeworker.
+	if frame.varp != 0 {
+		for _, obj := range objs {
+			off := obj.off
+			base := frame.varp // locals base pointer
+			if off >= 0 {
+				base = frame.argp // arguments and return values base pointer
+			}
+			p := base + uintptr(off)
+			if p < frame.sp {
+				// Object hasn't been allocated in the frame yet.
+				// (Happens when the stack bounds check fails and
+				// we call into morestack.)
+				continue
+			}
+			t := obj.typ
+			gcdata := t.gcdata
+			var s *mspan
+			if t.kind&kindGCProg != 0 {
+				// See comments in mgcmark.go:scanstack
+				s = materializeGCProg(t.ptrdata, gcdata)
+				gcdata = (*byte)(unsafe.Pointer(s.startAddr))
+			}
+			for i := uintptr(0); i < t.ptrdata; i += sys.PtrSize {
+				if *addb(gcdata, i/(8*sys.PtrSize))>>(i/sys.PtrSize&7)&1 != 0 {
+					adjustpointer(adjinfo, unsafe.Pointer(p+i))
+				}
+			}
+			if s != nil {
+				dematerializeGCProg(s)
+			}
+		}
+

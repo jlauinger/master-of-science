@@ -1,0 +1,131 @@
+Module: github.com/vishvananda/netlink
+Version: v1.1.1-0.20200210222539-bfba8e4149db
+
+Package: github.com/vishvananda/netlink/nl
+File: conntrack_linux.go
+Line: 216
+
+Imported (possibly among others) by: cilium/cilium
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+return (*(*[SizeofNfgenmsg]byte)(unsafe.Pointer(msg)))[:]
+--------------------------------------------------------------
++/- 5 lines context:
+
+func DeserializeNfgenmsg(b []byte) *Nfgenmsg {
+	return (*Nfgenmsg)(unsafe.Pointer(&b[0:SizeofNfgenmsg][0]))
+}
+
+func (msg *Nfgenmsg) Serialize() []byte {
+	return (*(*[SizeofNfgenmsg]byte)(unsafe.Pointer(msg)))[:]
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+	CTA_IP_V6_SRC = 3
+	CTA_IP_V6_DST = 4
+)
+
+// enum ctattr_l4proto {
+// 	CTA_PROTO_UNSPEC,
+// 	CTA_PROTO_NUM,
+// 	CTA_PROTO_SRC_PORT,
+// 	CTA_PROTO_DST_PORT,
+// 	CTA_PROTO_ICMP_ID,
+// 	CTA_PROTO_ICMP_TYPE,
+// 	CTA_PROTO_ICMP_CODE,
+// 	CTA_PROTO_ICMPV6_ID,
+// 	CTA_PROTO_ICMPV6_TYPE,
+// 	CTA_PROTO_ICMPV6_CODE,
+// 	__CTA_PROTO_MAX
+// };
+// #define CTA_PROTO_MAX (__CTA_PROTO_MAX - 1)
+const (
+	CTA_PROTO_NUM      = 1
+	CTA_PROTO_SRC_PORT = 2
+	CTA_PROTO_DST_PORT = 3
+)
+
+// enum ctattr_protoinfo {
+// 	CTA_PROTOINFO_UNSPEC,
+// 	CTA_PROTOINFO_TCP,
+// 	CTA_PROTOINFO_DCCP,
+// 	CTA_PROTOINFO_SCTP,
+// 	__CTA_PROTOINFO_MAX
+// };
+// #define CTA_PROTOINFO_MAX (__CTA_PROTOINFO_MAX - 1)
+const (
+	CTA_PROTOINFO_TCP = 1
+)
+
+// enum ctattr_protoinfo_tcp {
+// 	CTA_PROTOINFO_TCP_UNSPEC,
+// 	CTA_PROTOINFO_TCP_STATE,
+// 	CTA_PROTOINFO_TCP_WSCALE_ORIGINAL,
+// 	CTA_PROTOINFO_TCP_WSCALE_REPLY,
+// 	CTA_PROTOINFO_TCP_FLAGS_ORIGINAL,
+// 	CTA_PROTOINFO_TCP_FLAGS_REPLY,
+// 	__CTA_PROTOINFO_TCP_MAX
+// };
+// #define CTA_PROTOINFO_TCP_MAX (__CTA_PROTOINFO_TCP_MAX - 1)
+const (
+	CTA_PROTOINFO_TCP_STATE           = 1
+	CTA_PROTOINFO_TCP_WSCALE_ORIGINAL = 2
+	CTA_PROTOINFO_TCP_WSCALE_REPLY    = 3
+	CTA_PROTOINFO_TCP_FLAGS_ORIGINAL  = 4
+	CTA_PROTOINFO_TCP_FLAGS_REPLY     = 5
+)
+
+// enum ctattr_counters {
+// 	CTA_COUNTERS_UNSPEC,
+// 	CTA_COUNTERS_PACKETS,		/* 64bit counters */
+// 	CTA_COUNTERS_BYTES,		/* 64bit counters */
+// 	CTA_COUNTERS32_PACKETS,		/* old 32bit counters, unused */
+// 	CTA_COUNTERS32_BYTES,		/* old 32bit counters, unused */
+// 	CTA_COUNTERS_PAD,
+// 	__CTA_COUNTERS_M
+// };
+// #define CTA_COUNTERS_MAX (__CTA_COUNTERS_MAX - 1)
+const (
+	CTA_COUNTERS_PACKETS = 1
+	CTA_COUNTERS_BYTES   = 2
+)
+
+// enum CTA TIMESTAMP TLVs
+// CTA_TIMESTAMP_START       /* 64bit value */
+// CTA_TIMESTAMP_STOP        /* 64bit value */
+const (
+	CTA_TIMESTAMP_START = 1
+	CTA_TIMESTAMP_STOP  = 2
+)
+
+// /* General form of address family dependent message.
+//  */
+// struct nfgenmsg {
+// 	__u8  nfgen_family;		/* AF_xxx */
+// 	__u8  version;		/* nfnetlink version */
+// 	__be16    res_id;		/* resource id */
+// };
+type Nfgenmsg struct {
+	NfgenFamily uint8
+	Version     uint8
+	ResId       uint16 // big endian
+}
+
+func (msg *Nfgenmsg) Len() int {
+	return SizeofNfgenmsg
+}
+
+func DeserializeNfgenmsg(b []byte) *Nfgenmsg {
+	return (*Nfgenmsg)(unsafe.Pointer(&b[0:SizeofNfgenmsg][0]))
+}
+
+func (msg *Nfgenmsg) Serialize() []byte {
+	return (*(*[SizeofNfgenmsg]byte)(unsafe.Pointer(msg)))[:]
+}
+

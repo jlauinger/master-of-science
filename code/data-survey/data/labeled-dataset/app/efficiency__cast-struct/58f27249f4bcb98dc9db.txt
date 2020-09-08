@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/authorization/v1beta1
+File: zz_generated.conversion.go
+Line: 281
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.Verbs = *(*[]string)(unsafe.Pointer(&in.Verbs))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func Convert_authorization_ResourceAttributes_To_v1beta1_ResourceAttributes(in *authorization.ResourceAttributes, out *v1beta1.ResourceAttributes, s conversion.Scope) error {
+	return autoConvert_authorization_ResourceAttributes_To_v1beta1_ResourceAttributes(in, out, s)
+}
+
+func autoConvert_v1beta1_ResourceRule_To_authorization_ResourceRule(in *v1beta1.ResourceRule, out *authorization.ResourceRule, s conversion.Scope) error {
+	out.Verbs = *(*[]string)(unsafe.Pointer(&in.Verbs))
+	out.APIGroups = *(*[]string)(unsafe.Pointer(&in.APIGroups))
+	out.Resources = *(*[]string)(unsafe.Pointer(&in.Resources))
+	out.ResourceNames = *(*[]string)(unsafe.Pointer(&in.ResourceNames))
+	return nil
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

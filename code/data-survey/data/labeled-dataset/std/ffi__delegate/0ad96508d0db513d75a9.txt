@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: malloc.go
+Line: 820
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+sysFree(unsafe.Pointer(end), endLen, nil)
+--------------------------------------------------------------
++/- 5 lines context:
+
+		pAligned := alignUp(p, align)
+		sysFree(unsafe.Pointer(p), pAligned-p, nil)
+		end := pAligned + size
+		endLen := (p + size + align) - end
+		if endLen > 0 {
+			sysFree(unsafe.Pointer(end), endLen, nil)
+		}
+		return unsafe.Pointer(pAligned), size
+	}
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+		if l2 == nil {
+			// Allocate an L2 arena map.
+			l2 = (*[1 << arenaL2Bits]*heapArena)(persistentalloc(unsafe.Sizeof(*l2), sys.PtrSize, nil))
+			if l2 == nil {
+				throw("out of memory allocating heap arena map")
+			}
+			atomic.StorepNoWB(unsafe.Pointer(&h.arenas[ri.l1()]), unsafe.Pointer(l2))
+		}
+
+		if l2[ri.l2()] != nil {
+			throw("arena already initialized")
+		}
+		var r *heapArena
+		r = (*heapArena)(h.heapArenaAlloc.alloc(unsafe.Sizeof(*r), sys.PtrSize, &memstats.gc_sys))
+		if r == nil {
+			r = (*heapArena)(persistentalloc(unsafe.Sizeof(*r), sys.PtrSize, &memstats.gc_sys))
+			if r == nil {
+				throw("out of memory allocating heap arena metadata")
+			}
+		}
+
+		// Add the arena to the arenas list.
+		if len(h.allArenas) == cap(h.allArenas) {
+			size := 2 * uintptr(cap(h.allArenas)) * sys.PtrSize
+			if size == 0 {
+				size = physPageSize
+			}
+			newArray := (*notInHeap)(persistentalloc(size, sys.PtrSize, &memstats.gc_sys))
+			if newArray == nil {
+				throw("out of memory allocating allArenas")
+			}
+			oldSlice := h.allArenas
+			*(*notInHeapSlice)(unsafe.Pointer(&h.allArenas)) = notInHeapSlice{newArray, len(h.allArenas), int(size / sys.PtrSize)}
+			copy(h.allArenas, oldSlice)
+			// Do not free the old backing array because
+			// there may be concurrent readers. Since we
+			// double the array each time, this can lead
+			// to at most 2x waste.
+		}
+		h.allArenas = h.allArenas[:len(h.allArenas)+1]
+		h.allArenas[len(h.allArenas)-1] = ri
+
+		// Store atomically just in case an object from the
+		// new heap arena becomes visible before the heap lock
+		// is released (which shouldn't happen, but there's
+		// little downside to this).
+		atomic.StorepNoWB(unsafe.Pointer(&l2[ri.l2()]), unsafe.Pointer(r))
+	}
+
+	// Tell the race detector about the new heap memory.
+	if raceenabled {
+		racemapshadow(v, size)
+	}
+
+	return
+}
+
+// sysReserveAligned is like sysReserve, but the returned pointer is
+// aligned to align bytes. It may reserve either n or n+align bytes,
+// so it returns the size that was reserved.
+func sysReserveAligned(v unsafe.Pointer, size, align uintptr) (unsafe.Pointer, uintptr) {
+	// Since the alignment is rather large in uses of this
+	// function, we're not likely to get it by chance, so we ask
+	// for a larger region and remove the parts we don't need.
+	retries := 0
+retry:
+	p := uintptr(sysReserve(v, size+align))
+	switch {
+	case p == 0:
+		return nil, 0
+	case p&(align-1) == 0:
+		// We got lucky and got an aligned region, so we can
+		// use the whole thing.
+		return unsafe.Pointer(p), size + align
+	case GOOS == "windows":
+		// On Windows we can't release pieces of a
+		// reservation, so we release the whole thing and
+		// re-reserve the aligned sub-region. This may race,
+		// so we may have to try again.
+		sysFree(unsafe.Pointer(p), size+align, nil)
+		p = alignUp(p, align)
+		p2 := sysReserve(unsafe.Pointer(p), size)
+		if p != uintptr(p2) {
+			// Must have raced. Try again.
+			sysFree(p2, size, nil)
+			if retries++; retries == 100 {
+				throw("failed to allocate aligned heap memory; too many retries")
+			}
+			goto retry
+		}
+		// Success.
+		return p2, size
+	default:
+		// Trim off the unaligned parts.
+		pAligned := alignUp(p, align)
+		sysFree(unsafe.Pointer(p), pAligned-p, nil)
+		end := pAligned + size
+		endLen := (p + size + align) - end
+		if endLen > 0 {
+			sysFree(unsafe.Pointer(end), endLen, nil)
+		}
+		return unsafe.Pointer(pAligned), size
+	}
+}
+
+// base address for all 0-byte allocations
+var zerobase uintptr
+
+// nextFreeFast returns the next free object if one is quickly available.
+// Otherwise it returns 0.
+func nextFreeFast(s *mspan) gclinkptr {
+	theBit := sys.Ctz64(s.allocCache) // Is there a free object in the allocCache?
+	if theBit < 64 {
+		result := s.freeindex + uintptr(theBit)
+		if result < s.nelems {
+			freeidx := result + 1
+			if freeidx%64 == 0 && freeidx != s.nelems {
+				return 0
+			}
+			s.allocCache >>= uint(theBit + 1)
+			s.freeindex = freeidx
+			s.allocCount++
+			return gclinkptr(result*s.elemsize + s.base())
+		}
+	}
+	return 0
+}
+
+// nextFree returns the next free object from the cached span if one is available.
+// Otherwise it refills the cache with a span with an available object and
+// returns that object along with a flag indicating that this was a heavy
+// weight allocation. If it is a heavy weight allocation the caller must
+// determine whether a new GC cycle needs to be started or if the GC is active
+// whether this goroutine needs to assist the GC.
+//
+// Must run in a non-preemptible context since otherwise the owner of
+// c could change.
+func (c *mcache) nextFree(spc spanClass) (v gclinkptr, s *mspan, shouldhelpgc bool) {
+	s = c.alloc[spc]
+	shouldhelpgc = false
+	freeIndex := s.nextFreeIndex()
+	if freeIndex == s.nelems {
+		// The span is full.
+		if uintptr(s.allocCount) != s.nelems {
+			println("runtime: s.allocCount=", s.allocCount, "s.nelems=", s.nelems)
+			throw("s.allocCount != s.nelems && freeIndex == s.nelems")
+		}
+		c.refill(spc)
+		shouldhelpgc = true
+		s = c.alloc[spc]
+
+		freeIndex = s.nextFreeIndex()
+	}
+
+	if freeIndex >= s.nelems {
+		throw("freeIndex is not valid")
+	}
+
+	v = gclinkptr(freeIndex*s.elemsize + s.base())
+	s.allocCount++
+	if uintptr(s.allocCount) > s.nelems {
+		println("s.allocCount=", s.allocCount, "s.nelems=", s.nelems)
+		throw("s.allocCount > s.nelems")
+	}
+	return
+}
+
+// Allocate an object of size bytes.
+// Small objects are allocated from the per-P cache's free lists.
+// Large objects (> 32 kB) are allocated straight from the heap.
+func mallocgc(size uintptr, typ *_type, needzero bool) unsafe.Pointer {
+	if gcphase == _GCmarktermination {
+		throw("mallocgc called with gcphase == _GCmarktermination")
+	}
+
+	if size == 0 {
+		return unsafe.Pointer(&zerobase)
+	}
+
+	if debug.sbrk != 0 {
+		align := uintptr(16)
+		if typ != nil {
+			// TODO(austin): This should be just
+			//   align = uintptr(typ.align)
+			// but that's only 4 on 32-bit platforms,
+			// even if there's a uint64 field in typ (see #599).
+			// This causes 64-bit atomic accesses to panic.
+			// Hence, we use stricter alignment that matches
+			// the normal allocator better.
+			if size&7 == 0 {
+				align = 8
+			} else if size&3 == 0 {
+				align = 4
+			} else if size&1 == 0 {
+				align = 2
+			} else {
+				align = 1
+			}
+		}
+		return persistentalloc(size, align, &memstats.other_sys)
+

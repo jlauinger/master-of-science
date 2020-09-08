@@ -1,0 +1,234 @@
+Module: github.com/godror/godror
+Version: v0.10.4
+
+Package: github.com/godror/godror
+File: queue.go
+Line: 248
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+C.free(unsafe.Pointer(value))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+
+	if M.ExceptionQ != "" {
+		value := C.CString(M.ExceptionQ)
+		OK(C.dpiMsgProps_setExceptionQ(props, value, C.uint(len(M.ExceptionQ))), "setExceptionQ")
+		C.free(unsafe.Pointer(value))
+	}
+
+	if M.Expiration != 0 {
+		OK(C.dpiMsgProps_setExpiration(props, C.int(M.Expiration)), "setExpiration")
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+		ok = C.dpiQueue_deqMany(Q.dpiQueue, &num, &props[0])
+	}
+	if ok == C.DPI_FAILURE {
+		err := Q.conn.getError()
+		if code := err.(interface{ Code() int }).Code(); code == 3156 {
+			return 0, context.DeadlineExceeded
+		}
+		return 0, errors.Errorf("dequeue: %w", err)
+	}
+	var firstErr error
+	for i, p := range props[:int(num)] {
+		if err := messages[i].fromOra(Q.conn, p, &Q.PayloadObjectType); err != nil {
+			if firstErr == nil {
+				firstErr = err
+			}
+		}
+		C.dpiMsgProps_release(p)
+	}
+	return int(num), firstErr
+}
+
+// Enqueue all the messages given.
+//
+// WARNING: calling this function in parallel on different connections acquired from the same pool may fail due to Oracle bug 29928074. Ensure that this function is not run in parallel, use standalone connections or connections from different pools, or make multiple calls to Queue.enqOne() instead. The function Queue.Dequeue() call is not affected.
+func (Q *Queue) Enqueue(messages []Message) error {
+	Q.mu.Lock()
+	defer Q.mu.Unlock()
+	var props []*C.dpiMsgProps
+	if cap(Q.props) >= len(messages) {
+		props = Q.props[:len(messages)]
+	} else {
+		props = make([]*C.dpiMsgProps, len(messages))
+	}
+	Q.props = props
+	defer func() {
+		for _, p := range props {
+			if p != nil {
+				C.dpiMsgProps_release(p)
+			}
+		}
+	}()
+	for i, m := range messages {
+		if C.dpiConn_newMsgProps(Q.conn.dpiConn, &props[i]) == C.DPI_FAILURE {
+			return errors.Errorf("newMsgProps: %w", Q.conn.getError())
+		}
+		if err := m.toOra(Q.conn.drv, props[i]); err != nil {
+			return err
+		}
+	}
+
+	var ok C.int
+	if len(messages) == 1 {
+		ok = C.dpiQueue_enqOne(Q.dpiQueue, props[0])
+	} else {
+		ok = C.dpiQueue_enqMany(Q.dpiQueue, C.uint(len(props)), &props[0])
+	}
+	if ok == C.DPI_FAILURE {
+		return errors.Errorf("enqueue %#v: %w", messages, Q.conn.getError())
+	}
+
+	return nil
+}
+
+// Message is a message - either received or being sent.
+type Message struct {
+	Correlation, ExceptionQ string
+	Enqueued                time.Time
+	MsgID, OriginalMsgID    [16]byte
+	Raw                     []byte
+	Delay, Expiration       int32
+	Priority, NumAttempts   int32
+	Object                  *Object
+	DeliveryMode            DeliveryMode
+	State                   MessageState
+}
+
+func (M *Message) toOra(d *drv, props *C.dpiMsgProps) error {
+	var firstErr error
+	OK := func(ok C.int, name string) {
+		if ok == C.DPI_SUCCESS {
+			return
+		}
+		if firstErr == nil {
+			firstErr = errors.Errorf("%s: %w", name, d.getError())
+		}
+	}
+	if M.Correlation != "" {
+		value := C.CString(M.Correlation)
+		OK(C.dpiMsgProps_setCorrelation(props, value, C.uint(len(M.Correlation))), "setCorrelation")
+		C.free(unsafe.Pointer(value))
+	}
+
+	if M.Delay != 0 {
+		OK(C.dpiMsgProps_setDelay(props, C.int(M.Delay)), "setDelay")
+	}
+
+	if M.ExceptionQ != "" {
+		value := C.CString(M.ExceptionQ)
+		OK(C.dpiMsgProps_setExceptionQ(props, value, C.uint(len(M.ExceptionQ))), "setExceptionQ")
+		C.free(unsafe.Pointer(value))
+	}
+
+	if M.Expiration != 0 {
+		OK(C.dpiMsgProps_setExpiration(props, C.int(M.Expiration)), "setExpiration")
+	}
+
+	if M.OriginalMsgID != zeroMsgID {
+		OK(C.dpiMsgProps_setOriginalMsgId(props, (*C.char)(unsafe.Pointer(&M.OriginalMsgID[0])), MsgIDLength), "setMsgOriginalId")
+	}
+
+	OK(C.dpiMsgProps_setPriority(props, C.int(M.Priority)), "setPriority")
+
+	if M.Object == nil {
+		OK(C.dpiMsgProps_setPayloadBytes(props, (*C.char)(unsafe.Pointer(&M.Raw[0])), C.uint(len(M.Raw))), "setPayloadBytes")
+	} else {
+		OK(C.dpiMsgProps_setPayloadObject(props, M.Object.dpiObject), "setPayloadObject")
+	}
+
+	return firstErr
+}
+
+func (M *Message) fromOra(c *conn, props *C.dpiMsgProps, objType *ObjectType) error {
+	var firstErr error
+	OK := func(ok C.int, name string) bool {
+		if ok == C.DPI_SUCCESS {
+			return true
+		}
+		if firstErr == nil {
+			firstErr = errors.Errorf("%s: %w", name, c.getError())
+		}
+		return false
+	}
+	M.NumAttempts = 0
+	var cint C.int
+	if OK(C.dpiMsgProps_getNumAttempts(props, &cint), "getNumAttempts") {
+		M.NumAttempts = int32(cint)
+	}
+	var value *C.char
+	var length C.uint
+	M.Correlation = ""
+	if OK(C.dpiMsgProps_getCorrelation(props, &value, &length), "getCorrelation") {
+		M.Correlation = C.GoStringN(value, C.int(length))
+	}
+
+	M.Delay = 0
+	if OK(C.dpiMsgProps_getDelay(props, &cint), "getDelay") {
+		M.Delay = int32(cint)
+	}
+
+	M.DeliveryMode = DeliverPersistent
+	var mode C.dpiMessageDeliveryMode
+	if OK(C.dpiMsgProps_getDeliveryMode(props, &mode), "getDeliveryMode") {
+		M.DeliveryMode = DeliveryMode(mode)
+	}
+
+	M.ExceptionQ = ""
+	if OK(C.dpiMsgProps_getExceptionQ(props, &value, &length), "getExceptionQ") {
+		M.ExceptionQ = C.GoStringN(value, C.int(length))
+	}
+
+	var ts C.dpiTimestamp
+	M.Enqueued = time.Time{}
+	if OK(C.dpiMsgProps_getEnqTime(props, &ts), "getEnqTime") {
+		tz := c.timeZone
+		if ts.tzHourOffset != 0 || ts.tzMinuteOffset != 0 {
+			tz = timeZoneFor(ts.tzHourOffset, ts.tzMinuteOffset)
+		}
+		if tz == nil {
+			tz = time.Local
+		}
+		M.Enqueued = time.Date(
+			int(ts.year), time.Month(ts.month), int(ts.day),
+			int(ts.hour), int(ts.minute), int(ts.second), int(ts.fsecond),
+			tz,
+		)
+	}
+
+	M.Expiration = 0
+	if OK(C.dpiMsgProps_getExpiration(props, &cint), "getExpiration") {
+		M.Expiration = int32(cint)
+	}
+
+	M.MsgID = zeroMsgID
+	if OK(C.dpiMsgProps_getMsgId(props, &value, &length), "getMsgId") {
+		n := C.int(length)
+		if n > MsgIDLength {
+			n = MsgIDLength
+		}
+		copy(M.MsgID[:], C.GoBytes(unsafe.Pointer(value), n))
+	}
+
+	M.OriginalMsgID = zeroMsgID
+	if OK(C.dpiMsgProps_getOriginalMsgId(props, &value, &length), "getMsgOriginalId") {
+		n := C.int(length)
+		if n > MsgIDLength {
+			n = MsgIDLength
+		}
+		copy(M.OriginalMsgID[:], C.GoBytes(unsafe.Pointer(value), n))
+	}
+
+

@@ -1,0 +1,234 @@
+Module: go.etcd.io/bbolt
+Version: v1.3.4
+
+Package: go.etcd.io/bbolt
+File: node.go
+Line: 234
+
+Imported (possibly among others) by: mattermost/mattermost-server
+
+Label 1 (What is happening?): cast-header
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+		// Create a slice to write into of needed size and advance
+		// byte pointer for next iteration.
+		klen, vlen := len(item.key), len(item.value)
+		sz := klen + vlen
+		b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: bp,
+			Len:  sz,
+			Cap:  sz,
+		}))
+		bp += uintptr(sz)
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+	inode := &n.inodes[index]
+	inode.flags = flags
+	inode.key = newKey
+	inode.value = value
+	inode.pgid = pgid
+	_assert(len(inode.key) > 0, "put: zero-length inode key")
+}
+
+// del removes a key from the node.
+func (n *node) del(key []byte) {
+	// Find index of key.
+	index := sort.Search(len(n.inodes), func(i int) bool { return bytes.Compare(n.inodes[i].key, key) != -1 })
+
+	// Exit if the key isn't found.
+	if index >= len(n.inodes) || !bytes.Equal(n.inodes[index].key, key) {
+		return
+	}
+
+	// Delete inode from the node.
+	n.inodes = append(n.inodes[:index], n.inodes[index+1:]...)
+
+	// Mark the node as needing rebalancing.
+	n.unbalanced = true
+}
+
+// read initializes the node from a page.
+func (n *node) read(p *page) {
+	n.pgid = p.id
+	n.isLeaf = ((p.flags & leafPageFlag) != 0)
+	n.inodes = make(inodes, int(p.count))
+
+	for i := 0; i < int(p.count); i++ {
+		inode := &n.inodes[i]
+		if n.isLeaf {
+			elem := p.leafPageElement(uint16(i))
+			inode.flags = elem.flags
+			inode.key = elem.key()
+			inode.value = elem.value()
+		} else {
+			elem := p.branchPageElement(uint16(i))
+			inode.pgid = elem.pgid
+			inode.key = elem.key()
+		}
+		_assert(len(inode.key) > 0, "read: zero-length inode key")
+	}
+
+	// Save first key so we can find the node in the parent when we spill.
+	if len(n.inodes) > 0 {
+		n.key = n.inodes[0].key
+		_assert(len(n.key) > 0, "read: zero-length node key")
+	} else {
+		n.key = nil
+	}
+}
+
+// write writes the items onto one or more pages.
+func (n *node) write(p *page) {
+	// Initialize page.
+	if n.isLeaf {
+		p.flags |= leafPageFlag
+	} else {
+		p.flags |= branchPageFlag
+	}
+
+	if len(n.inodes) >= 0xFFFF {
+		panic(fmt.Sprintf("inode overflow: %d (pgid=%d)", len(n.inodes), p.id))
+	}
+	p.count = uint16(len(n.inodes))
+
+	// Stop here if there are no items to write.
+	if p.count == 0 {
+		return
+	}
+
+	// Loop over each item and write it to the page.
+	bp := uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p) + n.pageElementSize()*uintptr(len(n.inodes))
+	for i, item := range n.inodes {
+		_assert(len(item.key) > 0, "write: zero-length inode key")
+
+		// Write the page element.
+		if n.isLeaf {
+			elem := p.leafPageElement(uint16(i))
+			elem.pos = uint32(bp - uintptr(unsafe.Pointer(elem)))
+			elem.flags = item.flags
+			elem.ksize = uint32(len(item.key))
+			elem.vsize = uint32(len(item.value))
+		} else {
+			elem := p.branchPageElement(uint16(i))
+			elem.pos = uint32(bp - uintptr(unsafe.Pointer(elem)))
+			elem.ksize = uint32(len(item.key))
+			elem.pgid = item.pgid
+			_assert(elem.pgid != p.id, "write: circular dependency occurred")
+		}
+
+		// Create a slice to write into of needed size and advance
+		// byte pointer for next iteration.
+		klen, vlen := len(item.key), len(item.value)
+		sz := klen + vlen
+		b := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+			Data: bp,
+			Len:  sz,
+			Cap:  sz,
+		}))
+		bp += uintptr(sz)
+
+		// Write data for the element to the end of the page.
+		l := copy(b, item.key)
+		copy(b[l:], item.value)
+	}
+
+	// DEBUG ONLY: n.dump()
+}
+
+// split breaks up a node into multiple smaller nodes, if appropriate.
+// This should only be called from the spill() function.
+func (n *node) split(pageSize uintptr) []*node {
+	var nodes []*node
+
+	node := n
+	for {
+		// Split node into two.
+		a, b := node.splitTwo(pageSize)
+		nodes = append(nodes, a)
+
+		// If we can't split then exit the loop.
+		if b == nil {
+			break
+		}
+
+		// Set node to b so it gets split on the next iteration.
+		node = b
+	}
+
+	return nodes
+}
+
+// splitTwo breaks up a node into two smaller nodes, if appropriate.
+// This should only be called from the split() function.
+func (n *node) splitTwo(pageSize uintptr) (*node, *node) {
+	// Ignore the split if the page doesn't have at least enough nodes for
+	// two pages or if the nodes can fit in a single page.
+	if len(n.inodes) <= (minKeysPerPage*2) || n.sizeLessThan(pageSize) {
+		return n, nil
+	}
+
+	// Determine the threshold before starting a new node.
+	var fillPercent = n.bucket.FillPercent
+	if fillPercent < minFillPercent {
+		fillPercent = minFillPercent
+	} else if fillPercent > maxFillPercent {
+		fillPercent = maxFillPercent
+	}
+	threshold := int(float64(pageSize) * fillPercent)
+
+	// Determine split position and sizes of the two pages.
+	splitIndex, _ := n.splitIndex(threshold)
+
+	// Split node into two separate nodes.
+	// If there's no parent then we'll need to create one.
+	if n.parent == nil {
+		n.parent = &node{bucket: n.bucket, children: []*node{n}}
+	}
+
+	// Create a new node and add it to the parent.
+	next := &node{bucket: n.bucket, isLeaf: n.isLeaf, parent: n.parent}
+	n.parent.children = append(n.parent.children, next)
+
+	// Split inodes across two nodes.
+	next.inodes = n.inodes[splitIndex:]
+	n.inodes = n.inodes[:splitIndex]
+
+	// Update the statistics.
+	n.bucket.tx.stats.Split++
+
+	return n, next
+}
+
+// splitIndex finds the position where a page will fill a given threshold.
+// It returns the index as well as the size of the first page.
+// This is only be called from split().
+func (n *node) splitIndex(threshold int) (index, sz uintptr) {
+	sz = pageHeaderSize
+
+	// Loop until we only have the minimum number of keys required for the second page.
+	for i := 0; i < len(n.inodes)-minKeysPerPage; i++ {
+		index = uintptr(i)
+		inode := n.inodes[i]
+		elsize := n.pageElementSize() + uintptr(len(inode.key)) + uintptr(len(inode.value))
+
+		// If we have at least the minimum number of keys and adding another
+		// node would put us over the threshold then exit and return.
+		if index >= minKeysPerPage && sz+elsize > uintptr(threshold) {
+			break
+		}
+
+		// Add the element size to the total size.
+		sz += elsize
+	}
+
+

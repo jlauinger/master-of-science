@@ -1,0 +1,234 @@
+Module: github.com/tsg/gopacket
+Version: v0.0.0-20190320122513-dd3d0e41124a
+
+Package: github.com/tsg/gopacket/pcap
+File: pcap.go
+Line: 438
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+(*C.bpf_u_int32)(unsafe.Pointer(&maskp)),
+--------------------------------------------------------------
++/- 5 lines context:
+
+		dev := C.CString(p.device)
+		defer C.free(unsafe.Pointer(dev))
+		if -1 == C.pcap_lookupnet(
+			dev,
+			(*C.bpf_u_int32)(unsafe.Pointer(&netp)),
+			(*C.bpf_u_int32)(unsafe.Pointer(&maskp)),
+			errorBuf,
+		) {
+			// We can't lookup the network, but that could be because the interface
+			// doesn't have an IPv4.
+		}
+--------------------------------------------------------------
++/- 100 lines context:
+
+		} else {
+			return result
+		}
+	}
+	ci.Timestamp = time.Unix(int64(p.pkthdr.ts.tv_sec),
+		int64(p.pkthdr.ts.tv_usec)*1000) // convert micros to nanos
+	ci.CaptureLength = int(p.pkthdr.caplen)
+	ci.Length = int(p.pkthdr.len)
+	return nil
+}
+
+// ZeroCopyReadPacketData reads the next packet off the wire, and returns its data.
+// The slice returned by ZeroCopyReadPacketData points to bytes owned by the
+// the Handle.  Each call to ZeroCopyReadPacketData invalidates any data previously
+// returned by ZeroCopyReadPacketData.  Care must be taken not to keep pointers
+// to old bytes when using ZeroCopyReadPacketData... if you need to keep data past
+// the next time you call ZeroCopyReadPacketData, use ReadPacketData, which copies
+// the bytes into a new buffer for you.
+//  data1, _, _ := handle.ZeroCopyReadPacketData()
+//  // do everything you want with data1 here, copying bytes out of it if you'd like to keep them around.
+//  data2, _, _ := handle.ZeroCopyReadPacketData()  // invalidates bytes in data1
+func (p *Handle) ZeroCopyReadPacketData() (data []byte, ci gopacket.CaptureInfo, err error) {
+	p.mu.Lock()
+	err = p.getNextBufPtrLocked(&ci)
+	if err == nil {
+		slice := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+		slice.Data = uintptr(unsafe.Pointer(p.buf_ptr))
+		slice.Len = ci.CaptureLength
+		slice.Cap = ci.CaptureLength
+	}
+	p.mu.Unlock()
+	return
+}
+
+// Close closes the underlying pcap handle.
+func (p *Handle) Close() {
+	C.pcap_close(p.cptr)
+}
+
+// Error returns the current error associated with a pcap handle (pcap_geterr).
+func (p *Handle) Error() error {
+	return errors.New(C.GoString(C.pcap_geterr(p.cptr)))
+}
+
+// Stats returns statistics on the underlying pcap handle.
+func (p *Handle) Stats() (stat *Stats, err error) {
+	var cstats C.struct_pcap_stat
+	if -1 == C.pcap_stats(p.cptr, &cstats) {
+		return nil, p.Error()
+	}
+	return &Stats{
+		PacketsReceived:  int(cstats.ps_recv),
+		PacketsDropped:   int(cstats.ps_drop),
+		PacketsIfDropped: int(cstats.ps_ifdrop),
+	}, nil
+}
+
+// Obtains a list of all possible data link types supported for an interface.
+func (p *Handle) ListDataLinks() (datalinks []Datalink, err error) {
+	var dlt_buf *C.int
+
+	n := int(C.pcap_list_datalinks(p.cptr, &dlt_buf))
+	if -1 == n {
+		return nil, p.Error()
+	}
+
+	defer C.pcap_free_datalinks(dlt_buf)
+
+	datalinks = make([]Datalink, n)
+
+	dltArray := (*[100]C.int)(unsafe.Pointer(dlt_buf))
+
+	for i := 0; i < n; i++ {
+		expr := C.pcap_datalink_val_to_name((*dltArray)[i])
+		datalinks[i].Name = C.GoString(expr)
+
+		expr = C.pcap_datalink_val_to_description((*dltArray)[i])
+		datalinks[i].Description = C.GoString(expr)
+	}
+
+	return datalinks, nil
+}
+
+// SetBPFFilter compiles and sets a BPF filter for the pcap handle.
+func (p *Handle) SetBPFFilter(expr string) (err error) {
+	errorBuf := (*C.char)(C.calloc(errorBufferSize, 1))
+	defer C.free(unsafe.Pointer(errorBuf))
+
+	var netp uint32
+	var maskp uint32
+
+	// Only do the lookup on network interfaces.
+	// No device indicates we're handling a pcap file.
+	if len(p.device) > 0 {
+		dev := C.CString(p.device)
+		defer C.free(unsafe.Pointer(dev))
+		if -1 == C.pcap_lookupnet(
+			dev,
+			(*C.bpf_u_int32)(unsafe.Pointer(&netp)),
+			(*C.bpf_u_int32)(unsafe.Pointer(&maskp)),
+			errorBuf,
+		) {
+			// We can't lookup the network, but that could be because the interface
+			// doesn't have an IPv4.
+		}
+	}
+
+	var bpf C.struct_bpf_program
+	cexpr := C.CString(expr)
+	defer C.free(unsafe.Pointer(cexpr))
+
+	if -1 == C.pcap_compile(p.cptr, &bpf, cexpr, 1, C.bpf_u_int32(maskp)) {
+		return p.Error()
+	}
+
+	if -1 == C.pcap_setfilter(p.cptr, &bpf) {
+		C.pcap_freecode(&bpf)
+		return p.Error()
+	}
+
+	C.pcap_freecode(&bpf)
+
+	return nil
+}
+
+// NewBPF compiles the given string into a new filter program.
+//
+// BPF filters need to be created from activated handles, because they need to
+// know the underlying link type to correctly compile their offsets.
+func (p *Handle) NewBPF(expr string) (*BPF, error) {
+	bpf := &BPF{orig: expr}
+	cexpr := C.CString(expr)
+	defer C.free(unsafe.Pointer(cexpr))
+
+	if C.pcap_compile(p.cptr, &bpf.bpf, cexpr /* optimize */, 1, C.PCAP_NETMASK_UNKNOWN) != 0 {
+		return nil, p.Error()
+	}
+	runtime.SetFinalizer(bpf, destroyBPF)
+	return bpf, nil
+}
+func destroyBPF(bpf *BPF) {
+	C.pcap_freecode(&bpf.bpf)
+}
+
+// String returns the original string this BPF filter was compiled from.
+func (b *BPF) String() string {
+	return b.orig
+}
+
+// BPF returns the compiled BPF program.
+func (b *BPF) BPF() C.struct_bpf_program {
+	return b.bpf
+}
+
+// Matches returns true if the given packet data matches this filter.
+func (b *BPF) Matches(ci gopacket.CaptureInfo, data []byte) bool {
+	var hdr C.struct_pcap_pkthdr
+	hdr.ts.tv_sec = C.gopacket_time_secs_t(ci.Timestamp.Unix())
+	hdr.ts.tv_usec = C.gopacket_time_usecs_t(ci.Timestamp.Nanosecond() / 1000)
+	hdr.caplen = C.bpf_u_int32(len(data)) // Trust actual length over ci.Length.
+	hdr.len = C.bpf_u_int32(ci.Length)
+	dataptr := (*C.u_char)(unsafe.Pointer(&data[0]))
+	return C.pcap_offline_filter(&b.bpf, &hdr, dataptr) != 0
+}
+
+// Version returns pcap_lib_version.
+func Version() string {
+	return C.GoString(C.pcap_lib_version())
+}
+
+// LinkType returns pcap_datalink, as a layers.LinkType.
+func (p *Handle) LinkType() layers.LinkType {
+	return layers.LinkType(C.pcap_datalink(p.cptr))
+}
+
+// SetLinkType calls pcap_set_datalink on the pcap handle.
+func (p *Handle) SetLinkType(dlt layers.LinkType) error {
+	if -1 == C.pcap_set_datalink(p.cptr, C.int(dlt)) {
+		return p.Error()
+	}
+	return nil
+}
+
+// FindAllDevs attempts to enumerate all interfaces on the current machine.
+func FindAllDevs() (ifs []Interface, err error) {
+	var buf *C.char
+	buf = (*C.char)(C.calloc(errorBufferSize, 1))
+	defer C.free(unsafe.Pointer(buf))
+	var alldevsp *C.pcap_if_t
+
+	if -1 == C.pcap_findalldevs((**C.pcap_if_t)(&alldevsp), buf) {
+		return nil, errors.New(C.GoString(buf))
+	}
+	defer C.pcap_freealldevs((*C.pcap_if_t)(alldevsp))
+	dev := alldevsp
+	var i uint32
+	for i = 0; dev != nil; dev = (*C.pcap_if_t)(dev.next) {
+		i++
+	}
+	ifs = make([]Interface, i)
+

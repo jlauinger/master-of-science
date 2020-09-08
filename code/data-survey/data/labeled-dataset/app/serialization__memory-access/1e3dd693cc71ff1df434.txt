@@ -1,0 +1,168 @@
+Module: github.com/typetypetype/conntrack
+Version: v1.0.1-0.20181112022515-9d9dd841d4eb
+
+Package: github.com/typetypetype/conntrack
+File: client.go
+Line: 34
+
+Imported (possibly among others) by: weaveworks/scope
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+*(*uint16)(unsafe.Pointer(&b[18:20][0])) = c.Body.Res_id
+--------------------------------------------------------------
++/- 5 lines context:
+
+	*(*uint16)(unsafe.Pointer(&b[6:8][0])) = c.Header.Flags
+	*(*uint32)(unsafe.Pointer(&b[8:12][0])) = c.Header.Seq
+	*(*uint32)(unsafe.Pointer(&b[12:16][0])) = c.Header.Pid
+	b[16] = byte(c.Body.Nfgen_family)
+	b[17] = byte(c.Body.Version)
+	*(*uint16)(unsafe.Pointer(&b[18:20][0])) = c.Body.Res_id
+	return b
+}
+
+func connectNetfilter(bufferSize int, groups uint32) (int, *syscall.SockaddrNetlink, error) {
+	s, err := syscall.Socket(syscall.AF_NETLINK, syscall.SOCK_RAW, syscall.NETLINK_NETFILTER)
+--------------------------------------------------------------
++/- 100 lines context:
+
+package conntrack
+
+import (
+	"encoding/binary"
+	"errors"
+	"fmt"
+	"net"
+	"strconv"
+	"syscall"
+	"unsafe"
+
+	"golang.org/x/sys/unix"
+)
+
+const (
+	sizeofGenmsg = uint32(unsafe.Sizeof(unix.Nfgenmsg{})) // TODO
+)
+
+type ConntrackListReq struct {
+	Header syscall.NlMsghdr
+	Body   unix.Nfgenmsg
+}
+
+func (c *ConntrackListReq) toWireFormat() []byte {
+	// adapted from syscall/NetlinkRouteRequest.toWireFormat
+	b := make([]byte, c.Header.Len)
+	*(*uint32)(unsafe.Pointer(&b[0:4][0])) = c.Header.Len
+	*(*uint16)(unsafe.Pointer(&b[4:6][0])) = c.Header.Type
+	*(*uint16)(unsafe.Pointer(&b[6:8][0])) = c.Header.Flags
+	*(*uint32)(unsafe.Pointer(&b[8:12][0])) = c.Header.Seq
+	*(*uint32)(unsafe.Pointer(&b[12:16][0])) = c.Header.Pid
+	b[16] = byte(c.Body.Nfgen_family)
+	b[17] = byte(c.Body.Version)
+	*(*uint16)(unsafe.Pointer(&b[18:20][0])) = c.Body.Res_id
+	return b
+}
+
+func connectNetfilter(bufferSize int, groups uint32) (int, *syscall.SockaddrNetlink, error) {
+	s, err := syscall.Socket(syscall.AF_NETLINK, syscall.SOCK_RAW, syscall.NETLINK_NETFILTER)
+	if err != nil {
+		return 0, nil, err
+	}
+	lsa := &syscall.SockaddrNetlink{
+		Family: syscall.AF_NETLINK,
+		Groups: groups,
+	}
+	if err := syscall.Bind(s, lsa); err != nil {
+		return 0, nil, err
+	}
+	if bufferSize > 0 {
+		// Speculatively try SO_RCVBUFFORCE which needs CAP_NET_ADMIN
+		if err := syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_RCVBUFFORCE, bufferSize); err != nil {
+			// and if that doesn't work fall back to the ordinary SO_RCVBUF
+			if err := syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_RCVBUF, bufferSize); err != nil {
+				return 0, nil, err
+			}
+		}
+	}
+
+	return s, lsa, nil
+}
+
+// Make syscall asking for all connections. Invoke 'cb' for each connection.
+func queryAllConnections(bufferSize int, cb func(Conn)) error {
+	s, lsa, err := connectNetfilter(bufferSize, 0)
+	if err != nil {
+		return err
+	}
+	defer syscall.Close(s)
+
+	msg := ConntrackListReq{
+		Header: syscall.NlMsghdr{
+			Len:   syscall.NLMSG_HDRLEN + sizeofGenmsg,
+			Type:  (NFNL_SUBSYS_CTNETLINK << 8) | uint16(IpctnlMsgCtGet),
+			Flags: syscall.NLM_F_REQUEST | syscall.NLM_F_DUMP,
+			Pid:   0,
+			Seq:   0,
+		},
+		Body: unix.Nfgenmsg{
+			Nfgen_family: syscall.AF_INET,
+			Version:      NFNETLINK_V0,
+			Res_id:       0,
+		},
+	}
+	wb := msg.toWireFormat()
+	// fmt.Printf("msg bytes: %q\n", wb)
+	if err := syscall.Sendto(s, wb, 0, lsa); err != nil {
+		return err
+	}
+
+	return readMsgs(s, cb)
+}
+
+// Stream all connections instead of query for all of them at once.
+func StreamAllConnections() chan Conn {
+	ch := make(chan Conn, 1)
+	go func() {
+		queryAllConnections(0, func(c Conn) {
+			ch <- c
+		})
+		close(ch)
+	}()
+	return ch
+}
+
+// Lists all the connections that conntrack is tracking.
+func Connections() ([]Conn, error) {
+	return ConnectionsSize(0)
+}
+
+// Lists all the connections that conntrack is tracking, using specified netlink buffer size.
+func ConnectionsSize(bufferSize int) ([]Conn, error) {
+	var conns []Conn
+	queryAllConnections(bufferSize, func(c Conn) {
+		conns = append(conns, c)
+	})
+	return conns, nil
+}
+
+// Established lists all established TCP connections.
+func Established() ([]ConnTCP, error) {
+	var conns []ConnTCP
+	local := localIPs()
+	err := queryAllConnections(0, func(c Conn) {
+		if c.MsgType != NfctMsgUpdate {
+			fmt.Printf("msg isn't an update: %d\n", c.MsgType)
+			return
+		}
+		if c.TCPState != "ESTABLISHED" {
+			// fmt.Printf("state isn't ESTABLISHED: %s\n", c.TCPState)
+			return
+		}
+		if tc := c.ConnTCP(local); tc != nil {
+			conns = append(conns, *tc)
+

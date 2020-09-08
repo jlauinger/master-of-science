@@ -1,0 +1,234 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20200420163511-1957bb5e6d1f
+
+Package: golang.org/x/sys/unix
+File: syscall_linux.go
+Line: 1020
+
+Imported (possibly among others) by: cilium/cilium
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+pp := (*RawSockaddrPPPoX)(unsafe.Pointer(rsa))
+--------------------------------------------------------------
++/- 5 lines context:
+
+			QueueID:      pp.Queue_id,
+			SharedUmemFD: pp.Shared_umem_fd,
+		}
+		return sa, nil
+	case AF_PPPOX:
+		pp := (*RawSockaddrPPPoX)(unsafe.Pointer(rsa))
+		if binary.BigEndian.Uint32(pp[2:6]) != px_proto_oe {
+			return nil, EINVAL
+		}
+		sa := &SockaddrPPPoE{
+			SID:    binary.BigEndian.Uint16(pp[6:8]),
+--------------------------------------------------------------
++/- 100 lines context:
+
+		bytes := (*[len(pp.Path)]byte)(unsafe.Pointer(&pp.Path[0]))[0:n]
+		sa.Name = string(bytes)
+		return sa, nil
+
+	case AF_INET:
+		proto, err := GetsockoptInt(fd, SOL_SOCKET, SO_PROTOCOL)
+		if err != nil {
+			return nil, err
+		}
+
+		switch proto {
+		case IPPROTO_L2TP:
+			pp := (*RawSockaddrL2TPIP)(unsafe.Pointer(rsa))
+			sa := new(SockaddrL2TPIP)
+			sa.ConnId = pp.Conn_id
+			for i := 0; i < len(sa.Addr); i++ {
+				sa.Addr[i] = pp.Addr[i]
+			}
+			return sa, nil
+		default:
+			pp := (*RawSockaddrInet4)(unsafe.Pointer(rsa))
+			sa := new(SockaddrInet4)
+			p := (*[2]byte)(unsafe.Pointer(&pp.Port))
+			sa.Port = int(p[0])<<8 + int(p[1])
+			for i := 0; i < len(sa.Addr); i++ {
+				sa.Addr[i] = pp.Addr[i]
+			}
+			return sa, nil
+		}
+
+	case AF_INET6:
+		proto, err := GetsockoptInt(fd, SOL_SOCKET, SO_PROTOCOL)
+		if err != nil {
+			return nil, err
+		}
+
+		switch proto {
+		case IPPROTO_L2TP:
+			pp := (*RawSockaddrL2TPIP6)(unsafe.Pointer(rsa))
+			sa := new(SockaddrL2TPIP6)
+			sa.ConnId = pp.Conn_id
+			sa.ZoneId = pp.Scope_id
+			for i := 0; i < len(sa.Addr); i++ {
+				sa.Addr[i] = pp.Addr[i]
+			}
+			return sa, nil
+		default:
+			pp := (*RawSockaddrInet6)(unsafe.Pointer(rsa))
+			sa := new(SockaddrInet6)
+			p := (*[2]byte)(unsafe.Pointer(&pp.Port))
+			sa.Port = int(p[0])<<8 + int(p[1])
+			sa.ZoneId = pp.Scope_id
+			for i := 0; i < len(sa.Addr); i++ {
+				sa.Addr[i] = pp.Addr[i]
+			}
+			return sa, nil
+		}
+
+	case AF_VSOCK:
+		pp := (*RawSockaddrVM)(unsafe.Pointer(rsa))
+		sa := &SockaddrVM{
+			CID:  pp.Cid,
+			Port: pp.Port,
+		}
+		return sa, nil
+	case AF_BLUETOOTH:
+		proto, err := GetsockoptInt(fd, SOL_SOCKET, SO_PROTOCOL)
+		if err != nil {
+			return nil, err
+		}
+		// only BTPROTO_L2CAP and BTPROTO_RFCOMM can accept connections
+		switch proto {
+		case BTPROTO_L2CAP:
+			pp := (*RawSockaddrL2)(unsafe.Pointer(rsa))
+			sa := &SockaddrL2{
+				PSM:      pp.Psm,
+				CID:      pp.Cid,
+				Addr:     pp.Bdaddr,
+				AddrType: pp.Bdaddr_type,
+			}
+			return sa, nil
+		case BTPROTO_RFCOMM:
+			pp := (*RawSockaddrRFCOMM)(unsafe.Pointer(rsa))
+			sa := &SockaddrRFCOMM{
+				Channel: pp.Channel,
+				Addr:    pp.Bdaddr,
+			}
+			return sa, nil
+		}
+	case AF_XDP:
+		pp := (*RawSockaddrXDP)(unsafe.Pointer(rsa))
+		sa := &SockaddrXDP{
+			Flags:        pp.Flags,
+			Ifindex:      pp.Ifindex,
+			QueueID:      pp.Queue_id,
+			SharedUmemFD: pp.Shared_umem_fd,
+		}
+		return sa, nil
+	case AF_PPPOX:
+		pp := (*RawSockaddrPPPoX)(unsafe.Pointer(rsa))
+		if binary.BigEndian.Uint32(pp[2:6]) != px_proto_oe {
+			return nil, EINVAL
+		}
+		sa := &SockaddrPPPoE{
+			SID:    binary.BigEndian.Uint16(pp[6:8]),
+			Remote: pp[8:14],
+		}
+		for i := 14; i < 14+IFNAMSIZ; i++ {
+			if pp[i] == 0 {
+				sa.Dev = string(pp[14:i])
+				break
+			}
+		}
+		return sa, nil
+	case AF_TIPC:
+		pp := (*RawSockaddrTIPC)(unsafe.Pointer(rsa))
+
+		sa := &SockaddrTIPC{
+			Scope: int(pp.Scope),
+		}
+
+		// Determine which union variant is present in pp.Addr by checking
+		// pp.Addrtype.
+		switch pp.Addrtype {
+		case TIPC_SERVICE_RANGE:
+			sa.Addr = (*TIPCServiceRange)(unsafe.Pointer(&pp.Addr))
+		case TIPC_SERVICE_ADDR:
+			sa.Addr = (*TIPCServiceName)(unsafe.Pointer(&pp.Addr))
+		case TIPC_SOCKET_ADDR:
+			sa.Addr = (*TIPCSocketAddr)(unsafe.Pointer(&pp.Addr))
+		default:
+			return nil, EINVAL
+		}
+
+		return sa, nil
+	}
+	return nil, EAFNOSUPPORT
+}
+
+func Accept(fd int) (nfd int, sa Sockaddr, err error) {
+	var rsa RawSockaddrAny
+	var len _Socklen = SizeofSockaddrAny
+	nfd, err = accept(fd, &rsa, &len)
+	if err != nil {
+		return
+	}
+	sa, err = anyToSockaddr(fd, &rsa)
+	if err != nil {
+		Close(nfd)
+		nfd = 0
+	}
+	return
+}
+
+func Accept4(fd int, flags int) (nfd int, sa Sockaddr, err error) {
+	var rsa RawSockaddrAny
+	var len _Socklen = SizeofSockaddrAny
+	nfd, err = accept4(fd, &rsa, &len, flags)
+	if err != nil {
+		return
+	}
+	if len > SizeofSockaddrAny {
+		panic("RawSockaddrAny too small")
+	}
+	sa, err = anyToSockaddr(fd, &rsa)
+	if err != nil {
+		Close(nfd)
+		nfd = 0
+	}
+	return
+}
+
+func Getsockname(fd int) (sa Sockaddr, err error) {
+	var rsa RawSockaddrAny
+	var len _Socklen = SizeofSockaddrAny
+	if err = getsockname(fd, &rsa, &len); err != nil {
+		return
+	}
+	return anyToSockaddr(fd, &rsa)
+}
+
+func GetsockoptIPMreqn(fd, level, opt int) (*IPMreqn, error) {
+	var value IPMreqn
+	vallen := _Socklen(SizeofIPMreqn)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func GetsockoptUcred(fd, level, opt int) (*Ucred, error) {
+	var value Ucred
+	vallen := _Socklen(SizeofUcred)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func GetsockoptTCPInfo(fd, level, opt int) (*TCPInfo, error) {
+	var value TCPInfo
+	vallen := _Socklen(SizeofTCPInfo)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+

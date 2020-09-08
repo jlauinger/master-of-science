@@ -1,0 +1,234 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20200523222454-059865788121
+
+Package: golang.org/x/sys/unix
+File: syscall_linux.go
+Line: 1323
+
+Imported (possibly among others) by: xo/usql
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+msg.Name = (*byte)(unsafe.Pointer(&rsa))
+--------------------------------------------------------------
++/- 5 lines context:
+
+//sys keyctlRestrictKeyring(cmd int, arg2 int) (err error) = SYS_KEYCTL
+
+func Recvmsg(fd int, p, oob []byte, flags int) (n, oobn int, recvflags int, from Sockaddr, err error) {
+	var msg Msghdr
+	var rsa RawSockaddrAny
+	msg.Name = (*byte)(unsafe.Pointer(&rsa))
+	msg.Namelen = uint32(SizeofSockaddrAny)
+	var iov Iovec
+	if len(p) > 0 {
+		iov.Base = &p[0]
+		iov.SetLen(len(p))
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+// Keyctl commands with special signatures.
+
+// KeyctlGetKeyringID implements the KEYCTL_GET_KEYRING_ID command.
+// See the full documentation at:
+// http://man7.org/linux/man-pages/man3/keyctl_get_keyring_ID.3.html
+func KeyctlGetKeyringID(id int, create bool) (ringid int, err error) {
+	createInt := 0
+	if create {
+		createInt = 1
+	}
+	return KeyctlInt(KEYCTL_GET_KEYRING_ID, id, createInt, 0, 0)
+}
+
+// KeyctlSetperm implements the KEYCTL_SETPERM command. The perm value is the
+// key handle permission mask as described in the "keyctl setperm" section of
+// http://man7.org/linux/man-pages/man1/keyctl.1.html.
+// See the full documentation at:
+// http://man7.org/linux/man-pages/man3/keyctl_setperm.3.html
+func KeyctlSetperm(id int, perm uint32) error {
+	_, err := KeyctlInt(KEYCTL_SETPERM, id, int(perm), 0, 0)
+	return err
+}
+
+//sys	keyctlJoin(cmd int, arg2 string) (ret int, err error) = SYS_KEYCTL
+
+// KeyctlJoinSessionKeyring implements the KEYCTL_JOIN_SESSION_KEYRING command.
+// See the full documentation at:
+// http://man7.org/linux/man-pages/man3/keyctl_join_session_keyring.3.html
+func KeyctlJoinSessionKeyring(name string) (ringid int, err error) {
+	return keyctlJoin(KEYCTL_JOIN_SESSION_KEYRING, name)
+}
+
+//sys	keyctlSearch(cmd int, arg2 int, arg3 string, arg4 string, arg5 int) (ret int, err error) = SYS_KEYCTL
+
+// KeyctlSearch implements the KEYCTL_SEARCH command.
+// See the full documentation at:
+// http://man7.org/linux/man-pages/man3/keyctl_search.3.html
+func KeyctlSearch(ringid int, keyType, description string, destRingid int) (id int, err error) {
+	return keyctlSearch(KEYCTL_SEARCH, ringid, keyType, description, destRingid)
+}
+
+//sys	keyctlIOV(cmd int, arg2 int, payload []Iovec, arg5 int) (err error) = SYS_KEYCTL
+
+// KeyctlInstantiateIOV implements the KEYCTL_INSTANTIATE_IOV command. This
+// command is similar to KEYCTL_INSTANTIATE, except that the payload is a slice
+// of Iovec (each of which represents a buffer) instead of a single buffer.
+// See the full documentation at:
+// http://man7.org/linux/man-pages/man3/keyctl_instantiate_iov.3.html
+func KeyctlInstantiateIOV(id int, payload []Iovec, ringid int) error {
+	return keyctlIOV(KEYCTL_INSTANTIATE_IOV, id, payload, ringid)
+}
+
+//sys	keyctlDH(cmd int, arg2 *KeyctlDHParams, buf []byte) (ret int, err error) = SYS_KEYCTL
+
+// KeyctlDHCompute implements the KEYCTL_DH_COMPUTE command. This command
+// computes a Diffie-Hellman shared secret based on the provide params. The
+// secret is written to the provided buffer and the returned size is the number
+// of bytes written (returning an error if there is insufficient space in the
+// buffer). If a nil buffer is passed in, this function returns the minimum
+// buffer length needed to store the appropriate data. Note that this differs
+// from KEYCTL_READ's behavior which always returns the requested payload size.
+// See the full documentation at:
+// http://man7.org/linux/man-pages/man3/keyctl_dh_compute.3.html
+func KeyctlDHCompute(params *KeyctlDHParams, buffer []byte) (size int, err error) {
+	return keyctlDH(KEYCTL_DH_COMPUTE, params, buffer)
+}
+
+// KeyctlRestrictKeyring implements the KEYCTL_RESTRICT_KEYRING command. This
+// command limits the set of keys that can be linked to the keyring, regardless
+// of keyring permissions. The command requires the "setattr" permission.
+//
+// When called with an empty keyType the command locks the keyring, preventing
+// any further keys from being linked to the keyring.
+//
+// The "asymmetric" keyType defines restrictions requiring key payloads to be
+// DER encoded X.509 certificates signed by keys in another keyring. Restrictions
+// for "asymmetric" include "builtin_trusted", "builtin_and_secondary_trusted",
+// "key_or_keyring:<key>", and "key_or_keyring:<key>:chain".
+//
+// As of Linux 4.12, only the "asymmetric" keyType defines type-specific
+// restrictions.
+//
+// See the full documentation at:
+// http://man7.org/linux/man-pages/man3/keyctl_restrict_keyring.3.html
+// http://man7.org/linux/man-pages/man2/keyctl.2.html
+func KeyctlRestrictKeyring(ringid int, keyType string, restriction string) error {
+	if keyType == "" {
+		return keyctlRestrictKeyring(KEYCTL_RESTRICT_KEYRING, ringid)
+	}
+	return keyctlRestrictKeyringByType(KEYCTL_RESTRICT_KEYRING, ringid, keyType, restriction)
+}
+
+//sys keyctlRestrictKeyringByType(cmd int, arg2 int, keyType string, restriction string) (err error) = SYS_KEYCTL
+//sys keyctlRestrictKeyring(cmd int, arg2 int) (err error) = SYS_KEYCTL
+
+func Recvmsg(fd int, p, oob []byte, flags int) (n, oobn int, recvflags int, from Sockaddr, err error) {
+	var msg Msghdr
+	var rsa RawSockaddrAny
+	msg.Name = (*byte)(unsafe.Pointer(&rsa))
+	msg.Namelen = uint32(SizeofSockaddrAny)
+	var iov Iovec
+	if len(p) > 0 {
+		iov.Base = &p[0]
+		iov.SetLen(len(p))
+	}
+	var dummy byte
+	if len(oob) > 0 {
+		if len(p) == 0 {
+			var sockType int
+			sockType, err = GetsockoptInt(fd, SOL_SOCKET, SO_TYPE)
+			if err != nil {
+				return
+			}
+			// receive at least one normal byte
+			if sockType != SOCK_DGRAM {
+				iov.Base = &dummy
+				iov.SetLen(1)
+			}
+		}
+		msg.Control = &oob[0]
+		msg.SetControllen(len(oob))
+	}
+	msg.Iov = &iov
+	msg.Iovlen = 1
+	if n, err = recvmsg(fd, &msg, flags); err != nil {
+		return
+	}
+	oobn = int(msg.Controllen)
+	recvflags = int(msg.Flags)
+	// source address is only specified if the socket is unconnected
+	if rsa.Addr.Family != AF_UNSPEC {
+		from, err = anyToSockaddr(fd, &rsa)
+	}
+	return
+}
+
+func Sendmsg(fd int, p, oob []byte, to Sockaddr, flags int) (err error) {
+	_, err = SendmsgN(fd, p, oob, to, flags)
+	return
+}
+
+func SendmsgN(fd int, p, oob []byte, to Sockaddr, flags int) (n int, err error) {
+	var ptr unsafe.Pointer
+	var salen _Socklen
+	if to != nil {
+		var err error
+		ptr, salen, err = to.sockaddr()
+		if err != nil {
+			return 0, err
+		}
+	}
+	var msg Msghdr
+	msg.Name = (*byte)(ptr)
+	msg.Namelen = uint32(salen)
+	var iov Iovec
+	if len(p) > 0 {
+		iov.Base = &p[0]
+		iov.SetLen(len(p))
+	}
+	var dummy byte
+	if len(oob) > 0 {
+		if len(p) == 0 {
+			var sockType int
+			sockType, err = GetsockoptInt(fd, SOL_SOCKET, SO_TYPE)
+			if err != nil {
+				return 0, err
+			}
+			// send at least one normal byte
+			if sockType != SOCK_DGRAM {
+				iov.Base = &dummy
+				iov.SetLen(1)
+			}
+		}
+		msg.Control = &oob[0]
+		msg.SetControllen(len(oob))
+	}
+	msg.Iov = &iov
+	msg.Iovlen = 1
+	if n, err = sendmsg(fd, &msg, flags); err != nil {
+		return 0, err
+	}
+	if len(oob) > 0 && len(p) == 0 {
+		n = 0
+	}
+	return n, nil
+}
+
+// BindToDevice binds the socket associated with fd to device.
+func BindToDevice(fd int, device string) (err error) {
+	return SetsockoptString(fd, SOL_SOCKET, SO_BINDTODEVICE, device)
+}
+
+//sys	ptrace(request int, pid int, addr uintptr, data uintptr) (err error)
+
+func ptracePeek(req int, pid int, addr uintptr, out []byte) (count int, err error) {
+	// The peek requests are machine-size oriented, so we wrap it
+	// to retrieve arbitrary-length data.
+
+	// The ptrace syscall differs from glibc's ptrace.
+

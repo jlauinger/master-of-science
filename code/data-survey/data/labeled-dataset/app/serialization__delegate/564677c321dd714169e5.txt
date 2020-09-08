@@ -1,0 +1,234 @@
+Module: github.com/elastic/go-structform
+Version: v0.0.6
+
+Package: github.com/elastic/go-structform/gotype
+File: unfold_arr.generated.go
+Line: 1185
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (u *unfolderArrFloat64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func newUnfoldArrStartFloat64() *unfoldArrStartFloat64 {
+	return _singletonUnfoldArrStartFloat64
+}
+
+func (u *unfolderArrFloat64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.unfolder.push(newUnfoldArrStartFloat64())
+	ctx.idx.push(0)
+	ctx.ptr.push(ptr)
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+type unfolderArrFloat32 struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderArrFloat32 = &unfolderArrFloat32{}
+
+func newUnfolderArrFloat32() *unfolderArrFloat32 {
+	return _singletonUnfolderArrFloat32
+}
+
+type unfoldArrStartFloat32 struct {
+	unfolderErrArrayStart
+}
+
+var _singletonUnfoldArrStartFloat32 = &unfoldArrStartFloat32{}
+
+func newUnfoldArrStartFloat32() *unfoldArrStartFloat32 {
+	return _singletonUnfoldArrStartFloat32
+}
+
+func (u *unfolderArrFloat32) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.unfolder.push(newUnfoldArrStartFloat32())
+	ctx.idx.push(0)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderArrFloat32) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.idx.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfoldArrStartFloat32) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+}
+
+func (u *unfoldArrStartFloat32) ptr(ctx *unfoldCtx) *[]float32 {
+	return (*[]float32)(ctx.ptr.current)
+}
+
+func (u *unfolderArrFloat32) ptr(ctx *unfoldCtx) *[]float32 {
+	return (*[]float32)(ctx.ptr.current)
+}
+
+func (u *unfoldArrStartFloat32) OnArrayStart(ctx *unfoldCtx, l int, baseType structform.BaseType) error {
+	to := u.ptr(ctx)
+	if l < 0 {
+		l = 0
+	}
+
+	if *to == nil && l > 0 {
+		*to = make([]float32, l)
+	} else if l < len(*to) {
+		*to = (*to)[:l]
+	}
+
+	u.cleanup(ctx)
+	return nil
+}
+
+func (u *unfolderArrFloat32) OnArrayFinished(ctx *unfoldCtx) error {
+	u.cleanup(ctx)
+	return nil
+}
+
+func (u *unfolderArrFloat32) append(ctx *unfoldCtx, v float32) error {
+	idx := &ctx.idx
+	to := u.ptr(ctx)
+	if len(*to) <= idx.current {
+		*to = append(*to, v)
+	} else {
+		(*to)[idx.current] = v
+	}
+
+	idx.current++
+	return nil
+}
+
+type unfolderArrFloat64 struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderArrFloat64 = &unfolderArrFloat64{}
+
+func newUnfolderArrFloat64() *unfolderArrFloat64 {
+	return _singletonUnfolderArrFloat64
+}
+
+type unfoldArrStartFloat64 struct {
+	unfolderErrArrayStart
+}
+
+var _singletonUnfoldArrStartFloat64 = &unfoldArrStartFloat64{}
+
+func newUnfoldArrStartFloat64() *unfoldArrStartFloat64 {
+	return _singletonUnfoldArrStartFloat64
+}
+
+func (u *unfolderArrFloat64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.unfolder.push(newUnfoldArrStartFloat64())
+	ctx.idx.push(0)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderArrFloat64) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.idx.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfoldArrStartFloat64) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+}
+
+func (u *unfoldArrStartFloat64) ptr(ctx *unfoldCtx) *[]float64 {
+	return (*[]float64)(ctx.ptr.current)
+}
+
+func (u *unfolderArrFloat64) ptr(ctx *unfoldCtx) *[]float64 {
+	return (*[]float64)(ctx.ptr.current)
+}
+
+func (u *unfoldArrStartFloat64) OnArrayStart(ctx *unfoldCtx, l int, baseType structform.BaseType) error {
+	to := u.ptr(ctx)
+	if l < 0 {
+		l = 0
+	}
+
+	if *to == nil && l > 0 {
+		*to = make([]float64, l)
+	} else if l < len(*to) {
+		*to = (*to)[:l]
+	}
+
+	u.cleanup(ctx)
+	return nil
+}
+
+func (u *unfolderArrFloat64) OnArrayFinished(ctx *unfoldCtx) error {
+	u.cleanup(ctx)
+	return nil
+}
+
+func (u *unfolderArrFloat64) append(ctx *unfoldCtx, v float64) error {
+	idx := &ctx.idx
+	to := u.ptr(ctx)
+	if len(*to) <= idx.current {
+		*to = append(*to, v)
+	} else {
+		(*to)[idx.current] = v
+	}
+
+	idx.current++
+	return nil
+}
+
+func (u *unfolderArrIfc) OnNil(ctx *unfoldCtx) error {
+	return u.append(ctx, nil)
+}
+
+func (u *unfolderArrIfc) OnBool(ctx *unfoldCtx, v bool) error { return u.append(ctx, v) }
+
+func (u *unfolderArrIfc) OnString(ctx *unfoldCtx, v string) error { return u.append(ctx, v) }
+func (u *unfolderArrIfc) OnStringRef(ctx *unfoldCtx, v []byte) error {
+	return u.OnString(ctx, string(v))
+}
+
+func (u *unfolderArrIfc) OnByte(ctx *unfoldCtx, v byte) error {
+	return u.append(ctx, (interface{})(v))
+}
+
+func (u *unfolderArrIfc) OnUint(ctx *unfoldCtx, v uint) error {
+	return u.append(ctx, (interface{})(v))
+}
+
+func (u *unfolderArrIfc) OnUint8(ctx *unfoldCtx, v uint8) error {
+	return u.append(ctx, (interface{})(v))
+}
+
+func (u *unfolderArrIfc) OnUint16(ctx *unfoldCtx, v uint16) error {
+	return u.append(ctx, (interface{})(v))
+}
+
+func (u *unfolderArrIfc) OnUint32(ctx *unfoldCtx, v uint32) error {
+	return u.append(ctx, (interface{})(v))
+}
+
+func (u *unfolderArrIfc) OnUint64(ctx *unfoldCtx, v uint64) error {
+	return u.append(ctx, (interface{})(v))
+}
+
+func (u *unfolderArrIfc) OnInt(ctx *unfoldCtx, v int) error {
+	return u.append(ctx, (interface{})(v))
+}
+
+func (u *unfolderArrIfc) OnInt8(ctx *unfoldCtx, v int8) error {
+	return u.append(ctx, (interface{})(v))
+}
+

@@ -1,0 +1,234 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20200106162015-b016eb3dc98e
+
+Package: golang.org/x/sys/unix
+File: syscall_linux.go
+Line: 499
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+psm := (*[2]byte)(unsafe.Pointer(&sa.raw.Psm))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	raw      RawSockaddrL2
+}
+
+func (sa *SockaddrL2) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	sa.raw.Family = AF_BLUETOOTH
+	psm := (*[2]byte)(unsafe.Pointer(&sa.raw.Psm))
+	psm[0] = byte(sa.PSM)
+	psm[1] = byte(sa.PSM >> 8)
+	for i := 0; i < len(sa.Addr); i++ {
+		sa.raw.Bdaddr[i] = sa.Addr[len(sa.Addr)-1-i]
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrInet6, nil
+}
+
+func (sa *SockaddrUnix) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	name := sa.Name
+	n := len(name)
+	if n >= len(sa.raw.Path) {
+		return nil, 0, EINVAL
+	}
+	sa.raw.Family = AF_UNIX
+	for i := 0; i < n; i++ {
+		sa.raw.Path[i] = int8(name[i])
+	}
+	// length is family (uint16), name, NUL.
+	sl := _Socklen(2)
+	if n > 0 {
+		sl += _Socklen(n) + 1
+	}
+	if sa.raw.Path[0] == '@' {
+		sa.raw.Path[0] = 0
+		// Don't count trailing NUL for abstract address.
+		sl--
+	}
+
+	return unsafe.Pointer(&sa.raw), sl, nil
+}
+
+// SockaddrLinklayer implements the Sockaddr interface for AF_PACKET type sockets.
+type SockaddrLinklayer struct {
+	Protocol uint16
+	Ifindex  int
+	Hatype   uint16
+	Pkttype  uint8
+	Halen    uint8
+	Addr     [8]byte
+	raw      RawSockaddrLinklayer
+}
+
+func (sa *SockaddrLinklayer) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	if sa.Ifindex < 0 || sa.Ifindex > 0x7fffffff {
+		return nil, 0, EINVAL
+	}
+	sa.raw.Family = AF_PACKET
+	sa.raw.Protocol = sa.Protocol
+	sa.raw.Ifindex = int32(sa.Ifindex)
+	sa.raw.Hatype = sa.Hatype
+	sa.raw.Pkttype = sa.Pkttype
+	sa.raw.Halen = sa.Halen
+	for i := 0; i < len(sa.Addr); i++ {
+		sa.raw.Addr[i] = sa.Addr[i]
+	}
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrLinklayer, nil
+}
+
+// SockaddrNetlink implements the Sockaddr interface for AF_NETLINK type sockets.
+type SockaddrNetlink struct {
+	Family uint16
+	Pad    uint16
+	Pid    uint32
+	Groups uint32
+	raw    RawSockaddrNetlink
+}
+
+func (sa *SockaddrNetlink) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	sa.raw.Family = AF_NETLINK
+	sa.raw.Pad = sa.Pad
+	sa.raw.Pid = sa.Pid
+	sa.raw.Groups = sa.Groups
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrNetlink, nil
+}
+
+// SockaddrHCI implements the Sockaddr interface for AF_BLUETOOTH type sockets
+// using the HCI protocol.
+type SockaddrHCI struct {
+	Dev     uint16
+	Channel uint16
+	raw     RawSockaddrHCI
+}
+
+func (sa *SockaddrHCI) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	sa.raw.Family = AF_BLUETOOTH
+	sa.raw.Dev = sa.Dev
+	sa.raw.Channel = sa.Channel
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrHCI, nil
+}
+
+// SockaddrL2 implements the Sockaddr interface for AF_BLUETOOTH type sockets
+// using the L2CAP protocol.
+type SockaddrL2 struct {
+	PSM      uint16
+	CID      uint16
+	Addr     [6]uint8
+	AddrType uint8
+	raw      RawSockaddrL2
+}
+
+func (sa *SockaddrL2) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	sa.raw.Family = AF_BLUETOOTH
+	psm := (*[2]byte)(unsafe.Pointer(&sa.raw.Psm))
+	psm[0] = byte(sa.PSM)
+	psm[1] = byte(sa.PSM >> 8)
+	for i := 0; i < len(sa.Addr); i++ {
+		sa.raw.Bdaddr[i] = sa.Addr[len(sa.Addr)-1-i]
+	}
+	cid := (*[2]byte)(unsafe.Pointer(&sa.raw.Cid))
+	cid[0] = byte(sa.CID)
+	cid[1] = byte(sa.CID >> 8)
+	sa.raw.Bdaddr_type = sa.AddrType
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrL2, nil
+}
+
+// SockaddrRFCOMM implements the Sockaddr interface for AF_BLUETOOTH type sockets
+// using the RFCOMM protocol.
+//
+// Server example:
+//
+//      fd, _ := Socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM)
+//      _ = unix.Bind(fd, &unix.SockaddrRFCOMM{
+//      	Channel: 1,
+//      	Addr:    [6]uint8{0, 0, 0, 0, 0, 0}, // BDADDR_ANY or 00:00:00:00:00:00
+//      })
+//      _ = Listen(fd, 1)
+//      nfd, sa, _ := Accept(fd)
+//      fmt.Printf("conn addr=%v fd=%d", sa.(*unix.SockaddrRFCOMM).Addr, nfd)
+//      Read(nfd, buf)
+//
+// Client example:
+//
+//      fd, _ := Socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM)
+//      _ = Connect(fd, &SockaddrRFCOMM{
+//      	Channel: 1,
+//      	Addr:    [6]byte{0x11, 0x22, 0x33, 0xaa, 0xbb, 0xcc}, // CC:BB:AA:33:22:11
+//      })
+//      Write(fd, []byte(`hello`))
+type SockaddrRFCOMM struct {
+	// Addr represents a bluetooth address, byte ordering is little-endian.
+	Addr [6]uint8
+
+	// Channel is a designated bluetooth channel, only 1-30 are available for use.
+	// Since Linux 2.6.7 and further zero value is the first available channel.
+	Channel uint8
+
+	raw RawSockaddrRFCOMM
+}
+
+func (sa *SockaddrRFCOMM) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	sa.raw.Family = AF_BLUETOOTH
+	sa.raw.Channel = sa.Channel
+	sa.raw.Bdaddr = sa.Addr
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrRFCOMM, nil
+}
+
+// SockaddrCAN implements the Sockaddr interface for AF_CAN type sockets.
+// The RxID and TxID fields are used for transport protocol addressing in
+// (CAN_TP16, CAN_TP20, CAN_MCNET, and CAN_ISOTP), they can be left with
+// zero values for CAN_RAW and CAN_BCM sockets as they have no meaning.
+//
+// The SockaddrCAN struct must be bound to the socket file descriptor
+// using Bind before the CAN socket can be used.
+//
+//      // Read one raw CAN frame
+//      fd, _ := Socket(AF_CAN, SOCK_RAW, CAN_RAW)
+//      addr := &SockaddrCAN{Ifindex: index}
+//      Bind(fd, addr)
+//      frame := make([]byte, 16)
+//      Read(fd, frame)
+//
+// The full SocketCAN documentation can be found in the linux kernel
+// archives at: https://www.kernel.org/doc/Documentation/networking/can.txt
+type SockaddrCAN struct {
+	Ifindex int
+	RxID    uint32
+	TxID    uint32
+	raw     RawSockaddrCAN
+}
+
+func (sa *SockaddrCAN) sockaddr() (unsafe.Pointer, _Socklen, error) {
+	if sa.Ifindex < 0 || sa.Ifindex > 0x7fffffff {
+		return nil, 0, EINVAL
+	}
+	sa.raw.Family = AF_CAN
+	sa.raw.Ifindex = int32(sa.Ifindex)
+	rx := (*[4]byte)(unsafe.Pointer(&sa.RxID))
+	for i := 0; i < 4; i++ {
+		sa.raw.Addr[i] = rx[i]
+	}
+	tx := (*[4]byte)(unsafe.Pointer(&sa.TxID))
+	for i := 0; i < 4; i++ {
+		sa.raw.Addr[i+4] = tx[i]
+	}
+	return unsafe.Pointer(&sa.raw), SizeofSockaddrCAN, nil
+}
+
+// SockaddrALG implements the Sockaddr interface for AF_ALG type sockets.
+// SockaddrALG enables userspace access to the Linux kernel's cryptography
+// subsystem. The Type and Name fields specify which type of hash or cipher
+// should be used with a given socket.
+//
+// To create a file descriptor that provides access to a hash or cipher, both
+

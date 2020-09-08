@@ -1,0 +1,234 @@
+Module: github.com/elastic/go-perf
+Version: v0.0.0-20191212140718-9c656876f595
+
+Package: github.com/elastic/go-perf
+File: perf.go
+Line: 512
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+err := ev.ioctlPointer(unix.PERF_EVENT_IOC_QUERY_BPF, unsafe.Pointer(&buf[0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	if err := ev.ok(); err != nil {
+		return nil, err
+	}
+	buf := make([]uint32, 2+max)
+	buf[0] = max
+	err := ev.ioctlPointer(unix.PERF_EVENT_IOC_QUERY_BPF, unsafe.Pointer(&buf[0]))
+	if err != nil {
+		return nil, wrapIoctlError("PERF_EVENT_IOC_QUERY_BPF", err)
+	}
+	count := buf[1]
+	fds := make([]uint32, count)
+--------------------------------------------------------------
++/- 100 lines context:
+
+// 1) Calling SetOutput on an *Event will fail with EINVAL if MapRing was
+// called on that event previously. 2) If ev and target are not CPU-wide
+// events, they must be on the same CPU. 3) If ev and target are CPU-wide
+// events, they must refer to the same task. 4) ev and target must use the
+// same clock.
+//
+// An additional restriction of the Go API also applies:
+//
+// In order to use ReadRecord on the target Event, the following settings on
+// ev and target must match: Options.SampleIDAll, SampleFormat.Identifier,
+// SampleFormat.IP, SampleFormat.Tid, SampleFormat.Time, SampleFormat.Addr,
+// SampleFormat.ID, SampleFormat.StreamID. Furthermore, SampleFormat.StreamID
+// must be set. SetOutput nevertheless succeeds even if this condition is
+// not met, because callers can still use ReadRawRecord instead of ReadRecord.
+func (ev *Event) SetOutput(target *Event) error {
+	if err := ev.ok(); err != nil {
+		return err
+	}
+	var targetfd int
+	if target == nil {
+		targetfd = -1
+	} else {
+		if err := target.ok(); err != nil {
+			return err
+		}
+		if !target.canReadRecordFrom(ev) {
+			target.noReadRecord = true
+		}
+		targetfd = target.perffd
+	}
+	err := ev.ioctlInt(unix.PERF_EVENT_IOC_SET_OUTPUT, uintptr(targetfd))
+	return wrapIoctlError("PERF_EVENT_IOC_SET_OUTPUT", err)
+}
+
+// canReadRecordFrom returns a boolean indicating whether ev, as a leader,
+// can read records produced by f, a follower.
+func (ev *Event) canReadRecordFrom(f *Event) bool {
+	lf := ev.a.SampleFormat
+	ff := f.a.SampleFormat
+
+	return lf.Identifier == ff.Identifier &&
+		lf.IP == ff.IP &&
+		lf.Tid == ff.Tid &&
+		lf.Time == ff.Time &&
+		lf.Addr == ff.Addr &&
+		lf.ID == ff.ID &&
+		lf.StreamID == ff.StreamID &&
+		ff.StreamID
+}
+
+// BUG(acln): PERF_EVENT_IOC_SET_FILTER is not implemented
+
+// ID returns the unique event ID value for ev.
+func (ev *Event) ID() (uint64, error) {
+	if err := ev.ok(); err != nil {
+		return 0, err
+	}
+	var val uint64
+	err := ev.ioctlPointer(unix.PERF_EVENT_IOC_ID, unsafe.Pointer(&val))
+	return val, wrapIoctlError("PERF_EVENT_IOC_ID", err)
+}
+
+// SetBPF attaches a BPF program to ev, which must be a kprobe tracepoint
+// event. progfd is the file descriptor associated with the BPF program.
+func (ev *Event) SetBPF(progfd uint32) error {
+	if err := ev.ok(); err != nil {
+		return err
+	}
+	err := ev.ioctlInt(unix.PERF_EVENT_IOC_SET_BPF, uintptr(progfd))
+	return wrapIoctlError("PERF_EVENT_IOC_SET_BPF", err)
+}
+
+// PauseOutput pauses the output from ev.
+func (ev *Event) PauseOutput() error {
+	if err := ev.ok(); err != nil {
+		return err
+	}
+	err := ev.ioctlInt(unix.PERF_EVENT_IOC_PAUSE_OUTPUT, 1)
+	return wrapIoctlError("PEF_EVENT_IOC_PAUSE_OUTPUT", err)
+}
+
+// ResumeOutput resumes output from ev.
+func (ev *Event) ResumeOutput() error {
+	if err := ev.ok(); err != nil {
+		return err
+	}
+	err := ev.ioctlInt(unix.PERF_EVENT_IOC_PAUSE_OUTPUT, 0)
+	return wrapIoctlError("PEF_EVENT_IOC_PAUSE_OUTPUT", err)
+}
+
+// QueryBPF queries the event for BPF program file descriptors attached to
+// the same tracepoint as ev. max is the maximum number of file descriptors
+// to return.
+func (ev *Event) QueryBPF(max uint32) ([]uint32, error) {
+	if err := ev.ok(); err != nil {
+		return nil, err
+	}
+	buf := make([]uint32, 2+max)
+	buf[0] = max
+	err := ev.ioctlPointer(unix.PERF_EVENT_IOC_QUERY_BPF, unsafe.Pointer(&buf[0]))
+	if err != nil {
+		return nil, wrapIoctlError("PERF_EVENT_IOC_QUERY_BPF", err)
+	}
+	count := buf[1]
+	fds := make([]uint32, count)
+	copy(fds, buf[2:2+count])
+	return fds, nil
+}
+
+// BUG(acln): PERF_EVENT_IOC_MODIFY_ATTRIBUTES is not implemented
+
+func (ev *Event) ioctlNoArg(number int) error {
+	return ev.ioctlInt(number, 0)
+}
+
+func (ev *Event) ioctlInt(number int, arg uintptr) error {
+	_, _, e := unix.Syscall(unix.SYS_IOCTL, uintptr(ev.perffd), uintptr(number), arg)
+	if e != 0 {
+		return e
+	}
+	return nil
+}
+
+func (ev *Event) ioctlPointer(number uintptr, arg unsafe.Pointer) error {
+	_, _, e := unix.Syscall(unix.SYS_IOCTL, uintptr(ev.perffd), number, uintptr(arg))
+	if e != 0 {
+		return e
+	}
+	return nil
+}
+
+func wrapIoctlError(ioctl string, err error) error {
+	if err == nil {
+		return nil
+	}
+	return &ioctlError{ioctl: ioctl, err: err}
+}
+
+type ioctlError struct {
+	ioctl string
+	err   error
+}
+
+func (e *ioctlError) Error() string {
+	return fmt.Sprintf("%s: %v", e.ioctl, e.err)
+}
+
+func (e *ioctlError) Unwrap() error { return e.err }
+
+// Close closes the event. Close must not be called concurrently with any
+// other methods on the Event.
+func (ev *Event) Close() error {
+	if ev.ring != nil {
+		close(ev.pollreq)
+		<-ev.pollresp
+		unix.Munmap(ev.ring)
+		unix.Close(ev.wakeupfd)
+	}
+
+	for _, ev := range ev.owned {
+		ev.Close()
+	}
+
+	ev.state = eventStateClosed
+	return unix.Close(ev.perffd)
+}
+
+// Attr configures a perf event.
+type Attr struct {
+	// Label is a human readable label associated with the event.
+	// For convenience, the Label is included in Count and GroupCount
+	// measurements read from events.
+	//
+	// When an event is opened, if Label is the empty string, then a
+	// Label is computed (if possible) based on the Type and Config
+	// fields. Otherwise, if the Label user-defined (not the empty
+	// string), it is included verbatim.
+	//
+	// For most events, the computed Label matches the label specified by
+	// ``perf list'' for the same event (but see Bugs).
+	Label string
+
+	// Type is the major type of the event.
+	Type EventType
+
+	// Config is the type-specific event configuration.
+	Config uint64
+
+	// Sample configures the sample period or sample frequency for
+	// overflow packets, based on Options.Freq: if Options.Freq is set,
+	// Sample is interpreted as "sample frequency", otherwise it is
+	// interpreted as "sample period".
+	//
+	// See also SetSample{Period,Freq}.
+	Sample uint64
+
+	// SampleFormat configures information requested in sample records,
+	// on the memory mapped ring buffer.
+	SampleFormat SampleFormat
+
+

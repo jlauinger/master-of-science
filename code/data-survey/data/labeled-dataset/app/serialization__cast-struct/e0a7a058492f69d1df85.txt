@@ -1,0 +1,234 @@
+Module: github.com/json-iterator/go
+Version: v1.1.7
+
+Package: github.com/json-iterator/go
+File: config.go
+Line: 201
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+extension[reflect2.TypeOfPtr((*interface{})(nil)).Elem()] = &funcDecoder{func(ptr unsafe.Pointer, iter *Iterator) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	extension[reflect2.TypeOfPtr((*json.RawMessage)(nil)).Elem()] = encoder
+	extension[reflect2.TypeOfPtr((*RawMessage)(nil)).Elem()] = encoder
+}
+
+func (cfg *frozenConfig) useNumber(extension DecoderExtension) {
+	extension[reflect2.TypeOfPtr((*interface{})(nil)).Elem()] = &funcDecoder{func(ptr unsafe.Pointer, iter *Iterator) {
+		exitingValue := *((*interface{})(ptr))
+		if exitingValue != nil && reflect.TypeOf(exitingValue).Kind() == reflect.Ptr {
+			iter.ReadVal(exitingValue)
+			return
+		}
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+	return nil
+}
+
+func (cfg *frozenConfig) getEncoderFromCache(cacheKey uintptr) ValEncoder {
+	encoder, found := cfg.encoderCache.Load(cacheKey)
+	if found {
+		return encoder.(ValEncoder)
+	}
+	return nil
+}
+
+var cfgCache = concurrent.NewMap()
+
+func getFrozenConfigFromCache(cfg Config) *frozenConfig {
+	obj, found := cfgCache.Load(cfg)
+	if found {
+		return obj.(*frozenConfig)
+	}
+	return nil
+}
+
+func addFrozenConfigToCache(cfg Config, frozenConfig *frozenConfig) {
+	cfgCache.Store(cfg, frozenConfig)
+}
+
+// Froze forge API from config
+func (cfg Config) Froze() API {
+	api := &frozenConfig{
+		sortMapKeys:                   cfg.SortMapKeys,
+		indentionStep:                 cfg.IndentionStep,
+		objectFieldMustBeSimpleString: cfg.ObjectFieldMustBeSimpleString,
+		onlyTaggedField:               cfg.OnlyTaggedField,
+		disallowUnknownFields:         cfg.DisallowUnknownFields,
+		caseSensitive:                 cfg.CaseSensitive,
+	}
+	api.streamPool = &sync.Pool{
+		New: func() interface{} {
+			return NewStream(api, nil, 512)
+		},
+	}
+	api.iteratorPool = &sync.Pool{
+		New: func() interface{} {
+			return NewIterator(api)
+		},
+	}
+	api.initCache()
+	encoderExtension := EncoderExtension{}
+	decoderExtension := DecoderExtension{}
+	if cfg.MarshalFloatWith6Digits {
+		api.marshalFloatWith6Digits(encoderExtension)
+	}
+	if cfg.EscapeHTML {
+		api.escapeHTML(encoderExtension)
+	}
+	if cfg.UseNumber {
+		api.useNumber(decoderExtension)
+	}
+	if cfg.ValidateJsonRawMessage {
+		api.validateJsonRawMessage(encoderExtension)
+	}
+	api.encoderExtension = encoderExtension
+	api.decoderExtension = decoderExtension
+	api.configBeforeFrozen = cfg
+	return api
+}
+
+func (cfg Config) frozeWithCacheReuse(extraExtensions []Extension) *frozenConfig {
+	api := getFrozenConfigFromCache(cfg)
+	if api != nil {
+		return api
+	}
+	api = cfg.Froze().(*frozenConfig)
+	for _, extension := range extraExtensions {
+		api.RegisterExtension(extension)
+	}
+	addFrozenConfigToCache(cfg, api)
+	return api
+}
+
+func (cfg *frozenConfig) validateJsonRawMessage(extension EncoderExtension) {
+	encoder := &funcEncoder{func(ptr unsafe.Pointer, stream *Stream) {
+		rawMessage := *(*json.RawMessage)(ptr)
+		iter := cfg.BorrowIterator([]byte(rawMessage))
+		iter.Read()
+		if iter.Error != nil {
+			stream.WriteRaw("null")
+		} else {
+			cfg.ReturnIterator(iter)
+			stream.WriteRaw(string(rawMessage))
+		}
+	}, func(ptr unsafe.Pointer) bool {
+		return len(*((*json.RawMessage)(ptr))) == 0
+	}}
+	extension[reflect2.TypeOfPtr((*json.RawMessage)(nil)).Elem()] = encoder
+	extension[reflect2.TypeOfPtr((*RawMessage)(nil)).Elem()] = encoder
+}
+
+func (cfg *frozenConfig) useNumber(extension DecoderExtension) {
+	extension[reflect2.TypeOfPtr((*interface{})(nil)).Elem()] = &funcDecoder{func(ptr unsafe.Pointer, iter *Iterator) {
+		exitingValue := *((*interface{})(ptr))
+		if exitingValue != nil && reflect.TypeOf(exitingValue).Kind() == reflect.Ptr {
+			iter.ReadVal(exitingValue)
+			return
+		}
+		if iter.WhatIsNext() == NumberValue {
+			*((*interface{})(ptr)) = json.Number(iter.readNumberAsString())
+		} else {
+			*((*interface{})(ptr)) = iter.Read()
+		}
+	}}
+}
+func (cfg *frozenConfig) getTagKey() string {
+	tagKey := cfg.configBeforeFrozen.TagKey
+	if tagKey == "" {
+		return "json"
+	}
+	return tagKey
+}
+
+func (cfg *frozenConfig) RegisterExtension(extension Extension) {
+	cfg.extraExtensions = append(cfg.extraExtensions, extension)
+	copied := cfg.configBeforeFrozen
+	cfg.configBeforeFrozen = copied
+}
+
+type lossyFloat32Encoder struct {
+}
+
+func (encoder *lossyFloat32Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat32Lossy(*((*float32)(ptr)))
+}
+
+func (encoder *lossyFloat32Encoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float32)(ptr)) == 0
+}
+
+type lossyFloat64Encoder struct {
+}
+
+func (encoder *lossyFloat64Encoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat64Lossy(*((*float64)(ptr)))
+}
+
+func (encoder *lossyFloat64Encoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float64)(ptr)) == 0
+}
+
+// EnableLossyFloatMarshalling keeps 10**(-6) precision
+// for float variables for better performance.
+func (cfg *frozenConfig) marshalFloatWith6Digits(extension EncoderExtension) {
+	// for better performance
+	extension[reflect2.TypeOfPtr((*float32)(nil)).Elem()] = &lossyFloat32Encoder{}
+	extension[reflect2.TypeOfPtr((*float64)(nil)).Elem()] = &lossyFloat64Encoder{}
+}
+
+type htmlEscapedStringEncoder struct {
+}
+
+func (encoder *htmlEscapedStringEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	str := *((*string)(ptr))
+	stream.WriteStringWithHTMLEscaped(str)
+}
+
+func (encoder *htmlEscapedStringEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*string)(ptr)) == ""
+}
+
+func (cfg *frozenConfig) escapeHTML(encoderExtension EncoderExtension) {
+	encoderExtension[reflect2.TypeOfPtr((*string)(nil)).Elem()] = &htmlEscapedStringEncoder{}
+}
+
+func (cfg *frozenConfig) cleanDecoders() {
+	typeDecoders = map[string]ValDecoder{}
+	fieldDecoders = map[string]ValDecoder{}
+	*cfg = *(cfg.configBeforeFrozen.Froze().(*frozenConfig))
+}
+
+func (cfg *frozenConfig) cleanEncoders() {
+	typeEncoders = map[string]ValEncoder{}
+	fieldEncoders = map[string]ValEncoder{}
+	*cfg = *(cfg.configBeforeFrozen.Froze().(*frozenConfig))
+}
+
+func (cfg *frozenConfig) MarshalToString(v interface{}) (string, error) {
+	stream := cfg.BorrowStream(nil)
+	defer cfg.ReturnStream(stream)
+	stream.WriteVal(v)
+	if stream.Error != nil {
+		return "", stream.Error
+	}
+	return string(stream.Buffer()), nil
+}
+
+func (cfg *frozenConfig) Marshal(v interface{}) ([]byte, error) {
+	stream := cfg.BorrowStream(nil)
+	defer cfg.ReturnStream(stream)
+	stream.WriteVal(v)
+	if stream.Error != nil {
+		return nil, stream.Error
+

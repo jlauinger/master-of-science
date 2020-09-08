@@ -1,0 +1,34 @@
+Module: gorgonia.org/gorgonia
+Version: project
+
+Package: gorgonia.org/gorgonia/cuda
+File: arith.go
+Line: 54
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+args := []unsafe.Pointer{
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+
+	memB = cu.DevicePtr(b.Uintptr())
+	fn := e.f[name]
+	gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ := e.ElemGridSize(int(size))
+	args := []unsafe.Pointer{
+		unsafe.Pointer(&mem),
+		unsafe.Pointer(&memB),
+		unsafe.Pointer(&size),
+	}
+	logf("gx %d, gy %d, gz %d | bx %d by %d, bz %d", gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ)
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

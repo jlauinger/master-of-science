@@ -1,0 +1,49 @@
+Module: github.com/mattn/go-isatty
+Version: v0.0.4
+
+Package: github.com/mattn/go-isatty
+File: isatty_linux.go
+Line: 16
+
+Imported (possibly among others) by: weaveworks/scope
+
+Label 1 (What is happening?): syscall
+Label 2 (For what purpose?): no-gc
+
+--------------------------------------------------------------
+Snippet line:
+
+_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, fd, ioctlReadTermios, uintptr(unsafe.Pointer(&termios)), 0, 0, 0)
+--------------------------------------------------------------
++/- 5 lines context:
+
+const ioctlReadTermios = syscall.TCGETS
+
+// IsTerminal return true if the file descriptor is terminal.
+func IsTerminal(fd uintptr) bool {
+	var termios syscall.Termios
+	_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, fd, ioctlReadTermios, uintptr(unsafe.Pointer(&termios)), 0, 0, 0)
+	return err == 0
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+// +build linux
+// +build !appengine,!ppc64,!ppc64le
+
+package isatty
+
+import (
+	"syscall"
+	"unsafe"
+)
+
+const ioctlReadTermios = syscall.TCGETS
+
+// IsTerminal return true if the file descriptor is terminal.
+func IsTerminal(fd uintptr) bool {
+	var termios syscall.Termios
+	_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, fd, ioctlReadTermios, uintptr(unsafe.Pointer(&termios)), 0, 0, 0)
+	return err == 0
+}
+

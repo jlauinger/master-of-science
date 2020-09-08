@@ -1,0 +1,234 @@
+Module: github.com/godror/godror
+Version: v0.16.0
+
+Package: github.com/godror/godror
+File: obj.go
+Line: 418
+
+Imported (possibly among others) by: xo/usql
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+C.free(unsafe.Pointer(objType))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	defer c.mu.Unlock()
+	if c.dpiConn == nil {
+		return ObjectType{}, driver.ErrBadConn
+	}
+	if C.dpiConn_getObjectType(c.dpiConn, cName, C.uint32_t(len(name)), &objType) == C.DPI_FAILURE {
+		C.free(unsafe.Pointer(objType))
+		return ObjectType{}, errors.Errorf("getObjectType(%q) conn=%p: %w", name, c.dpiConn, c.getError())
+	}
+	t := ObjectType{objectTypeConn: &objectTypeConn{conn: c, dpiObjectType: objType}}
+	err := t.init()
+	return t, err
+--------------------------------------------------------------
++/- 100 lines context:
+
+	if exists == 1 {
+		return int(idx), nil
+	}
+	return 0, ErrNotExist
+}
+
+// Next returns the succeeding index of i.
+func (O ObjectCollection) Next(i int) (int, error) {
+	var exists C.int
+	var idx C.int32_t
+	if C.dpiObject_getNextIndex(O.dpiObject, C.int32_t(i), &idx, &exists) == C.DPI_FAILURE {
+		return 0, errors.Errorf("next(%d): %w", i, O.getError())
+	}
+	if exists == 1 {
+		return int(idx), nil
+	}
+	return 0, ErrNotExist
+}
+
+// Len returns the length of the collection.
+func (O ObjectCollection) Len() (int, error) {
+	var size C.int32_t
+	if C.dpiObject_getSize(O.dpiObject, &size) == C.DPI_FAILURE {
+		return 0, errors.Errorf("len: %w", O.getError())
+	}
+	return int(size), nil
+}
+
+// Trim the collection to n.
+func (O ObjectCollection) Trim(n int) error {
+	if C.dpiObject_trim(O.dpiObject, C.uint32_t(n)) == C.DPI_FAILURE {
+		return O.getError()
+	}
+	return nil
+}
+
+// ObjectType holds type info of an Object.
+type ObjectType struct {
+	Schema, Name string
+	Attributes   map[string]ObjectAttribute
+
+	*objectTypeConn
+
+	DBSize, ClientSizeInBytes, CharSize int
+	CollectionOf                        *ObjectType
+	OracleTypeNum                       C.dpiOracleTypeNum
+	NativeTypeNum                       C.dpiNativeTypeNum
+	Precision                           int16
+	Scale                               int8
+	FsPrecision                         uint8
+}
+type objectTypeConn struct {
+	mu            sync.RWMutex
+	conn          *conn
+	dpiObjectType *C.dpiObjectType
+}
+
+func (t ObjectType) getError() error { return t.conn.getError() }
+
+// NewData returns Data for input parameters on Object/ObjectCollection.
+func (t ObjectType) NewData(baseType interface{}, sliceLen, bufSize int) ([]*Data, error) {
+	return t.conn.NewData(baseType, sliceLen, bufSize)
+}
+
+func (t ObjectType) String() string {
+	if t.Schema == "" {
+		return t.Name
+	}
+	return t.Schema + "." + t.Name
+}
+
+// FullName returns the object's name with the schame prepended.
+func (t ObjectType) FullName() string {
+	if t.Schema == "" {
+		return t.Name
+	}
+	return t.Schema + "." + t.Name
+}
+
+// GetObjectType returns the ObjectType of a name.
+//
+// The name is uppercased! Because here Oracle seems to be case-sensitive.
+// To leave it as is, enclose it in "-s!
+func (c *conn) GetObjectType(name string) (ObjectType, error) {
+	if !strings.Contains(name, "\"") {
+		name = strings.ToUpper(name)
+	}
+	if Log != nil {
+		Log("msg", "GetObjectType", "name", name)
+	}
+	cName := C.CString(name)
+	defer func() { C.free(unsafe.Pointer(cName)) }()
+	objType := (*C.dpiObjectType)(C.malloc(C.sizeof_void))
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.dpiConn == nil {
+		return ObjectType{}, driver.ErrBadConn
+	}
+	if C.dpiConn_getObjectType(c.dpiConn, cName, C.uint32_t(len(name)), &objType) == C.DPI_FAILURE {
+		C.free(unsafe.Pointer(objType))
+		return ObjectType{}, errors.Errorf("getObjectType(%q) conn=%p: %w", name, c.dpiConn, c.getError())
+	}
+	t := ObjectType{objectTypeConn: &objectTypeConn{conn: c, dpiObjectType: objType}}
+	err := t.init()
+	return t, err
+}
+
+// NewObject returns a new Object with ObjectType type.
+//
+// As with all Objects, you MUST call Close on it when not needed anymore!
+func (t ObjectType) NewObject() (*Object, error) {
+	if Log != nil {
+		Log("msg", "NewObject", "name", t.Name)
+	}
+	obj := (*C.dpiObject)(C.malloc(C.sizeof_void))
+	t.mu.RLock()
+	fail := C.dpiObjectType_createObject(t.dpiObjectType, &obj) == C.DPI_FAILURE
+	t.mu.RUnlock()
+	if fail {
+		C.free(unsafe.Pointer(obj))
+		return nil, t.getError()
+	}
+	O := &Object{ObjectType: t, dpiObject: obj}
+	// https://github.com/oracle/odpi/issues/112#issuecomment-524479532
+	return O, O.ResetAttributes()
+}
+
+// NewCollection returns a new Collection object with ObjectType type.
+// If the ObjectType is not a Collection, it returns ErrNotCollection error.
+func (t ObjectType) NewCollection() (ObjectCollection, error) {
+	if t.CollectionOf == nil {
+		return ObjectCollection{}, ErrNotCollection
+	}
+	O, err := t.NewObject()
+	if err != nil {
+		return ObjectCollection{}, err
+	}
+	return ObjectCollection{Object: O}, nil
+}
+
+// Close releases a reference to the object type.
+func (t *ObjectType) Close() error {
+	if t == nil {
+		return nil
+	}
+	t.mu.Lock()
+	attributes, d := t.Attributes, t.dpiObjectType
+	t.Attributes, t.dpiObjectType = nil, nil
+	t.mu.Unlock()
+
+	if d == nil {
+		return nil
+	}
+	var released bool
+	defer func() {
+		if !released {
+			C.dpiObjectType_release(d)
+		}
+	}()
+	if t.CollectionOf != nil {
+		if err := t.CollectionOf.Close(); err != nil {
+			return err
+		}
+	}
+
+	for _, attr := range attributes {
+		if err := attr.Close(); err != nil {
+			return err
+		}
+	}
+
+	if Log != nil {
+		Log("msg", "ObjectType.Close", "name", t.Name)
+	}
+	if C.dpiObjectType_release(d) == C.DPI_FAILURE {
+		return errors.Errorf("error on close object type: %w", t.getError())
+	}
+	released = true
+
+	return nil
+}
+
+func wrapObject(c *conn, objectType *C.dpiObjectType, object *C.dpiObject) (*Object, error) {
+	if objectType == nil {
+		return nil, errors.New("objectType is nil")
+	}
+	if C.dpiObject_addRef(object) == C.DPI_FAILURE {
+		return nil, c.getError()
+	}
+	o := &Object{
+		ObjectType: ObjectType{objectTypeConn: &objectTypeConn{dpiObjectType: objectType, conn: c}},
+		dpiObject:  object,
+	}
+	return o, o.init()
+}
+
+func (t *ObjectType) init() error {
+	if t.conn == nil {
+		panic("conn is nil")
+	}
+

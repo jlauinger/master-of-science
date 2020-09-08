@@ -1,0 +1,34 @@
+Module: github.com/elastic/beats/v7
+Version: project
+
+Package: github.com/elastic/beats/v7/x-pack/auditbeat/module/system/user
+File: /root/.cache/go-build/a6/a60923e2e9a6e95369c8b12f378e8cb453d9168fbdb71d15b1af5886f5a3cb95-d
+Line: 88
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+var _cgo_8b93faaccdf2_C2func_getspent = unsafe.Pointer(&__cgofn__cgo_8b93faaccdf2_C2func_getspent)
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return
+}
+//go:cgo_import_static _cgo_8b93faaccdf2_C2func_getspent
+//go:linkname __cgofn__cgo_8b93faaccdf2_C2func_getspent _cgo_8b93faaccdf2_C2func_getspent
+var __cgofn__cgo_8b93faaccdf2_C2func_getspent byte
+var _cgo_8b93faaccdf2_C2func_getspent = unsafe.Pointer(&__cgofn__cgo_8b93faaccdf2_C2func_getspent)
+
+//go:cgo_unsafe_args
+func _C2func_getspent() (r1 *_Ctype_struct_spwd, r2 error) {
+	errno := _cgo_runtime_cgocall(_cgo_8b93faaccdf2_C2func_getspent, uintptr(unsafe.Pointer(&r1)))
+	if errno != 0 { r2 = syscall.Errno(errno) }
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

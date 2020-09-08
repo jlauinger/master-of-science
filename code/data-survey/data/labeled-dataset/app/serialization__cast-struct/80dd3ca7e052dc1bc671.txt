@@ -1,0 +1,234 @@
+Module: github.com/elastic/go-structform
+Version: v0.0.6
+
+Package: github.com/elastic/go-structform/gotype
+File: fold_map_inline.generated.go
+Line: 213
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+ptr := unsafe.Pointer(v.Pointer())
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+	return
+}
+
+func foldMapInlineInt8(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]int8)(unsafe.Pointer(&ptr)))
+--------------------------------------------------------------
++/- 100 lines context:
+
+		}
+		if err = C.OnUint(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineUint8(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]uint8)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnUint8(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineUint16(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]uint16)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnUint16(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineUint32(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]uint32)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnUint32(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineUint64(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]uint64)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnUint64(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineInt(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]int)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnInt(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineInt8(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]int8)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnInt8(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineInt16(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]int16)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnInt16(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineInt32(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]int32)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnInt32(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineInt64(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]int64)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnInt64(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineFloat32(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]float32)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnFloat32(v); err != nil {
+			return err
+		}
+	}
+	return
+}
+
+func foldMapInlineFloat64(C *foldContext, v reflect.Value) (err error) {
+	ptr := unsafe.Pointer(v.Pointer())
+	if ptr == nil {
+		return nil
+	}
+
+	m := *((*map[string]float64)(unsafe.Pointer(&ptr)))
+	for k, v := range m {
+		if err = C.OnKey(k); err != nil {
+			return err
+		}
+		if err = C.OnFloat64(v); err != nil {
+

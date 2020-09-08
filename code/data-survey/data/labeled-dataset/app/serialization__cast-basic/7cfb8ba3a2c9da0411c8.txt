@@ -1,0 +1,234 @@
+Module: github.com/elastic/go-perf
+Version: v0.0.0-20191212140718-9c656876f595
+
+Package: github.com/elastic/go-perf
+File: perf.go
+Line: 1269
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+*a = *(*uint32)(unsafe.Pointer(&(*f)[0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+}
+
+// uint32 decodes a pair of uint32s into a and b.
+func (f *fields) uint32(a, b *uint32) {
+	*a = *(*uint32)(unsafe.Pointer(&(*f)[0]))
+	*b = *(*uint32)(unsafe.Pointer(&(*f)[4]))
+	f.advance(8)
+}
+
+// uint32 decodes a pair of uint32s into a and b, if cond is true.
+--------------------------------------------------------------
++/- 100 lines context:
+
+	UseClockID bool
+
+	// ContextSwitch enables the generation of SwitchRecord records,
+	// and SwitchCPUWideRecord records when sampling in CPU-wide mode.
+	ContextSwitch bool
+
+	// writeBackward configures the kernel to write to the memory
+	// mapped ring buffer backwards. This option is not supported by
+	// package perf at the moment.
+	writeBackward bool
+
+	// Namespaces enables the generation of NamespacesRecord records.
+	Namespaces bool
+}
+
+func (opt Options) marshal() uint64 {
+	fields := []bool{
+		opt.Disabled,
+		opt.Inherit,
+		opt.Pinned,
+		opt.Exclusive,
+		opt.ExcludeUser,
+		opt.ExcludeKernel,
+		opt.ExcludeHypervisor,
+		opt.ExcludeIdle,
+		opt.Mmap,
+		opt.Comm,
+		opt.Freq,
+		opt.InheritStat,
+		opt.EnableOnExec,
+		opt.Task,
+		opt.Watermark,
+		false, false, // 2 bits for skid constraint
+		opt.MmapData,
+		opt.SampleIDAll,
+		opt.ExcludeHost,
+		opt.ExcludeGuest,
+		opt.ExcludeKernelCallchain,
+		opt.ExcludeUserCallchain,
+		opt.Mmap2,
+		opt.CommExec,
+		opt.UseClockID,
+		opt.ContextSwitch,
+		opt.writeBackward,
+		opt.Namespaces,
+	}
+	val := marshalBitwiseUint64(fields)
+
+	const (
+		skidlsb = 15
+		skidmsb = 16
+	)
+	if opt.PreciseIP&0x01 != 0 {
+		val |= 1 << skidlsb
+	}
+	if opt.PreciseIP&0x10 != 0 {
+		val |= 1 << skidmsb
+	}
+
+	return val
+}
+
+// Supported returns a boolean indicating whether the host kernel supports
+// the perf_event_open system call, which is a prerequisite for the operations
+// of this package.
+//
+// Supported checks for the existence of a /proc/sys/kernel/perf_event_paranoid
+// file, which is the canonical method for determining if a kernel supports
+// perf_event_open(2).
+func Supported() bool {
+	_, err := os.Stat("/proc/sys/kernel/perf_event_paranoid")
+	return err == nil
+}
+
+// MaxStack returns the maximum number of frame pointers in a recorded
+// callchain. It reads the value from /proc/sys/kernel/perf_event_max_stack.
+func MaxStack() (uint16, error) {
+	max, err := readUint("/proc/sys/kernel/perf_event_max_stack", 16)
+	return uint16(max), err
+}
+
+// fields is a collection of 32-bit or 64-bit fields.
+type fields []byte
+
+// uint64 decodes the next 64 bit field into v.
+func (f *fields) uint64(v *uint64) {
+	*v = *(*uint64)(unsafe.Pointer(&(*f)[0]))
+	f.advance(8)
+}
+
+// uint64Cond decodes the next 64 bit field into v, if cond is true.
+func (f *fields) uint64Cond(cond bool, v *uint64) {
+	if cond {
+		f.uint64(v)
+	}
+}
+
+// uint32 decodes a pair of uint32s into a and b.
+func (f *fields) uint32(a, b *uint32) {
+	*a = *(*uint32)(unsafe.Pointer(&(*f)[0]))
+	*b = *(*uint32)(unsafe.Pointer(&(*f)[4]))
+	f.advance(8)
+}
+
+// uint32 decodes a pair of uint32s into a and b, if cond is true.
+func (f *fields) uint32Cond(cond bool, a, b *uint32) {
+	if cond {
+		f.uint32(a, b)
+	}
+}
+
+func (f *fields) uint32sizeBytes(b *[]byte) {
+	size := *(*uint32)(unsafe.Pointer(&(*f)[0]))
+	f.advance(4)
+	data := make([]byte, size)
+	copy(data, *f)
+	f.advance(int(size))
+	*b = data
+}
+
+func (f *fields) uint64sizeBytes(b *[]byte) {
+	size := *(*uint64)(unsafe.Pointer(&(*f)[0]))
+	f.advance(8)
+	data := make([]byte, size)
+	copy(data, *f)
+	f.advance(int(size))
+	*b = data
+}
+
+// duration decodes a duration into d.
+func (f *fields) duration(d *time.Duration) {
+	*d = *(*time.Duration)(unsafe.Pointer(&(*f)[0]))
+	f.advance(8)
+}
+
+// string decodes a null-terminated string into s. The null terminator
+// is not included in the string written to s.
+func (f *fields) string(s *string) {
+	for i := 0; i < len(*f); i++ {
+		if (*f)[i] == 0 {
+			*s = string((*f)[:i])
+			if i+1 <= len(*f) {
+				f.advance(i + 1)
+			}
+			return
+		}
+	}
+}
+
+// id decodes a SampleID based on the SampleFormat event was configured with,
+// if cond is true.
+func (f *fields) idCond(cond bool, id *SampleID, sfmt SampleFormat) {
+	if !cond {
+		return
+	}
+	f.uint32Cond(sfmt.Tid, &id.Pid, &id.Tid)
+	f.uint64Cond(sfmt.Time, &id.Time)
+	f.uint64Cond(sfmt.ID, &id.ID)
+	f.uint64Cond(sfmt.StreamID, &id.StreamID)
+	var reserved uint32
+	f.uint32Cond(sfmt.CPU, &id.CPU, &reserved)
+	f.uint64Cond(sfmt.Identifier, &id.Identifier)
+}
+
+// count decodes a Count into c.
+func (f *fields) count(c *Count, cfmt CountFormat) {
+	f.uint64(&c.Value)
+	if cfmt.Enabled {
+		f.duration(&c.Enabled)
+	}
+	if cfmt.Running {
+		f.duration(&c.Running)
+	}
+	f.uint64Cond(cfmt.ID, &c.ID)
+}
+
+// groupCount decodes a GroupCount into gc.
+func (f *fields) groupCount(gc *GroupCount, cfmt CountFormat) {
+	var nr uint64
+	f.uint64(&nr)
+	if cfmt.Enabled {
+		f.duration(&gc.Enabled)
+	}
+	if cfmt.Running {
+		f.duration(&gc.Running)
+	}
+	gc.Values = make([]struct {
+		Value, ID uint64
+		Label     string
+	}, nr)
+	for i := 0; i < int(nr); i++ {
+		f.uint64(&gc.Values[i].Value)
+		f.uint64Cond(cfmt.ID, &gc.Values[i].ID)
+	}
+}
+
+// advance advances through the fields by n bytes.
+func (f *fields) advance(n int) {
+	*f = (*f)[n:]
+}
+

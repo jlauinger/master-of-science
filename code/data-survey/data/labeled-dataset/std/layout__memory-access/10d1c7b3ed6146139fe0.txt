@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: stack.go
+Line: 351
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): memory-access
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+var v unsafe.Pointer
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+
+	// Small stacks are allocated with a fixed-size free-list allocator.
+	// If we need a stack of a bigger size, we fall back on allocating
+	// a dedicated span.
+	var v unsafe.Pointer
+	if n < _FixedStack<<_NumStackOrders && n < _StackCacheSize {
+		order := uint8(0)
+		n2 := n
+		for n2 > _FixedStack {
+			order++
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+}
+
+// stackcacherefill/stackcacherelease implement a global pool of stack segments.
+// The pool is required to prevent unlimited growth of per-thread caches.
+//
+//go:systemstack
+func stackcacherefill(c *mcache, order uint8) {
+	if stackDebug >= 1 {
+		print("stackcacherefill order=", order, "\n")
+	}
+
+	// Grab some stacks from the global cache.
+	// Grab half of the allowed capacity (to prevent thrashing).
+	var list gclinkptr
+	var size uintptr
+	lock(&stackpool[order].item.mu)
+	for size < _StackCacheSize/2 {
+		x := stackpoolalloc(order)
+		x.ptr().next = list
+		list = x
+		size += _FixedStack << order
+	}
+	unlock(&stackpool[order].item.mu)
+	c.stackcache[order].list = list
+	c.stackcache[order].size = size
+}
+
+//go:systemstack
+func stackcacherelease(c *mcache, order uint8) {
+	if stackDebug >= 1 {
+		print("stackcacherelease order=", order, "\n")
+	}
+	x := c.stackcache[order].list
+	size := c.stackcache[order].size
+	lock(&stackpool[order].item.mu)
+	for size > _StackCacheSize/2 {
+		y := x.ptr().next
+		stackpoolfree(x, order)
+		x = y
+		size -= _FixedStack << order
+	}
+	unlock(&stackpool[order].item.mu)
+	c.stackcache[order].list = x
+	c.stackcache[order].size = size
+}
+
+//go:systemstack
+func stackcache_clear(c *mcache) {
+	if stackDebug >= 1 {
+		print("stackcache clear\n")
+	}
+	for order := uint8(0); order < _NumStackOrders; order++ {
+		lock(&stackpool[order].item.mu)
+		x := c.stackcache[order].list
+		for x.ptr() != nil {
+			y := x.ptr().next
+			stackpoolfree(x, order)
+			x = y
+		}
+		c.stackcache[order].list = 0
+		c.stackcache[order].size = 0
+		unlock(&stackpool[order].item.mu)
+	}
+}
+
+// stackalloc allocates an n byte stack.
+//
+// stackalloc must run on the system stack because it uses per-P
+// resources and must not split the stack.
+//
+//go:systemstack
+func stackalloc(n uint32) stack {
+	// Stackalloc must be called on scheduler stack, so that we
+	// never try to grow the stack during the code that stackalloc runs.
+	// Doing so would cause a deadlock (issue 1547).
+	thisg := getg()
+	if thisg != thisg.m.g0 {
+		throw("stackalloc not on scheduler stack")
+	}
+	if n&(n-1) != 0 {
+		throw("stack size not a power of 2")
+	}
+	if stackDebug >= 1 {
+		print("stackalloc ", n, "\n")
+	}
+
+	if debug.efence != 0 || stackFromSystem != 0 {
+		n = uint32(alignUp(uintptr(n), physPageSize))
+		v := sysAlloc(uintptr(n), &memstats.stacks_sys)
+		if v == nil {
+			throw("out of memory (stackalloc)")
+		}
+		return stack{uintptr(v), uintptr(v) + uintptr(n)}
+	}
+
+	// Small stacks are allocated with a fixed-size free-list allocator.
+	// If we need a stack of a bigger size, we fall back on allocating
+	// a dedicated span.
+	var v unsafe.Pointer
+	if n < _FixedStack<<_NumStackOrders && n < _StackCacheSize {
+		order := uint8(0)
+		n2 := n
+		for n2 > _FixedStack {
+			order++
+			n2 >>= 1
+		}
+		var x gclinkptr
+		c := thisg.m.mcache
+		if stackNoCache != 0 || c == nil || thisg.m.preemptoff != "" {
+			// c == nil can happen in the guts of exitsyscall or
+			// procresize. Just get a stack from the global pool.
+			// Also don't touch stackcache during gc
+			// as it's flushed concurrently.
+			lock(&stackpool[order].item.mu)
+			x = stackpoolalloc(order)
+			unlock(&stackpool[order].item.mu)
+		} else {
+			x = c.stackcache[order].list
+			if x.ptr() == nil {
+				stackcacherefill(c, order)
+				x = c.stackcache[order].list
+			}
+			c.stackcache[order].list = x.ptr().next
+			c.stackcache[order].size -= uintptr(n)
+		}
+		v = unsafe.Pointer(x)
+	} else {
+		var s *mspan
+		npage := uintptr(n) >> _PageShift
+		log2npage := stacklog2(npage)
+
+		// Try to get a stack from the large stack cache.
+		lock(&stackLarge.lock)
+		if !stackLarge.free[log2npage].isEmpty() {
+			s = stackLarge.free[log2npage].first
+			stackLarge.free[log2npage].remove(s)
+		}
+		unlock(&stackLarge.lock)
+
+		if s == nil {
+			// Allocate a new stack from the heap.
+			s = mheap_.allocManual(npage, &memstats.stacks_inuse)
+			if s == nil {
+				throw("out of memory")
+			}
+			osStackAlloc(s)
+			s.elemsize = uintptr(n)
+		}
+		v = unsafe.Pointer(s.base())
+	}
+
+	if raceenabled {
+		racemalloc(v, uintptr(n))
+	}
+	if msanenabled {
+		msanmalloc(v, uintptr(n))
+	}
+	if stackDebug >= 1 {
+		print("  allocated ", v, "\n")
+	}
+	return stack{uintptr(v), uintptr(v) + uintptr(n)}
+}
+
+// stackfree frees an n byte stack allocation at stk.
+//
+// stackfree must run on the system stack because it uses per-P
+// resources and must not split the stack.
+//
+//go:systemstack
+func stackfree(stk stack) {
+	gp := getg()
+	v := unsafe.Pointer(stk.lo)
+	n := stk.hi - stk.lo
+	if n&(n-1) != 0 {
+		throw("stack not a power of 2")
+	}
+	if stk.lo+n < stk.hi {
+		throw("bad stack size")
+	}
+	if stackDebug >= 1 {
+		println("stackfree", v, n)
+		memclrNoHeapPointers(v, n) // for testing, clobber stack data
+	}
+	if debug.efence != 0 || stackFromSystem != 0 {
+		if debug.efence != 0 || stackFaultOnFree != 0 {
+			sysFault(v, n)
+		} else {
+			sysFree(v, n, &memstats.stacks_sys)
+		}
+		return
+	}
+	if msanenabled {
+		msanfree(v, n)
+	}
+	if n < _FixedStack<<_NumStackOrders && n < _StackCacheSize {
+		order := uint8(0)
+		n2 := n
+		for n2 > _FixedStack {
+			order++
+

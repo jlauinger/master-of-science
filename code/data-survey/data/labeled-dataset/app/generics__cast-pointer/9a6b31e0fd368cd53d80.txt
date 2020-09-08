@@ -1,0 +1,157 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor
+File: array.go
+Line: 520
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): generics
+
+--------------------------------------------------------------
+Snippet line:
+
+return unsafe.Pointer(at)
+--------------------------------------------------------------
++/- 5 lines context:
+
+	case *uint64:
+		return unsafe.Pointer(at)
+	case *float32:
+		return unsafe.Pointer(at)
+	case *float64:
+		return unsafe.Pointer(at)
+	case *complex64:
+		return unsafe.Pointer(at)
+	case *complex128:
+		return unsafe.Pointer(at)
+	case *string:
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+	if !dst.IsNativelyAccessible() {
+		return 0, errors.Errorf(inaccessibleData, dst)
+	}
+	if !src.IsNativelyAccessible() {
+		return 0, errors.Errorf(inaccessibleData, src)
+	}
+
+	if diter == nil {
+		diter = FlatIteratorFromDense(dst)
+	}
+	if siter == nil {
+		siter = FlatIteratorFromDense(src)
+	}
+
+	// if it's a masked tensor, we copy the mask as well
+	if ms, ok := src.(MaskedTensor); ok && ms.IsMasked() {
+		if md, ok := dst.(MaskedTensor); ok {
+			dmask := md.Mask()
+			smask := ms.Mask()
+			if cap(dmask) < len(smask) {
+				dmask = make([]bool, len(smask))
+				copy(dmask, md.Mask())
+				md.SetMask(dmask)
+			}
+			copy(dmask, smask)
+		}
+	}
+	return storage.CopyIter(dst.rtype(), dst.hdr(), src.hdr(), diter, siter), nil
+}
+
+func getPointer(a interface{}) unsafe.Pointer {
+	switch at := a.(type) {
+	case Memory:
+		return at.Pointer()
+	case bool:
+		return unsafe.Pointer(&at)
+	case int:
+		return unsafe.Pointer(&at)
+	case int8:
+		return unsafe.Pointer(&at)
+	case int16:
+		return unsafe.Pointer(&at)
+	case int32:
+		return unsafe.Pointer(&at)
+	case int64:
+		return unsafe.Pointer(&at)
+	case uint:
+		return unsafe.Pointer(&at)
+	case uint8:
+		return unsafe.Pointer(&at)
+	case uint16:
+		return unsafe.Pointer(&at)
+	case uint32:
+		return unsafe.Pointer(&at)
+	case uint64:
+		return unsafe.Pointer(&at)
+	case float32:
+		return unsafe.Pointer(&at)
+	case float64:
+		return unsafe.Pointer(&at)
+	case complex64:
+		return unsafe.Pointer(&at)
+	case complex128:
+		return unsafe.Pointer(&at)
+	case string:
+		return unsafe.Pointer(&at)
+	case uintptr:
+		return unsafe.Pointer(at)
+	case unsafe.Pointer:
+		return at
+
+		// POINTERS
+
+	case *bool:
+		return unsafe.Pointer(at)
+	case *int:
+		return unsafe.Pointer(at)
+	case *int8:
+		return unsafe.Pointer(at)
+	case *int16:
+		return unsafe.Pointer(at)
+	case *int32:
+		return unsafe.Pointer(at)
+	case *int64:
+		return unsafe.Pointer(at)
+	case *uint:
+		return unsafe.Pointer(at)
+	case *uint8:
+		return unsafe.Pointer(at)
+	case *uint16:
+		return unsafe.Pointer(at)
+	case *uint32:
+		return unsafe.Pointer(at)
+	case *uint64:
+		return unsafe.Pointer(at)
+	case *float32:
+		return unsafe.Pointer(at)
+	case *float64:
+		return unsafe.Pointer(at)
+	case *complex64:
+		return unsafe.Pointer(at)
+	case *complex128:
+		return unsafe.Pointer(at)
+	case *string:
+		return unsafe.Pointer(at)
+	case *uintptr:
+		return unsafe.Pointer(*at)
+	case *unsafe.Pointer:
+		return *at
+	}
+
+	panic("Cannot get pointer")
+}
+
+// scalarToHeader creates a Header from a scalar value
+func scalarToHeader(a interface{}) *storage.Header {
+	hdr := borrowHeader()
+	hdr.Ptr = getPointer(a)
+	hdr.L = 1
+	hdr.C = 1
+	return hdr
+}
+

@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: proc.go
+Line: 1350
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): definition
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+fn  unsafe.Pointer
+--------------------------------------------------------------
++/- 5 lines context:
+
+var cgoThreadStart unsafe.Pointer
+
+type cgothreadstart struct {
+	g   guintptr
+	tls *uint64
+	fn  unsafe.Pointer
+}
+
+// Allocate a new m unassociated with any thread.
+// Can use p for allocation context if needed.
+// fn is recorded as the new m's m.mstartfn.
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+	// Any P entering _Pidle or _Psyscall from now on will observe
+	// p.runSafePointFn == 1 and will call runSafePointFn when
+	// changing its status to _Pidle/_Psyscall.
+
+	// Run safe point function for all idle Ps. sched.pidle will
+	// not change because we hold sched.lock.
+	for p := sched.pidle.ptr(); p != nil; p = p.link.ptr() {
+		if atomic.Cas(&p.runSafePointFn, 1, 0) {
+			fn(p)
+			sched.safePointWait--
+		}
+	}
+
+	wait := sched.safePointWait > 0
+	unlock(&sched.lock)
+
+	// Run fn for the current P.
+	fn(_p_)
+
+	// Force Ps currently in _Psyscall into _Pidle and hand them
+	// off to induce safe point function execution.
+	for _, p := range allp {
+		s := p.status
+		if s == _Psyscall && p.runSafePointFn == 1 && atomic.Cas(&p.status, s, _Pidle) {
+			if trace.enabled {
+				traceGoSysBlock(p)
+				traceProcStop(p)
+			}
+			p.syscalltick++
+			handoffp(p)
+		}
+	}
+
+	// Wait for remaining Ps to run fn.
+	if wait {
+		for {
+			// Wait for 100us, then try to re-preempt in
+			// case of any races.
+			//
+			// Requires system stack.
+			if notetsleep(&sched.safePointNote, 100*1000) {
+				noteclear(&sched.safePointNote)
+				break
+			}
+			preemptall()
+		}
+	}
+	if sched.safePointWait != 0 {
+		throw("forEachP: not done")
+	}
+	for _, p := range allp {
+		if p.runSafePointFn != 0 {
+			throw("forEachP: P did not run fn")
+		}
+	}
+
+	lock(&sched.lock)
+	sched.safePointFn = nil
+	unlock(&sched.lock)
+	releasem(mp)
+}
+
+// runSafePointFn runs the safe point function, if any, for this P.
+// This should be called like
+//
+//     if getg().m.p.runSafePointFn != 0 {
+//         runSafePointFn()
+//     }
+//
+// runSafePointFn must be checked on any transition in to _Pidle or
+// _Psyscall to avoid a race where forEachP sees that the P is running
+// just before the P goes into _Pidle/_Psyscall and neither forEachP
+// nor the P run the safe-point function.
+func runSafePointFn() {
+	p := getg().m.p.ptr()
+	// Resolve the race between forEachP running the safe-point
+	// function on this P's behalf and this P running the
+	// safe-point function directly.
+	if !atomic.Cas(&p.runSafePointFn, 1, 0) {
+		return
+	}
+	sched.safePointFn(p)
+	lock(&sched.lock)
+	sched.safePointWait--
+	if sched.safePointWait == 0 {
+		notewakeup(&sched.safePointNote)
+	}
+	unlock(&sched.lock)
+}
+
+// When running with cgo, we call _cgo_thread_start
+// to start threads for us so that we can play nicely with
+// foreign code.
+var cgoThreadStart unsafe.Pointer
+
+type cgothreadstart struct {
+	g   guintptr
+	tls *uint64
+	fn  unsafe.Pointer
+}
+
+// Allocate a new m unassociated with any thread.
+// Can use p for allocation context if needed.
+// fn is recorded as the new m's m.mstartfn.
+//
+// This function is allowed to have write barriers even if the caller
+// isn't because it borrows _p_.
+//
+//go:yeswritebarrierrec
+func allocm(_p_ *p, fn func()) *m {
+	_g_ := getg()
+	acquirem() // disable GC because it can be called from sysmon
+	if _g_.m.p == 0 {
+		acquirep(_p_) // temporarily borrow p for mallocs in this function
+	}
+
+	// Release the free M list. We need to do this somewhere and
+	// this may free up a stack we can use.
+	if sched.freem != nil {
+		lock(&sched.lock)
+		var newList *m
+		for freem := sched.freem; freem != nil; {
+			if freem.freeWait != 0 {
+				next := freem.freelink
+				freem.freelink = newList
+				newList = freem
+				freem = next
+				continue
+			}
+			stackfree(freem.g0.stack)
+			freem = freem.freelink
+		}
+		sched.freem = newList
+		unlock(&sched.lock)
+	}
+
+	mp := new(m)
+	mp.mstartfn = fn
+	mcommoninit(mp)
+
+	// In case of cgo or Solaris or illumos or Darwin, pthread_create will make us a stack.
+	// Windows and Plan 9 will layout sched stack on OS stack.
+	if iscgo || GOOS == "solaris" || GOOS == "illumos" || GOOS == "windows" || GOOS == "plan9" || GOOS == "darwin" {
+		mp.g0 = malg(-1)
+	} else {
+		mp.g0 = malg(8192 * sys.StackGuardMultiplier)
+	}
+	mp.g0.m = mp
+
+	if _p_ == _g_.m.p.ptr() {
+		releasep()
+	}
+	releasem(_g_.m)
+
+	return mp
+}
+
+// needm is called when a cgo callback happens on a
+// thread without an m (a thread not created by Go).
+// In this case, needm is expected to find an m to use
+// and return with m, g initialized correctly.
+// Since m and g are not set now (likely nil, but see below)
+// needm is limited in what routines it can call. In particular
+// it can only call nosplit functions (textflag 7) and cannot
+// do any scheduling that requires an m.
+//
+// In order to avoid needing heavy lifting here, we adopt
+// the following strategy: there is a stack of available m's
+// that can be stolen. Using compare-and-swap
+// to pop from the stack has ABA races, so we simulate
+// a lock by doing an exchange (via Casuintptr) to steal the stack
+// head and replace the top pointer with MLOCKED (1).
+// This serves as a simple spin lock that we can use even
+// without an m. The thread that locks the stack in this way
+// unlocks the stack by storing a valid stack head pointer.
+//
+// In order to make sure that there is always an m structure
+// available to be stolen, we maintain the invariant that there
+// is always one more than needed. At the beginning of the
+// program (if cgo is in use) the list is seeded with a single m.
+// If needm finds that it has taken the last m off the list, its job
+// is - once it has installed its own m so that it can do things like
+// allocate memory - to create a spare m and put it on the list.
+//
+// Each of these extra m's also has a g0 and a curg that are
+// pressed into service as the scheduling stack and current
+// goroutine for the duration of the cgo callback.
+//
+// When the callback is done with the m, it calls dropm to
+// put the m back on the list.
+//go:nosplit
+func needm(x byte) {
+	if (iscgo || GOOS == "windows") && !cgoHasExtraM {
+		// Can happen if C/C++ code calls Go from a global ctor.
+		// Can also happen on Windows if a global ctor uses a
+		// callback created by syscall.NewCallback. See issue #6751
+		// for details.
+		//
+		// Can not throw, because scheduler is not initialized yet.
+

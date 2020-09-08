@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: type.go
+Line: 1939
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+prototype := *(**funcType)(unsafe.Pointer(&ifunc))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		panic("reflect.FuncOf: last arg of variadic func must be slice")
+	}
+
+	// Make a func type.
+	var ifunc interface{} = (func())(nil)
+	prototype := *(**funcType)(unsafe.Pointer(&ifunc))
+	n := len(in) + len(out)
+
+	var ft *funcType
+	var args []*rtype
+	switch {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	ckey := cacheKey{Map, ktyp, etyp, 0}
+	if mt, ok := lookupCache.Load(ckey); ok {
+		return mt.(Type)
+	}
+
+	// Look in known types.
+	s := "map[" + ktyp.String() + "]" + etyp.String()
+	for _, tt := range typesByString(s) {
+		mt := (*mapType)(unsafe.Pointer(tt))
+		if mt.key == ktyp && mt.elem == etyp {
+			ti, _ := lookupCache.LoadOrStore(ckey, tt)
+			return ti.(Type)
+		}
+	}
+
+	// Make a map type.
+	// Note: flag values must match those used in the TMAP case
+	// in ../cmd/compile/internal/gc/reflect.go:dtypesym.
+	var imap interface{} = (map[unsafe.Pointer]unsafe.Pointer)(nil)
+	mt := **(**mapType)(unsafe.Pointer(&imap))
+	mt.str = resolveReflectName(newName(s, "", false))
+	mt.tflag = 0
+	mt.hash = fnv1(etyp.hash, 'm', byte(ktyp.hash>>24), byte(ktyp.hash>>16), byte(ktyp.hash>>8), byte(ktyp.hash))
+	mt.key = ktyp
+	mt.elem = etyp
+	mt.bucket = bucketOf(ktyp, etyp)
+	mt.hasher = func(p unsafe.Pointer, seed uintptr) uintptr {
+		return typehash(ktyp, p, seed)
+	}
+	mt.flags = 0
+	if ktyp.size > maxKeySize {
+		mt.keysize = uint8(ptrSize)
+		mt.flags |= 1 // indirect key
+	} else {
+		mt.keysize = uint8(ktyp.size)
+	}
+	if etyp.size > maxValSize {
+		mt.valuesize = uint8(ptrSize)
+		mt.flags |= 2 // indirect value
+	} else {
+		mt.valuesize = uint8(etyp.size)
+	}
+	mt.bucketsize = uint16(mt.bucket.size)
+	if isReflexive(ktyp) {
+		mt.flags |= 4
+	}
+	if needKeyUpdate(ktyp) {
+		mt.flags |= 8
+	}
+	if hashMightPanic(ktyp) {
+		mt.flags |= 16
+	}
+	mt.ptrToThis = 0
+
+	ti, _ := lookupCache.LoadOrStore(ckey, &mt.rtype)
+	return ti.(Type)
+}
+
+// TODO(crawshaw): as these funcTypeFixedN structs have no methods,
+// they could be defined at runtime using the StructOf function.
+type funcTypeFixed4 struct {
+	funcType
+	args [4]*rtype
+}
+type funcTypeFixed8 struct {
+	funcType
+	args [8]*rtype
+}
+type funcTypeFixed16 struct {
+	funcType
+	args [16]*rtype
+}
+type funcTypeFixed32 struct {
+	funcType
+	args [32]*rtype
+}
+type funcTypeFixed64 struct {
+	funcType
+	args [64]*rtype
+}
+type funcTypeFixed128 struct {
+	funcType
+	args [128]*rtype
+}
+
+// FuncOf returns the function type with the given argument and result types.
+// For example if k represents int and e represents string,
+// FuncOf([]Type{k}, []Type{e}, false) represents func(int) string.
+//
+// The variadic argument controls whether the function is variadic. FuncOf
+// panics if the in[len(in)-1] does not represent a slice and variadic is
+// true.
+func FuncOf(in, out []Type, variadic bool) Type {
+	if variadic && (len(in) == 0 || in[len(in)-1].Kind() != Slice) {
+		panic("reflect.FuncOf: last arg of variadic func must be slice")
+	}
+
+	// Make a func type.
+	var ifunc interface{} = (func())(nil)
+	prototype := *(**funcType)(unsafe.Pointer(&ifunc))
+	n := len(in) + len(out)
+
+	var ft *funcType
+	var args []*rtype
+	switch {
+	case n <= 4:
+		fixed := new(funcTypeFixed4)
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	case n <= 8:
+		fixed := new(funcTypeFixed8)
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	case n <= 16:
+		fixed := new(funcTypeFixed16)
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	case n <= 32:
+		fixed := new(funcTypeFixed32)
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	case n <= 64:
+		fixed := new(funcTypeFixed64)
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	case n <= 128:
+		fixed := new(funcTypeFixed128)
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	default:
+		panic("reflect.FuncOf: too many arguments")
+	}
+	*ft = *prototype
+
+	// Build a hash and minimally populate ft.
+	var hash uint32
+	for _, in := range in {
+		t := in.(*rtype)
+		args = append(args, t)
+		hash = fnv1(hash, byte(t.hash>>24), byte(t.hash>>16), byte(t.hash>>8), byte(t.hash))
+	}
+	if variadic {
+		hash = fnv1(hash, 'v')
+	}
+	hash = fnv1(hash, '.')
+	for _, out := range out {
+		t := out.(*rtype)
+		args = append(args, t)
+		hash = fnv1(hash, byte(t.hash>>24), byte(t.hash>>16), byte(t.hash>>8), byte(t.hash))
+	}
+	if len(args) > 50 {
+		panic("reflect.FuncOf does not support more than 50 arguments")
+	}
+	ft.tflag = 0
+	ft.hash = hash
+	ft.inCount = uint16(len(in))
+	ft.outCount = uint16(len(out))
+	if variadic {
+		ft.outCount |= 1 << 15
+	}
+
+	// Look in cache.
+	if ts, ok := funcLookupCache.m.Load(hash); ok {
+		for _, t := range ts.([]*rtype) {
+			if haveIdenticalUnderlyingType(&ft.rtype, t, true) {
+				return t
+			}
+		}
+	}
+
+	// Not in cache, lock and retry.
+	funcLookupCache.Lock()
+	defer funcLookupCache.Unlock()
+	if ts, ok := funcLookupCache.m.Load(hash); ok {
+		for _, t := range ts.([]*rtype) {
+			if haveIdenticalUnderlyingType(&ft.rtype, t, true) {
+				return t
+			}
+		}
+	}
+
+	addToCache := func(tt *rtype) Type {
+		var rts []*rtype
+		if rti, ok := funcLookupCache.m.Load(hash); ok {
+			rts = rti.([]*rtype)
+		}
+		funcLookupCache.m.Store(hash, append(rts, tt))
+		return tt
+	}
+
+	// Look in known types for the same string representation.
+	str := funcStr(ft)
+	for _, tt := range typesByString(str) {
+		if haveIdenticalUnderlyingType(&ft.rtype, tt, true) {
+			return addToCache(tt)
+		}
+	}
+
+	// Populate the remaining fields of ft and store in cache.
+	ft.str = resolveReflectName(newName(str, "", false))
+

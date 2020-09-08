@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/core/v1
+File: zz_generated.conversion.go
+Line: 7954
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.RBD = (*core.RBDVolumeSource)(unsafe.Pointer(in.RBD))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	out.Secret = (*core.SecretVolumeSource)(unsafe.Pointer(in.Secret))
+	out.NFS = (*core.NFSVolumeSource)(unsafe.Pointer(in.NFS))
+	out.ISCSI = (*core.ISCSIVolumeSource)(unsafe.Pointer(in.ISCSI))
+	out.Glusterfs = (*core.GlusterfsVolumeSource)(unsafe.Pointer(in.Glusterfs))
+	out.PersistentVolumeClaim = (*core.PersistentVolumeClaimVolumeSource)(unsafe.Pointer(in.PersistentVolumeClaim))
+	out.RBD = (*core.RBDVolumeSource)(unsafe.Pointer(in.RBD))
+	out.FlexVolume = (*core.FlexVolumeSource)(unsafe.Pointer(in.FlexVolume))
+	out.Cinder = (*core.CinderVolumeSource)(unsafe.Pointer(in.Cinder))
+	out.CephFS = (*core.CephFSVolumeSource)(unsafe.Pointer(in.CephFS))
+	out.Flocker = (*core.FlockerVolumeSource)(unsafe.Pointer(in.Flocker))
+	out.DownwardAPI = (*core.DownwardAPIVolumeSource)(unsafe.Pointer(in.DownwardAPI))
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

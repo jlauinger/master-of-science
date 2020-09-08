@@ -1,0 +1,234 @@
+Module: github.com/google/gopacket
+Version: v1.1.17
+
+Package: github.com/google/gopacket/pcap
+File: pcap.go
+Line: 355
+
+Imported (possibly among others) by: weaveworks/scope
+
+Label 1 (What is happening?): cast-header
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+slice := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+--------------------------------------------------------------
++/- 5 lines context:
+
+//  data2, _, _ := handle.ZeroCopyReadPacketData()  // invalidates bytes in data1
+func (p *Handle) ZeroCopyReadPacketData() (data []byte, ci gopacket.CaptureInfo, err error) {
+	p.mu.Lock()
+	err = p.getNextBufPtrLocked(&ci)
+	if err == nil {
+		slice := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+		slice.Data = uintptr(unsafe.Pointer(p.bufptr))
+		slice.Len = ci.CaptureLength
+		slice.Cap = ci.CaptureLength
+	}
+	p.mu.Unlock()
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+type activateError int
+
+const (
+	aeNoError      = activateError(0)
+	aeActivated    = activateError(pcapErrorActivated)
+	aePromisc      = activateError(pcapWarningPromisc)
+	aeNoSuchDevice = activateError(pcapErrorNoSuchDevice)
+	aeDenied       = activateError(pcapErrorDenied)
+	aeNotUp        = activateError(pcapErrorNotUp)
+	aeWarning      = activateError(pcapWarning)
+)
+
+func (a activateError) Error() string {
+	switch a {
+	case aeNoError:
+		return "No Error"
+	case aeActivated:
+		return "Already Activated"
+	case aePromisc:
+		return "Cannot set as promisc"
+	case aeNoSuchDevice:
+		return "No Such Device"
+	case aeDenied:
+		return "Permission Denied"
+	case aeNotUp:
+		return "Interface Not Up"
+	case aeWarning:
+		return fmt.Sprintf("Warning: %v", activateErrMsg.Error())
+	default:
+		return fmt.Sprintf("unknown activated error: %d", a)
+	}
+}
+
+// getNextBufPtrLocked is shared code for ReadPacketData and
+// ZeroCopyReadPacketData.
+func (p *Handle) getNextBufPtrLocked(ci *gopacket.CaptureInfo) error {
+	if !p.isOpen() {
+		return io.EOF
+	}
+
+	// set after we have call waitForPacket for the first time
+	var waited bool
+
+	for atomic.LoadUint64(&p.stop) == 0 {
+		// try to read a packet if one is immediately available
+		result := p.pcapNextPacketEx()
+
+		switch result {
+		case NextErrorOk:
+			sec := p.pkthdr.getSec()
+			// convert micros to nanos
+			nanos := int64(p.pkthdr.getUsec()) * p.nanoSecsFactor
+
+			ci.Timestamp = time.Unix(sec, nanos)
+			ci.CaptureLength = p.pkthdr.getCaplen()
+			ci.Length = p.pkthdr.getLen()
+			ci.InterfaceIndex = p.deviceIndex
+
+			return nil
+		case NextErrorNoMorePackets:
+			// no more packets, return EOF rather than libpcap-specific error
+			return io.EOF
+		case NextErrorTimeoutExpired:
+			// we've already waited for a packet and we're supposed to time out
+			//
+			// we should never actually hit this if we were passed BlockForever
+			// since we should block on C.pcap_next_ex until there's a packet
+			// to read.
+			if waited && p.timeout > 0 {
+				return result
+			}
+
+			// wait for packet before trying again
+			p.waitForPacket()
+			waited = true
+		default:
+			return result
+		}
+	}
+
+	// stop must be set
+	return io.EOF
+}
+
+// ZeroCopyReadPacketData reads the next packet off the wire, and returns its data.
+// The slice returned by ZeroCopyReadPacketData points to bytes owned by the
+// the Handle.  Each call to ZeroCopyReadPacketData invalidates any data previously
+// returned by ZeroCopyReadPacketData.  Care must be taken not to keep pointers
+// to old bytes when using ZeroCopyReadPacketData... if you need to keep data past
+// the next time you call ZeroCopyReadPacketData, use ReadPacketData, which copies
+// the bytes into a new buffer for you.
+//  data1, _, _ := handle.ZeroCopyReadPacketData()
+//  // do everything you want with data1 here, copying bytes out of it if you'd like to keep them around.
+//  data2, _, _ := handle.ZeroCopyReadPacketData()  // invalidates bytes in data1
+func (p *Handle) ZeroCopyReadPacketData() (data []byte, ci gopacket.CaptureInfo, err error) {
+	p.mu.Lock()
+	err = p.getNextBufPtrLocked(&ci)
+	if err == nil {
+		slice := (*reflect.SliceHeader)(unsafe.Pointer(&data))
+		slice.Data = uintptr(unsafe.Pointer(p.bufptr))
+		slice.Len = ci.CaptureLength
+		slice.Cap = ci.CaptureLength
+	}
+	p.mu.Unlock()
+	if err == NextErrorTimeoutExpired {
+		runtime.Gosched()
+	}
+	return
+}
+
+// Close closes the underlying pcap handle.
+func (p *Handle) Close() {
+	p.closeMu.Lock()
+	defer p.closeMu.Unlock()
+
+	if !p.isOpen() {
+		return
+	}
+
+	atomic.StoreUint64(&p.stop, 1)
+
+	// wait for packet reader to stop
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	p.pcapClose()
+}
+
+// Error returns the current error associated with a pcap handle (pcap_geterr).
+func (p *Handle) Error() error {
+	return p.pcapGeterr()
+}
+
+// Stats returns statistics on the underlying pcap handle.
+func (p *Handle) Stats() (stat *Stats, err error) {
+	return p.pcapStats()
+}
+
+// ListDataLinks obtains a list of all possible data link types supported for an interface.
+func (p *Handle) ListDataLinks() (datalinks []Datalink, err error) {
+	return p.pcapListDatalinks()
+}
+
+// compileBPFFilter always returns an allocated C.struct_bpf_program
+// It is the callers responsibility to free the memory again, e.g.
+//
+//    C.pcap_freecode(&bpf)
+//
+func (p *Handle) compileBPFFilter(expr string) (pcapBpfProgram, error) {
+	var maskp = uint32(pcapNetmaskUnknown)
+
+	// Only do the lookup on network interfaces.
+	// No device indicates we're handling a pcap file.
+	if len(p.device) > 0 {
+		var err error
+		_, maskp, err = pcapLookupnet(p.device)
+		if err != nil {
+			// We can't lookup the network, but that could be because the interface
+			// doesn't have an IPv4.
+			maskp = uint32(pcapNetmaskUnknown)
+		}
+	}
+
+	return p.pcapCompile(expr, maskp)
+}
+
+// CompileBPFFilter compiles and returns a BPF filter with given a link type and capture length.
+func CompileBPFFilter(linkType layers.LinkType, captureLength int, expr string) ([]BPFInstruction, error) {
+	h, err := pcapOpenDead(linkType, captureLength)
+	if err != nil {
+		return nil, err
+	}
+	defer h.Close()
+	return h.CompileBPFFilter(expr)
+}
+
+// CompileBPFFilter compiles and returns a BPF filter for the pcap handle.
+func (p *Handle) CompileBPFFilter(expr string) ([]BPFInstruction, error) {
+	bpf, err := p.compileBPFFilter(expr)
+	defer bpf.free()
+	if err != nil {
+		return nil, err
+	}
+
+	return bpf.toBPFInstruction(), nil
+}
+
+// SetBPFFilter compiles and sets a BPF filter for the pcap handle.
+func (p *Handle) SetBPFFilter(expr string) (err error) {
+	bpf, err := p.compileBPFFilter(expr)
+	defer bpf.free()
+	if err != nil {
+		return err
+	}
+
+	return p.pcapSetfilter(bpf)
+}
+
+// SetBPFInstructionFilter may be used to apply a filter in BPF asm byte code format.
+

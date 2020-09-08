@@ -1,0 +1,34 @@
+Module: github.com/cilium/cilium
+Version: project
+
+Package: github.com/cilium/cilium/pkg/bpf
+File: endpoint.go
+Line: 48
+
+Imported (possibly among others) by: cilium/cilium
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+func (k *EndpointKey) GetValuePtr() unsafe.Pointer { return unsafe.Pointer(k) }
+--------------------------------------------------------------
++/- 5 lines context:
+
+// GetKeyPtr returns the unsafe pointer to the BPF key
+func (k *EndpointKey) GetKeyPtr() unsafe.Pointer { return unsafe.Pointer(k) }
+
+// GetValuePtr returns the unsafe pointer to the BPF key for users that
+// use EndpointKey as a value in bpf maps
+func (k *EndpointKey) GetValuePtr() unsafe.Pointer { return unsafe.Pointer(k) }
+
+// NewEndpointKey returns an EndpointKey based on the provided IP address. The
+// address family is automatically detected.
+func NewEndpointKey(ip net.IP) EndpointKey {
+	result := EndpointKey{}
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

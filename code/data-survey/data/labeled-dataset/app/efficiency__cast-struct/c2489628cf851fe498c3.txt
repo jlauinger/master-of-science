@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/core/v1
+File: zz_generated.conversion.go
+Line: 7995
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.NFS = (*v1.NFSVolumeSource)(unsafe.Pointer(in.NFS))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	out.EmptyDir = (*v1.EmptyDirVolumeSource)(unsafe.Pointer(in.EmptyDir))
+	out.GCEPersistentDisk = (*v1.GCEPersistentDiskVolumeSource)(unsafe.Pointer(in.GCEPersistentDisk))
+	out.AWSElasticBlockStore = (*v1.AWSElasticBlockStoreVolumeSource)(unsafe.Pointer(in.AWSElasticBlockStore))
+	out.GitRepo = (*v1.GitRepoVolumeSource)(unsafe.Pointer(in.GitRepo))
+	out.Secret = (*v1.SecretVolumeSource)(unsafe.Pointer(in.Secret))
+	out.NFS = (*v1.NFSVolumeSource)(unsafe.Pointer(in.NFS))
+	out.ISCSI = (*v1.ISCSIVolumeSource)(unsafe.Pointer(in.ISCSI))
+	out.Glusterfs = (*v1.GlusterfsVolumeSource)(unsafe.Pointer(in.Glusterfs))
+	out.PersistentVolumeClaim = (*v1.PersistentVolumeClaimVolumeSource)(unsafe.Pointer(in.PersistentVolumeClaim))
+	out.RBD = (*v1.RBDVolumeSource)(unsafe.Pointer(in.RBD))
+	out.Quobyte = (*v1.QuobyteVolumeSource)(unsafe.Pointer(in.Quobyte))
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

@@ -1,0 +1,197 @@
+Module: std
+Version: std
+
+Package: runtime
+File: debuglog.go
+Line: 63
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+allp := (*uintptr)(unsafe.Pointer(&allDloggers))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	l := getCachedDlogger()
+
+	// If we couldn't get a cached logger, try to get one from the
+	// global pool.
+	if l == nil {
+		allp := (*uintptr)(unsafe.Pointer(&allDloggers))
+		all := (*dlogger)(unsafe.Pointer(atomic.Loaduintptr(allp)))
+		for l1 := all; l1 != nil; l1 = l1.allLink {
+			if atomic.Load(&l1.owned) == 0 && atomic.Cas(&l1.owned, 0, 1) {
+				l = l1
+				break
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Copyright 2019 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// This file provides an internal debug logging facility. The debug
+// log is a lightweight, in-memory, per-M ring buffer. By default, the
+// runtime prints the debug log on panic.
+//
+// To print something to the debug log, call dlog to obtain a dlogger
+// and use the methods on that to add values. The values will be
+// space-separated in the output (much like println).
+//
+// This facility can be enabled by passing -tags debuglog when
+// building. Without this tag, dlog calls compile to nothing.
+
+package runtime
+
+import (
+	"runtime/internal/atomic"
+	"unsafe"
+)
+
+// debugLogBytes is the size of each per-M ring buffer. This is
+// allocated off-heap to avoid blowing up the M and hence the GC'd
+// heap size.
+const debugLogBytes = 16 << 10
+
+// debugLogStringLimit is the maximum number of bytes in a string.
+// Above this, the string will be truncated with "..(n more bytes).."
+const debugLogStringLimit = debugLogBytes / 8
+
+// dlog returns a debug logger. The caller can use methods on the
+// returned logger to add values, which will be space-separated in the
+// final output, much like println. The caller must call end() to
+// finish the message.
+//
+// dlog can be used from highly-constrained corners of the runtime: it
+// is safe to use in the signal handler, from within the write
+// barrier, from within the stack implementation, and in places that
+// must be recursively nosplit.
+//
+// This will be compiled away if built without the debuglog build tag.
+// However, argument construction may not be. If any of the arguments
+// are not literals or trivial expressions, consider protecting the
+// call with "if dlogEnabled".
+//
+//go:nosplit
+//go:nowritebarrierrec
+func dlog() *dlogger {
+	if !dlogEnabled {
+		return nil
+	}
+
+	// Get the time.
+	tick, nano := uint64(cputicks()), uint64(nanotime())
+
+	// Try to get a cached logger.
+	l := getCachedDlogger()
+
+	// If we couldn't get a cached logger, try to get one from the
+	// global pool.
+	if l == nil {
+		allp := (*uintptr)(unsafe.Pointer(&allDloggers))
+		all := (*dlogger)(unsafe.Pointer(atomic.Loaduintptr(allp)))
+		for l1 := all; l1 != nil; l1 = l1.allLink {
+			if atomic.Load(&l1.owned) == 0 && atomic.Cas(&l1.owned, 0, 1) {
+				l = l1
+				break
+			}
+		}
+	}
+
+	// If that failed, allocate a new logger.
+	if l == nil {
+		l = (*dlogger)(sysAlloc(unsafe.Sizeof(dlogger{}), nil))
+		if l == nil {
+			throw("failed to allocate debug log")
+		}
+		l.w.r.data = &l.w.data
+		l.owned = 1
+
+		// Prepend to allDloggers list.
+		headp := (*uintptr)(unsafe.Pointer(&allDloggers))
+		for {
+			head := atomic.Loaduintptr(headp)
+			l.allLink = (*dlogger)(unsafe.Pointer(head))
+			if atomic.Casuintptr(headp, head, uintptr(unsafe.Pointer(l))) {
+				break
+			}
+		}
+	}
+
+	// If the time delta is getting too high, write a new sync
+	// packet. We set the limit so we don't write more than 6
+	// bytes of delta in the record header.
+	const deltaLimit = 1<<(3*7) - 1 // ~2ms between sync packets
+	if tick-l.w.tick > deltaLimit || nano-l.w.nano > deltaLimit {
+		l.w.writeSync(tick, nano)
+	}
+
+	// Reserve space for framing header.
+	l.w.ensure(debugLogHeaderSize)
+	l.w.write += debugLogHeaderSize
+
+	// Write record header.
+	l.w.uvarint(tick - l.w.tick)
+	l.w.uvarint(nano - l.w.nano)
+	gp := getg()
+	if gp != nil && gp.m != nil && gp.m.p != 0 {
+		l.w.varint(int64(gp.m.p.ptr().id))
+	} else {
+		l.w.varint(-1)
+	}
+
+	return l
+}
+
+// A dlogger writes to the debug log.
+//
+// To obtain a dlogger, call dlog(). When done with the dlogger, call
+// end().
+//
+//go:notinheap
+type dlogger struct {
+	w debugLogWriter
+
+	// allLink is the next dlogger in the allDloggers list.
+	allLink *dlogger
+
+	// owned indicates that this dlogger is owned by an M. This is
+	// accessed atomically.
+	owned uint32
+}
+
+// allDloggers is a list of all dloggers, linked through
+// dlogger.allLink. This is accessed atomically. This is prepend only,
+// so it doesn't need to protect against ABA races.
+var allDloggers *dlogger
+
+//go:nosplit
+func (l *dlogger) end() {
+	if !dlogEnabled {
+		return
+	}
+
+	// Fill in framing header.
+	size := l.w.write - l.w.r.end
+	if !l.w.writeFrameAt(l.w.r.end, size) {
+		throw("record too large")
+	}
+
+	// Commit the record.
+	l.w.r.end = l.w.write
+
+	// Attempt to return this logger to the cache.
+	if putCachedDlogger(l) {
+		return
+	}
+
+	// Return the logger to the global pool.
+	atomic.Store(&l.owned, 0)
+}
+
+

@@ -1,0 +1,34 @@
+Module: ./staging/src/k8s.io/client-go
+Version: project
+
+Package: k8s.io/client-go/tools/clientcmd/api/v1
+File: zz_generated.conversion.go
+Line: 170
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.ImpersonateUserExtra = *(*map[string][]string)(unsafe.Pointer(&in.ImpersonateUserExtra))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	out.ClientKeyData = *(*[]byte)(unsafe.Pointer(&in.ClientKeyData))
+	out.Token = in.Token
+	out.TokenFile = in.TokenFile
+	out.Impersonate = in.Impersonate
+	out.ImpersonateGroups = *(*[]string)(unsafe.Pointer(&in.ImpersonateGroups))
+	out.ImpersonateUserExtra = *(*map[string][]string)(unsafe.Pointer(&in.ImpersonateUserExtra))
+	out.Username = in.Username
+	out.Password = in.Password
+	out.AuthProvider = (*api.AuthProviderConfig)(unsafe.Pointer(in.AuthProvider))
+	out.Exec = (*api.ExecConfig)(unsafe.Pointer(in.Exec))
+	if err := Convert_Slice_v1_NamedExtension_To_Map_string_To_runtime_Object(&in.Extensions, &out.Extensions, s); err != nil {
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

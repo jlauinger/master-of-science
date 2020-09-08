@@ -1,0 +1,234 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20200515095857-1151b9dac4a9
+
+Package: golang.org/x/sys/unix
+File: syscall_unix.go
+Line: 292
+
+Imported (possibly among others) by: mattermost/mattermost-server
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+err := getsockopt(fd, level, opt, unsafe.Pointer(&tv), &vallen)
+--------------------------------------------------------------
++/- 5 lines context:
+
+}
+
+func GetsockoptTimeval(fd, level, opt int) (*Timeval, error) {
+	var tv Timeval
+	vallen := _Socklen(unsafe.Sizeof(tv))
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&tv), &vallen)
+	return &tv, err
+}
+
+func GetsockoptUint64(fd, level, opt int) (value uint64, err error) {
+	var n uint64
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+// SockaddrInet6 implements the Sockaddr interface for AF_INET6 type sockets.
+type SockaddrInet6 struct {
+	Port   int
+	ZoneId uint32
+	Addr   [16]byte
+	raw    RawSockaddrInet6
+}
+
+// SockaddrUnix implements the Sockaddr interface for AF_UNIX type sockets.
+type SockaddrUnix struct {
+	Name string
+	raw  RawSockaddrUnix
+}
+
+func Bind(fd int, sa Sockaddr) (err error) {
+	ptr, n, err := sa.sockaddr()
+	if err != nil {
+		return err
+	}
+	return bind(fd, ptr, n)
+}
+
+func Connect(fd int, sa Sockaddr) (err error) {
+	ptr, n, err := sa.sockaddr()
+	if err != nil {
+		return err
+	}
+	return connect(fd, ptr, n)
+}
+
+func Getpeername(fd int) (sa Sockaddr, err error) {
+	var rsa RawSockaddrAny
+	var len _Socklen = SizeofSockaddrAny
+	if err = getpeername(fd, &rsa, &len); err != nil {
+		return
+	}
+	return anyToSockaddr(fd, &rsa)
+}
+
+func GetsockoptByte(fd, level, opt int) (value byte, err error) {
+	var n byte
+	vallen := _Socklen(1)
+	err = getsockopt(fd, level, opt, unsafe.Pointer(&n), &vallen)
+	return n, err
+}
+
+func GetsockoptInt(fd, level, opt int) (value int, err error) {
+	var n int32
+	vallen := _Socklen(4)
+	err = getsockopt(fd, level, opt, unsafe.Pointer(&n), &vallen)
+	return int(n), err
+}
+
+func GetsockoptInet4Addr(fd, level, opt int) (value [4]byte, err error) {
+	vallen := _Socklen(4)
+	err = getsockopt(fd, level, opt, unsafe.Pointer(&value[0]), &vallen)
+	return value, err
+}
+
+func GetsockoptIPMreq(fd, level, opt int) (*IPMreq, error) {
+	var value IPMreq
+	vallen := _Socklen(SizeofIPMreq)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func GetsockoptIPv6Mreq(fd, level, opt int) (*IPv6Mreq, error) {
+	var value IPv6Mreq
+	vallen := _Socklen(SizeofIPv6Mreq)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func GetsockoptIPv6MTUInfo(fd, level, opt int) (*IPv6MTUInfo, error) {
+	var value IPv6MTUInfo
+	vallen := _Socklen(SizeofIPv6MTUInfo)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func GetsockoptICMPv6Filter(fd, level, opt int) (*ICMPv6Filter, error) {
+	var value ICMPv6Filter
+	vallen := _Socklen(SizeofICMPv6Filter)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
+	return &value, err
+}
+
+func GetsockoptLinger(fd, level, opt int) (*Linger, error) {
+	var linger Linger
+	vallen := _Socklen(SizeofLinger)
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&linger), &vallen)
+	return &linger, err
+}
+
+func GetsockoptTimeval(fd, level, opt int) (*Timeval, error) {
+	var tv Timeval
+	vallen := _Socklen(unsafe.Sizeof(tv))
+	err := getsockopt(fd, level, opt, unsafe.Pointer(&tv), &vallen)
+	return &tv, err
+}
+
+func GetsockoptUint64(fd, level, opt int) (value uint64, err error) {
+	var n uint64
+	vallen := _Socklen(8)
+	err = getsockopt(fd, level, opt, unsafe.Pointer(&n), &vallen)
+	return n, err
+}
+
+func Recvfrom(fd int, p []byte, flags int) (n int, from Sockaddr, err error) {
+	var rsa RawSockaddrAny
+	var len _Socklen = SizeofSockaddrAny
+	if n, err = recvfrom(fd, p, flags, &rsa, &len); err != nil {
+		return
+	}
+	if rsa.Addr.Family != AF_UNSPEC {
+		from, err = anyToSockaddr(fd, &rsa)
+	}
+	return
+}
+
+func Sendto(fd int, p []byte, flags int, to Sockaddr) (err error) {
+	ptr, n, err := to.sockaddr()
+	if err != nil {
+		return err
+	}
+	return sendto(fd, p, flags, ptr, n)
+}
+
+func SetsockoptByte(fd, level, opt int, value byte) (err error) {
+	return setsockopt(fd, level, opt, unsafe.Pointer(&value), 1)
+}
+
+func SetsockoptInt(fd, level, opt int, value int) (err error) {
+	var n = int32(value)
+	return setsockopt(fd, level, opt, unsafe.Pointer(&n), 4)
+}
+
+func SetsockoptInet4Addr(fd, level, opt int, value [4]byte) (err error) {
+	return setsockopt(fd, level, opt, unsafe.Pointer(&value[0]), 4)
+}
+
+func SetsockoptIPMreq(fd, level, opt int, mreq *IPMreq) (err error) {
+	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), SizeofIPMreq)
+}
+
+func SetsockoptIPv6Mreq(fd, level, opt int, mreq *IPv6Mreq) (err error) {
+	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), SizeofIPv6Mreq)
+}
+
+func SetsockoptICMPv6Filter(fd, level, opt int, filter *ICMPv6Filter) error {
+	return setsockopt(fd, level, opt, unsafe.Pointer(filter), SizeofICMPv6Filter)
+}
+
+func SetsockoptLinger(fd, level, opt int, l *Linger) (err error) {
+	return setsockopt(fd, level, opt, unsafe.Pointer(l), SizeofLinger)
+}
+
+func SetsockoptString(fd, level, opt int, s string) (err error) {
+	var p unsafe.Pointer
+	if len(s) > 0 {
+		p = unsafe.Pointer(&[]byte(s)[0])
+	}
+	return setsockopt(fd, level, opt, p, uintptr(len(s)))
+}
+
+func SetsockoptTimeval(fd, level, opt int, tv *Timeval) (err error) {
+	return setsockopt(fd, level, opt, unsafe.Pointer(tv), unsafe.Sizeof(*tv))
+}
+
+func SetsockoptUint64(fd, level, opt int, value uint64) (err error) {
+	return setsockopt(fd, level, opt, unsafe.Pointer(&value), 8)
+}
+
+func Socket(domain, typ, proto int) (fd int, err error) {
+	if domain == AF_INET6 && SocketDisableIPv6 {
+		return -1, EAFNOSUPPORT
+	}
+	fd, err = socket(domain, typ, proto)
+	return
+}
+
+func Socketpair(domain, typ, proto int) (fd [2]int, err error) {
+	var fdx [2]int32
+	err = socketpair(domain, typ, proto, &fdx)
+	if err == nil {
+		fd[0] = int(fdx[0])
+		fd[1] = int(fdx[1])
+	}
+	return
+}
+
+var ioSync int64
+
+func CloseOnExec(fd int) { fcntl(fd, F_SETFD, FD_CLOEXEC) }
+
+func SetNonblock(fd int, nonblocking bool) (err error) {
+	flag, err := fcntl(fd, F_GETFL, 0)
+	if err != nil {
+

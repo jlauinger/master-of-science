@@ -1,0 +1,222 @@
+Module: github.com/elastic/go-structform
+Version: v0.0.6
+
+Package: github.com/elastic/go-structform/gotype
+File: unfold_map.generated.go
+Line: 2252
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+ptr := unsafe.Pointer(mapPtr)
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+	case structform.Int64Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]int64)(ptr)
+		unfolder := newUnfolderMapInt64()
+		return to, ptr, unfolder
+
+	case structform.Int8Type:
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+	case structform.Uint64Type:
+		value := *(*map[string]uint64)(child)
+		last := len(ctx.valueBuffer.mapPrimitive) - 1
+		ctx.valueBuffer.mapPrimitive = ctx.valueBuffer.mapPrimitive[:last]
+		return value, nil
+
+	case structform.Uint8Type:
+		value := *(*map[string]uint8)(child)
+		last := len(ctx.valueBuffer.mapPrimitive) - 1
+		ctx.valueBuffer.mapPrimitive = ctx.valueBuffer.mapPrimitive[:last]
+		return value, nil
+
+	case structform.UintType:
+		value := *(*map[string]uint)(child)
+		last := len(ctx.valueBuffer.mapPrimitive) - 1
+		ctx.valueBuffer.mapPrimitive = ctx.valueBuffer.mapPrimitive[:last]
+		return value, nil
+
+	case structform.ZeroType:
+		value := *(*map[string]interface{})(child)
+		last := len(ctx.valueBuffer.mapAny) - 1
+		ctx.valueBuffer.mapAny = ctx.valueBuffer.mapAny[:last]
+		return value, nil
+
+	default:
+		return nil, errTODO()
+	}
+}
+
+func makeMapPtr(ctx *unfoldCtx, l int, bt structform.BaseType) (interface{}, unsafe.Pointer, ptrUnfolder) {
+	switch bt {
+
+	case structform.AnyType:
+		idx := len(ctx.valueBuffer.mapAny)
+		ctx.valueBuffer.mapAny = append(ctx.valueBuffer.mapAny, nil)
+		to := &ctx.valueBuffer.mapAny[idx]
+		ptr := unsafe.Pointer(to)
+		unfolder := newUnfolderMapIfc()
+		return to, ptr, unfolder
+
+	case structform.BoolType:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]bool)(ptr)
+		unfolder := newUnfolderMapBool()
+		return to, ptr, unfolder
+
+	case structform.ByteType:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]uint8)(ptr)
+		unfolder := newUnfolderMapUint8()
+		return to, ptr, unfolder
+
+	case structform.Float32Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]float32)(ptr)
+		unfolder := newUnfolderMapFloat32()
+		return to, ptr, unfolder
+
+	case structform.Float64Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]float64)(ptr)
+		unfolder := newUnfolderMapFloat64()
+		return to, ptr, unfolder
+
+	case structform.Int16Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]int16)(ptr)
+		unfolder := newUnfolderMapInt16()
+		return to, ptr, unfolder
+
+	case structform.Int32Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]int32)(ptr)
+		unfolder := newUnfolderMapInt32()
+		return to, ptr, unfolder
+
+	case structform.Int64Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]int64)(ptr)
+		unfolder := newUnfolderMapInt64()
+		return to, ptr, unfolder
+
+	case structform.Int8Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]int8)(ptr)
+		unfolder := newUnfolderMapInt8()
+		return to, ptr, unfolder
+
+	case structform.IntType:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]int)(ptr)
+		unfolder := newUnfolderMapInt()
+		return to, ptr, unfolder
+
+	case structform.StringType:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]string)(ptr)
+		unfolder := newUnfolderMapString()
+		return to, ptr, unfolder
+
+	case structform.Uint16Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]uint16)(ptr)
+		unfolder := newUnfolderMapUint16()
+		return to, ptr, unfolder
+
+	case structform.Uint32Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]uint32)(ptr)
+		unfolder := newUnfolderMapUint32()
+		return to, ptr, unfolder
+
+	case structform.Uint64Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]uint64)(ptr)
+		unfolder := newUnfolderMapUint64()
+		return to, ptr, unfolder
+
+	case structform.Uint8Type:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]uint8)(ptr)
+		unfolder := newUnfolderMapUint8()
+		return to, ptr, unfolder
+
+	case structform.UintType:
+		idx := len(ctx.valueBuffer.mapPrimitive)
+		ctx.valueBuffer.mapPrimitive = append(ctx.valueBuffer.mapPrimitive, nil)
+		mapPtr := &ctx.valueBuffer.mapPrimitive[idx]
+		ptr := unsafe.Pointer(mapPtr)
+		to := (*map[string]uint)(ptr)
+		unfolder := newUnfolderMapUint()
+		return to, ptr, unfolder
+
+	case structform.ZeroType:
+		idx := len(ctx.valueBuffer.mapAny)
+		ctx.valueBuffer.mapAny = append(ctx.valueBuffer.mapAny, nil)
+		to := &ctx.valueBuffer.mapAny[idx]
+		ptr := unsafe.Pointer(to)
+		unfolder := newUnfolderMapIfc()
+		return to, ptr, unfolder
+
+	default:
+		panic("invalid type code")
+	}
+}
+

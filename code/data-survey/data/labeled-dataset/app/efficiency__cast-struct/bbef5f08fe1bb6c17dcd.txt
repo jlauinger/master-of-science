@@ -1,0 +1,234 @@
+Module: go.etcd.io/bbolt
+Version: v1.3.3
+
+Package: go.etcd.io/bbolt
+File: bucket.go
+Line: 620
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+var bucket = (*bucket)(unsafe.Pointer(&value[0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	// Allocate the appropriate size.
+	var n = b.rootNode
+	var value = make([]byte, bucketHeaderSize+n.size())
+
+	// Write a bucket header.
+	var bucket = (*bucket)(unsafe.Pointer(&value[0]))
+	*bucket = *b.bucket
+
+	// Convert byte slice to a fake page and write the root node.
+	var p = (*page)(unsafe.Pointer(&value[bucketHeaderSize]))
+	n.write(p)
+--------------------------------------------------------------
++/- 100 lines context:
+
+}
+
+// spill writes all the nodes for this bucket to dirty pages.
+func (b *Bucket) spill() error {
+	// Spill all child buckets first.
+	for name, child := range b.buckets {
+		// If the child bucket is small enough and it has no child buckets then
+		// write it inline into the parent bucket's page. Otherwise spill it
+		// like a normal bucket and make the parent value a pointer to the page.
+		var value []byte
+		if child.inlineable() {
+			child.free()
+			value = child.write()
+		} else {
+			if err := child.spill(); err != nil {
+				return err
+			}
+
+			// Update the child bucket header in this bucket.
+			value = make([]byte, unsafe.Sizeof(bucket{}))
+			var bucket = (*bucket)(unsafe.Pointer(&value[0]))
+			*bucket = *child.bucket
+		}
+
+		// Skip writing the bucket if there are no materialized nodes.
+		if child.rootNode == nil {
+			continue
+		}
+
+		// Update parent node.
+		var c = b.Cursor()
+		k, _, flags := c.seek([]byte(name))
+		if !bytes.Equal([]byte(name), k) {
+			panic(fmt.Sprintf("misplaced bucket header: %x -> %x", []byte(name), k))
+		}
+		if flags&bucketLeafFlag == 0 {
+			panic(fmt.Sprintf("unexpected bucket header flag: %x", flags))
+		}
+		c.node().put([]byte(name), []byte(name), value, 0, bucketLeafFlag)
+	}
+
+	// Ignore if there's not a materialized root node.
+	if b.rootNode == nil {
+		return nil
+	}
+
+	// Spill nodes.
+	if err := b.rootNode.spill(); err != nil {
+		return err
+	}
+	b.rootNode = b.rootNode.root()
+
+	// Update the root node for this bucket.
+	if b.rootNode.pgid >= b.tx.meta.pgid {
+		panic(fmt.Sprintf("pgid (%d) above high water mark (%d)", b.rootNode.pgid, b.tx.meta.pgid))
+	}
+	b.root = b.rootNode.pgid
+
+	return nil
+}
+
+// inlineable returns true if a bucket is small enough to be written inline
+// and if it contains no subbuckets. Otherwise returns false.
+func (b *Bucket) inlineable() bool {
+	var n = b.rootNode
+
+	// Bucket must only contain a single leaf node.
+	if n == nil || !n.isLeaf {
+		return false
+	}
+
+	// Bucket is not inlineable if it contains subbuckets or if it goes beyond
+	// our threshold for inline bucket size.
+	var size = pageHeaderSize
+	for _, inode := range n.inodes {
+		size += leafPageElementSize + len(inode.key) + len(inode.value)
+
+		if inode.flags&bucketLeafFlag != 0 {
+			return false
+		} else if size > b.maxInlineBucketSize() {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Returns the maximum total size of a bucket to make it a candidate for inlining.
+func (b *Bucket) maxInlineBucketSize() int {
+	return b.tx.db.pageSize / 4
+}
+
+// write allocates and writes a bucket to a byte slice.
+func (b *Bucket) write() []byte {
+	// Allocate the appropriate size.
+	var n = b.rootNode
+	var value = make([]byte, bucketHeaderSize+n.size())
+
+	// Write a bucket header.
+	var bucket = (*bucket)(unsafe.Pointer(&value[0]))
+	*bucket = *b.bucket
+
+	// Convert byte slice to a fake page and write the root node.
+	var p = (*page)(unsafe.Pointer(&value[bucketHeaderSize]))
+	n.write(p)
+
+	return value
+}
+
+// rebalance attempts to balance all nodes.
+func (b *Bucket) rebalance() {
+	for _, n := range b.nodes {
+		n.rebalance()
+	}
+	for _, child := range b.buckets {
+		child.rebalance()
+	}
+}
+
+// node creates a node from a page and associates it with a given parent.
+func (b *Bucket) node(pgid pgid, parent *node) *node {
+	_assert(b.nodes != nil, "nodes map expected")
+
+	// Retrieve node if it's already been created.
+	if n := b.nodes[pgid]; n != nil {
+		return n
+	}
+
+	// Otherwise create a node and cache it.
+	n := &node{bucket: b, parent: parent}
+	if parent == nil {
+		b.rootNode = n
+	} else {
+		parent.children = append(parent.children, n)
+	}
+
+	// Use the inline page if this is an inline bucket.
+	var p = b.page
+	if p == nil {
+		p = b.tx.page(pgid)
+	}
+
+	// Read the page into the node and cache it.
+	n.read(p)
+	b.nodes[pgid] = n
+
+	// Update statistics.
+	b.tx.stats.NodeCount++
+
+	return n
+}
+
+// free recursively frees all pages in the bucket.
+func (b *Bucket) free() {
+	if b.root == 0 {
+		return
+	}
+
+	var tx = b.tx
+	b.forEachPageNode(func(p *page, n *node, _ int) {
+		if p != nil {
+			tx.db.freelist.free(tx.meta.txid, p)
+		} else {
+			n.free()
+		}
+	})
+	b.root = 0
+}
+
+// dereference removes all references to the old mmap.
+func (b *Bucket) dereference() {
+	if b.rootNode != nil {
+		b.rootNode.root().dereference()
+	}
+
+	for _, child := range b.buckets {
+		child.dereference()
+	}
+}
+
+// pageNode returns the in-memory node, if it exists.
+// Otherwise returns the underlying page.
+func (b *Bucket) pageNode(id pgid) (*page, *node) {
+	// Inline buckets have a fake page embedded in their value so treat them
+	// differently. We'll return the rootNode (if available) or the fake page.
+	if b.root == 0 {
+		if id != 0 {
+			panic(fmt.Sprintf("inline bucket non-zero page access(2): %d != 0", id))
+		}
+		if b.rootNode != nil {
+			return nil, b.rootNode
+		}
+		return b.page, nil
+	}
+
+	// Check the node cache for non-inline buckets.
+	if b.nodes != nil {
+		if n := b.nodes[id]; n != nil {
+			return nil, n
+		}
+

@@ -1,0 +1,146 @@
+Module: std
+Version: std
+
+Package: runtime
+File: print.go
+Line: 297
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): pointer-arithmetic
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+val := *(*uintptr)(unsafe.Pointer(p + i))
+--------------------------------------------------------------
++/- 5 lines context:
+
+			if markbuf[0] == 0 {
+				markbuf[0] = ' '
+			}
+		}
+		gwrite(markbuf[:])
+		val := *(*uintptr)(unsafe.Pointer(p + i))
+		p1(val)
+		print(" ")
+
+		// Can we symbolize val?
+		fn := findfunc(val)
+--------------------------------------------------------------
++/- 100 lines context:
+
+func printuint(v uint64) {
+	var buf [100]byte
+	i := len(buf)
+	for i--; i > 0; i-- {
+		buf[i] = byte(v%10 + '0')
+		if v < 10 {
+			break
+		}
+		v /= 10
+	}
+	gwrite(buf[i:])
+}
+
+func printint(v int64) {
+	if v < 0 {
+		printstring("-")
+		v = -v
+	}
+	printuint(uint64(v))
+}
+
+func printhex(v uint64) {
+	const dig = "0123456789abcdef"
+	var buf [100]byte
+	i := len(buf)
+	for i--; i > 0; i-- {
+		buf[i] = dig[v%16]
+		if v < 16 {
+			break
+		}
+		v /= 16
+	}
+	i--
+	buf[i] = 'x'
+	i--
+	buf[i] = '0'
+	gwrite(buf[i:])
+}
+
+func printpointer(p unsafe.Pointer) {
+	printhex(uint64(uintptr(p)))
+}
+
+func printstring(s string) {
+	gwrite(bytes(s))
+}
+
+func printslice(s []byte) {
+	sp := (*slice)(unsafe.Pointer(&s))
+	print("[", len(s), "/", cap(s), "]")
+	printpointer(sp.array)
+}
+
+func printeface(e eface) {
+	print("(", e._type, ",", e.data, ")")
+}
+
+func printiface(i iface) {
+	print("(", i.tab, ",", i.data, ")")
+}
+
+// hexdumpWords prints a word-oriented hex dump of [p, end).
+//
+// If mark != nil, it will be called with each printed word's address
+// and should return a character mark to appear just before that
+// word's value. It can return 0 to indicate no mark.
+func hexdumpWords(p, end uintptr, mark func(uintptr) byte) {
+	p1 := func(x uintptr) {
+		var buf [2 * sys.PtrSize]byte
+		for i := len(buf) - 1; i >= 0; i-- {
+			if x&0xF < 10 {
+				buf[i] = byte(x&0xF) + '0'
+			} else {
+				buf[i] = byte(x&0xF) - 10 + 'a'
+			}
+			x >>= 4
+		}
+		gwrite(buf[:])
+	}
+
+	printlock()
+	var markbuf [1]byte
+	markbuf[0] = ' '
+	for i := uintptr(0); p+i < end; i += sys.PtrSize {
+		if i%16 == 0 {
+			if i != 0 {
+				println()
+			}
+			p1(p + i)
+			print(": ")
+		}
+
+		if mark != nil {
+			markbuf[0] = mark(p + i)
+			if markbuf[0] == 0 {
+				markbuf[0] = ' '
+			}
+		}
+		gwrite(markbuf[:])
+		val := *(*uintptr)(unsafe.Pointer(p + i))
+		p1(val)
+		print(" ")
+
+		// Can we symbolize val?
+		fn := findfunc(val)
+		if fn.valid() {
+			print("<", funcname(fn), "+", val-fn.entry, "> ")
+		}
+	}
+	println()
+	printunlock()
+}
+

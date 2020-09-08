@@ -1,0 +1,234 @@
+Module: github.com/elastic/go-structform
+Version: v0.0.6
+
+Package: github.com/elastic/go-structform/gotype
+File: unfold_primitive.generated.go
+Line: 279
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (u *unfolderUint64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func newUnfolderUint64() *unfolderUint64 {
+	return _singletonUnfolderUint64
+}
+
+func (u *unfolderUint64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderUint64) cleanup(ctx *unfoldCtx) {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderUint8 = &unfolderUint8{}
+
+func newUnfolderUint8() *unfolderUint8 {
+	return _singletonUnfolderUint8
+}
+
+func (u *unfolderUint8) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderUint8) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfolderUint8) ptr(ctx *unfoldCtx) *uint8 {
+	return (*uint8)(ctx.ptr.current)
+}
+
+func (u *unfolderUint8) assign(ctx *unfoldCtx, v uint8) error {
+	*u.ptr(ctx) = v
+	u.cleanup(ctx)
+	return nil
+}
+
+type unfolderUint16 struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderUint16 = &unfolderUint16{}
+
+func newUnfolderUint16() *unfolderUint16 {
+	return _singletonUnfolderUint16
+}
+
+func (u *unfolderUint16) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderUint16) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfolderUint16) ptr(ctx *unfoldCtx) *uint16 {
+	return (*uint16)(ctx.ptr.current)
+}
+
+func (u *unfolderUint16) assign(ctx *unfoldCtx, v uint16) error {
+	*u.ptr(ctx) = v
+	u.cleanup(ctx)
+	return nil
+}
+
+type unfolderUint32 struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderUint32 = &unfolderUint32{}
+
+func newUnfolderUint32() *unfolderUint32 {
+	return _singletonUnfolderUint32
+}
+
+func (u *unfolderUint32) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderUint32) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfolderUint32) ptr(ctx *unfoldCtx) *uint32 {
+	return (*uint32)(ctx.ptr.current)
+}
+
+func (u *unfolderUint32) assign(ctx *unfoldCtx, v uint32) error {
+	*u.ptr(ctx) = v
+	u.cleanup(ctx)
+	return nil
+}
+
+type unfolderUint64 struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderUint64 = &unfolderUint64{}
+
+func newUnfolderUint64() *unfolderUint64 {
+	return _singletonUnfolderUint64
+}
+
+func (u *unfolderUint64) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderUint64) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfolderUint64) ptr(ctx *unfoldCtx) *uint64 {
+	return (*uint64)(ctx.ptr.current)
+}
+
+func (u *unfolderUint64) assign(ctx *unfoldCtx, v uint64) error {
+	*u.ptr(ctx) = v
+	u.cleanup(ctx)
+	return nil
+}
+
+type unfolderInt struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderInt = &unfolderInt{}
+
+func newUnfolderInt() *unfolderInt {
+	return _singletonUnfolderInt
+}
+
+func (u *unfolderInt) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderInt) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfolderInt) ptr(ctx *unfoldCtx) *int {
+	return (*int)(ctx.ptr.current)
+}
+
+func (u *unfolderInt) assign(ctx *unfoldCtx, v int) error {
+	*u.ptr(ctx) = v
+	u.cleanup(ctx)
+	return nil
+}
+
+type unfolderInt8 struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderInt8 = &unfolderInt8{}
+
+func newUnfolderInt8() *unfolderInt8 {
+	return _singletonUnfolderInt8
+}
+
+func (u *unfolderInt8) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderInt8) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfolderInt8) ptr(ctx *unfoldCtx) *int8 {
+	return (*int8)(ctx.ptr.current)
+}
+
+func (u *unfolderInt8) assign(ctx *unfoldCtx, v int8) error {
+	*u.ptr(ctx) = v
+	u.cleanup(ctx)
+	return nil
+}
+
+type unfolderInt16 struct {
+	unfolderErrUnknown
+}
+
+var _singletonUnfolderInt16 = &unfolderInt16{}
+
+func newUnfolderInt16() *unfolderInt16 {
+	return _singletonUnfolderInt16
+}
+
+func (u *unfolderInt16) initState(ctx *unfoldCtx, ptr unsafe.Pointer) {
+	ctx.unfolder.push(u)
+	ctx.ptr.push(ptr)
+}
+
+func (u *unfolderInt16) cleanup(ctx *unfoldCtx) {
+	ctx.unfolder.pop()
+	ctx.ptr.pop()
+}
+
+func (u *unfolderInt16) ptr(ctx *unfoldCtx) *int16 {
+

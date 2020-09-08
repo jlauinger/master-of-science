@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: type.go
+Line: 2297
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+prototype := *(**sliceType)(unsafe.Pointer(&islice))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		}
+	}
+
+	// Make a slice type.
+	var islice interface{} = ([]unsafe.Pointer)(nil)
+	prototype := *(**sliceType)(unsafe.Pointer(&islice))
+	slice := *prototype
+	slice.tflag = 0
+	slice.str = resolveReflectName(newName(s, "", false))
+	slice.hash = fnv1(typ.hash, '[')
+	slice.elem = typ
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+		word := base
+		mask[word/8] |= 1 << (word % 8)
+		gcdata = &mask[0]
+		ptrdata = (word + 1) * ptrSize
+
+		// overflow word must be last
+		if ptrdata != size {
+			panic("reflect: bad layout computation in MapOf")
+		}
+	}
+
+	b := &rtype{
+		align:   ptrSize,
+		size:    size,
+		kind:    uint8(Struct),
+		ptrdata: ptrdata,
+		gcdata:  gcdata,
+	}
+	if overflowPad > 0 {
+		b.align = 8
+	}
+	s := "bucket(" + ktyp.String() + "," + etyp.String() + ")"
+	b.str = resolveReflectName(newName(s, "", false))
+	return b
+}
+
+func (t *rtype) gcSlice(begin, end uintptr) []byte {
+	return (*[1 << 30]byte)(unsafe.Pointer(t.gcdata))[begin:end:end]
+}
+
+// emitGCMask writes the GC mask for [n]typ into out, starting at bit
+// offset base.
+func emitGCMask(out []byte, base uintptr, typ *rtype, n uintptr) {
+	if typ.kind&kindGCProg != 0 {
+		panic("reflect: unexpected GC program")
+	}
+	ptrs := typ.ptrdata / ptrSize
+	words := typ.size / ptrSize
+	mask := typ.gcSlice(0, (ptrs+7)/8)
+	for j := uintptr(0); j < ptrs; j++ {
+		if (mask[j/8]>>(j%8))&1 != 0 {
+			for i := uintptr(0); i < n; i++ {
+				k := base + i*words + j
+				out[k/8] |= 1 << (k % 8)
+			}
+		}
+	}
+}
+
+// appendGCProg appends the GC program for the first ptrdata bytes of
+// typ to dst and returns the extended slice.
+func appendGCProg(dst []byte, typ *rtype) []byte {
+	if typ.kind&kindGCProg != 0 {
+		// Element has GC program; emit one element.
+		n := uintptr(*(*uint32)(unsafe.Pointer(typ.gcdata)))
+		prog := typ.gcSlice(4, 4+n-1)
+		return append(dst, prog...)
+	}
+
+	// Element is small with pointer mask; use as literal bits.
+	ptrs := typ.ptrdata / ptrSize
+	mask := typ.gcSlice(0, (ptrs+7)/8)
+
+	// Emit 120-bit chunks of full bytes (max is 127 but we avoid using partial bytes).
+	for ; ptrs > 120; ptrs -= 120 {
+		dst = append(dst, 120)
+		dst = append(dst, mask[:15]...)
+		mask = mask[15:]
+	}
+
+	dst = append(dst, byte(ptrs))
+	dst = append(dst, mask...)
+	return dst
+}
+
+// SliceOf returns the slice type with element type t.
+// For example, if t represents int, SliceOf(t) represents []int.
+func SliceOf(t Type) Type {
+	typ := t.(*rtype)
+
+	// Look in cache.
+	ckey := cacheKey{Slice, typ, nil, 0}
+	if slice, ok := lookupCache.Load(ckey); ok {
+		return slice.(Type)
+	}
+
+	// Look in known types.
+	s := "[]" + typ.String()
+	for _, tt := range typesByString(s) {
+		slice := (*sliceType)(unsafe.Pointer(tt))
+		if slice.elem == typ {
+			ti, _ := lookupCache.LoadOrStore(ckey, tt)
+			return ti.(Type)
+		}
+	}
+
+	// Make a slice type.
+	var islice interface{} = ([]unsafe.Pointer)(nil)
+	prototype := *(**sliceType)(unsafe.Pointer(&islice))
+	slice := *prototype
+	slice.tflag = 0
+	slice.str = resolveReflectName(newName(s, "", false))
+	slice.hash = fnv1(typ.hash, '[')
+	slice.elem = typ
+	slice.ptrToThis = 0
+
+	ti, _ := lookupCache.LoadOrStore(ckey, &slice.rtype)
+	return ti.(Type)
+}
+
+// The structLookupCache caches StructOf lookups.
+// StructOf does not share the common lookupCache since we need to pin
+// the memory associated with *structTypeFixedN.
+var structLookupCache struct {
+	sync.Mutex // Guards stores (but not loads) on m.
+
+	// m is a map[uint32][]Type keyed by the hash calculated in StructOf.
+	// Elements in m are append-only and thus safe for concurrent reading.
+	m sync.Map
+}
+
+type structTypeUncommon struct {
+	structType
+	u uncommonType
+}
+
+// isLetter reports whether a given 'rune' is classified as a Letter.
+func isLetter(ch rune) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch >= utf8.RuneSelf && unicode.IsLetter(ch)
+}
+
+// isValidFieldName checks if a string is a valid (struct) field name or not.
+//
+// According to the language spec, a field name should be an identifier.
+//
+// identifier = letter { letter | unicode_digit } .
+// letter = unicode_letter | "_" .
+func isValidFieldName(fieldName string) bool {
+	for i, c := range fieldName {
+		if i == 0 && !isLetter(c) {
+			return false
+		}
+
+		if !(isLetter(c) || unicode.IsDigit(c)) {
+			return false
+		}
+	}
+
+	return len(fieldName) > 0
+}
+
+// StructOf returns the struct type containing fields.
+// The Offset and Index fields are ignored and computed as they would be
+// by the compiler.
+//
+// StructOf currently does not generate wrapper methods for embedded
+// fields and panics if passed unexported StructFields.
+// These limitations may be lifted in a future version.
+func StructOf(fields []StructField) Type {
+	var (
+		hash       = fnv1(0, []byte("struct {")...)
+		size       uintptr
+		typalign   uint8
+		comparable = true
+		methods    []method
+
+		fs   = make([]structField, len(fields))
+		repr = make([]byte, 0, 64)
+		fset = map[string]struct{}{} // fields' names
+
+		hasGCProg = false // records whether a struct-field type has a GCProg
+	)
+
+	lastzero := uintptr(0)
+	repr = append(repr, "struct {"...)
+	pkgpath := ""
+	for i, field := range fields {
+		if field.Name == "" {
+			panic("reflect.StructOf: field " + strconv.Itoa(i) + " has no name")
+		}
+		if !isValidFieldName(field.Name) {
+			panic("reflect.StructOf: field " + strconv.Itoa(i) + " has invalid name")
+		}
+		if field.Type == nil {
+			panic("reflect.StructOf: field " + strconv.Itoa(i) + " has no type")
+		}
+		f, fpkgpath := runtimeStructField(field)
+		ft := f.typ
+		if ft.kind&kindGCProg != 0 {
+			hasGCProg = true
+		}
+		if fpkgpath != "" {
+			if pkgpath == "" {
+				pkgpath = fpkgpath
+			} else if pkgpath != fpkgpath {
+				panic("reflect.Struct: fields with different PkgPath " + pkgpath + " and " + fpkgpath)
+			}
+		}
+
+

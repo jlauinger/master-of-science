@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: mheap.go
+Line: 1684
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+func addfinalizer(p unsafe.Pointer, f *funcval, nret uintptr, fint *_type, ot *ptrtype) bool {
+--------------------------------------------------------------
++/- 5 lines context:
+
+	fint    *_type   // May be a heap pointer, but always live.
+	ot      *ptrtype // May be a heap pointer, but always live.
+}
+
+// Adds a finalizer to the object p. Returns true if it succeeded.
+func addfinalizer(p unsafe.Pointer, f *funcval, nret uintptr, fint *_type, ot *ptrtype) bool {
+	lock(&mheap_.speciallock)
+	s := (*specialfinalizer)(mheap_.specialfinalizeralloc.alloc())
+	unlock(&mheap_.speciallock)
+	s.special.kind = _KindSpecialFinalizer
+	s.fn = f
+--------------------------------------------------------------
++/- 100 lines context:
+
+func addspecial(p unsafe.Pointer, s *special) bool {
+	span := spanOfHeap(uintptr(p))
+	if span == nil {
+		throw("addspecial on invalid pointer")
+	}
+
+	// Ensure that the span is swept.
+	// Sweeping accesses the specials list w/o locks, so we have
+	// to synchronize with it. And it's just much safer.
+	mp := acquirem()
+	span.ensureSwept()
+
+	offset := uintptr(p) - span.base()
+	kind := s.kind
+
+	lock(&span.speciallock)
+
+	// Find splice point, check for existing record.
+	t := &span.specials
+	for {
+		x := *t
+		if x == nil {
+			break
+		}
+		if offset == uintptr(x.offset) && kind == x.kind {
+			unlock(&span.speciallock)
+			releasem(mp)
+			return false // already exists
+		}
+		if offset < uintptr(x.offset) || (offset == uintptr(x.offset) && kind < x.kind) {
+			break
+		}
+		t = &x.next
+	}
+
+	// Splice in record, fill in offset.
+	s.offset = uint16(offset)
+	s.next = *t
+	*t = s
+	unlock(&span.speciallock)
+	releasem(mp)
+
+	return true
+}
+
+// Removes the Special record of the given kind for the object p.
+// Returns the record if the record existed, nil otherwise.
+// The caller must FixAlloc_Free the result.
+func removespecial(p unsafe.Pointer, kind uint8) *special {
+	span := spanOfHeap(uintptr(p))
+	if span == nil {
+		throw("removespecial on invalid pointer")
+	}
+
+	// Ensure that the span is swept.
+	// Sweeping accesses the specials list w/o locks, so we have
+	// to synchronize with it. And it's just much safer.
+	mp := acquirem()
+	span.ensureSwept()
+
+	offset := uintptr(p) - span.base()
+
+	lock(&span.speciallock)
+	t := &span.specials
+	for {
+		s := *t
+		if s == nil {
+			break
+		}
+		// This function is used for finalizers only, so we don't check for
+		// "interior" specials (p must be exactly equal to s->offset).
+		if offset == uintptr(s.offset) && kind == s.kind {
+			*t = s.next
+			unlock(&span.speciallock)
+			releasem(mp)
+			return s
+		}
+		t = &s.next
+	}
+	unlock(&span.speciallock)
+	releasem(mp)
+	return nil
+}
+
+// The described object has a finalizer set for it.
+//
+// specialfinalizer is allocated from non-GC'd memory, so any heap
+// pointers must be specially handled.
+//
+//go:notinheap
+type specialfinalizer struct {
+	special special
+	fn      *funcval // May be a heap pointer.
+	nret    uintptr
+	fint    *_type   // May be a heap pointer, but always live.
+	ot      *ptrtype // May be a heap pointer, but always live.
+}
+
+// Adds a finalizer to the object p. Returns true if it succeeded.
+func addfinalizer(p unsafe.Pointer, f *funcval, nret uintptr, fint *_type, ot *ptrtype) bool {
+	lock(&mheap_.speciallock)
+	s := (*specialfinalizer)(mheap_.specialfinalizeralloc.alloc())
+	unlock(&mheap_.speciallock)
+	s.special.kind = _KindSpecialFinalizer
+	s.fn = f
+	s.nret = nret
+	s.fint = fint
+	s.ot = ot
+	if addspecial(p, &s.special) {
+		// This is responsible for maintaining the same
+		// GC-related invariants as markrootSpans in any
+		// situation where it's possible that markrootSpans
+		// has already run but mark termination hasn't yet.
+		if gcphase != _GCoff {
+			base, _, _ := findObject(uintptr(p), 0, 0)
+			mp := acquirem()
+			gcw := &mp.p.ptr().gcw
+			// Mark everything reachable from the object
+			// so it's retained for the finalizer.
+			scanobject(base, gcw)
+			// Mark the finalizer itself, since the
+			// special isn't part of the GC'd heap.
+			scanblock(uintptr(unsafe.Pointer(&s.fn)), sys.PtrSize, &oneptrmask[0], gcw, nil)
+			releasem(mp)
+		}
+		return true
+	}
+
+	// There was an old finalizer
+	lock(&mheap_.speciallock)
+	mheap_.specialfinalizeralloc.free(unsafe.Pointer(s))
+	unlock(&mheap_.speciallock)
+	return false
+}
+
+// Removes the finalizer (if any) from the object p.
+func removefinalizer(p unsafe.Pointer) {
+	s := (*specialfinalizer)(unsafe.Pointer(removespecial(p, _KindSpecialFinalizer)))
+	if s == nil {
+		return // there wasn't a finalizer to remove
+	}
+	lock(&mheap_.speciallock)
+	mheap_.specialfinalizeralloc.free(unsafe.Pointer(s))
+	unlock(&mheap_.speciallock)
+}
+
+// The described object is being heap profiled.
+//
+//go:notinheap
+type specialprofile struct {
+	special special
+	b       *bucket
+}
+
+// Set the heap profile bucket associated with addr to b.
+func setprofilebucket(p unsafe.Pointer, b *bucket) {
+	lock(&mheap_.speciallock)
+	s := (*specialprofile)(mheap_.specialprofilealloc.alloc())
+	unlock(&mheap_.speciallock)
+	s.special.kind = _KindSpecialProfile
+	s.b = b
+	if !addspecial(p, &s.special) {
+		throw("setprofilebucket: profile already set")
+	}
+}
+
+// Do whatever cleanup needs to be done to deallocate s. It has
+// already been unlinked from the mspan specials list.
+func freespecial(s *special, p unsafe.Pointer, size uintptr) {
+	switch s.kind {
+	case _KindSpecialFinalizer:
+		sf := (*specialfinalizer)(unsafe.Pointer(s))
+		queuefinalizer(p, sf.fn, sf.nret, sf.fint, sf.ot)
+		lock(&mheap_.speciallock)
+		mheap_.specialfinalizeralloc.free(unsafe.Pointer(sf))
+		unlock(&mheap_.speciallock)
+	case _KindSpecialProfile:
+		sp := (*specialprofile)(unsafe.Pointer(s))
+		mProf_Free(sp.b, size)
+		lock(&mheap_.speciallock)
+		mheap_.specialprofilealloc.free(unsafe.Pointer(sp))
+		unlock(&mheap_.speciallock)
+	default:
+		throw("bad special kind")
+		panic("not reached")
+	}
+}
+
+// gcBits is an alloc/mark bitmap. This is always used as *gcBits.
+//
+//go:notinheap
+type gcBits uint8
+
+// bytep returns a pointer to the n'th byte of b.
+func (b *gcBits) bytep(n uintptr) *uint8 {
+	return addb((*uint8)(b), n)
+}
+
+// bitp returns a pointer to the byte containing bit n and a mask for
+// selecting that bit from *bytep.
+

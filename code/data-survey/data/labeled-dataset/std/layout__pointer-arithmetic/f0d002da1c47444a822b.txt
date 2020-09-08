@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: mbitmap.go
+Line: 495
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): pointer-arithmetic
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+nbitp := uintptr(unsafe.Pointer(h.bitp)) + n/4
+--------------------------------------------------------------
++/- 5 lines context:
+
+// Note that forward does not modify h. The caller must record the result.
+// bits returns the heap bits for the current word.
+//go:nosplit
+func (h heapBits) forward(n uintptr) heapBits {
+	n += uintptr(h.shift) / heapBitsShift
+	nbitp := uintptr(unsafe.Pointer(h.bitp)) + n/4
+	h.shift = uint32(n%4) * heapBitsShift
+	if nbitp <= uintptr(unsafe.Pointer(h.last)) {
+		h.bitp = (*uint8)(unsafe.Pointer(nbitp))
+		return h
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+//go:nosplit
+func findObject(p, refBase, refOff uintptr) (base uintptr, s *mspan, objIndex uintptr) {
+	s = spanOf(p)
+	// If s is nil, the virtual address has never been part of the heap.
+	// This pointer may be to some mmap'd region, so we allow it.
+	if s == nil {
+		return
+	}
+	// If p is a bad pointer, it may not be in s's bounds.
+	//
+	// Check s.state to synchronize with span initialization
+	// before checking other fields. See also spanOfHeap.
+	if state := s.state.get(); state != mSpanInUse || p < s.base() || p >= s.limit {
+		// Pointers into stacks are also ok, the runtime manages these explicitly.
+		if state == mSpanManual {
+			return
+		}
+		// The following ensures that we are rigorous about what data
+		// structures hold valid pointers.
+		if debug.invalidptr != 0 {
+			badPointer(s, p, refBase, refOff)
+		}
+		return
+	}
+	// If this span holds object of a power of 2 size, just mask off the bits to
+	// the interior of the object. Otherwise use the size to get the base.
+	if s.baseMask != 0 {
+		// optimize for power of 2 sized objects.
+		base = s.base()
+		base = base + (p-base)&uintptr(s.baseMask)
+		objIndex = (base - s.base()) >> s.divShift
+		// base = p & s.baseMask is faster for small spans,
+		// but doesn't work for large spans.
+		// Overall, it's faster to use the more general computation above.
+	} else {
+		base = s.base()
+		if p-base >= s.elemsize {
+			// n := (p - base) / s.elemsize, using division by multiplication
+			objIndex = uintptr(p-base) >> s.divShift * uintptr(s.divMul) >> s.divShift2
+			base += objIndex * s.elemsize
+		}
+	}
+	return
+}
+
+// next returns the heapBits describing the next pointer-sized word in memory.
+// That is, if h describes address p, h.next() describes p+ptrSize.
+// Note that next does not modify h. The caller must record the result.
+//
+// nosplit because it is used during write barriers and must not be preempted.
+//go:nosplit
+func (h heapBits) next() heapBits {
+	if h.shift < 3*heapBitsShift {
+		h.shift += heapBitsShift
+	} else if h.bitp != h.last {
+		h.bitp, h.shift = add1(h.bitp), 0
+	} else {
+		// Move to the next arena.
+		return h.nextArena()
+	}
+	return h
+}
+
+// nextArena advances h to the beginning of the next heap arena.
+//
+// This is a slow-path helper to next. gc's inliner knows that
+// heapBits.next can be inlined even though it calls this. This is
+// marked noinline so it doesn't get inlined into next and cause next
+// to be too big to inline.
+//
+//go:nosplit
+//go:noinline
+func (h heapBits) nextArena() heapBits {
+	h.arena++
+	ai := arenaIdx(h.arena)
+	l2 := mheap_.arenas[ai.l1()]
+	if l2 == nil {
+		// We just passed the end of the object, which
+		// was also the end of the heap. Poison h. It
+		// should never be dereferenced at this point.
+		return heapBits{}
+	}
+	ha := l2[ai.l2()]
+	if ha == nil {
+		return heapBits{}
+	}
+	h.bitp, h.shift = &ha.bitmap[0], 0
+	h.last = &ha.bitmap[len(ha.bitmap)-1]
+	return h
+}
+
+// forward returns the heapBits describing n pointer-sized words ahead of h in memory.
+// That is, if h describes address p, h.forward(n) describes p+n*ptrSize.
+// h.forward(1) is equivalent to h.next(), just slower.
+// Note that forward does not modify h. The caller must record the result.
+// bits returns the heap bits for the current word.
+//go:nosplit
+func (h heapBits) forward(n uintptr) heapBits {
+	n += uintptr(h.shift) / heapBitsShift
+	nbitp := uintptr(unsafe.Pointer(h.bitp)) + n/4
+	h.shift = uint32(n%4) * heapBitsShift
+	if nbitp <= uintptr(unsafe.Pointer(h.last)) {
+		h.bitp = (*uint8)(unsafe.Pointer(nbitp))
+		return h
+	}
+
+	// We're in a new heap arena.
+	past := nbitp - (uintptr(unsafe.Pointer(h.last)) + 1)
+	h.arena += 1 + uint32(past/heapArenaBitmapBytes)
+	ai := arenaIdx(h.arena)
+	if l2 := mheap_.arenas[ai.l1()]; l2 != nil && l2[ai.l2()] != nil {
+		a := l2[ai.l2()]
+		h.bitp = &a.bitmap[past%heapArenaBitmapBytes]
+		h.last = &a.bitmap[len(a.bitmap)-1]
+	} else {
+		h.bitp, h.last = nil, nil
+	}
+	return h
+}
+
+// forwardOrBoundary is like forward, but stops at boundaries between
+// contiguous sections of the bitmap. It returns the number of words
+// advanced over, which will be <= n.
+func (h heapBits) forwardOrBoundary(n uintptr) (heapBits, uintptr) {
+	maxn := 4 * ((uintptr(unsafe.Pointer(h.last)) + 1) - uintptr(unsafe.Pointer(h.bitp)))
+	if n > maxn {
+		n = maxn
+	}
+	return h.forward(n), n
+}
+
+// The caller can test morePointers and isPointer by &-ing with bitScan and bitPointer.
+// The result includes in its higher bits the bits for subsequent words
+// described by the same bitmap byte.
+//
+// nosplit because it is used during write barriers and must not be preempted.
+//go:nosplit
+func (h heapBits) bits() uint32 {
+	// The (shift & 31) eliminates a test and conditional branch
+	// from the generated code.
+	return uint32(*h.bitp) >> (h.shift & 31)
+}
+
+// morePointers reports whether this word and all remaining words in this object
+// are scalars.
+// h must not describe the second word of the object.
+func (h heapBits) morePointers() bool {
+	return h.bits()&bitScan != 0
+}
+
+// isPointer reports whether the heap bits describe a pointer word.
+//
+// nosplit because it is used during write barriers and must not be preempted.
+//go:nosplit
+func (h heapBits) isPointer() bool {
+	return h.bits()&bitPointer != 0
+}
+
+// isCheckmarked reports whether the heap bits have the checkmarked bit set.
+// It must be told how large the object at h is, because the encoding of the
+// checkmark bit varies by size.
+// h must describe the initial word of the object.
+func (h heapBits) isCheckmarked(size uintptr) bool {
+	if size == sys.PtrSize {
+		return (*h.bitp>>h.shift)&bitPointer != 0
+	}
+	// All multiword objects are 2-word aligned,
+	// so we know that the initial word's 2-bit pair
+	// and the second word's 2-bit pair are in the
+	// same heap bitmap byte, *h.bitp.
+	return (*h.bitp>>(heapBitsShift+h.shift))&bitScan != 0
+}
+
+// setCheckmarked sets the checkmarked bit.
+// It must be told how large the object at h is, because the encoding of the
+// checkmark bit varies by size.
+// h must describe the initial word of the object.
+func (h heapBits) setCheckmarked(size uintptr) {
+	if size == sys.PtrSize {
+		atomic.Or8(h.bitp, bitPointer<<h.shift)
+		return
+	}
+	atomic.Or8(h.bitp, bitScan<<(heapBitsShift+h.shift))
+}
+
+// bulkBarrierPreWrite executes a write barrier
+// for every pointer slot in the memory range [src, src+size),
+// using pointer/scalar information from [dst, dst+size).
+// This executes the write barriers necessary before a memmove.
+// src, dst, and size must be pointer-aligned.
+// The range [dst, dst+size) must lie within a single object.
+// It does not perform the actual writes.
+//
+// As a special case, src == 0 indicates that this is being used for a
+// memclr. bulkBarrierPreWrite will pass 0 for the src of each write
+// barrier.
+//
+// Callers should call bulkBarrierPreWrite immediately before
+// calling memmove(dst, src, size). This function is marked nosplit
+// to avoid being preempted; the GC must not stop the goroutine
+

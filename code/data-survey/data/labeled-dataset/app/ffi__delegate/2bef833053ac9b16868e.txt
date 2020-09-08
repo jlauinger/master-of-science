@@ -1,0 +1,234 @@
+Module: github.com/ishidawataru/sctp
+Version: v0.0.0-20190723014705-7c296d48a2b5
+
+Package: github.com/ishidawataru/sctp
+File: sctp.go
+Line: 489
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+_, _, err := getsockopt(c.fd(), SCTP_DEFAULT_SENT_PARAM, uintptr(unsafe.Pointer(info)), uintptr(unsafe.Pointer(&optlen)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+}
+
+func (c *SCTPConn) GetDefaultSentParam() (*SndRcvInfo, error) {
+	info := &SndRcvInfo{}
+	optlen := unsafe.Sizeof(*info)
+	_, _, err := getsockopt(c.fd(), SCTP_DEFAULT_SENT_PARAM, uintptr(unsafe.Pointer(info)), uintptr(unsafe.Pointer(&optlen)))
+	return info, err
+}
+
+func resolveFromRawAddr(ptr unsafe.Pointer, n int) (*SCTPAddr, error) {
+	addr := &SCTPAddr{
+--------------------------------------------------------------
++/- 100 lines context:
+
+func (c *SCTPConn) SubscribeEvents(flags int) error {
+	var d, a, ad, sf, p, sh, pa, ada, au, se uint8
+	if flags&SCTP_EVENT_DATA_IO > 0 {
+		d = 1
+	}
+	if flags&SCTP_EVENT_ASSOCIATION > 0 {
+		a = 1
+	}
+	if flags&SCTP_EVENT_ADDRESS > 0 {
+		ad = 1
+	}
+	if flags&SCTP_EVENT_SEND_FAILURE > 0 {
+		sf = 1
+	}
+	if flags&SCTP_EVENT_PEER_ERROR > 0 {
+		p = 1
+	}
+	if flags&SCTP_EVENT_SHUTDOWN > 0 {
+		sh = 1
+	}
+	if flags&SCTP_EVENT_PARTIAL_DELIVERY > 0 {
+		pa = 1
+	}
+	if flags&SCTP_EVENT_ADAPTATION_LAYER > 0 {
+		ada = 1
+	}
+	if flags&SCTP_EVENT_AUTHENTICATION > 0 {
+		au = 1
+	}
+	if flags&SCTP_EVENT_SENDER_DRY > 0 {
+		se = 1
+	}
+	param := EventSubscribe{
+		DataIO:          d,
+		Association:     a,
+		Address:         ad,
+		SendFailure:     sf,
+		PeerError:       p,
+		Shutdown:        sh,
+		PartialDelivery: pa,
+		AdaptationLayer: ada,
+		Authentication:  au,
+		SenderDry:       se,
+	}
+	optlen := unsafe.Sizeof(param)
+	_, _, err := setsockopt(c.fd(), SCTP_EVENTS, uintptr(unsafe.Pointer(&param)), uintptr(optlen))
+	return err
+}
+
+func (c *SCTPConn) SubscribedEvents() (int, error) {
+	param := EventSubscribe{}
+	optlen := unsafe.Sizeof(param)
+	_, _, err := getsockopt(c.fd(), SCTP_EVENTS, uintptr(unsafe.Pointer(&param)), uintptr(unsafe.Pointer(&optlen)))
+	if err != nil {
+		return 0, err
+	}
+	var flags int
+	if param.DataIO > 0 {
+		flags |= SCTP_EVENT_DATA_IO
+	}
+	if param.Association > 0 {
+		flags |= SCTP_EVENT_ASSOCIATION
+	}
+	if param.Address > 0 {
+		flags |= SCTP_EVENT_ADDRESS
+	}
+	if param.SendFailure > 0 {
+		flags |= SCTP_EVENT_SEND_FAILURE
+	}
+	if param.PeerError > 0 {
+		flags |= SCTP_EVENT_PEER_ERROR
+	}
+	if param.Shutdown > 0 {
+		flags |= SCTP_EVENT_SHUTDOWN
+	}
+	if param.PartialDelivery > 0 {
+		flags |= SCTP_EVENT_PARTIAL_DELIVERY
+	}
+	if param.AdaptationLayer > 0 {
+		flags |= SCTP_EVENT_ADAPTATION_LAYER
+	}
+	if param.Authentication > 0 {
+		flags |= SCTP_EVENT_AUTHENTICATION
+	}
+	if param.SenderDry > 0 {
+		flags |= SCTP_EVENT_SENDER_DRY
+	}
+	return flags, nil
+}
+
+func (c *SCTPConn) SetDefaultSentParam(info *SndRcvInfo) error {
+	optlen := unsafe.Sizeof(*info)
+	_, _, err := setsockopt(c.fd(), SCTP_DEFAULT_SENT_PARAM, uintptr(unsafe.Pointer(info)), uintptr(optlen))
+	return err
+}
+
+func (c *SCTPConn) GetDefaultSentParam() (*SndRcvInfo, error) {
+	info := &SndRcvInfo{}
+	optlen := unsafe.Sizeof(*info)
+	_, _, err := getsockopt(c.fd(), SCTP_DEFAULT_SENT_PARAM, uintptr(unsafe.Pointer(info)), uintptr(unsafe.Pointer(&optlen)))
+	return info, err
+}
+
+func resolveFromRawAddr(ptr unsafe.Pointer, n int) (*SCTPAddr, error) {
+	addr := &SCTPAddr{
+		IPAddrs: make([]net.IPAddr, n),
+	}
+
+	switch family := (*(*syscall.RawSockaddrAny)(ptr)).Addr.Family; family {
+	case syscall.AF_INET:
+		addr.Port = int(ntohs(uint16((*(*syscall.RawSockaddrInet4)(ptr)).Port)))
+		tmp := syscall.RawSockaddrInet4{}
+		size := unsafe.Sizeof(tmp)
+		for i := 0; i < n; i++ {
+			a := *(*syscall.RawSockaddrInet4)(unsafe.Pointer(
+				uintptr(ptr) + size*uintptr(i)))
+			addr.IPAddrs[i] = net.IPAddr{IP: a.Addr[:]}
+		}
+	case syscall.AF_INET6:
+		addr.Port = int(ntohs(uint16((*(*syscall.RawSockaddrInet4)(ptr)).Port)))
+		tmp := syscall.RawSockaddrInet6{}
+		size := unsafe.Sizeof(tmp)
+		for i := 0; i < n; i++ {
+			a := *(*syscall.RawSockaddrInet6)(unsafe.Pointer(
+				uintptr(ptr) + size*uintptr(i)))
+			var zone string
+			ifi, err := net.InterfaceByIndex(int(a.Scope_id))
+			if err == nil {
+				zone = ifi.Name
+			}
+			addr.IPAddrs[i] = net.IPAddr{IP: a.Addr[:], Zone: zone}
+		}
+	default:
+		return nil, fmt.Errorf("unknown address family: %d", family)
+	}
+	return addr, nil
+}
+
+func sctpGetAddrs(fd, id, optname int) (*SCTPAddr, error) {
+
+	type getaddrs struct {
+		assocId int32
+		addrNum uint32
+		addrs   [4096]byte
+	}
+	param := getaddrs{
+		assocId: int32(id),
+	}
+	optlen := unsafe.Sizeof(param)
+	_, _, err := getsockopt(fd, uintptr(optname), uintptr(unsafe.Pointer(&param)), uintptr(unsafe.Pointer(&optlen)))
+	if err != nil {
+		return nil, err
+	}
+	return resolveFromRawAddr(unsafe.Pointer(&param.addrs), int(param.addrNum))
+}
+
+func (c *SCTPConn) SCTPGetPrimaryPeerAddr() (*SCTPAddr, error) {
+
+	type sctpGetSetPrim struct {
+		assocId int32
+		addrs   [128]byte
+	}
+	param := sctpGetSetPrim{
+		assocId: int32(0),
+	}
+	optlen := unsafe.Sizeof(param)
+	_, _, err := getsockopt(c.fd(), SCTP_PRIMARY_ADDR, uintptr(unsafe.Pointer(&param)), uintptr(unsafe.Pointer(&optlen)))
+	if err != nil {
+		return nil, err
+	}
+	return resolveFromRawAddr(unsafe.Pointer(&param.addrs), 1)
+}
+
+func (c *SCTPConn) SCTPLocalAddr(id int) (*SCTPAddr, error) {
+	return sctpGetAddrs(c.fd(), id, SCTP_GET_LOCAL_ADDRS)
+}
+
+func (c *SCTPConn) SCTPRemoteAddr(id int) (*SCTPAddr, error) {
+	return sctpGetAddrs(c.fd(), id, SCTP_GET_PEER_ADDRS)
+}
+
+func (c *SCTPConn) LocalAddr() net.Addr {
+	addr, err := sctpGetAddrs(c.fd(), 0, SCTP_GET_LOCAL_ADDRS)
+	if err != nil {
+		return nil
+	}
+	return addr
+}
+
+func (c *SCTPConn) RemoteAddr() net.Addr {
+	addr, err := sctpGetAddrs(c.fd(), 0, SCTP_GET_PEER_ADDRS)
+	if err != nil {
+		return nil
+	}
+	return addr
+}
+
+func (c *SCTPConn) PeelOff(id int) (*SCTPConn, error) {
+	type peeloffArg struct {
+		assocId int32
+

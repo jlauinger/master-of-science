@@ -1,0 +1,234 @@
+Module: github.com/vishvananda/netlink
+Version: v1.1.0
+
+Package: github.com/vishvananda/netlink/nl
+File: tc_linux.go
+Line: 600
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+return (*(*[SizeofTcGen]byte)(unsafe.Pointer(x)))[:]
+--------------------------------------------------------------
++/- 5 lines context:
+
+func DeserializeTcGen(b []byte) *TcGen {
+	return (*TcGen)(unsafe.Pointer(&b[0:SizeofTcGen][0]))
+}
+
+func (x *TcGen) Serialize() []byte {
+	return (*(*[SizeofTcGen]byte)(unsafe.Pointer(x)))[:]
+}
+
+// #define tc_gen \
+//   __u32                 index; \
+//   __u32                 capab; \
+--------------------------------------------------------------
++/- 100 lines context:
+
+type TcU32Key struct {
+	Mask    uint32 // big endian
+	Val     uint32 // big endian
+	Off     int32
+	OffMask int32
+}
+
+func (msg *TcU32Key) Len() int {
+	return SizeofTcU32Key
+}
+
+func DeserializeTcU32Key(b []byte) *TcU32Key {
+	return (*TcU32Key)(unsafe.Pointer(&b[0:SizeofTcU32Key][0]))
+}
+
+func (x *TcU32Key) Serialize() []byte {
+	return (*(*[SizeofTcU32Key]byte)(unsafe.Pointer(x)))[:]
+}
+
+// struct tc_u32_sel {
+//   unsigned char   flags;
+//   unsigned char   offshift;
+//   unsigned char   nkeys;
+//
+//   __be16      offmask;
+//   __u16     off;
+//   short     offoff;
+//
+//   short     hoff;
+//   __be32      hmask;
+//   struct tc_u32_key keys[0];
+// };
+
+const (
+	TC_U32_TERMINAL  = 1 << iota
+	TC_U32_OFFSET    = 1 << iota
+	TC_U32_VAROFFSET = 1 << iota
+	TC_U32_EAT       = 1 << iota
+)
+
+type TcU32Sel struct {
+	Flags    uint8
+	Offshift uint8
+	Nkeys    uint8
+	Pad      uint8
+	Offmask  uint16 // big endian
+	Off      uint16
+	Offoff   int16
+	Hoff     int16
+	Hmask    uint32 // big endian
+	Keys     []TcU32Key
+}
+
+func (msg *TcU32Sel) Len() int {
+	return SizeofTcU32Sel + int(msg.Nkeys)*SizeofTcU32Key
+}
+
+func DeserializeTcU32Sel(b []byte) *TcU32Sel {
+	x := &TcU32Sel{}
+	copy((*(*[SizeofTcU32Sel]byte)(unsafe.Pointer(x)))[:], b)
+	next := SizeofTcU32Sel
+	var i uint8
+	for i = 0; i < x.Nkeys; i++ {
+		x.Keys = append(x.Keys, *DeserializeTcU32Key(b[next:]))
+		next += SizeofTcU32Key
+	}
+	return x
+}
+
+func (x *TcU32Sel) Serialize() []byte {
+	// This can't just unsafe.cast because it must iterate through keys.
+	buf := make([]byte, x.Len())
+	copy(buf, (*(*[SizeofTcU32Sel]byte)(unsafe.Pointer(x)))[:])
+	next := SizeofTcU32Sel
+	for _, key := range x.Keys {
+		keyBuf := key.Serialize()
+		copy(buf[next:], keyBuf)
+		next += SizeofTcU32Key
+	}
+	return buf
+}
+
+type TcGen struct {
+	Index   uint32
+	Capab   uint32
+	Action  int32
+	Refcnt  int32
+	Bindcnt int32
+}
+
+func (msg *TcGen) Len() int {
+	return SizeofTcGen
+}
+
+func DeserializeTcGen(b []byte) *TcGen {
+	return (*TcGen)(unsafe.Pointer(&b[0:SizeofTcGen][0]))
+}
+
+func (x *TcGen) Serialize() []byte {
+	return (*(*[SizeofTcGen]byte)(unsafe.Pointer(x)))[:]
+}
+
+// #define tc_gen \
+//   __u32                 index; \
+//   __u32                 capab; \
+//   int                   action; \
+//   int                   refcnt; \
+//   int                   bindcnt
+
+const (
+	TCA_ACT_GACT = 5
+)
+
+const (
+	TCA_GACT_UNSPEC = iota
+	TCA_GACT_TM
+	TCA_GACT_PARMS
+	TCA_GACT_PROB
+	TCA_GACT_MAX = TCA_GACT_PROB
+)
+
+type TcGact TcGen
+
+const (
+	TCA_ACT_BPF = 13
+)
+
+const (
+	TCA_ACT_BPF_UNSPEC = iota
+	TCA_ACT_BPF_TM
+	TCA_ACT_BPF_PARMS
+	TCA_ACT_BPF_OPS_LEN
+	TCA_ACT_BPF_OPS
+	TCA_ACT_BPF_FD
+	TCA_ACT_BPF_NAME
+	TCA_ACT_BPF_MAX = TCA_ACT_BPF_NAME
+)
+
+const (
+	TCA_BPF_FLAG_ACT_DIRECT uint32 = 1 << iota
+)
+
+const (
+	TCA_BPF_UNSPEC = iota
+	TCA_BPF_ACT
+	TCA_BPF_POLICE
+	TCA_BPF_CLASSID
+	TCA_BPF_OPS_LEN
+	TCA_BPF_OPS
+	TCA_BPF_FD
+	TCA_BPF_NAME
+	TCA_BPF_FLAGS
+	TCA_BPF_FLAGS_GEN
+	TCA_BPF_TAG
+	TCA_BPF_ID
+	TCA_BPF_MAX = TCA_BPF_ID
+)
+
+type TcBpf TcGen
+
+const (
+	TCA_ACT_CONNMARK = 14
+)
+
+const (
+	TCA_CONNMARK_UNSPEC = iota
+	TCA_CONNMARK_PARMS
+	TCA_CONNMARK_TM
+	TCA_CONNMARK_MAX = TCA_CONNMARK_TM
+)
+
+// struct tc_connmark {
+//   tc_gen;
+//   __u16 zone;
+// };
+
+type TcConnmark struct {
+	TcGen
+	Zone uint16
+}
+
+func (msg *TcConnmark) Len() int {
+	return SizeofTcConnmark
+}
+
+func DeserializeTcConnmark(b []byte) *TcConnmark {
+	return (*TcConnmark)(unsafe.Pointer(&b[0:SizeofTcConnmark][0]))
+}
+
+func (x *TcConnmark) Serialize() []byte {
+	return (*(*[SizeofTcConnmark]byte)(unsafe.Pointer(x)))[:]
+}
+
+const (
+	TCA_ACT_MIRRED = 8
+)
+
+const (
+	TCA_MIRRED_UNSPEC = iota
+	TCA_MIRRED_TM
+

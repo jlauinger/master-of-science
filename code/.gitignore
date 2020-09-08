@@ -1,18 +1,10 @@
 ## data
 download/
 data-survey/data/packages*
-data-survey/data/lexical/errors*
-data-survey/data/lexical/grep_findings*
-data-survey/data/lexical/vet_findings*
-data-survey/data/lexical/gosec_findings*
-data-survey/data/lexical/linter_findings*
-data-survey/data/ast/errors*
-data-survey/data/ast/ast_findings*
-data-survey/data/ast/functions*
-data-survey/data/ast/statements*
+data-survey/data/linters/
+data-survey/data/ast/
+data-survey/data/geiger/
 data-survey/data/figures/
-data-survey/data/geiger/errors*
-data-survey/data/geiger/geiger_findings*
 backup-data/
 dev-data/
 dev-copy/

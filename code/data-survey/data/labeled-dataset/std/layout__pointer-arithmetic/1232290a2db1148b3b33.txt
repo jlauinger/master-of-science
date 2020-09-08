@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: type.go
+Line: 1033
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): pointer-arithmetic
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func add(p unsafe.Pointer, x uintptr, whySafe string) unsafe.Pointer {
+--------------------------------------------------------------
++/- 5 lines context:
+
+// The whySafe string is ignored, so that the function still inlines
+// as efficiently as p+x, but all call sites should use the string to
+// record why the addition is safe, which is to say why the addition
+// does not cause x to advance to the very end of p's allocation
+// and therefore point incorrectly at the next block in memory.
+func add(p unsafe.Pointer, x uintptr, whySafe string) unsafe.Pointer {
+	return unsafe.Pointer(uintptr(p) + x)
+}
+
+func (d ChanDir) String() string {
+	switch d {
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return tt.FieldByName(name)
+}
+
+func (t *rtype) FieldByNameFunc(match func(string) bool) (StructField, bool) {
+	if t.Kind() != Struct {
+		panic("reflect: FieldByNameFunc of non-struct type " + t.String())
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return tt.FieldByNameFunc(match)
+}
+
+func (t *rtype) In(i int) Type {
+	if t.Kind() != Func {
+		panic("reflect: In of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return toType(tt.in()[i])
+}
+
+func (t *rtype) Key() Type {
+	if t.Kind() != Map {
+		panic("reflect: Key of non-map type " + t.String())
+	}
+	tt := (*mapType)(unsafe.Pointer(t))
+	return toType(tt.key)
+}
+
+func (t *rtype) Len() int {
+	if t.Kind() != Array {
+		panic("reflect: Len of non-array type " + t.String())
+	}
+	tt := (*arrayType)(unsafe.Pointer(t))
+	return int(tt.len)
+}
+
+func (t *rtype) NumField() int {
+	if t.Kind() != Struct {
+		panic("reflect: NumField of non-struct type " + t.String())
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return len(tt.fields)
+}
+
+func (t *rtype) NumIn() int {
+	if t.Kind() != Func {
+		panic("reflect: NumIn of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return int(tt.inCount)
+}
+
+func (t *rtype) NumOut() int {
+	if t.Kind() != Func {
+		panic("reflect: NumOut of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return len(tt.out())
+}
+
+func (t *rtype) Out(i int) Type {
+	if t.Kind() != Func {
+		panic("reflect: Out of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return toType(tt.out()[i])
+}
+
+func (t *funcType) in() []*rtype {
+	uadd := unsafe.Sizeof(*t)
+	if t.tflag&tflagUncommon != 0 {
+		uadd += unsafe.Sizeof(uncommonType{})
+	}
+	if t.inCount == 0 {
+		return nil
+	}
+	return (*[1 << 20]*rtype)(add(unsafe.Pointer(t), uadd, "t.inCount > 0"))[:t.inCount:t.inCount]
+}
+
+func (t *funcType) out() []*rtype {
+	uadd := unsafe.Sizeof(*t)
+	if t.tflag&tflagUncommon != 0 {
+		uadd += unsafe.Sizeof(uncommonType{})
+	}
+	outCount := t.outCount & (1<<15 - 1)
+	if outCount == 0 {
+		return nil
+	}
+	return (*[1 << 20]*rtype)(add(unsafe.Pointer(t), uadd, "outCount > 0"))[t.inCount : t.inCount+outCount : t.inCount+outCount]
+}
+
+// add returns p+x.
+//
+// The whySafe string is ignored, so that the function still inlines
+// as efficiently as p+x, but all call sites should use the string to
+// record why the addition is safe, which is to say why the addition
+// does not cause x to advance to the very end of p's allocation
+// and therefore point incorrectly at the next block in memory.
+func add(p unsafe.Pointer, x uintptr, whySafe string) unsafe.Pointer {
+	return unsafe.Pointer(uintptr(p) + x)
+}
+
+func (d ChanDir) String() string {
+	switch d {
+	case SendDir:
+		return "chan<-"
+	case RecvDir:
+		return "<-chan"
+	case BothDir:
+		return "chan"
+	}
+	return "ChanDir" + strconv.Itoa(int(d))
+}
+
+// Method returns the i'th method in the type's method set.
+func (t *interfaceType) Method(i int) (m Method) {
+	if i < 0 || i >= len(t.methods) {
+		return
+	}
+	p := &t.methods[i]
+	pname := t.nameOff(p.name)
+	m.Name = pname.name()
+	if !pname.isExported() {
+		m.PkgPath = pname.pkgPath()
+		if m.PkgPath == "" {
+			m.PkgPath = t.pkgPath.name()
+		}
+	}
+	m.Type = toType(t.typeOff(p.typ))
+	m.Index = i
+	return
+}
+
+// NumMethod returns the number of interface methods in the type's method set.
+func (t *interfaceType) NumMethod() int { return len(t.methods) }
+
+// MethodByName method with the given name in the type's method set.
+func (t *interfaceType) MethodByName(name string) (m Method, ok bool) {
+	if t == nil {
+		return
+	}
+	var p *imethod
+	for i := range t.methods {
+		p = &t.methods[i]
+		if t.nameOff(p.name).name() == name {
+			return t.Method(i), true
+		}
+	}
+	return
+}
+
+// A StructField describes a single field in a struct.
+type StructField struct {
+	// Name is the field name.
+	Name string
+	// PkgPath is the package path that qualifies a lower case (unexported)
+	// field name. It is empty for upper case (exported) field names.
+	// See https://golang.org/ref/spec#Uniqueness_of_identifiers
+	PkgPath string
+
+	Type      Type      // field type
+	Tag       StructTag // field tag string
+	Offset    uintptr   // offset within struct, in bytes
+	Index     []int     // index sequence for Type.FieldByIndex
+	Anonymous bool      // is an embedded field
+}
+
+// A StructTag is the tag string in a struct field.
+//
+// By convention, tag strings are a concatenation of
+// optionally space-separated key:"value" pairs.
+// Each key is a non-empty string consisting of non-control
+// characters other than space (U+0020 ' '), quote (U+0022 '"'),
+// and colon (U+003A ':').  Each value is quoted using U+0022 '"'
+// characters and Go string literal syntax.
+type StructTag string
+
+// Get returns the value associated with key in the tag string.
+// If there is no such key in the tag, Get returns the empty string.
+// If the tag does not have the conventional format, the value
+// returned by Get is unspecified. To determine whether a tag is
+// explicitly set to the empty string, use Lookup.
+func (tag StructTag) Get(key string) string {
+	v, _ := tag.Lookup(key)
+	return v
+}
+
+// Lookup returns the value associated with key in the tag string.
+// If the key is present in the tag the value (which may be empty)
+// is returned. Otherwise the returned value will be the empty string.
+// The ok return value reports whether the value was explicitly set in
+// the tag string. If the tag does not have the conventional format,
+// the value returned by Lookup is unspecified.
+func (tag StructTag) Lookup(key string) (value string, ok bool) {
+	// When modifying this code, also update the validateStructTag code
+	// in cmd/vet/structtag.go.
+
+	for tag != "" {
+		// Skip leading space.
+

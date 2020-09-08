@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: type.go
+Line: 2054
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+repr = append(repr, (*sliceType)(unsafe.Pointer(t)).elem.String()...)
+--------------------------------------------------------------
++/- 5 lines context:
+
+		if i > 0 {
+			repr = append(repr, ", "...)
+		}
+		if ft.IsVariadic() && i == int(ft.inCount)-1 {
+			repr = append(repr, "..."...)
+			repr = append(repr, (*sliceType)(unsafe.Pointer(t)).elem.String()...)
+		} else {
+			repr = append(repr, t.String()...)
+		}
+	}
+	repr = append(repr, ')')
+--------------------------------------------------------------
++/- 100 lines context:
+
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	case n <= 32:
+		fixed := new(funcTypeFixed32)
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	case n <= 64:
+		fixed := new(funcTypeFixed64)
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	case n <= 128:
+		fixed := new(funcTypeFixed128)
+		args = fixed.args[:0:len(fixed.args)]
+		ft = &fixed.funcType
+	default:
+		panic("reflect.FuncOf: too many arguments")
+	}
+	*ft = *prototype
+
+	// Build a hash and minimally populate ft.
+	var hash uint32
+	for _, in := range in {
+		t := in.(*rtype)
+		args = append(args, t)
+		hash = fnv1(hash, byte(t.hash>>24), byte(t.hash>>16), byte(t.hash>>8), byte(t.hash))
+	}
+	if variadic {
+		hash = fnv1(hash, 'v')
+	}
+	hash = fnv1(hash, '.')
+	for _, out := range out {
+		t := out.(*rtype)
+		args = append(args, t)
+		hash = fnv1(hash, byte(t.hash>>24), byte(t.hash>>16), byte(t.hash>>8), byte(t.hash))
+	}
+	if len(args) > 50 {
+		panic("reflect.FuncOf does not support more than 50 arguments")
+	}
+	ft.tflag = 0
+	ft.hash = hash
+	ft.inCount = uint16(len(in))
+	ft.outCount = uint16(len(out))
+	if variadic {
+		ft.outCount |= 1 << 15
+	}
+
+	// Look in cache.
+	if ts, ok := funcLookupCache.m.Load(hash); ok {
+		for _, t := range ts.([]*rtype) {
+			if haveIdenticalUnderlyingType(&ft.rtype, t, true) {
+				return t
+			}
+		}
+	}
+
+	// Not in cache, lock and retry.
+	funcLookupCache.Lock()
+	defer funcLookupCache.Unlock()
+	if ts, ok := funcLookupCache.m.Load(hash); ok {
+		for _, t := range ts.([]*rtype) {
+			if haveIdenticalUnderlyingType(&ft.rtype, t, true) {
+				return t
+			}
+		}
+	}
+
+	addToCache := func(tt *rtype) Type {
+		var rts []*rtype
+		if rti, ok := funcLookupCache.m.Load(hash); ok {
+			rts = rti.([]*rtype)
+		}
+		funcLookupCache.m.Store(hash, append(rts, tt))
+		return tt
+	}
+
+	// Look in known types for the same string representation.
+	str := funcStr(ft)
+	for _, tt := range typesByString(str) {
+		if haveIdenticalUnderlyingType(&ft.rtype, tt, true) {
+			return addToCache(tt)
+		}
+	}
+
+	// Populate the remaining fields of ft and store in cache.
+	ft.str = resolveReflectName(newName(str, "", false))
+	ft.ptrToThis = 0
+	return addToCache(&ft.rtype)
+}
+
+// funcStr builds a string representation of a funcType.
+func funcStr(ft *funcType) string {
+	repr := make([]byte, 0, 64)
+	repr = append(repr, "func("...)
+	for i, t := range ft.in() {
+		if i > 0 {
+			repr = append(repr, ", "...)
+		}
+		if ft.IsVariadic() && i == int(ft.inCount)-1 {
+			repr = append(repr, "..."...)
+			repr = append(repr, (*sliceType)(unsafe.Pointer(t)).elem.String()...)
+		} else {
+			repr = append(repr, t.String()...)
+		}
+	}
+	repr = append(repr, ')')
+	out := ft.out()
+	if len(out) == 1 {
+		repr = append(repr, ' ')
+	} else if len(out) > 1 {
+		repr = append(repr, " ("...)
+	}
+	for i, t := range out {
+		if i > 0 {
+			repr = append(repr, ", "...)
+		}
+		repr = append(repr, t.String()...)
+	}
+	if len(out) > 1 {
+		repr = append(repr, ')')
+	}
+	return string(repr)
+}
+
+// isReflexive reports whether the == operation on the type is reflexive.
+// That is, x == x for all values x of type t.
+func isReflexive(t *rtype) bool {
+	switch t.Kind() {
+	case Bool, Int, Int8, Int16, Int32, Int64, Uint, Uint8, Uint16, Uint32, Uint64, Uintptr, Chan, Ptr, String, UnsafePointer:
+		return true
+	case Float32, Float64, Complex64, Complex128, Interface:
+		return false
+	case Array:
+		tt := (*arrayType)(unsafe.Pointer(t))
+		return isReflexive(tt.elem)
+	case Struct:
+		tt := (*structType)(unsafe.Pointer(t))
+		for _, f := range tt.fields {
+			if !isReflexive(f.typ) {
+				return false
+			}
+		}
+		return true
+	default:
+		// Func, Map, Slice, Invalid
+		panic("isReflexive called on non-key type " + t.String())
+	}
+}
+
+// needKeyUpdate reports whether map overwrites require the key to be copied.
+func needKeyUpdate(t *rtype) bool {
+	switch t.Kind() {
+	case Bool, Int, Int8, Int16, Int32, Int64, Uint, Uint8, Uint16, Uint32, Uint64, Uintptr, Chan, Ptr, UnsafePointer:
+		return false
+	case Float32, Float64, Complex64, Complex128, Interface, String:
+		// Float keys can be updated from +0 to -0.
+		// String keys can be updated to use a smaller backing store.
+		// Interfaces might have floats of strings in them.
+		return true
+	case Array:
+		tt := (*arrayType)(unsafe.Pointer(t))
+		return needKeyUpdate(tt.elem)
+	case Struct:
+		tt := (*structType)(unsafe.Pointer(t))
+		for _, f := range tt.fields {
+			if needKeyUpdate(f.typ) {
+				return true
+			}
+		}
+		return false
+	default:
+		// Func, Map, Slice, Invalid
+		panic("needKeyUpdate called on non-key type " + t.String())
+	}
+}
+
+// hashMightPanic reports whether the hash of a map key of type t might panic.
+func hashMightPanic(t *rtype) bool {
+	switch t.Kind() {
+	case Interface:
+		return true
+	case Array:
+		tt := (*arrayType)(unsafe.Pointer(t))
+		return hashMightPanic(tt.elem)
+	case Struct:
+		tt := (*structType)(unsafe.Pointer(t))
+		for _, f := range tt.fields {
+			if hashMightPanic(f.typ) {
+				return true
+			}
+		}
+		return false
+	default:
+		return false
+	}
+}
+
+// Make sure these routines stay in sync with ../../runtime/map.go!
+// These types exist only for GC, so we only fill out GC relevant info.
+// Currently, that's just size and the GC program. We also fill in string
+// for possible debugging use.
+

@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/internal/execution
+File: eng_map.go
+Line: 615
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): definition
+Label 2 (For what purpose?): generics
+
+--------------------------------------------------------------
+Snippet line:
+
+case func(unsafe.Pointer) unsafe.Pointer:
+--------------------------------------------------------------
++/- 5 lines context:
+
+	case UnsafePointer:
+		var f0 func(unsafe.Pointer) unsafe.Pointer
+		var f1 func(unsafe.Pointer) (unsafe.Pointer, error)
+
+		switch f := fn.(type) {
+		case func(unsafe.Pointer) unsafe.Pointer:
+			f0 = f
+		case func(unsafe.Pointer) (unsafe.Pointer, error):
+			f1 = f
+		default:
+			return errors.Errorf("Cannot map fn of %T to array", fn)
+--------------------------------------------------------------
++/- 100 lines context:
+
+		switch {
+		case as && incr && f0 != nil:
+			at[0] += f0(at[0])
+		case as && incr && f0 == nil:
+			var tmp complex64
+			if tmp, err = f1(at[0]); err != nil {
+				return
+			}
+			at[0] += tmp
+		case as && !incr && f0 != nil:
+			at[0] = f0(at[0])
+		case as && !incr && f0 == nil:
+			at[0], err = f1(at[0])
+		case !as && incr && f0 != nil:
+			MapIncrC64(f0, at)
+		case !as && incr && f0 == nil:
+			err = MapIncrErrC64(f1, at)
+		case !as && !incr && f0 == nil:
+			err = MapErrC64(f1, at)
+		default:
+			MapC64(f0, at)
+		}
+	case Complex128:
+		var f0 func(complex128) complex128
+		var f1 func(complex128) (complex128, error)
+
+		switch f := fn.(type) {
+		case func(complex128) complex128:
+			f0 = f
+		case func(complex128) (complex128, error):
+			f1 = f
+		default:
+			return errors.Errorf("Cannot map fn of %T to array", fn)
+		}
+
+		at := a.Complex128s()
+		switch {
+		case as && incr && f0 != nil:
+			at[0] += f0(at[0])
+		case as && incr && f0 == nil:
+			var tmp complex128
+			if tmp, err = f1(at[0]); err != nil {
+				return
+			}
+			at[0] += tmp
+		case as && !incr && f0 != nil:
+			at[0] = f0(at[0])
+		case as && !incr && f0 == nil:
+			at[0], err = f1(at[0])
+		case !as && incr && f0 != nil:
+			MapIncrC128(f0, at)
+		case !as && incr && f0 == nil:
+			err = MapIncrErrC128(f1, at)
+		case !as && !incr && f0 == nil:
+			err = MapErrC128(f1, at)
+		default:
+			MapC128(f0, at)
+		}
+	case String:
+		var f0 func(string) string
+		var f1 func(string) (string, error)
+
+		switch f := fn.(type) {
+		case func(string) string:
+			f0 = f
+		case func(string) (string, error):
+			f1 = f
+		default:
+			return errors.Errorf("Cannot map fn of %T to array", fn)
+		}
+
+		at := a.Strings()
+		switch {
+		case as && incr && f0 != nil:
+			at[0] += f0(at[0])
+		case as && incr && f0 == nil:
+			var tmp string
+			if tmp, err = f1(at[0]); err != nil {
+				return
+			}
+			at[0] += tmp
+		case as && !incr && f0 != nil:
+			at[0] = f0(at[0])
+		case as && !incr && f0 == nil:
+			at[0], err = f1(at[0])
+		case !as && incr && f0 != nil:
+			MapIncrStr(f0, at)
+		case !as && incr && f0 == nil:
+			err = MapIncrErrStr(f1, at)
+		case !as && !incr && f0 == nil:
+			err = MapErrStr(f1, at)
+		default:
+			MapStr(f0, at)
+		}
+	case UnsafePointer:
+		var f0 func(unsafe.Pointer) unsafe.Pointer
+		var f1 func(unsafe.Pointer) (unsafe.Pointer, error)
+
+		switch f := fn.(type) {
+		case func(unsafe.Pointer) unsafe.Pointer:
+			f0 = f
+		case func(unsafe.Pointer) (unsafe.Pointer, error):
+			f1 = f
+		default:
+			return errors.Errorf("Cannot map fn of %T to array", fn)
+		}
+
+		at := a.UnsafePointers()
+		if incr {
+			return errors.Errorf("Cannot perform increment on t of %v", t)
+		}
+		switch {
+		case as && f0 != nil:
+			at[0] = f0(at[0])
+		case as && f0 == nil:
+			at[0], err = f1(at[0])
+		case !as && f0 == nil:
+			err = MapErrUnsafePointer(f1, at)
+		default:
+			MapUnsafePointer(f0, at)
+		}
+	default:
+		return errors.Errorf("Cannot map t of %v", t)
+
+	}
+
+	return
+}
+
+func (e E) MapIter(t reflect.Type, fn interface{}, a *storage.Header, incr bool, ait Iterator) (err error) {
+	switch t {
+	case Bool:
+		at := a.Bools()
+		var f0 func(bool) bool
+		var f1 func(bool) (bool, error)
+
+		switch f := fn.(type) {
+		case func(bool) bool:
+			f0 = f
+		case func(bool) (bool, error):
+			f1 = f
+		default:
+			return errors.Errorf("Cannot map fn of %T to array", fn)
+		}
+
+		if incr {
+			return errors.Errorf("Cannot perform increment on t of %v", t)
+		}
+		switch {
+		case f0 == nil:
+			err = MapIterErrB(f1, at, ait)
+		default:
+			MapIterB(f0, at, ait)
+		}
+	case Int:
+		at := a.Ints()
+		var f0 func(int) int
+		var f1 func(int) (int, error)
+
+		switch f := fn.(type) {
+		case func(int) int:
+			f0 = f
+		case func(int) (int, error):
+			f1 = f
+		default:
+			return errors.Errorf("Cannot map fn of %T to array", fn)
+		}
+
+		switch {
+		case incr && f0 != nil:
+			MapIterIncrI(f0, at, ait)
+		case incr && f0 == nil:
+			err = MapIterIncrErrI(f1, at, ait)
+		case !incr && f0 == nil:
+			err = MapIterErrI(f1, at, ait)
+		default:
+			MapIterI(f0, at, ait)
+		}
+	case Int8:
+		at := a.Int8s()
+		var f0 func(int8) int8
+		var f1 func(int8) (int8, error)
+
+		switch f := fn.(type) {
+		case func(int8) int8:
+			f0 = f
+		case func(int8) (int8, error):
+			f1 = f
+		default:
+			return errors.Errorf("Cannot map fn of %T to array", fn)
+		}
+
+		switch {
+		case incr && f0 != nil:
+			MapIterIncrI8(f0, at, ait)
+		case incr && f0 == nil:
+			err = MapIterIncrErrI8(f1, at, ait)
+		case !incr && f0 == nil:
+			err = MapIterErrI8(f1, at, ait)
+		default:
+

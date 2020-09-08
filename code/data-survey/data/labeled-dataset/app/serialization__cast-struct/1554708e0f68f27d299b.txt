@@ -1,0 +1,135 @@
+Module: github.com/json-iterator/go
+Version: v1.1.9
+
+Package: github.com/json-iterator/go
+File: any.go
+Line: 322
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (codec *directAnyCodec) IsEmpty(ptr unsafe.Pointer) bool {
+--------------------------------------------------------------
++/- 5 lines context:
+
+		return
+	}
+	any.WriteTo(stream)
+}
+
+func (codec *directAnyCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	any := *(*Any)(ptr)
+	return any.Size() == 0
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+		iter.Skip()
+		n++
+		return true
+	})
+	return found
+}
+
+func locatePath(iter *Iterator, path []interface{}) Any {
+	for i, pathKeyObj := range path {
+		switch pathKey := pathKeyObj.(type) {
+		case string:
+			valueBytes := locateObjectField(iter, pathKey)
+			if valueBytes == nil {
+				return newInvalidAny(path[i:])
+			}
+			iter.ResetBytes(valueBytes)
+		case int:
+			valueBytes := locateArrayElement(iter, pathKey)
+			if valueBytes == nil {
+				return newInvalidAny(path[i:])
+			}
+			iter.ResetBytes(valueBytes)
+		case int32:
+			if '*' == pathKey {
+				return iter.readAny().Get(path[i:]...)
+			}
+			return newInvalidAny(path[i:])
+		default:
+			return newInvalidAny(path[i:])
+		}
+	}
+	if iter.Error != nil && iter.Error != io.EOF {
+		return &invalidAny{baseAny{}, iter.Error}
+	}
+	return iter.readAny()
+}
+
+var anyType = reflect2.TypeOfPtr((*Any)(nil)).Elem()
+
+func createDecoderOfAny(ctx *ctx, typ reflect2.Type) ValDecoder {
+	if typ == anyType {
+		return &directAnyCodec{}
+	}
+	if typ.Implements(anyType) {
+		return &anyCodec{
+			valType: typ,
+		}
+	}
+	return nil
+}
+
+func createEncoderOfAny(ctx *ctx, typ reflect2.Type) ValEncoder {
+	if typ == anyType {
+		return &directAnyCodec{}
+	}
+	if typ.Implements(anyType) {
+		return &anyCodec{
+			valType: typ,
+		}
+	}
+	return nil
+}
+
+type anyCodec struct {
+	valType reflect2.Type
+}
+
+func (codec *anyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	panic("not implemented")
+}
+
+func (codec *anyCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	obj := codec.valType.UnsafeIndirect(ptr)
+	any := obj.(Any)
+	any.WriteTo(stream)
+}
+
+func (codec *anyCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	obj := codec.valType.UnsafeIndirect(ptr)
+	any := obj.(Any)
+	return any.Size() == 0
+}
+
+type directAnyCodec struct {
+}
+
+func (codec *directAnyCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	*(*Any)(ptr) = iter.readAny()
+}
+
+func (codec *directAnyCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	any := *(*Any)(ptr)
+	if any == nil {
+		stream.WriteNil()
+		return
+	}
+	any.WriteTo(stream)
+}
+
+func (codec *directAnyCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	any := *(*Any)(ptr)
+	return any.Size() == 0
+}
+

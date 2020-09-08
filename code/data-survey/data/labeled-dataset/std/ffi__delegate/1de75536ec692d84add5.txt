@@ -1,0 +1,229 @@
+Module: golang.org/x/sys
+Version: v0.0.0-20200122134326-e047566fdf82
+
+Package: golang.org/x/sys/unix
+File: syscall_linux.go
+Line: 95
+
+Imported (possibly among others) by: rancher/rancher
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+err := ioctl(fd, RTC_SET_TIME, uintptr(unsafe.Pointer(value)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	v := int32(value)
+	return ioctl(fd, req, uintptr(unsafe.Pointer(&v)))
+}
+
+func IoctlSetRTCTime(fd int, value *RTCTime) error {
+	err := ioctl(fd, RTC_SET_TIME, uintptr(unsafe.Pointer(value)))
+	runtime.KeepAlive(value)
+	return err
+}
+
+func IoctlGetUint32(fd int, req uint) (uint32, error) {
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Copyright 2009 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Linux system calls.
+// This file is compiled as ordinary Go code,
+// but it is also input to mksyscall,
+// which parses the //sys lines and generates system call stubs.
+// Note that sometimes we use a lowercase //sys name and
+// wrap it in our own nicer implementation.
+
+package unix
+
+import (
+	"encoding/binary"
+	"runtime"
+	"syscall"
+	"unsafe"
+)
+
+/*
+ * Wrapped
+ */
+
+func Access(path string, mode uint32) (err error) {
+	return Faccessat(AT_FDCWD, path, mode, 0)
+}
+
+func Chmod(path string, mode uint32) (err error) {
+	return Fchmodat(AT_FDCWD, path, mode, 0)
+}
+
+func Chown(path string, uid int, gid int) (err error) {
+	return Fchownat(AT_FDCWD, path, uid, gid, 0)
+}
+
+func Creat(path string, mode uint32) (fd int, err error) {
+	return Open(path, O_CREAT|O_WRONLY|O_TRUNC, mode)
+}
+
+//sys	FanotifyInit(flags uint, event_f_flags uint) (fd int, err error)
+//sys	fanotifyMark(fd int, flags uint, mask uint64, dirFd int, pathname *byte) (err error)
+
+func FanotifyMark(fd int, flags uint, mask uint64, dirFd int, pathname string) (err error) {
+	if pathname == "" {
+		return fanotifyMark(fd, flags, mask, dirFd, nil)
+	}
+	p, err := BytePtrFromString(pathname)
+	if err != nil {
+		return err
+	}
+	return fanotifyMark(fd, flags, mask, dirFd, p)
+}
+
+//sys	fchmodat(dirfd int, path string, mode uint32) (err error)
+
+func Fchmodat(dirfd int, path string, mode uint32, flags int) (err error) {
+	// Linux fchmodat doesn't support the flags parameter. Mimick glibc's behavior
+	// and check the flags. Otherwise the mode would be applied to the symlink
+	// destination which is not what the user expects.
+	if flags&^AT_SYMLINK_NOFOLLOW != 0 {
+		return EINVAL
+	} else if flags&AT_SYMLINK_NOFOLLOW != 0 {
+		return EOPNOTSUPP
+	}
+	return fchmodat(dirfd, path, mode)
+}
+
+//sys	ioctl(fd int, req uint, arg uintptr) (err error)
+
+// ioctl itself should not be exposed directly, but additional get/set
+// functions for specific types are permissible.
+
+// IoctlRetInt performs an ioctl operation specified by req on a device
+// associated with opened file descriptor fd, and returns a non-negative
+// integer that is returned by the ioctl syscall.
+func IoctlRetInt(fd int, req uint) (int, error) {
+	ret, _, err := Syscall(SYS_IOCTL, uintptr(fd), uintptr(req), 0)
+	if err != 0 {
+		return 0, err
+	}
+	return int(ret), nil
+}
+
+// IoctlSetPointerInt performs an ioctl operation which sets an
+// integer value on fd, using the specified request number. The ioctl
+// argument is called with a pointer to the integer value, rather than
+// passing the integer value directly.
+func IoctlSetPointerInt(fd int, req uint, value int) error {
+	v := int32(value)
+	return ioctl(fd, req, uintptr(unsafe.Pointer(&v)))
+}
+
+func IoctlSetRTCTime(fd int, value *RTCTime) error {
+	err := ioctl(fd, RTC_SET_TIME, uintptr(unsafe.Pointer(value)))
+	runtime.KeepAlive(value)
+	return err
+}
+
+func IoctlGetUint32(fd int, req uint) (uint32, error) {
+	var value uint32
+	err := ioctl(fd, req, uintptr(unsafe.Pointer(&value)))
+	return value, err
+}
+
+func IoctlGetRTCTime(fd int) (*RTCTime, error) {
+	var value RTCTime
+	err := ioctl(fd, RTC_RD_TIME, uintptr(unsafe.Pointer(&value)))
+	return &value, err
+}
+
+//sys	Linkat(olddirfd int, oldpath string, newdirfd int, newpath string, flags int) (err error)
+
+func Link(oldpath string, newpath string) (err error) {
+	return Linkat(AT_FDCWD, oldpath, AT_FDCWD, newpath, 0)
+}
+
+func Mkdir(path string, mode uint32) (err error) {
+	return Mkdirat(AT_FDCWD, path, mode)
+}
+
+func Mknod(path string, mode uint32, dev int) (err error) {
+	return Mknodat(AT_FDCWD, path, mode, dev)
+}
+
+func Open(path string, mode int, perm uint32) (fd int, err error) {
+	return openat(AT_FDCWD, path, mode|O_LARGEFILE, perm)
+}
+
+//sys	openat(dirfd int, path string, flags int, mode uint32) (fd int, err error)
+
+func Openat(dirfd int, path string, flags int, mode uint32) (fd int, err error) {
+	return openat(dirfd, path, flags|O_LARGEFILE, mode)
+}
+
+//sys	ppoll(fds *PollFd, nfds int, timeout *Timespec, sigmask *Sigset_t) (n int, err error)
+
+func Ppoll(fds []PollFd, timeout *Timespec, sigmask *Sigset_t) (n int, err error) {
+	if len(fds) == 0 {
+		return ppoll(nil, 0, timeout, sigmask)
+	}
+	return ppoll(&fds[0], len(fds), timeout, sigmask)
+}
+
+//sys	Readlinkat(dirfd int, path string, buf []byte) (n int, err error)
+
+func Readlink(path string, buf []byte) (n int, err error) {
+	return Readlinkat(AT_FDCWD, path, buf)
+}
+
+func Rename(oldpath string, newpath string) (err error) {
+	return Renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath)
+}
+
+func Rmdir(path string) error {
+	return Unlinkat(AT_FDCWD, path, AT_REMOVEDIR)
+}
+
+//sys	Symlinkat(oldpath string, newdirfd int, newpath string) (err error)
+
+func Symlink(oldpath string, newpath string) (err error) {
+	return Symlinkat(oldpath, AT_FDCWD, newpath)
+}
+
+func Unlink(path string) error {
+	return Unlinkat(AT_FDCWD, path, 0)
+}
+
+//sys	Unlinkat(dirfd int, path string, flags int) (err error)
+
+func Utimes(path string, tv []Timeval) error {
+	if tv == nil {
+		err := utimensat(AT_FDCWD, path, nil, 0)
+		if err != ENOSYS {
+			return err
+		}
+		return utimes(path, nil)
+	}
+	if len(tv) != 2 {
+		return EINVAL
+	}
+	var ts [2]Timespec
+	ts[0] = NsecToTimespec(TimevalToNsec(tv[0]))
+	ts[1] = NsecToTimespec(TimevalToNsec(tv[1]))
+	err := utimensat(AT_FDCWD, path, (*[2]Timespec)(unsafe.Pointer(&ts[0])), 0)
+	if err != ENOSYS {
+		return err
+	}
+	return utimes(path, (*[2]Timeval)(unsafe.Pointer(&tv[0])))
+}
+
+//sys	utimensat(dirfd int, path string, times *[2]Timespec, flags int) (err error)
+
+func UtimesNano(path string, ts []Timespec) error {
+	if ts == nil {
+

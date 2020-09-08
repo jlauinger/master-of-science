@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/native
+File: iterator_native2.go
+Line: 438
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): cast-header
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+retVal = append(retVal, *(*[]uint64)(unsafe.Pointer(hdr)))
+--------------------------------------------------------------
++/- 5 lines context:
+
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint64)(unsafe.Pointer(hdr)))
+			r++
+		}
+		return retVal, nil
+
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+	}
+
+	switch t.Shape().Dims() {
+	case 0, 1:
+		retVal = make([][]uint16, 1)
+		retVal[0] = t.Uint16s()
+	case 2:
+		if axis == 0 {
+			return MatrixU16(t)
+		}
+		fallthrough
+	default:
+		// size := t.Shape()[axis]
+		data := t.Uint16s()
+		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint16, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint16)(unsafe.Pointer(hdr)))
+			r++
+		}
+		return retVal, nil
+
+	}
+	return
+}
+
+/* Native Select for uint32 */
+
+// SelectU32 creates a slice of flat data types. See Example of NativeSelectF64.
+func SelectU32(t *Dense, axis int) (retVal [][]uint32, err error) {
+	if err := checkNativeSelectable(t, axis, Uint32); err != nil {
+		return nil, err
+	}
+
+	switch t.Shape().Dims() {
+	case 0, 1:
+		retVal = make([][]uint32, 1)
+		retVal[0] = t.Uint32s()
+	case 2:
+		if axis == 0 {
+			return MatrixU32(t)
+		}
+		fallthrough
+	default:
+		// size := t.Shape()[axis]
+		data := t.Uint32s()
+		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint32, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint32)(unsafe.Pointer(hdr)))
+			r++
+		}
+		return retVal, nil
+
+	}
+	return
+}
+
+/* Native Select for uint64 */
+
+// SelectU64 creates a slice of flat data types. See Example of NativeSelectF64.
+func SelectU64(t *Dense, axis int) (retVal [][]uint64, err error) {
+	if err := checkNativeSelectable(t, axis, Uint64); err != nil {
+		return nil, err
+	}
+
+	switch t.Shape().Dims() {
+	case 0, 1:
+		retVal = make([][]uint64, 1)
+		retVal[0] = t.Uint64s()
+	case 2:
+		if axis == 0 {
+			return MatrixU64(t)
+		}
+		fallthrough
+	default:
+		// size := t.Shape()[axis]
+		data := t.Uint64s()
+		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]uint64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]uint64)(unsafe.Pointer(hdr)))
+			r++
+		}
+		return retVal, nil
+
+	}
+	return
+}
+
+/* Native Select for float32 */
+
+// SelectF32 creates a slice of flat data types. See Example of NativeSelectF64.
+func SelectF32(t *Dense, axis int) (retVal [][]float32, err error) {
+	if err := checkNativeSelectable(t, axis, Float32); err != nil {
+		return nil, err
+	}
+
+	switch t.Shape().Dims() {
+	case 0, 1:
+		retVal = make([][]float32, 1)
+		retVal[0] = t.Float32s()
+	case 2:
+		if axis == 0 {
+			return MatrixF32(t)
+		}
+		fallthrough
+	default:
+		// size := t.Shape()[axis]
+		data := t.Float32s()
+		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]float32, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]float32)(unsafe.Pointer(hdr)))
+			r++
+		}
+		return retVal, nil
+
+	}
+	return
+}
+
+/* Native Select for float64 */
+
+// SelectF64 creates a slice of flat data types. See Example of NativeSelectF64.
+func SelectF64(t *Dense, axis int) (retVal [][]float64, err error) {
+	if err := checkNativeSelectable(t, axis, Float64); err != nil {
+		return nil, err
+	}
+
+	switch t.Shape().Dims() {
+	case 0, 1:
+		retVal = make([][]float64, 1)
+		retVal[0] = t.Float64s()
+	case 2:
+		if axis == 0 {
+			return MatrixF64(t)
+		}
+		fallthrough
+	default:
+		// size := t.Shape()[axis]
+		data := t.Float64s()
+		stride := t.Strides()[axis]
+		upper := ProdInts(t.Shape()[:axis+1])
+		retVal = make([][]float64, 0, upper)
+		for i, r := 0, 0; r < upper; i += stride {
+			hdr := &reflect.SliceHeader{
+				Data: uintptr(unsafe.Pointer(&data[i])),
+				Len:  stride,
+				Cap:  stride,
+			}
+			retVal = append(retVal, *(*[]float64)(unsafe.Pointer(hdr)))
+			r++
+		}
+		return retVal, nil
+
+	}
+	return
+}
+
+/* Native Select for complex64 */
+
+// SelectC64 creates a slice of flat data types. See Example of NativeSelectF64.
+func SelectC64(t *Dense, axis int) (retVal [][]complex64, err error) {
+	if err := checkNativeSelectable(t, axis, Complex64); err != nil {
+		return nil, err
+	}
+
+	switch t.Shape().Dims() {
+	case 0, 1:
+		retVal = make([][]complex64, 1)
+		retVal[0] = t.Complex64s()
+	case 2:
+		if axis == 0 {
+			return MatrixC64(t)
+		}
+

@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: proc.go
+Line: 2662
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func parkunlock_c(gp *g, lock unsafe.Pointer) bool {
+--------------------------------------------------------------
++/- 5 lines context:
+
+		return false
+	}
+	return true
+}
+
+func parkunlock_c(gp *g, lock unsafe.Pointer) bool {
+	unlock((*mutex)(lock))
+	return true
+}
+
+// park continuation on g0.
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+// dropg removes the association between m and the current goroutine m->curg (gp for short).
+// Typically a caller sets gp's status away from Grunning and then
+// immediately calls dropg to finish the job. The caller is also responsible
+// for arranging that gp will be restarted using ready at an
+// appropriate time. After calling dropg and arranging for gp to be
+// readied later, the caller can do other work but eventually should
+// call schedule to restart the scheduling of goroutines on this m.
+func dropg() {
+	_g_ := getg()
+
+	setMNoWB(&_g_.m.curg.m, nil)
+	setGNoWB(&_g_.m.curg, nil)
+}
+
+// checkTimers runs any timers for the P that are ready.
+// If now is not 0 it is the current time.
+// It returns the current time or 0 if it is not known,
+// and the time when the next timer should run or 0 if there is no next timer,
+// and reports whether it ran any timers.
+// If the time when the next timer should run is not 0,
+// it is always larger than the returned time.
+// We pass now in and out to avoid extra calls of nanotime.
+//go:yeswritebarrierrec
+func checkTimers(pp *p, now int64) (rnow, pollUntil int64, ran bool) {
+	// If there are no timers to adjust, and the first timer on
+	// the heap is not yet ready to run, then there is nothing to do.
+	if atomic.Load(&pp.adjustTimers) == 0 {
+		next := int64(atomic.Load64(&pp.timer0When))
+		if next == 0 {
+			return now, 0, false
+		}
+		if now == 0 {
+			now = nanotime()
+		}
+		if now < next {
+			// Next timer is not ready to run.
+			// But keep going if we would clear deleted timers.
+			// This corresponds to the condition below where
+			// we decide whether to call clearDeletedTimers.
+			if pp != getg().m.p.ptr() || int(atomic.Load(&pp.deletedTimers)) <= int(atomic.Load(&pp.numTimers)/4) {
+				return now, next, false
+			}
+		}
+	}
+
+	lock(&pp.timersLock)
+
+	adjusttimers(pp)
+
+	rnow = now
+	if len(pp.timers) > 0 {
+		if rnow == 0 {
+			rnow = nanotime()
+		}
+		for len(pp.timers) > 0 {
+			// Note that runtimer may temporarily unlock
+			// pp.timersLock.
+			if tw := runtimer(pp, rnow); tw != 0 {
+				if tw > 0 {
+					pollUntil = tw
+				}
+				break
+			}
+			ran = true
+		}
+	}
+
+	// If this is the local P, and there are a lot of deleted timers,
+	// clear them out. We only do this for the local P to reduce
+	// lock contention on timersLock.
+	if pp == getg().m.p.ptr() && int(atomic.Load(&pp.deletedTimers)) > len(pp.timers)/4 {
+		clearDeletedTimers(pp)
+	}
+
+	unlock(&pp.timersLock)
+
+	return rnow, pollUntil, ran
+}
+
+// shouldStealTimers reports whether we should try stealing the timers from p2.
+// We don't steal timers from a running P that is not marked for preemption,
+// on the assumption that it will run its own timers. This reduces
+// contention on the timers lock.
+func shouldStealTimers(p2 *p) bool {
+	if p2.status != _Prunning {
+		return true
+	}
+	mp := p2.m.ptr()
+	if mp == nil || mp.locks > 0 {
+		return false
+	}
+	gp := mp.curg
+	if gp == nil || gp.atomicstatus != _Grunning || !gp.preempt {
+		return false
+	}
+	return true
+}
+
+func parkunlock_c(gp *g, lock unsafe.Pointer) bool {
+	unlock((*mutex)(lock))
+	return true
+}
+
+// park continuation on g0.
+func park_m(gp *g) {
+	_g_ := getg()
+
+	if trace.enabled {
+		traceGoPark(_g_.m.waittraceev, _g_.m.waittraceskip)
+	}
+
+	casgstatus(gp, _Grunning, _Gwaiting)
+	dropg()
+
+	if fn := _g_.m.waitunlockf; fn != nil {
+		ok := fn(gp, _g_.m.waitlock)
+		_g_.m.waitunlockf = nil
+		_g_.m.waitlock = nil
+		if !ok {
+			if trace.enabled {
+				traceGoUnpark(gp, 2)
+			}
+			casgstatus(gp, _Gwaiting, _Grunnable)
+			execute(gp, true) // Schedule it back, never returns.
+		}
+	}
+	schedule()
+}
+
+func goschedImpl(gp *g) {
+	status := readgstatus(gp)
+	if status&^_Gscan != _Grunning {
+		dumpgstatus(gp)
+		throw("bad g status")
+	}
+	casgstatus(gp, _Grunning, _Grunnable)
+	dropg()
+	lock(&sched.lock)
+	globrunqput(gp)
+	unlock(&sched.lock)
+
+	schedule()
+}
+
+// Gosched continuation on g0.
+func gosched_m(gp *g) {
+	if trace.enabled {
+		traceGoSched()
+	}
+	goschedImpl(gp)
+}
+
+// goschedguarded is a forbidden-states-avoided version of gosched_m
+func goschedguarded_m(gp *g) {
+
+	if !canPreemptM(gp.m) {
+		gogo(&gp.sched) // never return
+	}
+
+	if trace.enabled {
+		traceGoSched()
+	}
+	goschedImpl(gp)
+}
+
+func gopreempt_m(gp *g) {
+	if trace.enabled {
+		traceGoPreempt()
+	}
+	goschedImpl(gp)
+}
+
+// preemptPark parks gp and puts it in _Gpreempted.
+//
+//go:systemstack
+func preemptPark(gp *g) {
+	if trace.enabled {
+		traceGoPark(traceEvGoBlock, 0)
+	}
+	status := readgstatus(gp)
+	if status&^_Gscan != _Grunning {
+		dumpgstatus(gp)
+		throw("bad g status")
+	}
+	gp.waitreason = waitReasonPreempted
+	// Transition from _Grunning to _Gscan|_Gpreempted. We can't
+	// be in _Grunning when we dropg because then we'd be running
+	// without an M, but the moment we're in _Gpreempted,
+	// something could claim this G before we've fully cleaned it
+	// up. Hence, we set the scan bit to lock down further
+	// transitions until we can dropg.
+	casGToPreemptScan(gp, _Grunning, _Gscan|_Gpreempted)
+	dropg()
+	casfrom_Gscanstatus(gp, _Gscan|_Gpreempted, _Gpreempted)
+	schedule()
+}
+
+// goyield is like Gosched, but it:
+// - emits a GoPreempt trace event instead of a GoSched trace event
+

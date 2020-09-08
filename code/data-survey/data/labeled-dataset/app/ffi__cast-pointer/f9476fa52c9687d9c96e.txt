@@ -1,0 +1,34 @@
+Module: github.com/coreos/pkg
+Version: v0.0.0-20180108230652-97fdf19511ea
+
+Package: github.com/coreos/pkg/dlopen
+File: /root/.cache/go-build/94/94e2bc5fa91cef297f6dbd62f3c073fe0162c026bbb59732786159dd5257f748-d
+Line: 103
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+var _cgo_e0b245b285bd_Cfunc_dlsym = unsafe.Pointer(&__cgofn__cgo_e0b245b285bd_Cfunc_dlsym)
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return
+}
+//go:cgo_import_static _cgo_e0b245b285bd_Cfunc_dlsym
+//go:linkname __cgofn__cgo_e0b245b285bd_Cfunc_dlsym _cgo_e0b245b285bd_Cfunc_dlsym
+var __cgofn__cgo_e0b245b285bd_Cfunc_dlsym byte
+var _cgo_e0b245b285bd_Cfunc_dlsym = unsafe.Pointer(&__cgofn__cgo_e0b245b285bd_Cfunc_dlsym)
+
+//go:cgo_unsafe_args
+func _Cfunc_dlsym(p0 unsafe.Pointer, p1 *_Ctype_char) (r1 unsafe.Pointer) {
+	_cgo_runtime_cgocall(_cgo_e0b245b285bd_Cfunc_dlsym, uintptr(unsafe.Pointer(&p0)))
+	if _Cgo_always_false {
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

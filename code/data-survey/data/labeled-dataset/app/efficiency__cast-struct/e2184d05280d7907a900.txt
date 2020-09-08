@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/admissionregistration/v1beta1
+File: zz_generated.conversion.go
+Line: 383
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.ObjectSelector = (*v1.LabelSelector)(unsafe.Pointer(in.ObjectSelector))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	}
+	out.Rules = *(*[]v1beta1.RuleWithOperations)(unsafe.Pointer(&in.Rules))
+	out.FailurePolicy = (*v1beta1.FailurePolicyType)(unsafe.Pointer(in.FailurePolicy))
+	out.MatchPolicy = (*v1beta1.MatchPolicyType)(unsafe.Pointer(in.MatchPolicy))
+	out.NamespaceSelector = (*v1.LabelSelector)(unsafe.Pointer(in.NamespaceSelector))
+	out.ObjectSelector = (*v1.LabelSelector)(unsafe.Pointer(in.ObjectSelector))
+	out.SideEffects = (*v1beta1.SideEffectClass)(unsafe.Pointer(in.SideEffects))
+	out.TimeoutSeconds = (*int32)(unsafe.Pointer(in.TimeoutSeconds))
+	out.AdmissionReviewVersions = *(*[]string)(unsafe.Pointer(&in.AdmissionReviewVersions))
+	return nil
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

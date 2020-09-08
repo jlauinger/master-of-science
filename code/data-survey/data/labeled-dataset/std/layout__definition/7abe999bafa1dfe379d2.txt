@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: os_linux.go
+Line: 195
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): definition
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+func mincore(addr unsafe.Pointer, n uintptr, dst *byte) int32
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+var procAuxv = []byte("/proc/self/auxv\x00")
+
+var addrspace_vec [1]byte
+
+func mincore(addr unsafe.Pointer, n uintptr, dst *byte) int32
+
+func sysargs(argc int32, argv **byte) {
+	n := argc + 1
+
+	// skip over argv, envp to get to auxv
+--------------------------------------------------------------
++/- 100 lines context:
+
+	return n
+}
+
+// Clone, the Linux rfork.
+const (
+	_CLONE_VM             = 0x100
+	_CLONE_FS             = 0x200
+	_CLONE_FILES          = 0x400
+	_CLONE_SIGHAND        = 0x800
+	_CLONE_PTRACE         = 0x2000
+	_CLONE_VFORK          = 0x4000
+	_CLONE_PARENT         = 0x8000
+	_CLONE_THREAD         = 0x10000
+	_CLONE_NEWNS          = 0x20000
+	_CLONE_SYSVSEM        = 0x40000
+	_CLONE_SETTLS         = 0x80000
+	_CLONE_PARENT_SETTID  = 0x100000
+	_CLONE_CHILD_CLEARTID = 0x200000
+	_CLONE_UNTRACED       = 0x800000
+	_CLONE_CHILD_SETTID   = 0x1000000
+	_CLONE_STOPPED        = 0x2000000
+	_CLONE_NEWUTS         = 0x4000000
+	_CLONE_NEWIPC         = 0x8000000
+
+	// As of QEMU 2.8.0 (5ea2fc84d), user emulation requires all six of these
+	// flags to be set when creating a thread; attempts to share the other
+	// five but leave SYSVSEM unshared will fail with -EINVAL.
+	//
+	// In non-QEMU environments CLONE_SYSVSEM is inconsequential as we do not
+	// use System V semaphores.
+
+	cloneFlags = _CLONE_VM | /* share memory */
+		_CLONE_FS | /* share cwd, etc */
+		_CLONE_FILES | /* share fd table */
+		_CLONE_SIGHAND | /* share sig handler table */
+		_CLONE_SYSVSEM | /* share SysV semaphore undo lists (see issue #20763) */
+		_CLONE_THREAD /* revisit - okay for now */
+)
+
+//go:noescape
+func clone(flags int32, stk, mp, gp, fn unsafe.Pointer) int32
+
+// May run with m.p==nil, so write barriers are not allowed.
+//go:nowritebarrier
+func newosproc(mp *m) {
+	stk := unsafe.Pointer(mp.g0.stack.hi)
+	/*
+	 * note: strace gets confused if we use CLONE_PTRACE here.
+	 */
+	if false {
+		print("newosproc stk=", stk, " m=", mp, " g=", mp.g0, " clone=", funcPC(clone), " id=", mp.id, " ostk=", &mp, "\n")
+	}
+
+	// Disable signals during clone, so that the new thread starts
+	// with signals disabled. It will enable them in minit.
+	var oset sigset
+	sigprocmask(_SIG_SETMASK, &sigset_all, &oset)
+	ret := clone(cloneFlags, stk, unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(funcPC(mstart)))
+	sigprocmask(_SIG_SETMASK, &oset, nil)
+
+	if ret < 0 {
+		print("runtime: failed to create new OS thread (have ", mcount(), " already; errno=", -ret, ")\n")
+		if ret == -_EAGAIN {
+			println("runtime: may need to increase max user processes (ulimit -u)")
+		}
+		throw("newosproc")
+	}
+}
+
+// Version of newosproc that doesn't require a valid G.
+//go:nosplit
+func newosproc0(stacksize uintptr, fn unsafe.Pointer) {
+	stack := sysAlloc(stacksize, &memstats.stacks_sys)
+	if stack == nil {
+		write(2, unsafe.Pointer(&failallocatestack[0]), int32(len(failallocatestack)))
+		exit(1)
+	}
+	ret := clone(cloneFlags, unsafe.Pointer(uintptr(stack)+stacksize), nil, nil, fn)
+	if ret < 0 {
+		write(2, unsafe.Pointer(&failthreadcreate[0]), int32(len(failthreadcreate)))
+		exit(1)
+	}
+}
+
+var failallocatestack = []byte("runtime: failed to allocate stack for the new OS thread\n")
+var failthreadcreate = []byte("runtime: failed to create new OS thread\n")
+
+const (
+	_AT_NULL   = 0  // End of vector
+	_AT_PAGESZ = 6  // System physical page size
+	_AT_HWCAP  = 16 // hardware capability bit vector
+	_AT_RANDOM = 25 // introduced in 2.6.29
+	_AT_HWCAP2 = 26 // hardware capability bit vector 2
+)
+
+var procAuxv = []byte("/proc/self/auxv\x00")
+
+var addrspace_vec [1]byte
+
+func mincore(addr unsafe.Pointer, n uintptr, dst *byte) int32
+
+func sysargs(argc int32, argv **byte) {
+	n := argc + 1
+
+	// skip over argv, envp to get to auxv
+	for argv_index(argv, n) != nil {
+		n++
+	}
+
+	// skip NULL separator
+	n++
+
+	// now argv+n is auxv
+	auxv := (*[1 << 28]uintptr)(add(unsafe.Pointer(argv), uintptr(n)*sys.PtrSize))
+	if sysauxv(auxv[:]) != 0 {
+		return
+	}
+	// In some situations we don't get a loader-provided
+	// auxv, such as when loaded as a library on Android.
+	// Fall back to /proc/self/auxv.
+	fd := open(&procAuxv[0], 0 /* O_RDONLY */, 0)
+	if fd < 0 {
+		// On Android, /proc/self/auxv might be unreadable (issue 9229), so we fallback to
+		// try using mincore to detect the physical page size.
+		// mincore should return EINVAL when address is not a multiple of system page size.
+		const size = 256 << 10 // size of memory region to allocate
+		p, err := mmap(nil, size, _PROT_READ|_PROT_WRITE, _MAP_ANON|_MAP_PRIVATE, -1, 0)
+		if err != 0 {
+			return
+		}
+		var n uintptr
+		for n = 4 << 10; n < size; n <<= 1 {
+			err := mincore(unsafe.Pointer(uintptr(p)+n), 1, &addrspace_vec[0])
+			if err == 0 {
+				physPageSize = n
+				break
+			}
+		}
+		if physPageSize == 0 {
+			physPageSize = size
+		}
+		munmap(p, size)
+		return
+	}
+	var buf [128]uintptr
+	n = read(fd, noescape(unsafe.Pointer(&buf[0])), int32(unsafe.Sizeof(buf)))
+	closefd(fd)
+	if n < 0 {
+		return
+	}
+	// Make sure buf is terminated, even if we didn't read
+	// the whole file.
+	buf[len(buf)-2] = _AT_NULL
+	sysauxv(buf[:])
+}
+
+func sysauxv(auxv []uintptr) int {
+	var i int
+	for ; auxv[i] != _AT_NULL; i += 2 {
+		tag, val := auxv[i], auxv[i+1]
+		switch tag {
+		case _AT_RANDOM:
+			// The kernel provides a pointer to 16-bytes
+			// worth of random data.
+			startupRandomData = (*[16]byte)(unsafe.Pointer(val))[:]
+
+		case _AT_PAGESZ:
+			physPageSize = val
+		}
+
+		archauxv(tag, val)
+		vdsoauxv(tag, val)
+	}
+	return i / 2
+}
+
+var sysTHPSizePath = []byte("/sys/kernel/mm/transparent_hugepage/hpage_pmd_size\x00")
+
+func getHugePageSize() uintptr {
+	var numbuf [20]byte
+	fd := open(&sysTHPSizePath[0], 0 /* O_RDONLY */, 0)
+	if fd < 0 {
+		return 0
+	}
+	n := read(fd, noescape(unsafe.Pointer(&numbuf[0])), int32(len(numbuf)))
+	closefd(fd)
+	if n <= 0 {
+		return 0
+	}
+	l := n - 1 // remove trailing newline
+	v, ok := atoi(slicebytetostringtmp(numbuf[:l]))
+	if !ok || v < 0 {
+		v = 0
+	}
+	if v&(v-1) != 0 {
+		// v is not a power of 2
+		return 0
+	}
+	return uintptr(v)
+}
+

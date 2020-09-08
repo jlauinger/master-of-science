@@ -1,0 +1,190 @@
+Module: github.com/vishvananda/netlink
+Version: v1.0.1-0.20190913165827-36d367fd76f9
+
+Package: github.com/vishvananda/netlink
+File: link_linux.go
+Line: 2747
+
+Imported (possibly among others) by: weaveworks/scope
+
+Label 1 (What is happening?): syscall
+Label 2 (For what purpose?): no-gc
+
+--------------------------------------------------------------
+Snippet line:
+
+ifreq.Data = uintptr(unsafe.Pointer(gstrings))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	gstrings := &ethtoolGstrings{
+		cmd:       ETHTOOL_GSTRINGS,
+		stringSet: ETH_SS_STATS,
+		length:    sSet.data[0],
+	}
+	ifreq.Data = uintptr(unsafe.Pointer(gstrings))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf("SIOCETHTOOL request for %q failed, errno=%v", link.Attrs().Name, errno)
+	}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+	var vfs []VfInfo
+
+	for i, element := range data {
+		if element.Attr.Type != nl.IFLA_VF_INFO {
+			return nil, fmt.Errorf("Incorrect element type in vf info list: %d", element.Attr.Type)
+		}
+		vfAttrs, err := nl.ParseRouteAttr(element.Value)
+		if err != nil {
+			return nil, err
+		}
+		vfs = append(vfs, parseVfInfo(vfAttrs, i))
+	}
+	return vfs, nil
+}
+
+func parseVfInfo(data []syscall.NetlinkRouteAttr, id int) VfInfo {
+	vf := VfInfo{ID: id}
+	for _, element := range data {
+		switch element.Attr.Type {
+		case nl.IFLA_VF_MAC:
+			mac := nl.DeserializeVfMac(element.Value[:])
+			vf.Mac = mac.Mac[:6]
+		case nl.IFLA_VF_VLAN:
+			vl := nl.DeserializeVfVlan(element.Value[:])
+			vf.Vlan = int(vl.Vlan)
+			vf.Qos = int(vl.Qos)
+		case nl.IFLA_VF_TX_RATE:
+			txr := nl.DeserializeVfTxRate(element.Value[:])
+			vf.TxRate = int(txr.Rate)
+		case nl.IFLA_VF_SPOOFCHK:
+			sp := nl.DeserializeVfSpoofchk(element.Value[:])
+			vf.Spoofchk = sp.Setting != 0
+		case nl.IFLA_VF_LINK_STATE:
+			ls := nl.DeserializeVfLinkState(element.Value[:])
+			vf.LinkState = ls.LinkState
+		case nl.IFLA_VF_RATE:
+			vfr := nl.DeserializeVfRate(element.Value[:])
+			vf.MaxTxRate = vfr.MaxTxRate
+			vf.MinTxRate = vfr.MinTxRate
+		}
+	}
+	return vf
+}
+
+func addXfrmiAttrs(xfrmi *Xfrmi, linkInfo *nl.RtAttr) {
+	data := linkInfo.AddRtAttr(nl.IFLA_INFO_DATA, nil)
+	data.AddRtAttr(nl.IFLA_XFRM_LINK, nl.Uint32Attr(uint32(xfrmi.ParentIndex)))
+	data.AddRtAttr(nl.IFLA_XFRM_IF_ID, nl.Uint32Attr(xfrmi.Ifid))
+
+}
+
+func parseXfrmiData(link Link, data []syscall.NetlinkRouteAttr) {
+	xfrmi := link.(*Xfrmi)
+	for _, datum := range data {
+		switch datum.Attr.Type {
+		case nl.IFLA_XFRM_LINK:
+			xfrmi.ParentIndex = int(native.Uint32(datum.Value))
+		case nl.IFLA_XFRM_IF_ID:
+			xfrmi.Ifid = native.Uint32(datum.Value)
+		}
+	}
+}
+
+// LinkSetBondSlave add slave to bond link via ioctl interface.
+func LinkSetBondSlave(link Link, master *Bond) error {
+	fd, err := getSocketUDP()
+	if err != nil {
+		return err
+	}
+	defer syscall.Close(fd)
+
+	ifreq := newIocltSlaveReq(link.Attrs().Name, master.Attrs().Name)
+
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), unix.SIOCBONDENSLAVE, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return fmt.Errorf("Failed to enslave %q to %q, errno=%v", link.Attrs().Name, master.Attrs().Name, errno)
+	}
+	return nil
+}
+
+// VethPeerIndex get veth peer index.
+func VethPeerIndex(link *Veth) (int, error) {
+	fd, err := getSocketUDP()
+	if err != nil {
+		return -1, err
+	}
+	defer syscall.Close(fd)
+
+	ifreq, sSet := newIocltStringSetReq(link.Name)
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf("SIOCETHTOOL request for %q failed, errno=%v", link.Attrs().Name, errno)
+	}
+
+	gstrings := &ethtoolGstrings{
+		cmd:       ETHTOOL_GSTRINGS,
+		stringSet: ETH_SS_STATS,
+		length:    sSet.data[0],
+	}
+	ifreq.Data = uintptr(unsafe.Pointer(gstrings))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf("SIOCETHTOOL request for %q failed, errno=%v", link.Attrs().Name, errno)
+	}
+
+	stats := &ethtoolStats{
+		cmd:    ETHTOOL_GSTATS,
+		nStats: gstrings.length,
+	}
+	ifreq.Data = uintptr(unsafe.Pointer(stats))
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
+	if errno != 0 {
+		return -1, fmt.Errorf("SIOCETHTOOL request for %q failed, errno=%v", link.Attrs().Name, errno)
+	}
+	return int(stats.data[0]), nil
+}
+
+func parseTuntapData(link Link, data []syscall.NetlinkRouteAttr) {
+	tuntap := link.(*Tuntap)
+	for _, datum := range data {
+		switch datum.Attr.Type {
+		case nl.IFLA_TUN_OWNER:
+			tuntap.Owner = native.Uint32(datum.Value)
+		case nl.IFLA_TUN_GROUP:
+			tuntap.Group = native.Uint32(datum.Value)
+		case nl.IFLA_TUN_TYPE:
+			tuntap.Mode = TuntapMode(uint8(datum.Value[0]))
+		case nl.IFLA_TUN_PERSIST:
+			tuntap.NonPersist = false
+			if uint8(datum.Value[0]) == 0 {
+				tuntap.NonPersist = true
+			}
+		}
+	}
+}
+
+func parseIPoIBData(link Link, data []syscall.NetlinkRouteAttr) {
+	ipoib := link.(*IPoIB)
+	for _, datum := range data {
+		switch datum.Attr.Type {
+		case nl.IFLA_IPOIB_PKEY:
+			ipoib.Pkey = uint16(native.Uint16(datum.Value))
+		case nl.IFLA_IPOIB_MODE:
+			ipoib.Mode = IPoIBMode(native.Uint16(datum.Value))
+		case nl.IFLA_IPOIB_UMCAST:
+			ipoib.Umcast = uint16(native.Uint16(datum.Value))
+		}
+	}
+}
+
+func addIPoIBAttrs(ipoib *IPoIB, linkInfo *nl.RtAttr) {
+	data := linkInfo.AddRtAttr(nl.IFLA_INFO_DATA, nil)
+	data.AddRtAttr(nl.IFLA_IPOIB_PKEY, nl.Uint16Attr(uint16(ipoib.Pkey)))
+	data.AddRtAttr(nl.IFLA_IPOIB_MODE, nl.Uint16Attr(uint16(ipoib.Mode)))
+	data.AddRtAttr(nl.IFLA_IPOIB_UMCAST, nl.Uint16Attr(uint16(ipoib.Umcast)))
+}
+

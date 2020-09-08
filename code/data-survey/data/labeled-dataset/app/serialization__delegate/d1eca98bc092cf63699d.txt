@@ -1,0 +1,234 @@
+Module: gorgonia.org/tensor
+Version: v0.9.6
+
+Package: gorgonia.org/tensor/internal/execution
+File: generic_map.go
+Line: 854
+
+Imported (possibly among others) by: gorgonia/gorgonia
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func MapIterErrUnsafePointer(fn func(unsafe.Pointer) (unsafe.Pointer, error), a []unsafe.Pointer, ait Iterator) (err error) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+		}
+	}
+	return
+}
+
+func MapIterErrUnsafePointer(fn func(unsafe.Pointer) (unsafe.Pointer, error), a []unsafe.Pointer, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+--------------------------------------------------------------
++/- 100 lines context:
+
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func MapIterErrF32(fn func(float32) (float32, error), a []float32, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func MapIterErrF64(fn func(float64) (float64, error), a []float64, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func MapIterErrC64(fn func(complex64) (complex64, error), a []complex64, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func MapIterErrC128(fn func(complex128) (complex128, error), a []complex128, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func MapIterErrStr(fn func(string) (string, error), a []string, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func MapIterErrUnsafePointer(fn func(unsafe.Pointer) (unsafe.Pointer, error), a []unsafe.Pointer, ait Iterator) (err error) {
+	var i int
+	var validi bool
+	for {
+		if i, validi, err = ait.NextValidity(); err != nil {
+			err = handleNoOp(err)
+			break
+		}
+		if validi {
+			if a[i], err = fn(a[i]); handleNoOp(err) != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func MapIncrI(fn func(int) int, a []int) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrI8(fn func(int8) int8, a []int8) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrI16(fn func(int16) int16, a []int16) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrI32(fn func(int32) int32, a []int32) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrI64(fn func(int64) int64, a []int64) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrU(fn func(uint) uint, a []uint) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrU8(fn func(uint8) uint8, a []uint8) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrU16(fn func(uint16) uint16, a []uint16) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrU32(fn func(uint32) uint32, a []uint32) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrU64(fn func(uint64) uint64, a []uint64) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrF32(fn func(float32) float32, a []float32) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+func MapIncrF64(fn func(float64) float64, a []float64) {
+	for i := range a {
+		a[i] += fn(a[i])
+	}
+	return
+}
+
+

@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/flowcontrol/v1alpha1
+File: zz_generated.conversion.go
+Line: 711
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.Verbs = *(*[]string)(unsafe.Pointer(&in.Verbs))
+--------------------------------------------------------------
++/- 5 lines context:
+
+func Convert_v1alpha1_ResourcePolicyRule_To_flowcontrol_ResourcePolicyRule(in *v1alpha1.ResourcePolicyRule, out *flowcontrol.ResourcePolicyRule, s conversion.Scope) error {
+	return autoConvert_v1alpha1_ResourcePolicyRule_To_flowcontrol_ResourcePolicyRule(in, out, s)
+}
+
+func autoConvert_flowcontrol_ResourcePolicyRule_To_v1alpha1_ResourcePolicyRule(in *flowcontrol.ResourcePolicyRule, out *v1alpha1.ResourcePolicyRule, s conversion.Scope) error {
+	out.Verbs = *(*[]string)(unsafe.Pointer(&in.Verbs))
+	out.APIGroups = *(*[]string)(unsafe.Pointer(&in.APIGroups))
+	out.Resources = *(*[]string)(unsafe.Pointer(&in.Resources))
+	out.ClusterScope = in.ClusterScope
+	out.Namespaces = *(*[]string)(unsafe.Pointer(&in.Namespaces))
+	return nil
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

@@ -1,0 +1,34 @@
+Module: k8s.io/kubernetes
+Version: project
+
+Package: k8s.io/kubernetes/pkg/apis/core/v1
+File: zz_generated.conversion.go
+Line: 8021
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.PortworxVolume = (*v1.PortworxVolumeSource)(unsafe.Pointer(in.PortworxVolume))
+--------------------------------------------------------------
++/- 5 lines context:
+
+			return err
+		}
+	} else {
+		out.Projected = nil
+	}
+	out.PortworxVolume = (*v1.PortworxVolumeSource)(unsafe.Pointer(in.PortworxVolume))
+	out.ScaleIO = (*v1.ScaleIOVolumeSource)(unsafe.Pointer(in.ScaleIO))
+	out.StorageOS = (*v1.StorageOSVolumeSource)(unsafe.Pointer(in.StorageOS))
+	out.CSI = (*v1.CSIVolumeSource)(unsafe.Pointer(in.CSI))
+	return nil
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

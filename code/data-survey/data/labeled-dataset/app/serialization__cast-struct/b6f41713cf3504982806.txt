@@ -1,0 +1,173 @@
+Module: github.com/elastic/go-structform
+Version: v0.0.6
+
+Package: github.com/elastic/go-structform/gotype
+File: unfold_arr.generated.go
+Line: 2275
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+ptr := unsafe.Pointer(arrPtr)
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+	case structform.Uint64Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]uint64)(ptr)
+		unfolder := newUnfolderArrUint64()
+
+		return to, ptr, unfolder
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+		to := (*[]float32)(ptr)
+		unfolder := newUnfolderArrFloat32()
+
+		return to, ptr, unfolder
+
+	case structform.Float64Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]float64)(ptr)
+		unfolder := newUnfolderArrFloat64()
+
+		return to, ptr, unfolder
+
+	case structform.Int16Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]int16)(ptr)
+		unfolder := newUnfolderArrInt16()
+
+		return to, ptr, unfolder
+
+	case structform.Int32Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]int32)(ptr)
+		unfolder := newUnfolderArrInt32()
+
+		return to, ptr, unfolder
+
+	case structform.Int64Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]int64)(ptr)
+		unfolder := newUnfolderArrInt64()
+
+		return to, ptr, unfolder
+
+	case structform.Int8Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]int8)(ptr)
+		unfolder := newUnfolderArrInt8()
+
+		return to, ptr, unfolder
+
+	case structform.IntType:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]int)(ptr)
+		unfolder := newUnfolderArrInt()
+
+		return to, ptr, unfolder
+
+	case structform.StringType:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]string)(ptr)
+		unfolder := newUnfolderArrString()
+
+		return to, ptr, unfolder
+
+	case structform.Uint16Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]uint16)(ptr)
+		unfolder := newUnfolderArrUint16()
+
+		return to, ptr, unfolder
+
+	case structform.Uint32Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]uint32)(ptr)
+		unfolder := newUnfolderArrUint32()
+
+		return to, ptr, unfolder
+
+	case structform.Uint64Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]uint64)(ptr)
+		unfolder := newUnfolderArrUint64()
+
+		return to, ptr, unfolder
+
+	case structform.Uint8Type:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]uint8)(ptr)
+		unfolder := newUnfolderArrUint8()
+
+		return to, ptr, unfolder
+
+	case structform.UintType:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]uint)(ptr)
+		unfolder := newUnfolderArrUint()
+
+		return to, ptr, unfolder
+
+	case structform.ZeroType:
+		idx := len(ctx.valueBuffer.arrays)
+		ctx.valueBuffer.arrays = append(ctx.valueBuffer.arrays, nil)
+		arrPtr := &ctx.valueBuffer.arrays[idx]
+		ptr := unsafe.Pointer(arrPtr)
+		to := (*[]interface{})(ptr)
+		unfolder := newUnfolderArrIfc()
+
+		return to, ptr, unfolder
+
+	default:
+		panic("invalid type code")
+	}
+}
+

@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: string.go
+Line: 292
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+*(*slice)(unsafe.Pointer(&b)) = slice{p, size, int(mem / 4)}
+--------------------------------------------------------------
++/- 5 lines context:
+
+	p := mallocgc(mem, nil, false)
+	if mem != uintptr(size)*4 {
+		memclrNoHeapPointers(add(p, uintptr(size)*4), mem-uintptr(size)*4)
+	}
+
+	*(*slice)(unsafe.Pointer(&b)) = slice{p, size, int(mem / 4)}
+	return
+}
+
+// used by cmd/cgo
+func gobytes(p *byte, n int) (b []byte) {
+--------------------------------------------------------------
++/- 100 lines context:
+
+		racereadrangepc(unsafe.Pointer(&a[0]),
+			uintptr(len(a))*unsafe.Sizeof(a[0]),
+			getcallerpc(),
+			funcPC(slicerunetostring))
+	}
+	if msanenabled && len(a) > 0 {
+		msanread(unsafe.Pointer(&a[0]), uintptr(len(a))*unsafe.Sizeof(a[0]))
+	}
+	var dum [4]byte
+	size1 := 0
+	for _, r := range a {
+		size1 += encoderune(dum[:], r)
+	}
+	s, b := rawstringtmp(buf, size1+3)
+	size2 := 0
+	for _, r := range a {
+		// check for race
+		if size2 >= size1 {
+			break
+		}
+		size2 += encoderune(b[size2:], r)
+	}
+	return s[:size2]
+}
+
+type stringStruct struct {
+	str unsafe.Pointer
+	len int
+}
+
+// Variant with *byte pointer type for DWARF debugging.
+type stringStructDWARF struct {
+	str *byte
+	len int
+}
+
+func stringStructOf(sp *string) *stringStruct {
+	return (*stringStruct)(unsafe.Pointer(sp))
+}
+
+func intstring(buf *[4]byte, v int64) (s string) {
+	if v >= 0 && v < runeSelf {
+		stringStructOf(&s).str = unsafe.Pointer(&staticbytes[v])
+		stringStructOf(&s).len = 1
+		return
+	}
+
+	var b []byte
+	if buf != nil {
+		b = buf[:]
+		s = slicebytetostringtmp(b)
+	} else {
+		s, b = rawstring(4)
+	}
+	if int64(rune(v)) != v {
+		v = runeError
+	}
+	n := encoderune(b, rune(v))
+	return s[:n]
+}
+
+// rawstring allocates storage for a new string. The returned
+// string and byte slice both refer to the same storage.
+// The storage is not zeroed. Callers should use
+// b to set the string contents and then drop b.
+func rawstring(size int) (s string, b []byte) {
+	p := mallocgc(uintptr(size), nil, false)
+
+	stringStructOf(&s).str = p
+	stringStructOf(&s).len = size
+
+	*(*slice)(unsafe.Pointer(&b)) = slice{p, size, size}
+
+	return
+}
+
+// rawbyteslice allocates a new byte slice. The byte slice is not zeroed.
+func rawbyteslice(size int) (b []byte) {
+	cap := roundupsize(uintptr(size))
+	p := mallocgc(cap, nil, false)
+	if cap != uintptr(size) {
+		memclrNoHeapPointers(add(p, uintptr(size)), cap-uintptr(size))
+	}
+
+	*(*slice)(unsafe.Pointer(&b)) = slice{p, size, int(cap)}
+	return
+}
+
+// rawruneslice allocates a new rune slice. The rune slice is not zeroed.
+func rawruneslice(size int) (b []rune) {
+	if uintptr(size) > maxAlloc/4 {
+		throw("out of memory")
+	}
+	mem := roundupsize(uintptr(size) * 4)
+	p := mallocgc(mem, nil, false)
+	if mem != uintptr(size)*4 {
+		memclrNoHeapPointers(add(p, uintptr(size)*4), mem-uintptr(size)*4)
+	}
+
+	*(*slice)(unsafe.Pointer(&b)) = slice{p, size, int(mem / 4)}
+	return
+}
+
+// used by cmd/cgo
+func gobytes(p *byte, n int) (b []byte) {
+	if n == 0 {
+		return make([]byte, 0)
+	}
+
+	if n < 0 || uintptr(n) > maxAlloc {
+		panic(errorString("gobytes: length out of range"))
+	}
+
+	bp := mallocgc(uintptr(n), nil, false)
+	memmove(bp, unsafe.Pointer(p), uintptr(n))
+
+	*(*slice)(unsafe.Pointer(&b)) = slice{bp, n, n}
+	return
+}
+
+// This is exported via linkname to assembly in syscall (for Plan9).
+//go:linkname gostring
+func gostring(p *byte) string {
+	l := findnull(p)
+	if l == 0 {
+		return ""
+	}
+	s, b := rawstring(l)
+	memmove(unsafe.Pointer(&b[0]), unsafe.Pointer(p), uintptr(l))
+	return s
+}
+
+func gostringn(p *byte, l int) string {
+	if l == 0 {
+		return ""
+	}
+	s, b := rawstring(l)
+	memmove(unsafe.Pointer(&b[0]), unsafe.Pointer(p), uintptr(l))
+	return s
+}
+
+func index(s, t string) int {
+	if len(t) == 0 {
+		return 0
+	}
+	for i := 0; i < len(s); i++ {
+		if s[i] == t[0] && hasPrefix(s[i:], t) {
+			return i
+		}
+	}
+	return -1
+}
+
+func contains(s, t string) bool {
+	return index(s, t) >= 0
+}
+
+func hasPrefix(s, prefix string) bool {
+	return len(s) >= len(prefix) && s[:len(prefix)] == prefix
+}
+
+const (
+	maxUint = ^uint(0)
+	maxInt  = int(maxUint >> 1)
+)
+
+// atoi parses an int from a string s.
+// The bool result reports whether s is a number
+// representable by a value of type int.
+func atoi(s string) (int, bool) {
+	if s == "" {
+		return 0, false
+	}
+
+	neg := false
+	if s[0] == '-' {
+		neg = true
+		s = s[1:]
+	}
+
+	un := uint(0)
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c < '0' || c > '9' {
+			return 0, false
+		}
+		if un > maxUint/10 {
+			// overflow
+			return 0, false
+		}
+		un *= 10
+		un1 := un + uint(c) - '0'
+		if un1 < un {
+			// overflow
+			return 0, false
+		}
+		un = un1
+	}
+
+	if !neg && un > uint(maxInt) {
+

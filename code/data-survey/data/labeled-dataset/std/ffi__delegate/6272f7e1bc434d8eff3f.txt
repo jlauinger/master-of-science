@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: mheap.go
+Line: 1229
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+sysUsed(unsafe.Pointer(base), nbytes)
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+	// Commit and account for any scavenged memory that the span now owns.
+	if scav != 0 {
+		// sysUsed all the pages that are actually available
+		// in the span since some of them might be scavenged.
+		sysUsed(unsafe.Pointer(base), nbytes)
+		mSysStatDec(&memstats.heap_released, scav)
+	}
+	// Update stats.
+	mSysStatInc(sysStat, nbytes)
+	mSysStatDec(&memstats.heap_idle, nbytes)
+--------------------------------------------------------------
++/- 100 lines context:
+
+				throw("grew heap, but no adequate free space found")
+			}
+		}
+	}
+	if s == nil {
+		// We failed to get an mspan earlier, so grab
+		// one now that we have the heap lock.
+		s = h.allocMSpanLocked()
+	}
+	if !manual {
+		// This is a heap span, so we should do some additional accounting
+		// which may only be done with the heap locked.
+
+		// Transfer stats from mcache to global.
+		memstats.heap_scan += uint64(gp.m.mcache.local_scan)
+		gp.m.mcache.local_scan = 0
+		memstats.tinyallocs += uint64(gp.m.mcache.local_tinyallocs)
+		gp.m.mcache.local_tinyallocs = 0
+
+		// Do some additional accounting if it's a large allocation.
+		if spanclass.sizeclass() == 0 {
+			mheap_.largealloc += uint64(npages * pageSize)
+			mheap_.nlargealloc++
+			atomic.Xadd64(&memstats.heap_live, int64(npages*pageSize))
+		}
+
+		// Either heap_live or heap_scan could have been updated.
+		if gcBlackenEnabled != 0 {
+			gcController.revise()
+		}
+	}
+	unlock(&h.lock)
+
+HaveSpan:
+	// At this point, both s != nil and base != 0, and the heap
+	// lock is no longer held. Initialize the span.
+	s.init(base, npages)
+	if h.allocNeedsZero(base, npages) {
+		s.needzero = 1
+	}
+	nbytes := npages * pageSize
+	if manual {
+		s.manualFreeList = 0
+		s.nelems = 0
+		s.limit = s.base() + s.npages*pageSize
+		// Manually managed memory doesn't count toward heap_sys.
+		mSysStatDec(&memstats.heap_sys, s.npages*pageSize)
+		s.state.set(mSpanManual)
+	} else {
+		// We must set span properties before the span is published anywhere
+		// since we're not holding the heap lock.
+		s.spanclass = spanclass
+		if sizeclass := spanclass.sizeclass(); sizeclass == 0 {
+			s.elemsize = nbytes
+			s.nelems = 1
+
+			s.divShift = 0
+			s.divMul = 0
+			s.divShift2 = 0
+			s.baseMask = 0
+		} else {
+			s.elemsize = uintptr(class_to_size[sizeclass])
+			s.nelems = nbytes / s.elemsize
+
+			m := &class_to_divmagic[sizeclass]
+			s.divShift = m.shift
+			s.divMul = m.mul
+			s.divShift2 = m.shift2
+			s.baseMask = m.baseMask
+		}
+
+		// Initialize mark and allocation structures.
+		s.freeindex = 0
+		s.allocCache = ^uint64(0) // all 1s indicating all free.
+		s.gcmarkBits = newMarkBits(s.nelems)
+		s.allocBits = newAllocBits(s.nelems)
+
+		// It's safe to access h.sweepgen without the heap lock because it's
+		// only ever updated with the world stopped and we run on the
+		// systemstack which blocks a STW transition.
+		atomic.Store(&s.sweepgen, h.sweepgen)
+
+		// Now that the span is filled in, set its state. This
+		// is a publication barrier for the other fields in
+		// the span. While valid pointers into this span
+		// should never be visible until the span is returned,
+		// if the garbage collector finds an invalid pointer,
+		// access to the span may race with initialization of
+		// the span. We resolve this race by atomically
+		// setting the state after the span is fully
+		// initialized, and atomically checking the state in
+		// any situation where a pointer is suspect.
+		s.state.set(mSpanInUse)
+	}
+
+	// Commit and account for any scavenged memory that the span now owns.
+	if scav != 0 {
+		// sysUsed all the pages that are actually available
+		// in the span since some of them might be scavenged.
+		sysUsed(unsafe.Pointer(base), nbytes)
+		mSysStatDec(&memstats.heap_released, scav)
+	}
+	// Update stats.
+	mSysStatInc(sysStat, nbytes)
+	mSysStatDec(&memstats.heap_idle, nbytes)
+
+	// Publish the span in various locations.
+
+	// This is safe to call without the lock held because the slots
+	// related to this span will only every be read or modified by
+	// this thread until pointers into the span are published or
+	// pageInUse is updated.
+	h.setSpans(s.base(), npages, s)
+
+	if !manual {
+		// Add to swept in-use list.
+		//
+		// This publishes the span to root marking.
+		//
+		// h.sweepgen is guaranteed to only change during STW,
+		// and preemption is disabled in the page allocator.
+		h.sweepSpans[h.sweepgen/2%2].push(s)
+
+		// Mark in-use span in arena page bitmap.
+		//
+		// This publishes the span to the page sweeper, so
+		// it's imperative that the span be completely initialized
+		// prior to this line.
+		arena, pageIdx, pageMask := pageIndexOf(s.base())
+		atomic.Or8(&arena.pageInUse[pageIdx], pageMask)
+
+		// Update related page sweeper stats.
+		atomic.Xadd64(&h.pagesInUse, int64(npages))
+
+		if trace.enabled {
+			// Trace that a heap alloc occurred.
+			traceHeapAlloc()
+		}
+	}
+	return s
+}
+
+// Try to add at least npage pages of memory to the heap,
+// returning whether it worked.
+//
+// h must be locked.
+func (h *mheap) grow(npage uintptr) bool {
+	// We must grow the heap in whole palloc chunks.
+	ask := alignUp(npage, pallocChunkPages) * pageSize
+
+	totalGrowth := uintptr(0)
+	nBase := alignUp(h.curArena.base+ask, physPageSize)
+	if nBase > h.curArena.end {
+		// Not enough room in the current arena. Allocate more
+		// arena space. This may not be contiguous with the
+		// current arena, so we have to request the full ask.
+		av, asize := h.sysAlloc(ask)
+		if av == nil {
+			print("runtime: out of memory: cannot allocate ", ask, "-byte block (", memstats.heap_sys, " in use)\n")
+			return false
+		}
+
+		if uintptr(av) == h.curArena.end {
+			// The new space is contiguous with the old
+			// space, so just extend the current space.
+			h.curArena.end = uintptr(av) + asize
+		} else {
+			// The new space is discontiguous. Track what
+			// remains of the current space and switch to
+			// the new space. This should be rare.
+			if size := h.curArena.end - h.curArena.base; size != 0 {
+				h.pages.grow(h.curArena.base, size)
+				totalGrowth += size
+			}
+			// Switch to the new space.
+			h.curArena.base = uintptr(av)
+			h.curArena.end = uintptr(av) + asize
+		}
+
+		// The memory just allocated counts as both released
+		// and idle, even though it's not yet backed by spans.
+		//
+		// The allocation is always aligned to the heap arena
+		// size which is always > physPageSize, so its safe to
+		// just add directly to heap_released.
+		mSysStatInc(&memstats.heap_released, asize)
+		mSysStatInc(&memstats.heap_idle, asize)
+
+		// Recalculate nBase
+		nBase = alignUp(h.curArena.base+ask, physPageSize)
+	}
+
+	// Grow into the current arena.
+	v := h.curArena.base
+	h.curArena.base = nBase
+	h.pages.grow(v, nBase-v)
+	totalGrowth += nBase - v
+
+	// We just caused a heap growth, so scavenge down what will soon be used.
+	// By scavenging inline we deal with the failure to allocate out of
+

@@ -1,0 +1,204 @@
+Module: go.etcd.io/bbolt
+Version: v1.3.3
+
+Package: go.etcd.io/bbolt
+File: freelist.go
+Line: 322
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+f.copyall(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[1:])
+--------------------------------------------------------------
++/- 5 lines context:
+
+		p.count = uint16(lenids)
+		f.copyall(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[:])
+	} else {
+		p.count = 0xFFFF
+		((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[0] = pgid(lenids)
+		f.copyall(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[1:])
+	}
+
+	return nil
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+		txp.lastReleaseBegin = begin
+		if len(txp.ids) == 0 {
+			delete(f.pending, tid)
+		}
+	}
+	f.mergeSpans(m)
+}
+
+// rollback removes the pages from a given pending tx.
+func (f *freelist) rollback(txid txid) {
+	// Remove page ids from cache.
+	txp := f.pending[txid]
+	if txp == nil {
+		return
+	}
+	var m pgids
+	for i, pgid := range txp.ids {
+		delete(f.cache, pgid)
+		tx := txp.alloctx[i]
+		if tx == 0 {
+			continue
+		}
+		if tx != txid {
+			// Pending free aborted; restore page back to alloc list.
+			f.allocs[pgid] = tx
+		} else {
+			// Freed page was allocated by this txn; OK to throw away.
+			m = append(m, pgid)
+		}
+	}
+	// Remove pages from pending list and mark as free if allocated by txid.
+	delete(f.pending, txid)
+	f.mergeSpans(m)
+}
+
+// freed returns whether a given page is in the free list.
+func (f *freelist) freed(pgid pgid) bool {
+	return f.cache[pgid]
+}
+
+// read initializes the freelist from a freelist page.
+func (f *freelist) read(p *page) {
+	if (p.flags & freelistPageFlag) == 0 {
+		panic(fmt.Sprintf("invalid freelist page: %d, page type is %s", p.id, p.typ()))
+	}
+	// If the page.count is at the max uint16 value (64k) then it's considered
+	// an overflow and the size of the freelist is stored as the first element.
+	idx, count := 0, int(p.count)
+	if count == 0xFFFF {
+		idx = 1
+		count = int(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[0])
+	}
+
+	// Copy the list of page ids from the freelist.
+	if count == 0 {
+		f.ids = nil
+	} else {
+		ids := ((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[idx : idx+count]
+
+		// copy the ids, so we don't modify on the freelist page directly
+		idsCopy := make([]pgid, count)
+		copy(idsCopy, ids)
+		// Make sure they're sorted.
+		sort.Sort(pgids(idsCopy))
+
+		f.readIDs(idsCopy)
+	}
+}
+
+// arrayReadIDs initializes the freelist from a given list of ids.
+func (f *freelist) arrayReadIDs(ids []pgid) {
+	f.ids = ids
+	f.reindex()
+}
+
+func (f *freelist) arrayGetFreePageIDs() []pgid {
+	return f.ids
+}
+
+// write writes the page ids onto a freelist page. All free and pending ids are
+// saved to disk since in the event of a program crash, all pending ids will
+// become free.
+func (f *freelist) write(p *page) error {
+	// Combine the old free pgids and pgids waiting on an open transaction.
+
+	// Update the header flag.
+	p.flags |= freelistPageFlag
+
+	// The page.count can only hold up to 64k elements so if we overflow that
+	// number then we handle it by putting the size in the first element.
+	lenids := f.count()
+	if lenids == 0 {
+		p.count = uint16(lenids)
+	} else if lenids < 0xFFFF {
+		p.count = uint16(lenids)
+		f.copyall(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[:])
+	} else {
+		p.count = 0xFFFF
+		((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[0] = pgid(lenids)
+		f.copyall(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[1:])
+	}
+
+	return nil
+}
+
+// reload reads the freelist from a page and filters out pending items.
+func (f *freelist) reload(p *page) {
+	f.read(p)
+
+	// Build a cache of only pending pages.
+	pcache := make(map[pgid]bool)
+	for _, txp := range f.pending {
+		for _, pendingID := range txp.ids {
+			pcache[pendingID] = true
+		}
+	}
+
+	// Check each page in the freelist and build a new available freelist
+	// with any pages not in the pending lists.
+	var a []pgid
+	for _, id := range f.getFreePageIDs() {
+		if !pcache[id] {
+			a = append(a, id)
+		}
+	}
+
+	f.readIDs(a)
+}
+
+// noSyncReload reads the freelist from pgids and filters out pending items.
+func (f *freelist) noSyncReload(pgids []pgid) {
+	// Build a cache of only pending pages.
+	pcache := make(map[pgid]bool)
+	for _, txp := range f.pending {
+		for _, pendingID := range txp.ids {
+			pcache[pendingID] = true
+		}
+	}
+
+	// Check each page in the freelist and build a new available freelist
+	// with any pages not in the pending lists.
+	var a []pgid
+	for _, id := range pgids {
+		if !pcache[id] {
+			a = append(a, id)
+		}
+	}
+
+	f.readIDs(a)
+}
+
+// reindex rebuilds the free cache based on available and pending free lists.
+func (f *freelist) reindex() {
+	ids := f.getFreePageIDs()
+	f.cache = make(map[pgid]bool, len(ids))
+	for _, id := range ids {
+		f.cache[id] = true
+	}
+	for _, txp := range f.pending {
+		for _, pendingID := range txp.ids {
+			f.cache[pendingID] = true
+		}
+	}
+}
+
+// arrayMergeSpans try to merge list of pages(represented by pgids) with existing spans but using array
+func (f *freelist) arrayMergeSpans(ids pgids) {
+	sort.Sort(ids)
+	f.ids = pgids(f.ids).merge(ids)
+}
+

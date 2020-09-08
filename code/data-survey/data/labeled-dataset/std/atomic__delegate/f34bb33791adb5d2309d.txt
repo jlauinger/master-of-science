@@ -1,0 +1,179 @@
+Module: std
+Version: std
+
+Package: runtime
+File: netpoll.go
+Line: 486
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): atomic
+
+--------------------------------------------------------------
+Snippet line:
+
+atomic.StorepNoWB(unsafe.Pointer(&pd.wt.f), nil) // full memory barrier between store to wd and load of wg in netpollunblock
+--------------------------------------------------------------
++/- 5 lines context:
+
+	if write {
+		if pd.wd <= 0 || pd.wt.f == nil && !read {
+			throw("runtime: inconsistent write deadline")
+		}
+		pd.wd = -1
+		atomic.StorepNoWB(unsafe.Pointer(&pd.wt.f), nil) // full memory barrier between store to wd and load of wg in netpollunblock
+		wg = netpollunblock(pd, 'w', false)
+	}
+	unlock(&pd.lock)
+	if rg != nil {
+		netpollgoready(rg, 0)
+--------------------------------------------------------------
++/- 100 lines context:
+
+func netpollgoready(gp *g, traceskip int) {
+	atomic.Xadd(&netpollWaiters, -1)
+	goready(gp, traceskip+1)
+}
+
+// returns true if IO is ready, or false if timedout or closed
+// waitio - wait only for completed IO, ignore errors
+func netpollblock(pd *pollDesc, mode int32, waitio bool) bool {
+	gpp := &pd.rg
+	if mode == 'w' {
+		gpp = &pd.wg
+	}
+
+	// set the gpp semaphore to WAIT
+	for {
+		old := *gpp
+		if old == pdReady {
+			*gpp = 0
+			return true
+		}
+		if old != 0 {
+			throw("runtime: double wait")
+		}
+		if atomic.Casuintptr(gpp, 0, pdWait) {
+			break
+		}
+	}
+
+	// need to recheck error states after setting gpp to WAIT
+	// this is necessary because runtime_pollUnblock/runtime_pollSetDeadline/deadlineimpl
+	// do the opposite: store to closing/rd/wd, membarrier, load of rg/wg
+	if waitio || netpollcheckerr(pd, mode) == 0 {
+		gopark(netpollblockcommit, unsafe.Pointer(gpp), waitReasonIOWait, traceEvGoBlockNet, 5)
+	}
+	// be careful to not lose concurrent READY notification
+	old := atomic.Xchguintptr(gpp, 0)
+	if old > pdWait {
+		throw("runtime: corrupted polldesc")
+	}
+	return old == pdReady
+}
+
+func netpollunblock(pd *pollDesc, mode int32, ioready bool) *g {
+	gpp := &pd.rg
+	if mode == 'w' {
+		gpp = &pd.wg
+	}
+
+	for {
+		old := *gpp
+		if old == pdReady {
+			return nil
+		}
+		if old == 0 && !ioready {
+			// Only set READY for ioready. runtime_pollWait
+			// will check for timeout/cancel before waiting.
+			return nil
+		}
+		var new uintptr
+		if ioready {
+			new = pdReady
+		}
+		if atomic.Casuintptr(gpp, old, new) {
+			if old == pdReady || old == pdWait {
+				old = 0
+			}
+			return (*g)(unsafe.Pointer(old))
+		}
+	}
+}
+
+func netpolldeadlineimpl(pd *pollDesc, seq uintptr, read, write bool) {
+	lock(&pd.lock)
+	// Seq arg is seq when the timer was set.
+	// If it's stale, ignore the timer event.
+	currentSeq := pd.rseq
+	if !read {
+		currentSeq = pd.wseq
+	}
+	if seq != currentSeq {
+		// The descriptor was reused or timers were reset.
+		unlock(&pd.lock)
+		return
+	}
+	var rg *g
+	if read {
+		if pd.rd <= 0 || pd.rt.f == nil {
+			throw("runtime: inconsistent read deadline")
+		}
+		pd.rd = -1
+		atomic.StorepNoWB(unsafe.Pointer(&pd.rt.f), nil) // full memory barrier between store to rd and load of rg in netpollunblock
+		rg = netpollunblock(pd, 'r', false)
+	}
+	var wg *g
+	if write {
+		if pd.wd <= 0 || pd.wt.f == nil && !read {
+			throw("runtime: inconsistent write deadline")
+		}
+		pd.wd = -1
+		atomic.StorepNoWB(unsafe.Pointer(&pd.wt.f), nil) // full memory barrier between store to wd and load of wg in netpollunblock
+		wg = netpollunblock(pd, 'w', false)
+	}
+	unlock(&pd.lock)
+	if rg != nil {
+		netpollgoready(rg, 0)
+	}
+	if wg != nil {
+		netpollgoready(wg, 0)
+	}
+}
+
+func netpollDeadline(arg interface{}, seq uintptr) {
+	netpolldeadlineimpl(arg.(*pollDesc), seq, true, true)
+}
+
+func netpollReadDeadline(arg interface{}, seq uintptr) {
+	netpolldeadlineimpl(arg.(*pollDesc), seq, true, false)
+}
+
+func netpollWriteDeadline(arg interface{}, seq uintptr) {
+	netpolldeadlineimpl(arg.(*pollDesc), seq, false, true)
+}
+
+func (c *pollCache) alloc() *pollDesc {
+	lock(&c.lock)
+	if c.first == nil {
+		const pdSize = unsafe.Sizeof(pollDesc{})
+		n := pollBlockSize / pdSize
+		if n == 0 {
+			n = 1
+		}
+		// Must be in non-GC memory because can be referenced
+		// only from epoll/kqueue internals.
+		mem := persistentalloc(n*pdSize, 0, &memstats.other_sys)
+		for i := uintptr(0); i < n; i++ {
+			pd := (*pollDesc)(add(mem, i*pdSize))
+			pd.link = c.first
+			c.first = pd
+		}
+	}
+	pd := c.first
+	c.first = pd.link
+	unlock(&c.lock)
+	return pd
+}
+

@@ -1,0 +1,63 @@
+Module: golang.org/x/tools
+Version: v0.0.0-20191115202509-3a792d9c32b2
+
+Package: golang.org/x/tools/internal/fastwalk
+File: fastwalk_dirent_namlen_linux.go
+Line: 18
+
+Imported (possibly among others) by: rancher/rancher
+
+Label 1 (What is happening?): cast-bytes
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+nameBuf := (*[unsafe.Sizeof(dirent.Name)]byte)(unsafe.Pointer(&dirent.Name[0]))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	"unsafe"
+)
+
+func direntNamlen(dirent *syscall.Dirent) uint64 {
+	const fixedHdr = uint16(unsafe.Offsetof(syscall.Dirent{}.Name))
+	nameBuf := (*[unsafe.Sizeof(dirent.Name)]byte)(unsafe.Pointer(&dirent.Name[0]))
+	const nameBufLen = uint16(len(nameBuf))
+	limit := dirent.Reclen - fixedHdr
+	if limit > nameBufLen {
+		limit = nameBufLen
+	}
+--------------------------------------------------------------
++/- 100 lines context:
+
+// Copyright 2018 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// +build linux
+// +build !appengine
+
+package fastwalk
+
+import (
+	"bytes"
+	"syscall"
+	"unsafe"
+)
+
+func direntNamlen(dirent *syscall.Dirent) uint64 {
+	const fixedHdr = uint16(unsafe.Offsetof(syscall.Dirent{}.Name))
+	nameBuf := (*[unsafe.Sizeof(dirent.Name)]byte)(unsafe.Pointer(&dirent.Name[0]))
+	const nameBufLen = uint16(len(nameBuf))
+	limit := dirent.Reclen - fixedHdr
+	if limit > nameBufLen {
+		limit = nameBufLen
+	}
+	nameLen := bytes.IndexByte(nameBuf[:limit], 0)
+	if nameLen < 0 {
+		panic("failed to find terminating 0 byte in dirent")
+	}
+	return uint64(nameLen)
+}
+

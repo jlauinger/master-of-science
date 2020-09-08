@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: reflect
+File: type.go
+Line: 967
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): types
+
+--------------------------------------------------------------
+Snippet line:
+
+tt := (*arrayType)(unsafe.Pointer(t))
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func (t *rtype) Len() int {
+	if t.Kind() != Array {
+		panic("reflect: Len of non-array type " + t.String())
+	}
+	tt := (*arrayType)(unsafe.Pointer(t))
+	return int(tt.len)
+}
+
+func (t *rtype) NumField() int {
+	if t.Kind() != Struct {
+--------------------------------------------------------------
++/- 100 lines context:
+
+		return ""
+	}
+	s := t.String()
+	i := len(s) - 1
+	for i >= 0 && s[i] != '.' {
+		i--
+	}
+	return s[i+1:]
+}
+
+func (t *rtype) ChanDir() ChanDir {
+	if t.Kind() != Chan {
+		panic("reflect: ChanDir of non-chan type " + t.String())
+	}
+	tt := (*chanType)(unsafe.Pointer(t))
+	return ChanDir(tt.dir)
+}
+
+func (t *rtype) IsVariadic() bool {
+	if t.Kind() != Func {
+		panic("reflect: IsVariadic of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return tt.outCount&(1<<15) != 0
+}
+
+func (t *rtype) Elem() Type {
+	switch t.Kind() {
+	case Array:
+		tt := (*arrayType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	case Chan:
+		tt := (*chanType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	case Map:
+		tt := (*mapType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	case Ptr:
+		tt := (*ptrType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	case Slice:
+		tt := (*sliceType)(unsafe.Pointer(t))
+		return toType(tt.elem)
+	}
+	panic("reflect: Elem of invalid type " + t.String())
+}
+
+func (t *rtype) Field(i int) StructField {
+	if t.Kind() != Struct {
+		panic("reflect: Field of non-struct type " + t.String())
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return tt.Field(i)
+}
+
+func (t *rtype) FieldByIndex(index []int) StructField {
+	if t.Kind() != Struct {
+		panic("reflect: FieldByIndex of non-struct type " + t.String())
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return tt.FieldByIndex(index)
+}
+
+func (t *rtype) FieldByName(name string) (StructField, bool) {
+	if t.Kind() != Struct {
+		panic("reflect: FieldByName of non-struct type " + t.String())
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return tt.FieldByName(name)
+}
+
+func (t *rtype) FieldByNameFunc(match func(string) bool) (StructField, bool) {
+	if t.Kind() != Struct {
+		panic("reflect: FieldByNameFunc of non-struct type " + t.String())
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return tt.FieldByNameFunc(match)
+}
+
+func (t *rtype) In(i int) Type {
+	if t.Kind() != Func {
+		panic("reflect: In of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return toType(tt.in()[i])
+}
+
+func (t *rtype) Key() Type {
+	if t.Kind() != Map {
+		panic("reflect: Key of non-map type " + t.String())
+	}
+	tt := (*mapType)(unsafe.Pointer(t))
+	return toType(tt.key)
+}
+
+func (t *rtype) Len() int {
+	if t.Kind() != Array {
+		panic("reflect: Len of non-array type " + t.String())
+	}
+	tt := (*arrayType)(unsafe.Pointer(t))
+	return int(tt.len)
+}
+
+func (t *rtype) NumField() int {
+	if t.Kind() != Struct {
+		panic("reflect: NumField of non-struct type " + t.String())
+	}
+	tt := (*structType)(unsafe.Pointer(t))
+	return len(tt.fields)
+}
+
+func (t *rtype) NumIn() int {
+	if t.Kind() != Func {
+		panic("reflect: NumIn of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return int(tt.inCount)
+}
+
+func (t *rtype) NumOut() int {
+	if t.Kind() != Func {
+		panic("reflect: NumOut of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return len(tt.out())
+}
+
+func (t *rtype) Out(i int) Type {
+	if t.Kind() != Func {
+		panic("reflect: Out of non-func type " + t.String())
+	}
+	tt := (*funcType)(unsafe.Pointer(t))
+	return toType(tt.out()[i])
+}
+
+func (t *funcType) in() []*rtype {
+	uadd := unsafe.Sizeof(*t)
+	if t.tflag&tflagUncommon != 0 {
+		uadd += unsafe.Sizeof(uncommonType{})
+	}
+	if t.inCount == 0 {
+		return nil
+	}
+	return (*[1 << 20]*rtype)(add(unsafe.Pointer(t), uadd, "t.inCount > 0"))[:t.inCount:t.inCount]
+}
+
+func (t *funcType) out() []*rtype {
+	uadd := unsafe.Sizeof(*t)
+	if t.tflag&tflagUncommon != 0 {
+		uadd += unsafe.Sizeof(uncommonType{})
+	}
+	outCount := t.outCount & (1<<15 - 1)
+	if outCount == 0 {
+		return nil
+	}
+	return (*[1 << 20]*rtype)(add(unsafe.Pointer(t), uadd, "outCount > 0"))[t.inCount : t.inCount+outCount : t.inCount+outCount]
+}
+
+// add returns p+x.
+//
+// The whySafe string is ignored, so that the function still inlines
+// as efficiently as p+x, but all call sites should use the string to
+// record why the addition is safe, which is to say why the addition
+// does not cause x to advance to the very end of p's allocation
+// and therefore point incorrectly at the next block in memory.
+func add(p unsafe.Pointer, x uintptr, whySafe string) unsafe.Pointer {
+	return unsafe.Pointer(uintptr(p) + x)
+}
+
+func (d ChanDir) String() string {
+	switch d {
+	case SendDir:
+		return "chan<-"
+	case RecvDir:
+		return "<-chan"
+	case BothDir:
+		return "chan"
+	}
+	return "ChanDir" + strconv.Itoa(int(d))
+}
+
+// Method returns the i'th method in the type's method set.
+func (t *interfaceType) Method(i int) (m Method) {
+	if i < 0 || i >= len(t.methods) {
+		return
+	}
+	p := &t.methods[i]
+	pname := t.nameOff(p.name)
+	m.Name = pname.name()
+	if !pname.isExported() {
+		m.PkgPath = pname.pkgPath()
+		if m.PkgPath == "" {
+			m.PkgPath = t.pkgPath.name()
+		}
+	}
+	m.Type = toType(t.typeOff(p.typ))
+	m.Index = i
+	return
+}
+
+

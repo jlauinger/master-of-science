@@ -1,0 +1,234 @@
+Module: github.com/json-iterator/go
+Version: v1.1.7
+
+Package: github.com/json-iterator/go
+File: reflect_native.go
+Line: 353
+
+Imported (possibly among others) by: elastic/beats
+
+Label 1 (What is happening?): cast-basic
+Label 2 (For what purpose?): serialization
+
+--------------------------------------------------------------
+Snippet line:
+
+func (codec *uint64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func (codec *uint64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint64(*((*uint64)(ptr)))
+}
+
+func (codec *uint64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint64)(ptr)) == 0
+}
+
+type float32Codec struct {
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+
+type int32Codec struct {
+}
+
+func (codec *int32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int32)(ptr)) = iter.ReadInt32()
+	}
+}
+
+func (codec *int32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt32(*((*int32)(ptr)))
+}
+
+func (codec *int32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int32)(ptr)) == 0
+}
+
+type int64Codec struct {
+}
+
+func (codec *int64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*int64)(ptr)) = iter.ReadInt64()
+	}
+}
+
+func (codec *int64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteInt64(*((*int64)(ptr)))
+}
+
+func (codec *int64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*int64)(ptr)) == 0
+}
+
+type uint8Codec struct {
+}
+
+func (codec *uint8Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint8)(ptr)) = iter.ReadUint8()
+	}
+}
+
+func (codec *uint8Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint8(*((*uint8)(ptr)))
+}
+
+func (codec *uint8Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint8)(ptr)) == 0
+}
+
+type uint16Codec struct {
+}
+
+func (codec *uint16Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint16)(ptr)) = iter.ReadUint16()
+	}
+}
+
+func (codec *uint16Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint16(*((*uint16)(ptr)))
+}
+
+func (codec *uint16Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint16)(ptr)) == 0
+}
+
+type uint32Codec struct {
+}
+
+func (codec *uint32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint32)(ptr)) = iter.ReadUint32()
+	}
+}
+
+func (codec *uint32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint32(*((*uint32)(ptr)))
+}
+
+func (codec *uint32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint32)(ptr)) == 0
+}
+
+type uint64Codec struct {
+}
+
+func (codec *uint64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*uint64)(ptr)) = iter.ReadUint64()
+	}
+}
+
+func (codec *uint64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteUint64(*((*uint64)(ptr)))
+}
+
+func (codec *uint64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*uint64)(ptr)) == 0
+}
+
+type float32Codec struct {
+}
+
+func (codec *float32Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*float32)(ptr)) = iter.ReadFloat32()
+	}
+}
+
+func (codec *float32Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat32(*((*float32)(ptr)))
+}
+
+func (codec *float32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float32)(ptr)) == 0
+}
+
+type float64Codec struct {
+}
+
+func (codec *float64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*float64)(ptr)) = iter.ReadFloat64()
+	}
+}
+
+func (codec *float64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteFloat64(*((*float64)(ptr)))
+}
+
+func (codec *float64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return *((*float64)(ptr)) == 0
+}
+
+type boolCodec struct {
+}
+
+func (codec *boolCodec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if !iter.ReadNil() {
+		*((*bool)(ptr)) = iter.ReadBool()
+	}
+}
+
+func (codec *boolCodec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	stream.WriteBool(*((*bool)(ptr)))
+}
+
+func (codec *boolCodec) IsEmpty(ptr unsafe.Pointer) bool {
+	return !(*((*bool)(ptr)))
+}
+
+type base64Codec struct {
+	sliceType    *reflect2.UnsafeSliceType
+	sliceDecoder ValDecoder
+}
+
+func (codec *base64Codec) Decode(ptr unsafe.Pointer, iter *Iterator) {
+	if iter.ReadNil() {
+		codec.sliceType.UnsafeSetNil(ptr)
+		return
+	}
+	switch iter.WhatIsNext() {
+	case StringValue:
+		src := iter.ReadString()
+		dst, err := base64.StdEncoding.DecodeString(src)
+		if err != nil {
+			iter.ReportError("decode base64", err.Error())
+		} else {
+			codec.sliceType.UnsafeSet(ptr, unsafe.Pointer(&dst))
+		}
+	case ArrayValue:
+		codec.sliceDecoder.Decode(ptr, iter)
+	default:
+		iter.ReportError("base64Codec", "invalid input")
+	}
+}
+
+func (codec *base64Codec) Encode(ptr unsafe.Pointer, stream *Stream) {
+	if codec.sliceType.UnsafeIsNil(ptr) {
+		stream.WriteNil()
+		return
+	}
+	src := *((*[]byte)(ptr))
+	encoding := base64.StdEncoding
+	stream.writeByte('"')
+	if len(src) != 0 {
+		size := encoding.EncodedLen(len(src))
+		buf := make([]byte, size)
+		encoding.Encode(buf, src)
+		stream.buf = append(stream.buf, buf...)
+	}
+	stream.writeByte('"')
+}
+
+func (codec *base64Codec) IsEmpty(ptr unsafe.Pointer) bool {
+	return len(*((*[]byte)(ptr))) == 0
+}
+

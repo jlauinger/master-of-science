@@ -1,0 +1,232 @@
+Module: std
+Version: std
+
+Package: syscall
+File: exec_linux.go
+Line: 525
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): syscall
+Label 2 (For what purpose?): no-gc
+
+--------------------------------------------------------------
+Snippet line:
+
+RawSyscall(SYS_WRITE, uintptr(pipe), uintptr(unsafe.Pointer(&err1)), unsafe.Sizeof(err1))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		uintptr(unsafe.Pointer(&argv[0])),
+		uintptr(unsafe.Pointer(&envv[0])))
+
+childerror:
+	// send error code on pipe
+	RawSyscall(SYS_WRITE, uintptr(pipe), uintptr(unsafe.Pointer(&err1)), unsafe.Sizeof(err1))
+	for {
+		RawSyscall(SYS_EXIT, 253, 0, 0)
+	}
+}
+
+--------------------------------------------------------------
++/- 100 lines context:
+
+			pid, _ := rawSyscallNoError(SYS_GETPID, 0, 0, 0)
+			_, _, err1 := RawSyscall(SYS_KILL, pid, uintptr(sys.Pdeathsig), 0)
+			if err1 != 0 {
+				goto childerror
+			}
+		}
+	}
+
+	// Pass 1: look for fd[i] < i and move those up above len(fd)
+	// so that pass 2 won't stomp on an fd it needs later.
+	if pipe < nextfd {
+		_, _, err1 = RawSyscall(_SYS_dup, uintptr(pipe), uintptr(nextfd), 0)
+		if err1 != 0 {
+			goto childerror
+		}
+		RawSyscall(fcntl64Syscall, uintptr(nextfd), F_SETFD, FD_CLOEXEC)
+		pipe = nextfd
+		nextfd++
+	}
+	for i = 0; i < len(fd); i++ {
+		if fd[i] >= 0 && fd[i] < int(i) {
+			if nextfd == pipe { // don't stomp on pipe
+				nextfd++
+			}
+			_, _, err1 = RawSyscall(_SYS_dup, uintptr(fd[i]), uintptr(nextfd), 0)
+			if err1 != 0 {
+				goto childerror
+			}
+			RawSyscall(fcntl64Syscall, uintptr(nextfd), F_SETFD, FD_CLOEXEC)
+			fd[i] = nextfd
+			nextfd++
+		}
+	}
+
+	// Pass 2: dup fd[i] down onto i.
+	for i = 0; i < len(fd); i++ {
+		if fd[i] == -1 {
+			RawSyscall(SYS_CLOSE, uintptr(i), 0, 0)
+			continue
+		}
+		if fd[i] == int(i) {
+			// dup2(i, i) won't clear close-on-exec flag on Linux,
+			// probably not elsewhere either.
+			_, _, err1 = RawSyscall(fcntl64Syscall, uintptr(fd[i]), F_SETFD, 0)
+			if err1 != 0 {
+				goto childerror
+			}
+			continue
+		}
+		// The new fd is created NOT close-on-exec,
+		// which is exactly what we want.
+		_, _, err1 = RawSyscall(_SYS_dup, uintptr(fd[i]), uintptr(i), 0)
+		if err1 != 0 {
+			goto childerror
+		}
+	}
+
+	// By convention, we don't close-on-exec the fds we are
+	// started with, so if len(fd) < 3, close 0, 1, 2 as needed.
+	// Programs that know they inherit fds >= 3 will need
+	// to set them close-on-exec.
+	for i = len(fd); i < 3; i++ {
+		RawSyscall(SYS_CLOSE, uintptr(i), 0, 0)
+	}
+
+	// Detach fd 0 from tty
+	if sys.Noctty {
+		_, _, err1 = RawSyscall(SYS_IOCTL, 0, uintptr(TIOCNOTTY), 0)
+		if err1 != 0 {
+			goto childerror
+		}
+	}
+
+	// Set the controlling TTY to Ctty
+	if sys.Setctty {
+		_, _, err1 = RawSyscall(SYS_IOCTL, uintptr(sys.Ctty), uintptr(TIOCSCTTY), 1)
+		if err1 != 0 {
+			goto childerror
+		}
+	}
+
+	// Enable tracing if requested.
+	// Do this right before exec so that we don't unnecessarily trace the runtime
+	// setting up after the fork. See issue #21428.
+	if sys.Ptrace {
+		_, _, err1 = RawSyscall(SYS_PTRACE, uintptr(PTRACE_TRACEME), 0, 0)
+		if err1 != 0 {
+			goto childerror
+		}
+	}
+
+	// Time to exec.
+	_, _, err1 = RawSyscall(SYS_EXECVE,
+		uintptr(unsafe.Pointer(argv0)),
+		uintptr(unsafe.Pointer(&argv[0])),
+		uintptr(unsafe.Pointer(&envv[0])))
+
+childerror:
+	// send error code on pipe
+	RawSyscall(SYS_WRITE, uintptr(pipe), uintptr(unsafe.Pointer(&err1)), unsafe.Sizeof(err1))
+	for {
+		RawSyscall(SYS_EXIT, 253, 0, 0)
+	}
+}
+
+// Try to open a pipe with O_CLOEXEC set on both file descriptors.
+func forkExecPipe(p []int) (err error) {
+	err = Pipe2(p, O_CLOEXEC)
+	// pipe2 was added in 2.6.27 and our minimum requirement is 2.6.23, so it
+	// might not be implemented.
+	if err == ENOSYS {
+		if err = Pipe(p); err != nil {
+			return
+		}
+		if _, err = fcntl(p[0], F_SETFD, FD_CLOEXEC); err != nil {
+			return
+		}
+		_, err = fcntl(p[1], F_SETFD, FD_CLOEXEC)
+	}
+	return
+}
+
+func formatIDMappings(idMap []SysProcIDMap) []byte {
+	var data []byte
+	for _, im := range idMap {
+		data = append(data, []byte(itoa(im.ContainerID)+" "+itoa(im.HostID)+" "+itoa(im.Size)+"\n")...)
+	}
+	return data
+}
+
+// writeIDMappings writes the user namespace User ID or Group ID mappings to the specified path.
+func writeIDMappings(path string, idMap []SysProcIDMap) error {
+	fd, err := Open(path, O_RDWR, 0)
+	if err != nil {
+		return err
+	}
+
+	if _, err := Write(fd, formatIDMappings(idMap)); err != nil {
+		Close(fd)
+		return err
+	}
+
+	if err := Close(fd); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// writeSetgroups writes to /proc/PID/setgroups "deny" if enable is false
+// and "allow" if enable is true.
+// This is needed since kernel 3.19, because you can't write gid_map without
+// disabling setgroups() system call.
+func writeSetgroups(pid int, enable bool) error {
+	sgf := "/proc/" + itoa(pid) + "/setgroups"
+	fd, err := Open(sgf, O_RDWR, 0)
+	if err != nil {
+		return err
+	}
+
+	var data []byte
+	if enable {
+		data = []byte("allow")
+	} else {
+		data = []byte("deny")
+	}
+
+	if _, err := Write(fd, data); err != nil {
+		Close(fd)
+		return err
+	}
+
+	return Close(fd)
+}
+
+// writeUidGidMappings writes User ID and Group ID mappings for user namespaces
+// for a process and it is called from the parent process.
+func writeUidGidMappings(pid int, sys *SysProcAttr) error {
+	if sys.UidMappings != nil {
+		uidf := "/proc/" + itoa(pid) + "/uid_map"
+		if err := writeIDMappings(uidf, sys.UidMappings); err != nil {
+			return err
+		}
+	}
+
+	if sys.GidMappings != nil {
+		// If the kernel is too old to support /proc/PID/setgroups, writeSetGroups will return ENOENT; this is OK.
+		if err := writeSetgroups(pid, sys.GidMappingsEnableSetgroups); err != nil && err != ENOENT {
+			return err
+		}
+		gidf := "/proc/" + itoa(pid) + "/gid_map"
+		if err := writeIDMappings(gidf, sys.GidMappings); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+

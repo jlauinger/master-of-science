@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: stack.go
+Line: 735
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+adjustpointer(adjinfo, unsafe.Pointer(&d.fn))
+--------------------------------------------------------------
++/- 5 lines context:
+
+	// Adjust pointers in the Defer structs.
+	// We need to do this first because we need to adjust the
+	// defer.link fields so we always work on the new stack.
+	adjustpointer(adjinfo, unsafe.Pointer(&gp._defer))
+	for d := gp._defer; d != nil; d = d.link {
+		adjustpointer(adjinfo, unsafe.Pointer(&d.fn))
+		adjustpointer(adjinfo, unsafe.Pointer(&d.sp))
+		adjustpointer(adjinfo, unsafe.Pointer(&d._panic))
+		adjustpointer(adjinfo, unsafe.Pointer(&d.link))
+		adjustpointer(adjinfo, unsafe.Pointer(&d.varp))
+		adjustpointer(adjinfo, unsafe.Pointer(&d.fd))
+--------------------------------------------------------------
++/- 100 lines context:
+
+	locals, args, objs := getStackMap(frame, &adjinfo.cache, true)
+
+	// Adjust local variables if stack frame has been allocated.
+	if locals.n > 0 {
+		size := uintptr(locals.n) * sys.PtrSize
+		adjustpointers(unsafe.Pointer(frame.varp-size), &locals, adjinfo, f)
+	}
+
+	// Adjust saved base pointer if there is one.
+	if sys.ArchFamily == sys.AMD64 && frame.argp-frame.varp == 2*sys.RegSize {
+		if !framepointer_enabled {
+			print("runtime: found space for saved base pointer, but no framepointer experiment\n")
+			print("argp=", hex(frame.argp), " varp=", hex(frame.varp), "\n")
+			throw("bad frame layout")
+		}
+		if stackDebug >= 3 {
+			print("      saved bp\n")
+		}
+		if debugCheckBP {
+			// Frame pointers should always point to the next higher frame on
+			// the Go stack (or be nil, for the top frame on the stack).
+			bp := *(*uintptr)(unsafe.Pointer(frame.varp))
+			if bp != 0 && (bp < adjinfo.old.lo || bp >= adjinfo.old.hi) {
+				println("runtime: found invalid frame pointer")
+				print("bp=", hex(bp), " min=", hex(adjinfo.old.lo), " max=", hex(adjinfo.old.hi), "\n")
+				throw("bad frame pointer")
+			}
+		}
+		adjustpointer(adjinfo, unsafe.Pointer(frame.varp))
+	}
+
+	// Adjust arguments.
+	if args.n > 0 {
+		if stackDebug >= 3 {
+			print("      args\n")
+		}
+		adjustpointers(unsafe.Pointer(frame.argp), &args, adjinfo, funcInfo{})
+	}
+
+	// Adjust pointers in all stack objects (whether they are live or not).
+	// See comments in mgcmark.go:scanframeworker.
+	if frame.varp != 0 {
+		for _, obj := range objs {
+			off := obj.off
+			base := frame.varp // locals base pointer
+			if off >= 0 {
+				base = frame.argp // arguments and return values base pointer
+			}
+			p := base + uintptr(off)
+			if p < frame.sp {
+				// Object hasn't been allocated in the frame yet.
+				// (Happens when the stack bounds check fails and
+				// we call into morestack.)
+				continue
+			}
+			t := obj.typ
+			gcdata := t.gcdata
+			var s *mspan
+			if t.kind&kindGCProg != 0 {
+				// See comments in mgcmark.go:scanstack
+				s = materializeGCProg(t.ptrdata, gcdata)
+				gcdata = (*byte)(unsafe.Pointer(s.startAddr))
+			}
+			for i := uintptr(0); i < t.ptrdata; i += sys.PtrSize {
+				if *addb(gcdata, i/(8*sys.PtrSize))>>(i/sys.PtrSize&7)&1 != 0 {
+					adjustpointer(adjinfo, unsafe.Pointer(p+i))
+				}
+			}
+			if s != nil {
+				dematerializeGCProg(s)
+			}
+		}
+	}
+
+	return true
+}
+
+func adjustctxt(gp *g, adjinfo *adjustinfo) {
+	adjustpointer(adjinfo, unsafe.Pointer(&gp.sched.ctxt))
+	if !framepointer_enabled {
+		return
+	}
+	if debugCheckBP {
+		bp := gp.sched.bp
+		if bp != 0 && (bp < adjinfo.old.lo || bp >= adjinfo.old.hi) {
+			println("runtime: found invalid top frame pointer")
+			print("bp=", hex(bp), " min=", hex(adjinfo.old.lo), " max=", hex(adjinfo.old.hi), "\n")
+			throw("bad top frame pointer")
+		}
+	}
+	adjustpointer(adjinfo, unsafe.Pointer(&gp.sched.bp))
+}
+
+func adjustdefers(gp *g, adjinfo *adjustinfo) {
+	// Adjust pointers in the Defer structs.
+	// We need to do this first because we need to adjust the
+	// defer.link fields so we always work on the new stack.
+	adjustpointer(adjinfo, unsafe.Pointer(&gp._defer))
+	for d := gp._defer; d != nil; d = d.link {
+		adjustpointer(adjinfo, unsafe.Pointer(&d.fn))
+		adjustpointer(adjinfo, unsafe.Pointer(&d.sp))
+		adjustpointer(adjinfo, unsafe.Pointer(&d._panic))
+		adjustpointer(adjinfo, unsafe.Pointer(&d.link))
+		adjustpointer(adjinfo, unsafe.Pointer(&d.varp))
+		adjustpointer(adjinfo, unsafe.Pointer(&d.fd))
+	}
+
+	// Adjust defer argument blocks the same way we adjust active stack frames.
+	// Note: this code is after the loop above, so that if a defer record is
+	// stack allocated, we work on the copy in the new stack.
+	tracebackdefers(gp, adjustframe, noescape(unsafe.Pointer(adjinfo)))
+}
+
+func adjustpanics(gp *g, adjinfo *adjustinfo) {
+	// Panics are on stack and already adjusted.
+	// Update pointer to head of list in G.
+	adjustpointer(adjinfo, unsafe.Pointer(&gp._panic))
+}
+
+func adjustsudogs(gp *g, adjinfo *adjustinfo) {
+	// the data elements pointed to by a SudoG structure
+	// might be in the stack.
+	for s := gp.waiting; s != nil; s = s.waitlink {
+		adjustpointer(adjinfo, unsafe.Pointer(&s.elem))
+	}
+}
+
+func fillstack(stk stack, b byte) {
+	for p := stk.lo; p < stk.hi; p++ {
+		*(*byte)(unsafe.Pointer(p)) = b
+	}
+}
+
+func findsghi(gp *g, stk stack) uintptr {
+	var sghi uintptr
+	for sg := gp.waiting; sg != nil; sg = sg.waitlink {
+		p := uintptr(sg.elem) + uintptr(sg.c.elemsize)
+		if stk.lo <= p && p < stk.hi && p > sghi {
+			sghi = p
+		}
+	}
+	return sghi
+}
+
+// syncadjustsudogs adjusts gp's sudogs and copies the part of gp's
+// stack they refer to while synchronizing with concurrent channel
+// operations. It returns the number of bytes of stack copied.
+func syncadjustsudogs(gp *g, used uintptr, adjinfo *adjustinfo) uintptr {
+	if gp.waiting == nil {
+		return 0
+	}
+
+	// Lock channels to prevent concurrent send/receive.
+	var lastc *hchan
+	for sg := gp.waiting; sg != nil; sg = sg.waitlink {
+		if sg.c != lastc {
+			lock(&sg.c.lock)
+		}
+		lastc = sg.c
+	}
+
+	// Adjust sudogs.
+	adjustsudogs(gp, adjinfo)
+
+	// Copy the part of the stack the sudogs point in to
+	// while holding the lock to prevent races on
+	// send/receive slots.
+	var sgsize uintptr
+	if adjinfo.sghi != 0 {
+		oldBot := adjinfo.old.hi - used
+		newBot := oldBot + adjinfo.delta
+		sgsize = adjinfo.sghi - oldBot
+		memmove(unsafe.Pointer(newBot), unsafe.Pointer(oldBot), sgsize)
+	}
+
+	// Unlock channels.
+	lastc = nil
+	for sg := gp.waiting; sg != nil; sg = sg.waitlink {
+		if sg.c != lastc {
+			unlock(&sg.c.lock)
+		}
+		lastc = sg.c
+	}
+
+	return sgsize
+}
+
+// Copies gp's stack to a new stack of a different size.
+// Caller must have changed gp status to Gcopystack.
+func copystack(gp *g, newsize uintptr) {
+	if gp.syscallsp != 0 {
+		throw("stack growth not allowed in system call")
+	}
+	old := gp.stack
+	if old.lo == 0 {
+		throw("nil stackbase")
+	}
+	used := old.hi - gp.sched.sp
+
+	// allocate new stack
+

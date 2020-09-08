@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: traceback.go
+Line: 334
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): hide-escape
+
+--------------------------------------------------------------
+Snippet line:
+
+if !callback((*stkframe)(noescape(unsafe.Pointer(&frame))), v) {
+--------------------------------------------------------------
++/- 5 lines context:
+
+				frame.continpc = 0
+			}
+		}
+
+		if callback != nil {
+			if !callback((*stkframe)(noescape(unsafe.Pointer(&frame))), v) {
+				return n
+			}
+		}
+
+		if pcbuf != nil {
+--------------------------------------------------------------
++/- 100 lines context:
+
+			// to avoid that confusion.
+			// See golang.org/issue/8153.
+			if callback != nil {
+				throw("traceback_arm: found jmpdefer when tracing with callback")
+			}
+			frame.lr = 0
+		} else {
+			var lrPtr uintptr
+			if usesLR {
+				if n == 0 && frame.sp < frame.fp || frame.lr == 0 {
+					lrPtr = frame.sp
+					frame.lr = *(*uintptr)(unsafe.Pointer(lrPtr))
+				}
+			} else {
+				if frame.lr == 0 {
+					lrPtr = frame.fp - sys.RegSize
+					frame.lr = uintptr(*(*sys.Uintreg)(unsafe.Pointer(lrPtr)))
+				}
+			}
+			flr = findfunc(frame.lr)
+			if !flr.valid() {
+				// This happens if you get a profiling interrupt at just the wrong time.
+				// In that context it is okay to stop early.
+				// But if callback is set, we're doing a garbage collection and must
+				// get everything, so crash loudly.
+				doPrint := printing
+				if doPrint && gp.m.incgo && f.funcID == funcID_sigpanic {
+					// We can inject sigpanic
+					// calls directly into C code,
+					// in which case we'll see a C
+					// return PC. Don't complain.
+					doPrint = false
+				}
+				if callback != nil || doPrint {
+					print("runtime: unexpected return pc for ", funcname(f), " called from ", hex(frame.lr), "\n")
+					tracebackHexdump(gp.stack, &frame, lrPtr)
+				}
+				if callback != nil {
+					throw("unknown caller pc")
+				}
+			}
+		}
+
+		frame.varp = frame.fp
+		if !usesLR {
+			// On x86, call instruction pushes return PC before entering new function.
+			frame.varp -= sys.RegSize
+		}
+
+		// If framepointer_enabled and there's a frame, then
+		// there's a saved bp here.
+		if frame.varp > frame.sp && (framepointer_enabled && GOARCH == "amd64" || GOARCH == "arm64") {
+			frame.varp -= sys.RegSize
+		}
+
+		// Derive size of arguments.
+		// Most functions have a fixed-size argument block,
+		// so we can use metadata about the function f.
+		// Not all, though: there are some variadic functions
+		// in package runtime and reflect, and for those we use call-specific
+		// metadata recorded by f's caller.
+		if callback != nil || printing {
+			frame.argp = frame.fp + sys.MinFrameSize
+			var ok bool
+			frame.arglen, frame.argmap, ok = getArgInfoFast(f, callback != nil)
+			if !ok {
+				frame.arglen, frame.argmap = getArgInfo(&frame, f, callback != nil, ctxt)
+			}
+		}
+		ctxt = nil // ctxt is only needed to get arg maps for the topmost frame
+
+		// Determine frame's 'continuation PC', where it can continue.
+		// Normally this is the return address on the stack, but if sigpanic
+		// is immediately below this function on the stack, then the frame
+		// stopped executing due to a trap, and frame.pc is probably not
+		// a safe point for looking up liveness information. In this panicking case,
+		// the function either doesn't return at all (if it has no defers or if the
+		// defers do not recover) or it returns from one of the calls to
+		// deferproc a second time (if the corresponding deferred func recovers).
+		// In the latter case, use a deferreturn call site as the continuation pc.
+		frame.continpc = frame.pc
+		if waspanic {
+			if frame.fn.deferreturn != 0 {
+				frame.continpc = frame.fn.entry + uintptr(frame.fn.deferreturn) + 1
+				// Note: this may perhaps keep return variables alive longer than
+				// strictly necessary, as we are using "function has a defer statement"
+				// as a proxy for "function actually deferred something". It seems
+				// to be a minor drawback. (We used to actually look through the
+				// gp._defer for a defer corresponding to this function, but that
+				// is hard to do with defer records on the stack during a stack copy.)
+				// Note: the +1 is to offset the -1 that
+				// stack.go:getStackMap does to back up a return
+				// address make sure the pc is in the CALL instruction.
+			} else {
+				frame.continpc = 0
+			}
+		}
+
+		if callback != nil {
+			if !callback((*stkframe)(noescape(unsafe.Pointer(&frame))), v) {
+				return n
+			}
+		}
+
+		if pcbuf != nil {
+			pc := frame.pc
+			// backup to CALL instruction to read inlining info (same logic as below)
+			tracepc := pc
+			// Normally, pc is a return address. In that case, we want to look up
+			// file/line information using pc-1, because that is the pc of the
+			// call instruction (more precisely, the last byte of the call instruction).
+			// Callers expect the pc buffer to contain return addresses and do the
+			// same -1 themselves, so we keep pc unchanged.
+			// When the pc is from a signal (e.g. profiler or segv) then we want
+			// to look up file/line information using pc, and we store pc+1 in the
+			// pc buffer so callers can unconditionally subtract 1 before looking up.
+			// See issue 34123.
+			// The pc can be at function entry when the frame is initialized without
+			// actually running code, like runtime.mstart.
+			if (n == 0 && flags&_TraceTrap != 0) || waspanic || pc == f.entry {
+				pc++
+			} else {
+				tracepc--
+			}
+
+			// If there is inlining info, record the inner frames.
+			if inldata := funcdata(f, _FUNCDATA_InlTree); inldata != nil {
+				inltree := (*[1 << 20]inlinedCall)(inldata)
+				for {
+					ix := pcdatavalue(f, _PCDATA_InlTreeIndex, tracepc, &cache)
+					if ix < 0 {
+						break
+					}
+					if inltree[ix].funcID == funcID_wrapper && elideWrapperCalling(lastFuncID) {
+						// ignore wrappers
+					} else if skip > 0 {
+						skip--
+					} else if n < max {
+						(*[1 << 20]uintptr)(unsafe.Pointer(pcbuf))[n] = pc
+						n++
+					}
+					lastFuncID = inltree[ix].funcID
+					// Back up to an instruction in the "caller".
+					tracepc = frame.fn.entry + uintptr(inltree[ix].parentPc)
+					pc = tracepc + 1
+				}
+			}
+			// Record the main frame.
+			if f.funcID == funcID_wrapper && elideWrapperCalling(lastFuncID) {
+				// Ignore wrapper functions (except when they trigger panics).
+			} else if skip > 0 {
+				skip--
+			} else if n < max {
+				(*[1 << 20]uintptr)(unsafe.Pointer(pcbuf))[n] = pc
+				n++
+			}
+			lastFuncID = f.funcID
+			n-- // offset n++ below
+		}
+
+		if printing {
+			// assume skip=0 for printing.
+			//
+			// Never elide wrappers if we haven't printed
+			// any frames. And don't elide wrappers that
+			// called panic rather than the wrapped
+			// function. Otherwise, leave them out.
+
+			// backup to CALL instruction to read inlining info (same logic as below)
+			tracepc := frame.pc
+			if (n > 0 || flags&_TraceTrap == 0) && frame.pc > f.entry && !waspanic {
+				tracepc--
+			}
+			// If there is inlining info, print the inner frames.
+			if inldata := funcdata(f, _FUNCDATA_InlTree); inldata != nil {
+				inltree := (*[1 << 20]inlinedCall)(inldata)
+				for {
+					ix := pcdatavalue(f, _PCDATA_InlTreeIndex, tracepc, nil)
+					if ix < 0 {
+						break
+					}
+					if (flags&_TraceRuntimeFrames) != 0 || showframe(f, gp, nprint == 0, inltree[ix].funcID, lastFuncID) {
+						name := funcnameFromNameoff(f, inltree[ix].func_)
+						file, line := funcline(f, tracepc)
+						print(name, "(...)\n")
+						print("\t", file, ":", line, "\n")
+						nprint++
+					}
+					lastFuncID = inltree[ix].funcID
+					// Back up to an instruction in the "caller".
+					tracepc = frame.fn.entry + uintptr(inltree[ix].parentPc)
+				}
+			}
+			if (flags&_TraceRuntimeFrames) != 0 || showframe(f, gp, nprint == 0, f.funcID, lastFuncID) {
+				// Print during crash.
+				//	main(0x1, 0x2, 0x3)
+				//		/home/rsc/go/src/runtime/x.go:23 +0xf
+				//
+				name := funcname(f)
+				file, line := funcline(f, tracepc)
+

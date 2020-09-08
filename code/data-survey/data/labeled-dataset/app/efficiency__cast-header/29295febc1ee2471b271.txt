@@ -1,0 +1,52 @@
+Module: github.com/philhofer/fwd
+Version: v1.0.0
+
+Package: github.com/philhofer/fwd
+File: writer_unsafe.go
+Line: 13
+
+Imported (possibly among others) by: mattermost/mattermost-server
+
+Label 1 (What is happening?): cast-header
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+--------------------------------------------------------------
++/- 5 lines context:
+
+)
+
+// unsafe cast string as []byte
+func unsafestr(b string) []byte {
+	l := len(b)
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Len:  l,
+		Cap:  l,
+		Data: (*reflect.StringHeader)(unsafe.Pointer(&b)).Data,
+	}))
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+// +build !appengine
+
+package fwd
+
+import (
+	"reflect"
+	"unsafe"
+)
+
+// unsafe cast string as []byte
+func unsafestr(b string) []byte {
+	l := len(b)
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Len:  l,
+		Cap:  l,
+		Data: (*reflect.StringHeader)(unsafe.Pointer(&b)).Data,
+	}))
+}
+

@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: cgocall.go
+Line: 561
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+st := (*structtype)(unsafe.Pointer(t))
+--------------------------------------------------------------
++/- 5 lines context:
+
+		}
+		if !top {
+			panic(errorString(msg))
+		}
+	case kindStruct:
+		st := (*structtype)(unsafe.Pointer(t))
+		if !indir {
+			if len(st.fields) != 1 {
+				throw("can't happen")
+			}
+			cgoCheckArg(st.fields[0].typ, p, st.fields[0].typ.kind&kindDirectIface == 0, top, msg)
+--------------------------------------------------------------
++/- 100 lines context:
+
+			// to the array.
+			ep = aep
+			t = ep._type
+			top = false
+		default:
+			throw("can't happen")
+		}
+	}
+
+	cgoCheckArg(t, ep.data, t.kind&kindDirectIface == 0, top, cgoCheckPointerFail)
+}
+
+const cgoCheckPointerFail = "cgo argument has Go pointer to Go pointer"
+const cgoResultFail = "cgo result has Go pointer"
+
+// cgoCheckArg is the real work of cgoCheckPointer. The argument p
+// is either a pointer to the value (of type t), or the value itself,
+// depending on indir. The top parameter is whether we are at the top
+// level, where Go pointers are allowed.
+func cgoCheckArg(t *_type, p unsafe.Pointer, indir, top bool, msg string) {
+	if t.ptrdata == 0 || p == nil {
+		// If the type has no pointers there is nothing to do.
+		return
+	}
+
+	switch t.kind & kindMask {
+	default:
+		throw("can't happen")
+	case kindArray:
+		at := (*arraytype)(unsafe.Pointer(t))
+		if !indir {
+			if at.len != 1 {
+				throw("can't happen")
+			}
+			cgoCheckArg(at.elem, p, at.elem.kind&kindDirectIface == 0, top, msg)
+			return
+		}
+		for i := uintptr(0); i < at.len; i++ {
+			cgoCheckArg(at.elem, p, true, top, msg)
+			p = add(p, at.elem.size)
+		}
+	case kindChan, kindMap:
+		// These types contain internal pointers that will
+		// always be allocated in the Go heap. It's never OK
+		// to pass them to C.
+		panic(errorString(msg))
+	case kindFunc:
+		if indir {
+			p = *(*unsafe.Pointer)(p)
+		}
+		if !cgoIsGoPointer(p) {
+			return
+		}
+		panic(errorString(msg))
+	case kindInterface:
+		it := *(**_type)(p)
+		if it == nil {
+			return
+		}
+		// A type known at compile time is OK since it's
+		// constant. A type not known at compile time will be
+		// in the heap and will not be OK.
+		if inheap(uintptr(unsafe.Pointer(it))) {
+			panic(errorString(msg))
+		}
+		p = *(*unsafe.Pointer)(add(p, sys.PtrSize))
+		if !cgoIsGoPointer(p) {
+			return
+		}
+		if !top {
+			panic(errorString(msg))
+		}
+		cgoCheckArg(it, p, it.kind&kindDirectIface == 0, false, msg)
+	case kindSlice:
+		st := (*slicetype)(unsafe.Pointer(t))
+		s := (*slice)(p)
+		p = s.array
+		if p == nil || !cgoIsGoPointer(p) {
+			return
+		}
+		if !top {
+			panic(errorString(msg))
+		}
+		if st.elem.ptrdata == 0 {
+			return
+		}
+		for i := 0; i < s.cap; i++ {
+			cgoCheckArg(st.elem, p, true, false, msg)
+			p = add(p, st.elem.size)
+		}
+	case kindString:
+		ss := (*stringStruct)(p)
+		if !cgoIsGoPointer(ss.str) {
+			return
+		}
+		if !top {
+			panic(errorString(msg))
+		}
+	case kindStruct:
+		st := (*structtype)(unsafe.Pointer(t))
+		if !indir {
+			if len(st.fields) != 1 {
+				throw("can't happen")
+			}
+			cgoCheckArg(st.fields[0].typ, p, st.fields[0].typ.kind&kindDirectIface == 0, top, msg)
+			return
+		}
+		for _, f := range st.fields {
+			if f.typ.ptrdata == 0 {
+				continue
+			}
+			cgoCheckArg(f.typ, add(p, f.offset()), true, top, msg)
+		}
+	case kindPtr, kindUnsafePointer:
+		if indir {
+			p = *(*unsafe.Pointer)(p)
+			if p == nil {
+				return
+			}
+		}
+
+		if !cgoIsGoPointer(p) {
+			return
+		}
+		if !top {
+			panic(errorString(msg))
+		}
+
+		cgoCheckUnknownPointer(p, msg)
+	}
+}
+
+// cgoCheckUnknownPointer is called for an arbitrary pointer into Go
+// memory. It checks whether that Go memory contains any other
+// pointer into Go memory. If it does, we panic.
+// The return values are unused but useful to see in panic tracebacks.
+func cgoCheckUnknownPointer(p unsafe.Pointer, msg string) (base, i uintptr) {
+	if inheap(uintptr(p)) {
+		b, span, _ := findObject(uintptr(p), 0, 0)
+		base = b
+		if base == 0 {
+			return
+		}
+		hbits := heapBitsForAddr(base)
+		n := span.elemsize
+		for i = uintptr(0); i < n; i += sys.PtrSize {
+			if i != 1*sys.PtrSize && !hbits.morePointers() {
+				// No more possible pointers.
+				break
+			}
+			if hbits.isPointer() && cgoIsGoPointer(*(*unsafe.Pointer)(unsafe.Pointer(base + i))) {
+				panic(errorString(msg))
+			}
+			hbits = hbits.next()
+		}
+
+		return
+	}
+
+	for _, datap := range activeModules() {
+		if cgoInRange(p, datap.data, datap.edata) || cgoInRange(p, datap.bss, datap.ebss) {
+			// We have no way to know the size of the object.
+			// We have to assume that it might contain a pointer.
+			panic(errorString(msg))
+		}
+		// In the text or noptr sections, we know that the
+		// pointer does not point to a Go pointer.
+	}
+
+	return
+}
+
+// cgoIsGoPointer reports whether the pointer is a Go pointer--a
+// pointer to Go memory. We only care about Go memory that might
+// contain pointers.
+//go:nosplit
+//go:nowritebarrierrec
+func cgoIsGoPointer(p unsafe.Pointer) bool {
+	if p == nil {
+		return false
+	}
+
+	if inHeapOrStack(uintptr(p)) {
+		return true
+	}
+
+	for _, datap := range activeModules() {
+		if cgoInRange(p, datap.data, datap.edata) || cgoInRange(p, datap.bss, datap.ebss) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// cgoInRange reports whether p is between start and end.
+//go:nosplit
+//go:nowritebarrierrec
+func cgoInRange(p unsafe.Pointer, start, end uintptr) bool {
+	return start <= uintptr(p) && uintptr(p) < end
+

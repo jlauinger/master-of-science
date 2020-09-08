@@ -1,0 +1,34 @@
+Module: github.com/containers/libpod
+Version: project
+
+Package: github.com/containers/libpod/libpod/lock/shm
+File: /root/.cache/go-build/48/48c5a43960c863b51382db06e586e2f87dff2286eba91e5ba03caebc7170c345-d
+Line: 166
+
+Imported (possibly among others) by: containers/libpod
+
+Label 1 (What is happening?): cast-pointer
+Label 2 (For what purpose?): ffi
+
+--------------------------------------------------------------
+Snippet line:
+
+var _cgo_9599666909ac_Cfunc_deallocate_semaphore = unsafe.Pointer(&__cgofn__cgo_9599666909ac_Cfunc_deallocate_semaphore)
+--------------------------------------------------------------
++/- 5 lines context:
+
+	return
+}
+//go:cgo_import_static _cgo_9599666909ac_Cfunc_deallocate_semaphore
+//go:linkname __cgofn__cgo_9599666909ac_Cfunc_deallocate_semaphore _cgo_9599666909ac_Cfunc_deallocate_semaphore
+var __cgofn__cgo_9599666909ac_Cfunc_deallocate_semaphore byte
+var _cgo_9599666909ac_Cfunc_deallocate_semaphore = unsafe.Pointer(&__cgofn__cgo_9599666909ac_Cfunc_deallocate_semaphore)
+
+//go:cgo_unsafe_args
+func _Cfunc_deallocate_semaphore(p0 *_Ctype_struct_shm_struct, p1 _Ctype_uint32_t) (r1 _Ctype_int32_t) {
+	_cgo_runtime_cgocall(_cgo_9599666909ac_Cfunc_deallocate_semaphore, uintptr(unsafe.Pointer(&p0)))
+	if _Cgo_always_false {
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

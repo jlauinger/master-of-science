@@ -1,0 +1,34 @@
+Module: ./staging/src/k8s.io/apiserver
+Version: project
+
+Package: k8s.io/apiserver/pkg/apis/audit/v1
+File: zz_generated.conversion.go
+Line: 311
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): cast-struct
+Label 2 (For what purpose?): efficiency
+
+--------------------------------------------------------------
+Snippet line:
+
+out.Verbs = *(*[]string)(unsafe.Pointer(&in.Verbs))
+--------------------------------------------------------------
++/- 5 lines context:
+
+
+func autoConvert_audit_PolicyRule_To_v1_PolicyRule(in *audit.PolicyRule, out *PolicyRule, s conversion.Scope) error {
+	out.Level = Level(in.Level)
+	out.Users = *(*[]string)(unsafe.Pointer(&in.Users))
+	out.UserGroups = *(*[]string)(unsafe.Pointer(&in.UserGroups))
+	out.Verbs = *(*[]string)(unsafe.Pointer(&in.Verbs))
+	out.Resources = *(*[]GroupResources)(unsafe.Pointer(&in.Resources))
+	out.Namespaces = *(*[]string)(unsafe.Pointer(&in.Namespaces))
+	out.NonResourceURLs = *(*[]string)(unsafe.Pointer(&in.NonResourceURLs))
+	out.OmitStages = *(*[]Stage)(unsafe.Pointer(&in.OmitStages))
+	return nil
+--------------------------------------------------------------
++/- 100 lines context:
+
+n/a

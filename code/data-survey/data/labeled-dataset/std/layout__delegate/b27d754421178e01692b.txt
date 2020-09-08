@@ -1,0 +1,234 @@
+Module: std
+Version: std
+
+Package: runtime
+File: mheap.go
+Line: 876
+
+Imported (possibly among others) by: kubernetes/kubernetes
+
+Label 1 (What is happening?): delegate
+Label 2 (For what purpose?): layout
+
+--------------------------------------------------------------
+Snippet line:
+
+memclrNoHeapPointers(unsafe.Pointer(s.base()), s.npages<<_PageShift)
+--------------------------------------------------------------
++/- 5 lines context:
+
+		s = h.allocSpan(npages, false, spanclass, &memstats.heap_inuse)
+	})
+
+	if s != nil {
+		if needzero && s.needzero != 0 {
+			memclrNoHeapPointers(unsafe.Pointer(s.base()), s.npages<<_PageShift)
+		}
+		s.needzero = 0
+	}
+	return s
+}
+--------------------------------------------------------------
++/- 100 lines context:
+
+		unlock(&h.lock)
+	}
+
+	if trace.enabled {
+		traceGCSweepDone()
+	}
+	releasem(mp)
+}
+
+// reclaimChunk sweeps unmarked spans that start at page indexes [pageIdx, pageIdx+n).
+// It returns the number of pages returned to the heap.
+//
+// h.lock must be held and the caller must be non-preemptible. Note: h.lock may be
+// temporarily unlocked and re-locked in order to do sweeping or if tracing is
+// enabled.
+func (h *mheap) reclaimChunk(arenas []arenaIdx, pageIdx, n uintptr) uintptr {
+	// The heap lock must be held because this accesses the
+	// heapArena.spans arrays using potentially non-live pointers.
+	// In particular, if a span were freed and merged concurrently
+	// with this probing heapArena.spans, it would be possible to
+	// observe arbitrary, stale span pointers.
+	n0 := n
+	var nFreed uintptr
+	sg := h.sweepgen
+	for n > 0 {
+		ai := arenas[pageIdx/pagesPerArena]
+		ha := h.arenas[ai.l1()][ai.l2()]
+
+		// Get a chunk of the bitmap to work on.
+		arenaPage := uint(pageIdx % pagesPerArena)
+		inUse := ha.pageInUse[arenaPage/8:]
+		marked := ha.pageMarks[arenaPage/8:]
+		if uintptr(len(inUse)) > n/8 {
+			inUse = inUse[:n/8]
+			marked = marked[:n/8]
+		}
+
+		// Scan this bitmap chunk for spans that are in-use
+		// but have no marked objects on them.
+		for i := range inUse {
+			inUseUnmarked := atomic.Load8(&inUse[i]) &^ marked[i]
+			if inUseUnmarked == 0 {
+				continue
+			}
+
+			for j := uint(0); j < 8; j++ {
+				if inUseUnmarked&(1<<j) != 0 {
+					s := ha.spans[arenaPage+uint(i)*8+j]
+					if atomic.Load(&s.sweepgen) == sg-2 && atomic.Cas(&s.sweepgen, sg-2, sg-1) {
+						npages := s.npages
+						unlock(&h.lock)
+						if s.sweep(false) {
+							nFreed += npages
+						}
+						lock(&h.lock)
+						// Reload inUse. It's possible nearby
+						// spans were freed when we dropped the
+						// lock and we don't want to get stale
+						// pointers from the spans array.
+						inUseUnmarked = atomic.Load8(&inUse[i]) &^ marked[i]
+					}
+				}
+			}
+		}
+
+		// Advance.
+		pageIdx += uintptr(len(inUse) * 8)
+		n -= uintptr(len(inUse) * 8)
+	}
+	if trace.enabled {
+		unlock(&h.lock)
+		// Account for pages scanned but not reclaimed.
+		traceGCSweepSpan((n0 - nFreed) * pageSize)
+		lock(&h.lock)
+	}
+	return nFreed
+}
+
+// alloc allocates a new span of npage pages from the GC'd heap.
+//
+// spanclass indicates the span's size class and scannability.
+//
+// If needzero is true, the memory for the returned span will be zeroed.
+func (h *mheap) alloc(npages uintptr, spanclass spanClass, needzero bool) *mspan {
+	// Don't do any operations that lock the heap on the G stack.
+	// It might trigger stack growth, and the stack growth code needs
+	// to be able to allocate heap.
+	var s *mspan
+	systemstack(func() {
+		// To prevent excessive heap growth, before allocating n pages
+		// we need to sweep and reclaim at least n pages.
+		if h.sweepdone == 0 {
+			h.reclaim(npages)
+		}
+		s = h.allocSpan(npages, false, spanclass, &memstats.heap_inuse)
+	})
+
+	if s != nil {
+		if needzero && s.needzero != 0 {
+			memclrNoHeapPointers(unsafe.Pointer(s.base()), s.npages<<_PageShift)
+		}
+		s.needzero = 0
+	}
+	return s
+}
+
+// allocManual allocates a manually-managed span of npage pages.
+// allocManual returns nil if allocation fails.
+//
+// allocManual adds the bytes used to *stat, which should be a
+// memstats in-use field. Unlike allocations in the GC'd heap, the
+// allocation does *not* count toward heap_inuse or heap_sys.
+//
+// The memory backing the returned span may not be zeroed if
+// span.needzero is set.
+//
+// allocManual must be called on the system stack because it may
+// acquire the heap lock via allocSpan. See mheap for details.
+//
+//go:systemstack
+func (h *mheap) allocManual(npages uintptr, stat *uint64) *mspan {
+	return h.allocSpan(npages, true, 0, stat)
+}
+
+// setSpans modifies the span map so [spanOf(base), spanOf(base+npage*pageSize))
+// is s.
+func (h *mheap) setSpans(base, npage uintptr, s *mspan) {
+	p := base / pageSize
+	ai := arenaIndex(base)
+	ha := h.arenas[ai.l1()][ai.l2()]
+	for n := uintptr(0); n < npage; n++ {
+		i := (p + n) % pagesPerArena
+		if i == 0 {
+			ai = arenaIndex(base + n*pageSize)
+			ha = h.arenas[ai.l1()][ai.l2()]
+		}
+		ha.spans[i] = s
+	}
+}
+
+// allocNeedsZero checks if the region of address space [base, base+npage*pageSize),
+// assumed to be allocated, needs to be zeroed, updating heap arena metadata for
+// future allocations.
+//
+// This must be called each time pages are allocated from the heap, even if the page
+// allocator can otherwise prove the memory it's allocating is already zero because
+// they're fresh from the operating system. It updates heapArena metadata that is
+// critical for future page allocations.
+//
+// There are no locking constraints on this method.
+func (h *mheap) allocNeedsZero(base, npage uintptr) (needZero bool) {
+	for npage > 0 {
+		ai := arenaIndex(base)
+		ha := h.arenas[ai.l1()][ai.l2()]
+
+		zeroedBase := atomic.Loaduintptr(&ha.zeroedBase)
+		arenaBase := base % heapArenaBytes
+		if arenaBase < zeroedBase {
+			// We extended into the non-zeroed part of the
+			// arena, so this region needs to be zeroed before use.
+			//
+			// zeroedBase is monotonically increasing, so if we see this now then
+			// we can be sure we need to zero this memory region.
+			//
+			// We still need to update zeroedBase for this arena, and
+			// potentially more arenas.
+			needZero = true
+		}
+		// We may observe arenaBase > zeroedBase if we're racing with one or more
+		// allocations which are acquiring memory directly before us in the address
+		// space. But, because we know no one else is acquiring *this* memory, it's
+		// still safe to not zero.
+
+		// Compute how far into the arena we extend into, capped
+		// at heapArenaBytes.
+		arenaLimit := arenaBase + npage*pageSize
+		if arenaLimit > heapArenaBytes {
+			arenaLimit = heapArenaBytes
+		}
+		// Increase ha.zeroedBase so it's >= arenaLimit.
+		// We may be racing with other updates.
+		for arenaLimit > zeroedBase {
+			if atomic.Casuintptr(&ha.zeroedBase, zeroedBase, arenaLimit) {
+				break
+			}
+			zeroedBase = atomic.Loaduintptr(&ha.zeroedBase)
+			// Sanity check zeroedBase.
+			if zeroedBase <= arenaLimit && zeroedBase > arenaBase {
+				// The zeroedBase moved into the space we were trying to
+				// claim. That's very bad, and indicates someone allocated
+				// the same region we did.
+				throw("potentially overlapping in-use allocations detected")
+			}
+		}
+
+		// Move base forward and subtract from npage to move into
+		// the next arena, or finish.
+		base += arenaLimit - arenaBase
+		npage -= (arenaLimit - arenaBase) / pageSize
+	}
+
