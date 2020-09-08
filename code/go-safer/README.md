@@ -1,6 +1,7 @@
 # go-safer
 
-Go Vet-style linter to find incorrect uses of `reflect.SliceHeader` and `reflect.StringHeader`
+Go linter in the style of `go vet` to find incorrect uses of `reflect.SliceHeader` and `reflect.StringHeader`, and 
+unsafe casts between structs with architecture-sized fields.
 
 
 ## Incorrect usage patterns that are reported

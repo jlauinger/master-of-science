@@ -74,14 +74,3 @@ $ git clone https://github.com/stg-tud/thesis-2020-lauinger-code
 $ cd thesis-2020-lauinger-code/data-survey/acquisition
 $ go build
 ```
-
-
-## License
-
-Licensed under the MIT License (the "License"). You may not use this project except in compliance with the License. You 
-may obtain a copy of the License [here](https://opensource.org/licenses/MIT).
-
-Copyright 2020 Johannes Lauinger
-
-This tool has been developed as part of my Master's thesis at the 
-[Software Technology Group](https://www.stg.tu-darmstadt.de/stg/homepage.en.jsp) at TU Darmstadt.

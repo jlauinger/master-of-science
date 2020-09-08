@@ -10,5 +10,5 @@
     - unattended-upgrades
     - golang
     - jupyter
-    - aquisition
+    - acquisition
     - nginx

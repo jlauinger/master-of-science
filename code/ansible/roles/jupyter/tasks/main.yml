@@ -13,7 +13,7 @@
     state: directory
   tags: jupyter
 
-- name: Install virtualenv via pip
+- name: "install virtualenv via pip"
   pip:
     name: virtualenv
     executable: pip3
