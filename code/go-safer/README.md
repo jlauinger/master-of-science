@@ -6,8 +6,6 @@ unsafe casts between structs with architecture-sized fields.
 
 ## Incorrect usage patterns that are reported
 
-`go-safer` reports the following two usage patterns:
-
 `go-safer` reports the following usage patterns:
 
  1. There is a composite literal of underlying type `reflect.SliceHeader` or `reflect.StringHeader`,
