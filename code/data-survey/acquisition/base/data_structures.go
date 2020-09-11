@@ -1,9 +1,8 @@
-package lexical
+package base
 
 import (
 	"time"
 )
-
 
 // CSV output formats -----------------------------------------------------------------------------------
 
@@ -134,8 +133,8 @@ type GrepFindingData struct {
 	FileLoc              int    `csv:"file_loc"`
 	FileByteSize         int    `csv:"file_byte_size"`
 	PackageImportPath    string `csv:"package_import_path"`
- 	ModulePath           string `csv:"module_path"`
- 	ModuleVersion        string `csv:"module_version"`
+	ModulePath           string `csv:"module_path"`
+	ModuleVersion        string `csv:"module_version"`
 	ProjectName          string `csv:"project_name"`
 
 	FileCopyPath         string `csv:"file_copy_path"`
@@ -159,20 +158,6 @@ type VetFindingData struct {
 	FileCopyPath         string `csv:"file_copy_path"`
 }
 
-type LinterFindingData struct {
-	Message              string `csv:"message"`
-	Context              string `csv:"context"`
-	LineNumber           int    `csv:"line_number"`
-	Column               int    `csv:"column"`
-	RawOutput            string `csv:"raw_output"`
-
-	FileName             string `csv:"file_name"`
-	PackageImportPath    string `csv:"package_import_path"`
-	ModulePath           string `csv:"module_path"`
-	ModuleVersion        string `csv:"module_version"`
-	ProjectName          string `csv:"project_name"`
-}
-
 type GosecFindingData struct {
 	Message              string `csv:"message"`
 	Context              string `csv:"context"`
@@ -192,6 +177,20 @@ type GosecFindingData struct {
 	ProjectName          string `csv:"project_name"`
 
 	FileCopyPath         string `csv:"file_copy_path"`
+}
+
+type GosaferFindingData struct {
+	Message              string `csv:"message"`
+	Context              string `csv:"context"`
+	LineNumber           int    `csv:"line_number"`
+	Column               int    `csv:"column"`
+	RawOutput            string `csv:"raw_output"`
+
+	FileName             string `csv:"file_name"`
+	PackageImportPath    string `csv:"package_import_path"`
+	ModulePath           string `csv:"module_path"`
+	ModuleVersion        string `csv:"module_version"`
+	ProjectName          string `csv:"project_name"`
 }
 
 type ErrorConditionData struct {
@@ -344,14 +343,6 @@ type VetFindingLine struct {
 }
 
 
-// Linter parsing ------------------------------------------------------------------------------------------------------
-
-type LinterFindingLine struct {
-	Message     string
-	ContextLine string
-}
-
-
 // Gosec parsing -------------------------------------------------------------------------------------------------------
 
 type GosecOutput struct {
@@ -384,4 +375,66 @@ type GosecStatsOutput struct {
 	Lines int `json:"lines"`
 	Nosec int `json:"nosec"`
 	Found int `json:"found"`
+}
+
+
+// Go-safer parsing ------------------------------------------------------------------------------------------------------
+
+type GosaferFindingLine struct {
+	Message     string
+	ContextLine string
+}
+
+
+// AST analysis data ---------------------------------------------------------------------------------------------------
+
+type AstFindingData struct {
+	MatchType            string `csv:"match_type"`
+	LineNumber           int    `csv:"line_number"`
+	Column               int    `csv:"column"`
+	Text                 string `csv:"text"`
+
+	FileName             string `csv:"file_name"`
+	PackageImportPath    string `csv:"package_import_path"`
+	ModulePath           string `csv:"module_path"`
+	ModuleVersion        string `csv:"module_version"`
+	ProjectName          string `csv:"project_name"`
+}
+
+type AstFunctionData struct {
+	LineNumber           int    `csv:"line_number"`
+	Column               int    `csv:"column"`
+	Text                 string `csv:"text"`
+	NumberUnsafePointer  int    `csv:"number_unsafe_pointer"`
+	NumberUnsafeSizeof   int    `csv:"number_unsafe_sizeof"`
+	NumberUnsafeAlignof  int    `csv:"number_unsafe_alignof"`
+	NumberUnsafeOffsetof int    `csv:"number_unsafe_offsetof"`
+	NumberUintptr        int    `csv:"number_uintptr"`
+	NumberSliceHeader    int    `csv:"number_slice_header"`
+	NumberStringHeader   int    `csv:"number_string_header"`
+
+	FileName             string `csv:"file_name"`
+	PackageImportPath    string `csv:"package_import_path"`
+	ModulePath           string `csv:"module_path"`
+	ModuleVersion        string `csv:"module_version"`
+	ProjectName          string `csv:"project_name"`
+}
+
+type AstStatementData struct {
+	LineNumber           int    `csv:"line_number"`
+	Column               int    `csv:"column"`
+	Text                 string `csv:"text"`
+	NumberUnsafePointer  int    `csv:"number_unsafe_pointer"`
+	NumberUnsafeSizeof   int    `csv:"number_unsafe_sizeof"`
+	NumberUnsafeAlignof  int    `csv:"number_unsafe_alignof"`
+	NumberUnsafeOffsetof int    `csv:"number_unsafe_offsetof"`
+	NumberUintptr        int    `csv:"number_uintptr"`
+	NumberSliceHeader    int    `csv:"number_slice_header"`
+	NumberStringHeader   int    `csv:"number_string_header"`
+
+	FileName             string `csv:"file_name"`
+	PackageImportPath    string `csv:"package_import_path"`
+	ModulePath           string `csv:"module_path"`
+	ModuleVersion        string `csv:"module_version"`
+	ProjectName          string `csv:"project_name"`
 }

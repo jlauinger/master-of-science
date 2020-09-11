@@ -1,15 +1,16 @@
-package lexical
+package linters
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"os/exec"
 	"strconv"
 	"strings"
 )
 
-func runGosec(project *ProjectData, packages []*PackageData) ([]GosecIssueOutput, error) {
+func runGosec(project *base.ProjectData, packages []*base.PackageData) ([]base.GosecIssueOutput, error) {
 	fmt.Println("  running gosec...")
 
 	packagePaths := make([]string, 0, 1000)
@@ -27,11 +28,11 @@ func runGosec(project *ProjectData, packages []*PackageData) ([]GosecIssueOutput
 	gosecOutput, _ := cmd.CombinedOutput()
 
 	dec := json.NewDecoder(bytes.NewReader(gosecOutput))
-	var gosecResult GosecOutput
+	var gosecResult base.GosecOutput
 
 	err := dec.Decode(&gosecResult)
 	if err != nil {
-		_ = WriteErrorCondition(ErrorConditionData{
+		_ = base.WriteErrorCondition(base.ErrorConditionData{
 			Stage:             "gosec-parse",
 			ProjectName:       project.Name,
 			PackageImportPath: "",
@@ -45,7 +46,7 @@ func runGosec(project *ProjectData, packages []*PackageData) ([]GosecIssueOutput
 	return gosecResult.Issues, nil
 }
 
-func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map[string]*PackageData,
+func analyzeGosecFindings(gosecFindings []base.GosecIssueOutput, fileToPackageMap map[string]*base.PackageData,
 	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
 
 	fmt.Println("  analyzing gosec output")
@@ -55,7 +56,7 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 	for _, line := range gosecFindings {
 		pkg, ok := fileToPackageMap[line.File]
 		if !ok {
-			pkg = &PackageData{
+			pkg = &base.PackageData{
 				ImportPath: "unknown-vet-error",
 			}
 		}
@@ -70,7 +71,7 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 		}
 		lineNumber, err := strconv.Atoi(lineNumberText)
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "gosec-parse-linenumber",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
@@ -88,7 +89,7 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 		}
 		column, err := strconv.Atoi(columnText)
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "gosec-parse-column",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
@@ -101,7 +102,7 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 
 		copyDestination := fmt.Sprintf("%s/%s", pkg.ImportPath, shortFilename)
 
-		err = WriteGosecFinding(GosecFindingData{
+		err = base.WriteGosecFinding(base.GosecFindingData{
 			Message:           line.Details,
 			Context:           line.Code,
 			Confidence:        line.Confidence,
@@ -123,7 +124,7 @@ func analyzeGosecFindings(gosecFindings []GosecIssueOutput, fileToPackageMap map
 		filesToCopy[line.File] = copyDestination
 
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "gosec-write",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,

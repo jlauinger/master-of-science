@@ -2,17 +2,17 @@ package geiger
 
 import (
 	"fmt"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"go/ast"
 	"golang.org/x/tools/go/ast/inspector"
 	"golang.org/x/tools/go/packages"
 	"strings"
 )
 
-func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
+func geigerPackages(project *base.ProjectData, pkgs []*base.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
 	fmt.Println("  parsing packages and counting unsafe using geiger...")
 
-	pkgsMap := make(map[string]*lexical.PackageData)
+	pkgsMap := make(map[string]*base.PackageData)
 	for _, pkg := range pkgs {
 		pkgsMap[pkg.ImportPath] = pkg
 	}
@@ -38,7 +38,7 @@ func geigerPackages(project *lexical.ProjectData, pkgs []*lexical.PackageData, f
 	}
 }
 
-func geigerSinglePackage(parsedPkg *packages.Package, pkg *lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
+func geigerSinglePackage(parsedPkg *packages.Package, pkg *base.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
 	inspectResult := inspector.New(parsedPkg.Syntax)
 
 	seenSelectorExprs := map[*ast.SelectorExpr]bool{}
@@ -225,7 +225,7 @@ func geigerSinglePackage(parsedPkg *packages.Package, pkg *lexical.PackageData, 
 		pkg.UnsafeAlignofSum + pkg.StringHeaderSum + pkg.SliceHeaderSum + pkg.UintptrSum
 }
 
-func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData, matchType, contextType string,
+func writeData(n ast.Node, parsedPkg *packages.Package, pkg *base.PackageData, matchType, contextType string,
 	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
 	nodePosition := parsedPkg.Fset.File(n.Pos()).Position(n.Pos())
@@ -238,7 +238,7 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 		filename = nodePosition.Filename[len(pkg.Dir)+1:]
 	}
 
-	err := lexical.WriteGeigerFinding(lexical.GeigerFindingData{
+	err := base.WriteGeigerFinding(base.GeigerFindingData{
 		Text:              text,
 		Context:           context,
 		LineNumber:        nodePosition.Line,
@@ -257,7 +257,7 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *lexical.PackageData
 	})
 
 	if err != nil {
-		_ = lexical.WriteErrorCondition(lexical.ErrorConditionData{
+		_ = base.WriteErrorCondition(base.ErrorConditionData{
 			Stage:             "geiger-save",
 			ProjectName:       pkg.ProjectName,
 			PackageImportPath: pkg.ImportPath,

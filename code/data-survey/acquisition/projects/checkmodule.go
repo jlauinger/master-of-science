@@ -3,7 +3,7 @@ package projects
 import (
 	"fmt"
 	"github.com/gocarina/gocsv"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"os"
 	"os/exec"
 	"strconv"
@@ -14,7 +14,7 @@ func CheckModule(dataDir string) {
 	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
 
 	fmt.Println("reading projects data...")
-	projects, err := lexical.ReadProjects(projectsFilename)
+	projects, err := base.ReadProjects(projectsFilename)
 	if err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
@@ -43,10 +43,10 @@ func CheckModule(dataDir string) {
 		fmt.Printf("%s: %s (%s)\n", project.Name, strconv.FormatBool(project.UsesModules), project.RootModule)
 
 		if headerWritten {
-			_ = gocsv.MarshalWithoutHeaders([]lexical.ProjectData{*project}, projectsFile)
+			_ = gocsv.MarshalWithoutHeaders([]base.ProjectData{*project}, projectsFile)
 		} else {
 			headerWritten = true
-			_ = gocsv.Marshal([]lexical.ProjectData{*project}, projectsFile)
+			_ = gocsv.Marshal([]base.ProjectData{*project}, projectsFile)
 		}
 	}
 }

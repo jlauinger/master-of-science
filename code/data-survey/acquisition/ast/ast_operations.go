@@ -4,7 +4,11 @@ import (
 	"go/ast"
 )
 
+/**
+ * returns true if the given node is an unsafe.Pointer node
+ */
 func isUnsafePointer(n ast.Node) bool {
+	// check if the node is a selector expression with identifier names unsafe and pointer
 	switch n := n.(type) {
 	case *ast.SelectorExpr:
 		switch X := n.X.(type) {
@@ -14,10 +18,12 @@ func isUnsafePointer(n ast.Node) bool {
 			}
 		}
 	}
+	// if not, return false
 	return false
 }
 
 func isUnsafeSizeof(n ast.Node) bool {
+	// check if the node is a selector expression with identifier names unsafe and sizeof
 	switch n := n.(type) {
 	case *ast.SelectorExpr:
 		switch X := n.X.(type) {
@@ -27,10 +33,12 @@ func isUnsafeSizeof(n ast.Node) bool {
 			}
 		}
 	}
+	// if not, return false
 	return false
 }
 
 func isUnsafeAlignof(n ast.Node) bool {
+	// check if the node is a selector expression with identifier names unsafe and alignof
 	switch n := n.(type) {
 	case *ast.SelectorExpr:
 		switch X := n.X.(type) {
@@ -40,10 +48,12 @@ func isUnsafeAlignof(n ast.Node) bool {
 			}
 		}
 	}
+	// if not, return false
 	return false
 }
 
 func isUnsafeOffsetof(n ast.Node) bool {
+	// check if the node is a selector expression with identifier names unsafe and offsetof
 	switch n := n.(type) {
 	case *ast.SelectorExpr:
 		switch X := n.X.(type) {
@@ -53,20 +63,24 @@ func isUnsafeOffsetof(n ast.Node) bool {
 			}
 		}
 	}
+	// if not, return false
 	return false
 }
 
 func isUintptr(n ast.Node) bool {
+	// check if the node is an identifier expression with name uintptr
 	switch n := n.(type) {
 	case *ast.Ident:
 		if n.Name == "uintptr" {
 			return true
 		}
 	}
+	// if not, return false
 	return false
 }
 
 func isSliceHeader(n ast.Node) bool {
+	// check if the node is a selector expression with identifier names reflect and sliceheader
 	switch n := n.(type) {
 	case *ast.SelectorExpr:
 		switch X := n.X.(type) {
@@ -76,10 +90,12 @@ func isSliceHeader(n ast.Node) bool {
 			}
 		}
 	}
+	// if not, return false
 	return false
 }
 
 func isStringHeader(n ast.Node) bool {
+	// check if the node is a selector expression with identifier names reflect and stringheader
 	switch n := n.(type) {
 	case *ast.SelectorExpr:
 		switch X := n.X.(type) {
@@ -89,20 +105,24 @@ func isStringHeader(n ast.Node) bool {
 			}
 		}
 	}
+	// if not, return false
 	return false
 }
 
 func isFunction(n ast.Node) bool {
+	// check if the node is a function declaration expression
 	switch n.(type) {
 	case *ast.FuncDecl:
 		return true
 	case *ast.FuncLit:
 		return false // deliberately ignore here
 	}
+	// if not, return false
 	return false
 }
 
 func isStatement(n ast.Node) bool {
+	// check if the node is one of the many expression types that represent a Go statement
 	switch n.(type) {
 	case *ast.AssignStmt:
 		return true
@@ -135,5 +155,6 @@ func isStatement(n ast.Node) bool {
 	case *ast.TypeSwitchStmt:
 		return false
 	}
+	// if not, return false
 	return false
 }

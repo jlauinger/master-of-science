@@ -1,13 +1,14 @@
-package lexical
+package linters
 
 import (
 	"fmt"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"os/exec"
 	"strconv"
 	"strings"
 )
 
-func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
+func runVet(project *base.ProjectData, packages []*base.PackageData) []base.VetFindingLine {
 	packagePaths := make([]string, len(packages))
 
 	fmt.Println("  running go vet")
@@ -25,7 +26,7 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 	vetOutput, _ := cmd.CombinedOutput()
 
 	vetLines := strings.Split(string(vetOutput), "\n")
-	vetFindings := make([]VetFindingLine, 0)
+	vetFindings := make([]base.VetFindingLine, 0)
 
 	for i := 0; i < len(vetLines); i++ {
 		messageLine := vetLines[i]
@@ -60,7 +61,7 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 			i++
 		}
 
-		vetFindings = append(vetFindings, VetFindingLine{
+		vetFindings = append(vetFindings, base.VetFindingLine{
 			Message:     messageLine,
 			ContextLine: strings.Join(contextLines, "\n"),
 		})
@@ -69,8 +70,8 @@ func runVet(project *ProjectData, packages []*PackageData) []VetFindingLine {
 	return vetFindings
 }
 
-func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[string]*PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int, project *ProjectData) map[string]string {
+func analyzeVetFindings(vetFindings []base.VetFindingLine, fileToPackageMap map[string]*base.PackageData,
+	fileToLineCountMap, fileToByteCountMap map[string]int, project *base.ProjectData) map[string]string {
 
 	fmt.Println("  analyzing go vet output")
 
@@ -80,7 +81,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 		components := strings.Split(line.Message, ":")
 
 		if len(components) < 4 {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "vet-ensure-components-length",
 				ProjectName:       project.Name,
 				PackageImportPath: "",
@@ -104,7 +105,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 		pkg, ok := fileToPackageMap[fullFilename]
 
 		if !ok {
-			pkg = &PackageData{
+			pkg = &base.PackageData{
 				ImportPath: "unknown-vet-error",
 			}
 		}
@@ -117,7 +118,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 
 		lineNumber, err := strconv.Atoi(components[1])
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "vet-parse-linenumber",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
@@ -129,7 +130,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 		}
 		column, err = strconv.Atoi(components[2])
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "vet-parse-column",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
@@ -143,7 +144,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 
 		copyDestination := fmt.Sprintf("%s/%s", pkg.ImportPath, filename)
 
-		err = WriteVetFinding(VetFindingData{
+		err = base.WriteVetFinding(base.VetFindingData{
 			Message:           message,
 			Context:           line.ContextLine,
 			LineNumber:        lineNumber,
@@ -162,7 +163,7 @@ func analyzeVetFindings(vetFindings []VetFindingLine, fileToPackageMap map[strin
 		filesToCopy[fullFilename] = copyDestination
 
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "vet-write",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,

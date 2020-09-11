@@ -2,7 +2,7 @@ package geiger
 
 import (
 	"fmt"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 )
 
 func Run(dataDir string, offset, length int, skipProjects []string) {
@@ -10,21 +10,21 @@ func Run(dataDir string, offset, length int, skipProjects []string) {
 	geigerFilename := fmt.Sprintf("%s/geiger/geiger_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
 	errorsFilename := fmt.Sprintf("%s/geiger/errors_geiger_%d_%d.csv", dataDir, offset, offset + length - 1)
 
-	if err := lexical.OpenPackagesFile(packagesFilename); err != nil {
+	if err := base.OpenPackagesFile(packagesFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	if err := lexical.OpenGeigerFindingsFile(geigerFilename); err != nil {
+	if err := base.OpenGeigerFindingsFile(geigerFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	if err := lexical.OpenErrorConditionsFile(errorsFilename); err != nil {
+	if err := base.OpenErrorConditionsFile(errorsFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
-	defer lexical.CloseFiles()
+	defer base.CloseFiles()
 
 	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
 
 	fmt.Println("reading projects data...")
-	projects, err := lexical.ReadProjects(projectsFilename)
+	projects, err := base.ReadProjects(projectsFilename)
 	if err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
@@ -49,7 +49,7 @@ func Run(dataDir string, offset, length int, skipProjects []string) {
 
 		err := analyzeProject(project)
 		if err != nil {
-			_ = lexical.WriteErrorCondition(lexical.ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "project",
 				ProjectName:       project.Name,
 				PackageImportPath: "",

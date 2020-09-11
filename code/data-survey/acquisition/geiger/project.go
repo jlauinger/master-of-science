@@ -2,17 +2,17 @@ package geiger
 
 import (
 	"fmt"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 )
 
-func analyzeProject(project *lexical.ProjectData) error {
+func analyzeProject(project *base.ProjectData) error {
 	packages, err := GetProjectPackages(project)
 	if err != nil {
 		return err
 	}
 
 	fullFilenames := make([]string, 0, 500)
-	fileToPackageMap := map[string]*lexical.PackageData{}
+	fileToPackageMap := map[string]*base.PackageData{}
 
 	for _, pkg := range packages {
 		for _, file := range pkg.GoFiles {

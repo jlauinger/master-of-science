@@ -1,22 +1,28 @@
 package ast
 
 import (
-	"bytes"
 	"fmt"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"go/ast"
-	"go/printer"
 	"go/token"
 	"strings"
 )
 
+/**
+ * prints an appropriate amount of spaces depending on the given indent depth
+ */
 func printIndent (indent int) {
 	for i := 0; i < indent; i++ {
 		fmt.Print("    ")
 	}
 }
 
+/**
+ * prints a given AST node's rough string representation to stdout
+ */
 func printNode(n ast.Node) {
+	// depending on the node type, output its type name and for some additional information like specific identifier
+	// names and such
 	switch n := n.(type) {
 	case *ast.Comment:
 		fmt.Printf("Comment")
@@ -133,25 +139,53 @@ func printNode(n ast.Node) {
 	}
 }
 
-func argumentsToString(args []ast.Expr, fset *token.FileSet) string {
-	buf := bytes.NewBufferString("")
-
-	for _, arg := range args {
-		_ = printer.Fprint(buf, fset, arg)
-		buf.WriteString(", ")
+/**
+ * prints the root of the findings tree
+ */
+func (t *TreeNode) printRoot(fset *token.FileSet) {
+	// go through all children of the tree
+	for _, child := range t.Children {
+		// and print those. The root itself is not of interest
+		printRecursive(child, fset, 0)
 	}
-
-	return buf.String()
 }
 
+/**
+ * recursively prints a node in the findings tree
+ */
+func printRecursive(t *TreeNode, fset *token.FileSet, indent int) {
+	// print the correct indent for this depth
+	printIndent(indent)
+	// print the node itself
+	printNode(t.Node)
+	// print the finding counts
+	fmt.Printf(" (%d, %d)\n", t.UnsafePointerCount, t.UintptrCount)
+
+	// then go through the children of this node
+	for _, child := range t.Children {
+		// and recursively print those as well
+		printRecursive(child, fset, indent + 1)
+	}
+}
+
+/**
+ * prints the functions in the findings tree to stdout
+ */
 func formatFunctions(findingsTree *TreeNode, fset *token.FileSet, lines []string) {
+	// get all functions in the findings tree
 	functions := findingsTree.findFunctions()
+	// go through the functions, represented by the function and their findings (leaves in the findings tree)
 	for f, leaves := range *functions {
+		// print the function name and its unsafe findings counts (unsafe pointer and uintptr)
 		fmt.Printf("FUNC %s (%d, %d):\n", f.Node.(*ast.FuncDecl).Name, f.UnsafePointerCount, f.UintptrCount)
+		// go through all leaves (findings) for this function
 		for _, leaf := range leaves {
-			printIter(leaf, fset, 1)
+			// print the findings tree node to stdout
+			printRecursive(leaf, fset, 1)
+			// then print the code position (filename and line) in a new line with indent 2
 			printIndent(2)
 			fmt.Println(fset.Position(leaf.Node.Pos()))
+			// and print the code line itself as a context
 			printIndent(2)
 			fmt.Println(lines[fset.Position(leaf.Node.Pos()).Line-1])
 		}
@@ -159,16 +193,26 @@ func formatFunctions(findingsTree *TreeNode, fset *token.FileSet, lines []string
 	}
 }
 
+/**
+ * prints the statements in the findings tree to stdout
+ */
 func formatStatements(findingsTree *TreeNode, fset *token.FileSet, lines []string) {
+	// get all statements in the findings tree
 	statements := findingsTree.findStatements()
+	// go through the statements, represented by the statement and their findings (leaves in the findings tree)
 	for s, leaves := range *statements {
+		// print the statement and its unsafe findings counts (unsafe pointer and uintptr)
 		fmt.Printf("STMT ")
 		printNode(s.Node)
 		fmt.Printf(" (%d, %d):\n", s.UnsafePointerCount, s.UintptrCount)
+		// go through all leaves (findings) for this statement
 		for _, leaf := range leaves {
-			printIter(leaf, fset, 1)
+			// print the findings tree node to stdout
+			printRecursive(leaf, fset, 1)
+			// then print the code position (filename and line) in a new line with indent 2
 			printIndent(2)
 			fmt.Println(fset.Position(leaf.Node.Pos()))
+			// and print the code line itself as a context
 			printIndent(2)
 			fmt.Println(lines[fset.Position(leaf.Node.Pos()).Line-1])
 		}
@@ -176,9 +220,14 @@ func formatStatements(findingsTree *TreeNode, fset *token.FileSet, lines []strin
 	}
 }
 
-func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, pkg *lexical.PackageData) {
+/**
+ * saves the findings in the findings tree to disk
+ */
+func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, pkg *base.PackageData) {
+	// first, save all findings. go through all the leaves (findings) in the findings tree
 	for _, finding := range findingsTree.collectLeaves() {
-		err := WriteAstFinding(FindingData{
+		// and write them to disk
+		err := base.WriteAstFinding(base.AstFindingData{
 			MatchType:            matchTypeFor(finding),
 			LineNumber:           fset.Position(finding.Node.Pos()).Line,
 			Column:               fset.Position(finding.Node.Pos()).Column,
@@ -189,9 +238,9 @@ func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, p
 			ModuleVersion:        pkg.ModuleVersion,
 			ProjectName:          pkg.ProjectName,
 		})
-
+		// if an error occurred, save it to the log
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "finding-write",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
@@ -201,12 +250,14 @@ func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, p
 		}
 	}
 
+	// then, save the function analysis data. Find all functions in the findings tree
 	for function := range *findingsTree.findFunctions() {
+		// for the function, identify the first and last lines of the function and join them together to get the code
 		startLine := fset.Position(function.Node.Pos()).Line
 		endLine := fset.Position(function.Node.End()).Line
 		text := strings.Join(lines[startLine-1:endLine], "\n")
-
-		err := WriteFunction(FunctionData{
+		// then write the function data to disk
+		err := base.WriteAstFunction(base.AstFunctionData{
 			LineNumber:           fset.Position(function.Node.Pos()).Line,
 			Column:               fset.Position(function.Node.Pos()).Column,
 			Text:                 text,
@@ -223,9 +274,9 @@ func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, p
 			ModuleVersion:        pkg.ModuleVersion,
 			ProjectName:          pkg.ProjectName,
 		})
-		
+		// if an error occurred, save it to the log
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "function-write",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
@@ -235,12 +286,14 @@ func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, p
 		}
 	}
 
+	// finally, save the statement analysis data. Find all statements in the findings tree
 	for statement := range *findingsTree.findStatements() {
+		// for the statement, identify the first and last lines of the statement and join them together to get the code
 		startLine := fset.Position(statement.Node.Pos()).Line
 		endLine := fset.Position(statement.Node.End()).Line
 		text := strings.Join(lines[startLine-1:endLine], "\n")
-
-		err := WriteStatement(StatementData{
+		// then write the statement data to disk
+		err := base.WriteAstStatement(base.AstStatementData{
 			LineNumber:           fset.Position(statement.Node.Pos()).Line,
 			Column:               fset.Position(statement.Node.Pos()).Column,
 			Text:                 text,
@@ -257,9 +310,9 @@ func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, p
 			ModuleVersion:        pkg.ModuleVersion,
 			ProjectName:          pkg.ProjectName,
 		})
-
+		// if an error occurred, save it to the log
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "statement-write",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
@@ -270,7 +323,12 @@ func saveFindings(findingsTree *TreeNode, fset *token.FileSet, lines []string, p
 	}
 }
 
+/**
+ * returns a string representation fitting my data set nomenclature depending on the match type of a given finding
+ * tree node
+ */
 func matchTypeFor(n *TreeNode) string {
+	// check which type the node has and return its string representation
 	switch {
 	case isUnsafePointer(n.Node):
 		return "unsafe.Pointer"

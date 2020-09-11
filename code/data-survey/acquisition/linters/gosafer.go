@@ -1,23 +1,24 @@
-package lexical
+package linters
 
 import (
 	"fmt"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"os/exec"
 	"strconv"
 	"strings"
 )
 
-func runLinter(project *ProjectData, packages []*PackageData) []LinterFindingLine {
+func runLinter(project *base.ProjectData, packages []*base.PackageData) []base.GosaferFindingLine {
 	chunkLength := 100
-	lines := make([]LinterFindingLine, 0, 1000)
+	lines := make([]base.GosaferFindingLine, 0, 1000)
 	for i := 0; i < len(packages); i += chunkLength {
-		pkgs := packages[i:Min(len(packages), i+chunkLength)]
+		pkgs := packages[i:base.Min(len(packages), i+chunkLength)]
 		lines = append(lines, runLinterEx(project, pkgs, i, len(packages))...)
 	}
 	return lines
 }
 
-func runLinterEx(project *ProjectData, packages []*PackageData, start, length int) []LinterFindingLine {
+func runLinterEx(project *base.ProjectData, packages []*base.PackageData, start, length int) []base.GosaferFindingLine {
 	packagePaths := make([]string, 0)
 
 	fmt.Printf("  running go-safer for %d of %d...\n", start, length)
@@ -38,7 +39,7 @@ func runLinterEx(project *ProjectData, packages []*PackageData, start, length in
 	linterOutput, _ := cmd.CombinedOutput()
 
 	linterLines := strings.Split(string(linterOutput), "\n")
-	linterFindings := make([]LinterFindingLine, 0)
+	linterFindings := make([]base.GosaferFindingLine, 0)
 
 	for i := 0; i < len(linterLines); i++ {
 		messageLine := linterLines[i]
@@ -73,7 +74,7 @@ func runLinterEx(project *ProjectData, packages []*PackageData, start, length in
 			i++
 		}
 
-		linterFindings = append(linterFindings, LinterFindingLine{
+		linterFindings = append(linterFindings, base.GosaferFindingLine{
 			Message:     messageLine,
 			ContextLine: strings.Join(contextLines, "\n"),
 		})
@@ -82,8 +83,8 @@ func runLinterEx(project *ProjectData, packages []*PackageData, start, length in
 	return linterFindings
 }
 
-func analyzeLinterFindings(linterFindings []LinterFindingLine, fileToPackageMap map[string]*PackageData,
-	project *ProjectData) map[string]string {
+func analyzeLinterFindings(linterFindings []base.GosaferFindingLine, fileToPackageMap map[string]*base.PackageData,
+	project *base.ProjectData) map[string]string {
 
 	fmt.Println("  analyzing linter output")
 
@@ -91,7 +92,7 @@ func analyzeLinterFindings(linterFindings []LinterFindingLine, fileToPackageMap 
 		components := strings.Split(line.Message, ":")
 
 		if len(components) < 4 {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "linter-ensure-components-length",
 				ProjectName:       project.Name,
 				PackageImportPath: "",
@@ -115,7 +116,7 @@ func analyzeLinterFindings(linterFindings []LinterFindingLine, fileToPackageMap 
 		pkg, ok := fileToPackageMap[fullFilename]
 
 		if !ok {
-			pkg = &PackageData{
+			pkg = &base.PackageData{
 				ImportPath: "unknown-linter-error",
 			}
 		}
@@ -128,7 +129,7 @@ func analyzeLinterFindings(linterFindings []LinterFindingLine, fileToPackageMap 
 
 		lineNumber, err := strconv.Atoi(components[1])
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "linter-parse-linenumber",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
@@ -140,7 +141,7 @@ func analyzeLinterFindings(linterFindings []LinterFindingLine, fileToPackageMap 
 		}
 		column, err = strconv.Atoi(components[2])
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "linter-parse-column",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
@@ -152,7 +153,7 @@ func analyzeLinterFindings(linterFindings []LinterFindingLine, fileToPackageMap 
 		}
 		message = strings.Trim(components[3], " ")
 
-		err = WriteLinterFinding(LinterFindingData{
+		err = base.WriteGosaferFinding(base.GosaferFindingData{
 			Message:           message,
 			Context:           line.ContextLine,
 			LineNumber:        lineNumber,
@@ -166,7 +167,7 @@ func analyzeLinterFindings(linterFindings []LinterFindingLine, fileToPackageMap 
 		})
 
 		if err != nil {
-			_ = WriteErrorCondition(ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "linter-write",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,

@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"io"
 	"os/exec"
 	"strings"
 )
 
-func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, error) {
+func GetProjectPackages(project *base.ProjectData) ([]*base.PackageData, error) {
 	fmt.Println("  identifying relevant packages...")
 
 	cmd := exec.Command("go", "list", "-deps", "-json", "./...")
@@ -19,10 +19,10 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 	jsonOutput, _ := cmd.Output()
 
 	dec := json.NewDecoder(bytes.NewReader(jsonOutput))
-	packages := make([]*lexical.PackageData, 0, 500)
+	packages := make([]*base.PackageData, 0, 500)
 
 	for {
-		var pkg lexical.GoListOutputPackage
+		var pkg base.GoListOutputPackage
 
 		err := dec.Decode(&pkg)
 		if err == io.EOF {
@@ -34,7 +34,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 
 		modulePath, moduleVersion, moduleRegistry, moduleIsIndirect := getModuleData(pkg, project)
 
-		packages = append(packages, &lexical.PackageData{
+		packages = append(packages, &base.PackageData{
 			Name:             pkg.Name,
 			ImportPath:       pkg.ImportPath,
 			Dir:              pkg.Dir,
@@ -58,7 +58,7 @@ func GetProjectPackages(project *lexical.ProjectData) ([]*lexical.PackageData, e
 	return packages, nil
 }
 
-func getModuleData(pkg lexical.GoListOutputPackage, project *lexical.ProjectData) (modulePath, moduleVersion, moduleRegistry string, moduleIsIndirect bool) {
+func getModuleData(pkg base.GoListOutputPackage, project *base.ProjectData) (modulePath, moduleVersion, moduleRegistry string, moduleIsIndirect bool) {
 	if pkg.Standard {
 		modulePath = "std"
 		moduleVersion = "std"
@@ -71,25 +71,25 @@ func getModuleData(pkg lexical.GoListOutputPackage, project *lexical.ProjectData
 		moduleIsIndirect = false
 	} else if pkg.Module.Replace == nil {
 		modulePath = pkg.Module.Path
-		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Path)
+		moduleRegistry = base.GetRegistryFromImportPath(pkg.Module.Path)
 		moduleIsIndirect = pkg.Module.Indirect
 		if pkg.Module.Version != "" {
 			moduleVersion = pkg.Module.Version
 		} else if pkg.Module.Path == project.RootModule || strings.HasPrefix(pkg.Module.Path, "./") {
 			moduleVersion = "project"
-			moduleRegistry = lexical.GetRegistryFromImportPath(project.RootModule)
+			moduleRegistry = base.GetRegistryFromImportPath(project.RootModule)
 		} else {
 			moduleVersion = "unknown"
 		}
 	} else {
 		modulePath = pkg.Module.Replace.Path
-		moduleRegistry = lexical.GetRegistryFromImportPath(pkg.Module.Replace.Path)
+		moduleRegistry = base.GetRegistryFromImportPath(pkg.Module.Replace.Path)
 		moduleIsIndirect = pkg.Module.Replace.Indirect
 		if pkg.Module.Replace.Version != "" {
 			moduleVersion = pkg.Module.Replace.Version
 		} else if pkg.Module.Replace.Path == project.RootModule || strings.HasPrefix(pkg.Module.Replace.Path, "./") {
 			moduleVersion = "project"
-			moduleRegistry = lexical.GetRegistryFromImportPath(project.RootModule)
+			moduleRegistry = base.GetRegistryFromImportPath(project.RootModule)
 		} else {
 			moduleVersion = "unknown"
 		}
@@ -98,7 +98,7 @@ func getModuleData(pkg lexical.GoListOutputPackage, project *lexical.ProjectData
 	return
 }
 
-func fillPackageLOC(packages []*lexical.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
+func fillPackageLOC(packages []*base.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
 	for _, pkg := range packages {
 		var loc, byteSize int
 
@@ -113,13 +113,13 @@ func fillPackageLOC(packages []*lexical.PackageData, fileToLineCountMap, fileToB
 	}
 }
 
-func writePackages(packages []*lexical.PackageData) {
+func writePackages(packages []*base.PackageData) {
 	fmt.Println("  writing package results to disk...")
 
 	for _, pkg := range packages {
-		err := lexical.WritePackage(*pkg)
+		err := base.WritePackage(*pkg)
 		if err != nil {
-			_ = lexical.WriteErrorCondition(lexical.ErrorConditionData{
+			_ = base.WriteErrorCondition(base.ErrorConditionData{
 				Stage:             "package",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,

@@ -2,14 +2,14 @@ package geiger
 
 import (
 	"fmt"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 )
 
-func analyzeHopCounts(packages []*lexical.PackageData) []*lexical.PackageData {
+func analyzeHopCounts(packages []*base.PackageData) []*base.PackageData {
 	fmt.Println("  analyzing dependency structure and hop counts...")
 
 	packagesGetImported := make(map[string]bool, len(packages))
-	packagesMap := make(map[string]*lexical.PackageData, len(packages))
+	packagesMap := make(map[string]*base.PackageData, len(packages))
 
 	for _, pkg := range packages {
 		packagesGetImported[pkg.ImportPath] = false
@@ -26,7 +26,7 @@ func analyzeHopCounts(packages []*lexical.PackageData) []*lexical.PackageData {
 		}
 	}
 
-	rootPackages := make([]*lexical.PackageData, 0)
+	rootPackages := make([]*base.PackageData, 0)
 
 	for pkgPath, getsImported := range packagesGetImported {
 		if getsImported {
@@ -45,16 +45,16 @@ func analyzeHopCounts(packages []*lexical.PackageData) []*lexical.PackageData {
 	return rootPackages
 }
 
-func analyzeHopCountBFS(rootPackages []*lexical.PackageData, packagesMap map[string]*lexical.PackageData) {
+func analyzeHopCountBFS(rootPackages []*base.PackageData, packagesMap map[string]*base.PackageData) {
 
 	type PackageAndPotentialHopCount struct {
 		PotentialHopCount int
 		ImportStack       []string
-		Pkg               *lexical.PackageData
+		Pkg               *base.PackageData
 	}
 
 	queue := make([]PackageAndPotentialHopCount, 0)
-	seen := make(map[*lexical.PackageData]bool, 0)
+	seen := make(map[*base.PackageData]bool, 0)
 
 	for _, rootPkg := range rootPackages {
 		queue = append(queue, PackageAndPotentialHopCount{

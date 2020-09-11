@@ -6,7 +6,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/google/go-github/github"
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"golang.org/x/oauth2"
 	"os"
 	"os/exec"
@@ -61,7 +61,7 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, access
 				createFork(client, repo)
 			}
 
-			project := lexical.ProjectData{
+			project := base.ProjectData{
 				Rank:           (page-1)*100+(i+1),
 				Name:           repo.GetFullName(),
 				GithubCloneUrl: repo.GetCloneURL(),
@@ -69,18 +69,18 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, access
 				NumberOfForks:  repo.GetForksCount(),
 				GithubId:       *repo.ID,
 				Revision:       revision,
-				CreatedAt:      lexical.DateTime{Time: repo.CreatedAt.Time},
-				LastPushedAt:   lexical.DateTime{Time: repo.PushedAt.Time},
-				UpdatedAt:      lexical.DateTime{Time: repo.UpdatedAt.Time},
+				CreatedAt:      base.DateTime{Time: repo.CreatedAt.Time},
+				LastPushedAt:   base.DateTime{Time: repo.PushedAt.Time},
+				UpdatedAt:      base.DateTime{Time: repo.UpdatedAt.Time},
 				Size:           *repo.Size,
 				CheckoutPath:   path,
 			}
 
 			if headerWritten {
-				_ = gocsv.MarshalWithoutHeaders([]lexical.ProjectData{project}, projectsFile)
+				_ = gocsv.MarshalWithoutHeaders([]base.ProjectData{project}, projectsFile)
 			} else {
 				headerWritten = true
-				_ = gocsv.Marshal([]lexical.ProjectData{project}, projectsFile)
+				_ = gocsv.Marshal([]base.ProjectData{project}, projectsFile)
 			}
 		}
 	}

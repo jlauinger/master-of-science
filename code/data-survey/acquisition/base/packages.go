@@ -1,9 +1,10 @@
-package lexical
+package base
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/linters"
 	"io"
 	"os/exec"
 )
@@ -27,13 +28,13 @@ func analyzeProject(project *ProjectData, writePackagesToFile bool,
 		}
 	}
 
-	fileToLineCountMap, err := countLines(fullFilenames)
+	fileToLineCountMap, err := linters.countLines(fullFilenames)
 	if err != nil {
 		return map[string]string{}, err
 	}
 
 
-	fileToByteCountMap, err := countBytes(fullFilenames)
+	fileToByteCountMap, err := linters.countBytes(fullFilenames)
 	if err != nil {
 		return map[string]string{}, err
 	}

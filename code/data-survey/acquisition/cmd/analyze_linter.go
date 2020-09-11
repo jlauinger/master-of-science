@@ -10,7 +10,7 @@ var analyzeLinterCmd = &cobra.Command{
 	Short: "Runs linter on the projects",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		lexical.AnalyzeLinter(offset, length, dataDir, skipProjects)
+		linters.AnalyzeLinter(offset, length, dataDir, skipProjects)
 	},
 }
 

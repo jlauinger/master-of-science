@@ -1,9 +1,10 @@
-package lexical
+package linters
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"io"
 	"os/exec"
 	"strings"
@@ -13,7 +14,7 @@ var matchTypes = []string{"unsafe\\.Pointer", "unsafe\\.Sizeof", "unsafe\\.Align
 	"uintptr", "reflect\\.SliceHeader", "reflect\\.StringHeader"}
 
 
-func grepForUnsafe(packages []*PackageData) ([]RipgrepOutputLine, error) {
+func grepForUnsafe(packages []*base.PackageData) ([]base.RipgrepOutputLine, error) {
 	files := make([]string, 0, 1000)
 
 	fmt.Println("  running ripgrep...")
@@ -36,10 +37,10 @@ func grepForUnsafe(packages []*PackageData) ([]RipgrepOutputLine, error) {
 	}
 
 	dec := json.NewDecoder(bytes.NewReader(rgOutput))
-	parsedLines := make([]RipgrepOutputLine, 0, 1000)
+	parsedLines := make([]base.RipgrepOutputLine, 0, 1000)
 
 	for {
-		var message RipgrepOutputLine
+		var message base.RipgrepOutputLine
 
 		err := dec.Decode(&message)
 		if err == io.EOF {
@@ -55,7 +56,7 @@ func grepForUnsafe(packages []*PackageData) ([]RipgrepOutputLine, error) {
 	return parsedLines, nil
 }
 
-func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[string]*PackageData,
+func analyzeGrepLines(parsedLines []base.RipgrepOutputLine, fileToPackageMap map[string]*base.PackageData,
 	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
 
 	fmt.Println("  analyzing ripgrep output")
@@ -67,7 +68,7 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 			contextLines := []string{line.Data.Lines.Text}
 
 			// context before line
-			for contextIdx := lineIdx - 1; contextIdx > Max(0, lineIdx - 5); contextIdx-- {
+			for contextIdx := lineIdx - 1; contextIdx > base.Max(0, lineIdx - 5); contextIdx-- {
 				contextLine := parsedLines[contextIdx]
 				if contextLine.MessageType == "context" || contextLine.MessageType == "match" {
 					contextLines = append([]string{contextLine.Data.Lines.Text}, contextLines...)
@@ -77,7 +78,7 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 			}
 
 			// context after line
-			for contextIdx := lineIdx + 1; contextIdx < Min(len(parsedLines), lineIdx + 6); contextIdx++ {
+			for contextIdx := lineIdx + 1; contextIdx < base.Min(len(parsedLines), lineIdx + 6); contextIdx++ {
 				contextLine := parsedLines[contextIdx]
 				if contextLine.MessageType == "context" || contextLine.MessageType == "match" {
 					contextLines = append(contextLines, contextLine.Data.Lines.Text)
@@ -92,7 +93,7 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 
 			pkg, ok := fileToPackageMap[fullFilename]
 			if !ok {
-				pkg = &PackageData{
+				pkg = &base.PackageData{
 					ImportPath: "unknown-vet-error",
 				}
 			}
@@ -102,7 +103,7 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 			for _, subMatch := range line.Data.SubMatches {
 				copyDestination := fmt.Sprintf("%s/%s", pkg.ImportPath, filename)
 
-				err := WriteGrepFinding(GrepFindingData{
+				err := base.WriteGrepFinding(base.GrepFindingData{
 					Text:              line.Data.Lines.Text,
 					Context:           context,
 					LineNumber:        line.Data.LineNumber,
@@ -122,7 +123,7 @@ func analyzeGrepLines(parsedLines []RipgrepOutputLine, fileToPackageMap map[stri
 				filesToCopy[fullFilename] = copyDestination
 
 				if err != nil {
-					_ = WriteErrorCondition(ErrorConditionData{
+					_ = base.WriteErrorCondition(base.ErrorConditionData{
 						Stage:             "ripgrep-parse",
 						ProjectName:       pkg.ProjectName,
 						PackageImportPath: pkg.ImportPath,

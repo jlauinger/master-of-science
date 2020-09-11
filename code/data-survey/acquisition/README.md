@@ -2,6 +2,8 @@
 
 Iteration 3 (Go implementation)
 
+This tool is used to analyze the open-source Go projects and gather the evaluation data into CSV files.
+
 
 ## Usage
 

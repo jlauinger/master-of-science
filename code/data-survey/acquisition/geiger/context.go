@@ -1,7 +1,7 @@
 package geiger
 
 import (
-	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/lexical"
+	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 	"go/ast"
 	"golang.org/x/tools/go/packages"
 	"io/ioutil"
@@ -23,8 +23,8 @@ func getCodeContext(parsedPkg *packages.Package, n ast.Node) (string, string) {
 		return "invalid-line-number", "invalid-line-number"
 	}
 
-	startLine := lexical.Max(1, lineNumber - 5)
-	endLine := lexical.Min(len(fileLines), lineNumber + 6)
+	startLine := base.Max(1, lineNumber - 5)
+	endLine := base.Min(len(fileLines), lineNumber + 6)
 
 	text := strings.Trim(fileLines[lineNumber-1], "\n\t")
 	context := strings.Join(fileLines[startLine-1:endLine-1], "\n")
