@@ -104,7 +104,7 @@ func analyzeGrepLines(parsedLines []base.RipgrepOutputLine, fileToPackageMap map
 		}
 
 		// get the context (+/- 5 code lines) for this finding
-		context := extractContext(line, lineIdx, parsedLines)
+		context := extractGrepContext(line, lineIdx, parsedLines)
 
 		// extract the filename where ripgrep found this finding
 		fullFilename := line.Data.Path.Text
@@ -157,7 +157,7 @@ func analyzeGrepLines(parsedLines []base.RipgrepOutputLine, fileToPackageMap map
 /**
  * extracts the +/- 5 lines source code context for a given file
  */
-func extractContext(line base.RipgrepOutputLine, lineIdx int, parsedLines []base.RipgrepOutputLine) string {
+func extractGrepContext(line base.RipgrepOutputLine, lineIdx int, parsedLines []base.RipgrepOutputLine) string {
 	// start with the matched line itself
 	contextLines := []string{line.Data.Lines.Text}
 

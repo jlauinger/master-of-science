@@ -1,5 +1,7 @@
 # Identification and analysis of unsafe.Pointer usages in open-source Go code: Implementation
 
+**It's dangerous to Go alone. Take \*this!**
+
 This is the implementation repository for my Master's thesis "Identification and Analysis of unsafe.Pointer Usage 
 Patterns in Open-Source Go Code".
 
