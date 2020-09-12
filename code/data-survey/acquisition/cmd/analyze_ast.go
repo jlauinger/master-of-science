@@ -10,10 +10,12 @@ var analyzeAstCmd = &cobra.Command{
 	Short: "Saves AST analysis results",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		ast.AnalyzeAst(offset, length, dataDir, skipProjects)
+		// run the AST analysis operation
+		ast.AnalyzeAst(dataDir, offset, length, skipProjects)
 	},
 }
 
 func init() {
+	// register the command
 	analyzeCmd.AddCommand(analyzeAstCmd)
 }

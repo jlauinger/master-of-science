@@ -10,6 +10,17 @@ import (
 	"strings"
 )
 
+/**
+ * callback handling the gosec analysis coordination. This is called for each project
+ */
+func callbackGosec(project *base.ProjectData, packages []*base.PackageData, fileToPackageMap map[string]*base.PackageData,
+	fileToLineCountMap, fileToByteCountMap map[string]int) {
+
+	// run gosec, then analyze the findings and write them to disk
+	gosecFindings, _ := runGosec(project, packages)
+	analyzeGosecFindings(gosecFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap)
+}
+
 func runGosec(project *base.ProjectData, packages []*base.PackageData) ([]base.GosecIssueOutput, error) {
 	fmt.Println("  running gosec...")
 
@@ -47,11 +58,9 @@ func runGosec(project *base.ProjectData, packages []*base.PackageData) ([]base.G
 }
 
 func analyzeGosecFindings(gosecFindings []base.GosecIssueOutput, fileToPackageMap map[string]*base.PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int) map[string]string {
+	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
 	fmt.Println("  analyzing gosec output")
-
-	var filesToCopy = make(map[string]string, 500)
 
 	for _, line := range gosecFindings {
 		pkg, ok := fileToPackageMap[line.File]
@@ -100,8 +109,6 @@ func analyzeGosecFindings(gosecFindings []base.GosecIssueOutput, fileToPackageMa
 			continue
 		}
 
-		copyDestination := fmt.Sprintf("%s/%s", pkg.ImportPath, shortFilename)
-
 		err = base.WriteGosecFinding(base.GosecFindingData{
 			Message:           line.Details,
 			Context:           line.Code,
@@ -118,10 +125,7 @@ func analyzeGosecFindings(gosecFindings []base.GosecIssueOutput, fileToPackageMa
 			ModulePath:        pkg.ModulePath,
 			ModuleVersion:     pkg.ModuleVersion,
 			ProjectName:       pkg.ProjectName,
-			FileCopyPath:      copyDestination,
 		})
-
-		filesToCopy[line.File] = copyDestination
 
 		if err != nil {
 			_ = base.WriteErrorCondition(base.ErrorConditionData{
@@ -135,6 +139,4 @@ func analyzeGosecFindings(gosecFindings []base.GosecIssueOutput, fileToPackageMa
 			continue
 		}
 	}
-
-	return filesToCopy
 }

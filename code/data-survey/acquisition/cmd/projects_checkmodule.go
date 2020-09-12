@@ -10,10 +10,12 @@ var projectsCheckModuleCmd = &cobra.Command{
 	Short: "For each project in projects.csv, checks if the project uses modules and what is the main module",
 	Long:  `Repopulates and rewrites projects.csv`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// run the check module operation
 		projects.CheckModule(dataDir)
 	},
 }
 
 func init() {
+	// register the command
 	GetProjectsCmd.AddCommand(projectsCheckModuleCmd)
 }

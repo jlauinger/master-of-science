@@ -27,7 +27,7 @@ func Min(x, y int) int {
 /**
  * returns the registry part from a package import path string
  */
-func GetRegistryFromImportPath(importPath string) string {
+func getRegistryFromImportPath(importPath string) string {
 	// split the path by slashes
 	pathComponents := strings.Split(importPath, "/")
 

@@ -10,10 +10,12 @@ var GeigerCmd = &cobra.Command{
 	Short: "run evaluation with go-geiger implementation",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		// run the go-geiger analysis operation
 		geiger.Run(dataDir, offset, length, skipProjects)
 	},
 }
 
 func init() {
+	// register the command
 	analyzeCmd.AddCommand(GeigerCmd)
 }

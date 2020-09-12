@@ -30,5 +30,6 @@ func Execute() {
 }
 
 func init() {
+	// add available command line options
 	RootCmd.PersistentFlags().StringVar(&dataDir, "data-dir", "", "directory for CSV data files")
 }

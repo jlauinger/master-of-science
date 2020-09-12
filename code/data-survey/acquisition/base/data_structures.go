@@ -136,8 +136,6 @@ type GrepFindingData struct {
 	ModulePath           string `csv:"module_path"`
 	ModuleVersion        string `csv:"module_version"`
 	ProjectName          string `csv:"project_name"`
-
-	FileCopyPath         string `csv:"file_copy_path"`
 }
 
 type VetFindingData struct {
@@ -154,8 +152,6 @@ type VetFindingData struct {
 	ModulePath           string `csv:"module_path"`
 	ModuleVersion        string `csv:"module_version"`
 	ProjectName          string `csv:"project_name"`
-
-	FileCopyPath         string `csv:"file_copy_path"`
 }
 
 type GosecFindingData struct {
@@ -175,8 +171,6 @@ type GosecFindingData struct {
 	ModulePath           string `csv:"module_path"`
 	ModuleVersion        string `csv:"module_version"`
 	ProjectName          string `csv:"project_name"`
-
-	FileCopyPath         string `csv:"file_copy_path"`
 }
 
 type GosaferFindingData struct {

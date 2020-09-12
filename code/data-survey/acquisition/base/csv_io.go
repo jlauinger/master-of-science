@@ -8,6 +8,8 @@ import (
 // these are global variables for any opened file, so that they can be used as singletons. Each file handle is
 // accompanied by a boolean indicating if the CSV header has already been written, because the header should only
 // be written once
+var projectsFile *os.File
+var projectsFileHeaderWritten = false
 var packagesFile *os.File
 var packagesFileHeaderWritten = false
 var geigerFindingsFile *os.File
@@ -28,6 +30,15 @@ var astStatementsFile *os.File
 var astStatementsFileHeaderWritten = false
 var errorConditionsFile *os.File
 var errorConditionsFileHeaderWritten = false
+
+/**
+ * opens the projects file for writing and stores the handle in the global variable
+ */
+func OpenProjectsFile(projectsFilename string) error {
+	var err error
+	projectsFile, err = os.OpenFile(projectsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	return err
+}
 
 /**
  * opens the packages file for writing and stores the handle in the global variable
@@ -132,6 +143,9 @@ func OpenErrorConditionsFile(errorsFilename string) error {
  * closes all files that are currently open
  */
 func CloseFiles() {
+	if projectsFile != nil {
+		projectsFile.Close()
+	}
 	if packagesFile != nil {
 		packagesFile.Close()
 	}
@@ -185,6 +199,20 @@ func ReadProjects(filename string)([]*ProjectData, error) {
 
 	// return the projects
 	return projects, nil
+}
+
+/**
+ * writes a project line to disk
+ */
+func WriteProject(project ProjectData) error {
+	// check if the header has already been written. If so, store the data without header. Otherwise, store including
+	// the CSV header and flag that the header has now been written.
+	if projectsFileHeaderWritten {
+		return gocsv.MarshalWithoutHeaders([]ProjectData{project}, projectsFile)
+	} else {
+		projectsFileHeaderWritten = true
+		return gocsv.Marshal([]ProjectData{project}, projectsFile)
+	}
 }
 
 /**

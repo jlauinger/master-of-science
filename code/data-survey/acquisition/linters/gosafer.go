@@ -8,17 +8,28 @@ import (
 	"strings"
 )
 
-func runLinter(project *base.ProjectData, packages []*base.PackageData) []base.GosaferFindingLine {
+/**
+ * callback handling the go-safer analysis coordination. This is called for each project
+ */
+func callbackGosafer(project *base.ProjectData, packages []*base.PackageData, fileToPackageMap map[string]*base.PackageData,
+	_, _ map[string]int) {
+
+	// run go-safer, then analyze the findings and write them to disk
+	linterFindings := runGosafer(project, packages)
+	analyzeGosaferFindings(linterFindings, fileToPackageMap, project)
+}
+
+func runGosafer(project *base.ProjectData, packages []*base.PackageData) []base.GosaferFindingLine {
 	chunkLength := 100
 	lines := make([]base.GosaferFindingLine, 0, 1000)
 	for i := 0; i < len(packages); i += chunkLength {
 		pkgs := packages[i:base.Min(len(packages), i+chunkLength)]
-		lines = append(lines, runLinterEx(project, pkgs, i, len(packages))...)
+		lines = append(lines, runGosaferEx(project, pkgs, i, len(packages))...)
 	}
 	return lines
 }
 
-func runLinterEx(project *base.ProjectData, packages []*base.PackageData, start, length int) []base.GosaferFindingLine {
+func runGosaferEx(project *base.ProjectData, packages []*base.PackageData, start, length int) []base.GosaferFindingLine {
 	packagePaths := make([]string, 0)
 
 	fmt.Printf("  running go-safer for %d of %d...\n", start, length)
@@ -36,13 +47,13 @@ func runLinterEx(project *base.ProjectData, packages []*base.PackageData, start,
 	cmd := exec.Command("go-safer", args...)
 	cmd.Dir = project.CheckoutPath
 
-	linterOutput, _ := cmd.CombinedOutput()
+	gosaferOutput, _ := cmd.CombinedOutput()
 
-	linterLines := strings.Split(string(linterOutput), "\n")
-	linterFindings := make([]base.GosaferFindingLine, 0)
+	gosaferLines := strings.Split(string(gosaferOutput), "\n")
+	gosaferFindings := make([]base.GosaferFindingLine, 0)
 
-	for i := 0; i < len(linterLines); i++ {
-		messageLine := linterLines[i]
+	for i := 0; i < len(gosaferLines); i++ {
+		messageLine := gosaferLines[i]
 
 		if len(messageLine) <= 0 || messageLine[0] == '#' ||
 			(len(messageLine) > 12 && messageLine[0:12] == " downloading") ||
@@ -57,7 +68,7 @@ func runLinterEx(project *base.ProjectData, packages []*base.PackageData, start,
 		var contextLines []string
 
 		for {
-			contextLine := linterLines[i+1]
+			contextLine := gosaferLines[i+1]
 
 			components := strings.Split(contextLine, "\t")
 
@@ -74,26 +85,26 @@ func runLinterEx(project *base.ProjectData, packages []*base.PackageData, start,
 			i++
 		}
 
-		linterFindings = append(linterFindings, base.GosaferFindingLine{
+		gosaferFindings = append(gosaferFindings, base.GosaferFindingLine{
 			Message:     messageLine,
 			ContextLine: strings.Join(contextLines, "\n"),
 		})
 	}
 
-	return linterFindings
+	return gosaferFindings
 }
 
-func analyzeLinterFindings(linterFindings []base.GosaferFindingLine, fileToPackageMap map[string]*base.PackageData,
-	project *base.ProjectData) map[string]string {
+func analyzeGosaferFindings(gosaferFindings []base.GosaferFindingLine, fileToPackageMap map[string]*base.PackageData,
+	project *base.ProjectData) {
 
-	fmt.Println("  analyzing linter output")
+	fmt.Println("  analyzing go-safer output")
 
-	for _, line := range linterFindings {
+	for _, line := range gosaferFindings {
 		components := strings.Split(line.Message, ":")
 
 		if len(components) < 4 {
 			_ = base.WriteErrorCondition(base.ErrorConditionData{
-				Stage:             "linter-ensure-components-length",
+				Stage:             "gosafer-ensure-components-length",
 				ProjectName:       project.Name,
 				PackageImportPath: "",
 				FileName:          "",
@@ -108,7 +119,7 @@ func analyzeLinterFindings(linterFindings []base.GosaferFindingLine, fileToPacka
 		var column int
 		var message string
 
-		if components[0] == "linter" || components[0] == "vet" {
+		if components[0] == "go-safer" || components[0] == "vet" {
 			components = components[1:]
 		}
 
@@ -117,7 +128,7 @@ func analyzeLinterFindings(linterFindings []base.GosaferFindingLine, fileToPacka
 
 		if !ok {
 			pkg = &base.PackageData{
-				ImportPath: "unknown-linter-error",
+				ImportPath: "unknown-gosafer-error",
 			}
 		}
 
@@ -130,7 +141,7 @@ func analyzeLinterFindings(linterFindings []base.GosaferFindingLine, fileToPacka
 		lineNumber, err := strconv.Atoi(components[1])
 		if err != nil {
 			_ = base.WriteErrorCondition(base.ErrorConditionData{
-				Stage:             "linter-parse-linenumber",
+				Stage:             "gosafer-parse-linenumber",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
 				FileName:          filename,
@@ -142,7 +153,7 @@ func analyzeLinterFindings(linterFindings []base.GosaferFindingLine, fileToPacka
 		column, err = strconv.Atoi(components[2])
 		if err != nil {
 			_ = base.WriteErrorCondition(base.ErrorConditionData{
-				Stage:             "linter-parse-column",
+				Stage:             "gosafer-parse-column",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
 				FileName:          filename,
@@ -168,7 +179,7 @@ func analyzeLinterFindings(linterFindings []base.GosaferFindingLine, fileToPacka
 
 		if err != nil {
 			_ = base.WriteErrorCondition(base.ErrorConditionData{
-				Stage:             "linter-write",
+				Stage:             "gosafer-write",
 				ProjectName:       pkg.ProjectName,
 				PackageImportPath: pkg.ImportPath,
 				FileName:          filename,
@@ -178,6 +189,4 @@ func analyzeLinterFindings(linterFindings []base.GosaferFindingLine, fileToPacka
 			continue
 		}
 	}
-
-	return map[string]string{}
 }

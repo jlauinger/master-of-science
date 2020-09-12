@@ -5,11 +5,16 @@ import (
 	"github.com/stg-tud/thesis-2020-lauinger-code/data-survey/acquisition/base"
 )
 
+/**
+ * entry point for the go-geiger analysis operation
+ */
 func Run(dataDir string, offset, length int, skipProjects []string) {
+	// build the filenames for the files that will be written
 	packagesFilename := fmt.Sprintf("%s/packages_%d_%d.csv", dataDir, offset, offset + length - 1)
 	geigerFilename := fmt.Sprintf("%s/geiger/geiger_findings_%d_%d.csv", dataDir, offset, offset + length - 1)
 	errorsFilename := fmt.Sprintf("%s/geiger/errors_geiger_%d_%d.csv", dataDir, offset, offset + length - 1)
 
+	// open the files and close them later
 	if err := base.OpenPackagesFile(packagesFilename); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
@@ -21,43 +26,13 @@ func Run(dataDir string, offset, length int, skipProjects []string) {
 	}
 	defer base.CloseFiles()
 
-	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
+	// run the analysis by calling the generic project analysis function with a callback for go-geiger
+	base.AnalyzeProjects(dataDir, offset, length, skipProjects, callbackGeiger, true, false)
+}
 
-	fmt.Println("reading projects data...")
-	projects, err := base.ReadProjects(projectsFilename)
-	if err != nil {
-		fmt.Printf("ERROR: %v\n", err)
-	}
-
-	skipProjectMap := make(map[string]struct{}, len(skipProjects))
-	for _, skipProject := range skipProjects {
-		skipProjectMap[skipProject] = struct{}{}
-	}
-
-	for projectIdx, project := range projects[offset:offset+length] {
-		if _, ok := skipProjectMap[project.Name]; ok {
-			fmt.Printf("%d/%d (#%d): Skipping %s as requested\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
-			continue
-		}
-
-		if !project.UsesModules {
-			fmt.Printf("%d/%d (#%d): Skipping %s because it does not use modules\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
-			continue
-		}
-
-		fmt.Printf("%d/%d (#%d): Analyzing %s\n", projectIdx+1, length, projectIdx+1+offset, project.Name)
-
-		err := analyzeProject(project)
-		if err != nil {
-			_ = base.WriteErrorCondition(base.ErrorConditionData{
-				Stage:             "project",
-				ProjectName:       project.Name,
-				PackageImportPath: "",
-				FileName:          "",
-				Message:           err.Error(),
-			})
-			fmt.Println("SAVING ERROR!")
-			continue
-		}
-	}
+/**
+ * callback handling the go-geiger analysis coordination. This is called for each project
+ */
+func callbackGeiger(project *base.ProjectData, packages []*base.PackageData, _ map[string]*base.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
+	geigerPackages(project, packages, fileToLineCountMap, fileToByteCountMap)
 }

@@ -10,7 +10,7 @@ import (
 /**
  * runs wc on the specified files and returns their line counts as a hash map using the file name as key
  */
-func CountLines(files []string) (map[string]int, error) {
+func countLines(files []string) (map[string]int, error) {
 	fmt.Println("  running wc to count LOC")
 
 	// build the wc command as wc -l file1 file2
@@ -51,7 +51,7 @@ func CountLines(files []string) (map[string]int, error) {
 /**
  * runs wc on the specified files and returns their byte counts as a hash map using the file name as key
  */
-func CountBytes(files []string) (map[string]int, error) {
+func countBytes(files []string) (map[string]int, error) {
 	// build the wc command as wc -c file1 file2
 	args := []string{"-c"}
 	args = append(args, files...)

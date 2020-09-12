@@ -9,19 +9,25 @@ import (
 	"strings"
 )
 
+/**
+ * runs the go-geiger logic on the given packages
+ */
 func geigerPackages(project *base.ProjectData, pkgs []*base.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
 	fmt.Println("  parsing packages and counting unsafe using geiger...")
 
+	// initialize a hash map from package import paths to the package data structure and fill it with all packages
 	pkgsMap := make(map[string]*base.PackageData)
 	for _, pkg := range pkgs {
 		pkgsMap[pkg.ImportPath] = pkg
 	}
 
+	// initialize and fill a list of all package import paths
 	paths := make([]string, 0)
 	for _, pkg := range pkgs {
 		paths = append(paths, pkg.ImportPath)
 	}
 
+	// parse all packages by their import paths with full parsing
 	parsedPkgs, err := packages.Load(&packages.Config{
 		Mode:       packages.NeedImports | packages.NeedDeps | packages.NeedSyntax |
 					packages.NeedFiles | packages.NeedName | packages.NeedTypes,
@@ -32,27 +38,41 @@ func geigerPackages(project *base.ProjectData, pkgs []*base.PackageData, fileToL
 		panic("error loading packages")
 	}
 
+	// go through all the parsed packages
 	for _, parsedPkg := range parsedPkgs {
+		// identify the acquisition tool package structure for this parsed package
 		pkg := pkgsMap[parsedPkg.PkgPath]
+		// and go-geiger it
 		geigerSinglePackage(parsedPkg, pkg, fileToLineCountMap, fileToByteCountMap)
 	}
 }
 
+/**
+ * analyzes a single package using go-geiger logic
+ */
 func geigerSinglePackage(parsedPkg *packages.Package, pkg *base.PackageData, fileToLineCountMap, fileToByteCountMap map[string]int) {
+	// initialize an AST inspector to make walking the tree easier
 	inspectResult := inspector.New(parsedPkg.Syntax)
 
+	// initialize a hash set of expressions that were already seen to avoid double-counting with the Stack
+	// inspector function
 	seenSelectorExprs := map[*ast.SelectorExpr]bool{}
+	// go through all selector expression nodes
 	inspectResult.WithStack([]ast.Node{(*ast.SelectorExpr)(nil)}, func(n ast.Node, push bool, stack []ast.Node) bool {
 		node := n.(*ast.SelectorExpr)
+		// check if the node has already been analyzed and skip it if so. Otherwise now mark it seen
 		_, ok := seenSelectorExprs[node]
 		if ok {
 			return true
 		}
 		seenSelectorExprs[node] = true
 
+		// initialize match and context types with their placeholders
 		matchType := "unknown"
 		contextType := "unknown"
 
+		// one by another, check the different match and context types, set the variables accordingly and increment
+		// the corresponding package unsafe counts
 		if isUnsafePointer(node) {
 			pkg.UnsafePointerSum++
 			matchType = "unsafe.Pointer"
@@ -174,25 +194,34 @@ func geigerSinglePackage(parsedPkg *packages.Package, pkg *base.PackageData, fil
 			}
 		}
 
+		// if there was a match, save it to CSV
 		if matchType != "unknown" {
 			writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
 		}
 
+		// return true to continue walking the AST
 		return true
 	})
 
+	// similar to the selector expressions, initialize a hash set of identifiers that were already seen to avoid
+	// double-counting with the Stack inspector function
 	seenIdents := map[*ast.Ident]bool{}
+	// go through all identifier expression nodes
 	inspectResult.WithStack([]ast.Node{(*ast.Ident)(nil)}, func(n ast.Node, push bool, stack []ast.Node) bool {
 		node := n.(*ast.Ident)
+		// check if the node has already been analyzed and skip it if so. Otherwise now mark it seen
 		_, ok := seenIdents[node]
 		if ok {
 			return true
 		}
 		seenIdents[node] = true
 
+		// initialize match and context types with their placeholders
 		matchType := "unknown"
 		contextType := "unknown"
 
+		// one by another, check the different match and context types, set the variables accordingly and increment
+		// the corresponding package unsafe counts
 		if isUintptr(node) {
 			pkg.UintptrSum++
 			matchType = "uintptr"
@@ -214,10 +243,12 @@ func geigerSinglePackage(parsedPkg *packages.Package, pkg *base.PackageData, fil
 			}
 		}
 
+		// if there was a match, save it to CSV
 		if matchType != "unknown" {
 			writeData(n, parsedPkg, pkg, matchType, contextType, fileToLineCountMap, fileToByteCountMap)
 		}
 
+		// return true to continue walking the AST
 		return true
 	})
 
@@ -225,19 +256,27 @@ func geigerSinglePackage(parsedPkg *packages.Package, pkg *base.PackageData, fil
 		pkg.UnsafeAlignofSum + pkg.StringHeaderSum + pkg.SliceHeaderSum + pkg.UintptrSum
 }
 
+/**
+ * writes a go-geiger finding to disk
+ */
 func writeData(n ast.Node, parsedPkg *packages.Package, pkg *base.PackageData, matchType, contextType string,
 	fileToLineCountMap, fileToByteCountMap map[string]int) {
 
+	// identify the node position from the parsing file set and get the 1 and +/- 5 lines contexts
 	nodePosition := parsedPkg.Fset.File(n.Pos()).Position(n.Pos())
 	text, context := getCodeContext(parsedPkg, n)
 
+	// build the filename that will be saved into the CSV file
 	var filename string
 	if strings.Contains(nodePosition.Filename, ".cache/go-build") {
+		// if it's a file from the build cache (e.g. Cgo file), use the full file path
 		filename = nodePosition.Filename
 	} else {
+		// otherwise store it without the package directory to save space
 		filename = nodePosition.Filename[len(pkg.Dir)+1:]
 	}
 
+	// write the finding data to CSV
 	err := base.WriteGeigerFinding(base.GeigerFindingData{
 		Text:              text,
 		Context:           context,
@@ -256,6 +295,7 @@ func writeData(n ast.Node, parsedPkg *packages.Package, pkg *base.PackageData, m
 		ProjectName:       pkg.ProjectName,
 	})
 
+	// and log any potential error
 	if err != nil {
 		_ = base.WriteErrorCondition(base.ErrorConditionData{
 			Stage:             "geiger-save",

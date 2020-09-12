@@ -8,6 +8,17 @@ import (
 	"strings"
 )
 
+/**
+ * callback handling the go vet analysis coordination. This is called for each project
+ */
+func callbackVet(project *base.ProjectData, packages []*base.PackageData, fileToPackageMap map[string]*base.PackageData,
+	fileToLineCountMap, fileToByteCountMap map[string]int) {
+
+	// run go vet, then analyze the findings and write them to disk
+	vetFindings := runVet(project, packages)
+	analyzeVetFindings(vetFindings, fileToPackageMap, fileToLineCountMap, fileToByteCountMap, project)
+}
+
 func runVet(project *base.ProjectData, packages []*base.PackageData) []base.VetFindingLine {
 	packagePaths := make([]string, len(packages))
 
@@ -71,11 +82,9 @@ func runVet(project *base.ProjectData, packages []*base.PackageData) []base.VetF
 }
 
 func analyzeVetFindings(vetFindings []base.VetFindingLine, fileToPackageMap map[string]*base.PackageData,
-	fileToLineCountMap, fileToByteCountMap map[string]int, project *base.ProjectData) map[string]string {
+	fileToLineCountMap, fileToByteCountMap map[string]int, project *base.ProjectData) {
 
 	fmt.Println("  analyzing go vet output")
-
-	var filesToCopy = make(map[string]string, 500)
 
 	for _, line := range vetFindings {
 		components := strings.Split(line.Message, ":")
@@ -142,8 +151,6 @@ func analyzeVetFindings(vetFindings []base.VetFindingLine, fileToPackageMap map[
 		}
 		message = strings.Trim(components[3], " ")
 
-		copyDestination := fmt.Sprintf("%s/%s", pkg.ImportPath, filename)
-
 		err = base.WriteVetFinding(base.VetFindingData{
 			Message:           message,
 			Context:           line.ContextLine,
@@ -157,10 +164,7 @@ func analyzeVetFindings(vetFindings []base.VetFindingLine, fileToPackageMap map[
 			ModulePath:        pkg.ModulePath,
 			ModuleVersion:     pkg.ModuleVersion,
 			ProjectName:       pkg.ProjectName,
-			FileCopyPath:      copyDestination,
 		})
-
-		filesToCopy[fullFilename] = copyDestination
 
 		if err != nil {
 			_ = base.WriteErrorCondition(base.ErrorConditionData{
@@ -174,6 +178,4 @@ func analyzeVetFindings(vetFindings []base.VetFindingLine, fileToPackageMap map[
 			continue
 		}
 	}
-
-	return filesToCopy
 }
