@@ -4,7 +4,9 @@ data-survey/data/packages*
 data-survey/data/linters/
 data-survey/data/ast/
 data-survey/data/geiger/
-data-survey/data/figures/
+data-survey/data/figures/*
+!data-survey/data/figures/thesis/
+!data-survey/data/figures/paper/
 backup-data/
 dev-data/
 dev-copy/
