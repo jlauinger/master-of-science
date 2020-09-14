@@ -1,0 +1,6 @@
+\begin{lstlisting}[language=Golang, label=lst:labels-classexample-pointer-arithmetic-memory-layout, caption=Usage class example: pointer-arithmetic-memory-layout]
+func (p *page) branchPageElement(index uint16) *branchPageElement {
+    off := uintptr(index) * unsafe.Sizeof(branchPageElement{})
+    return (*branchPageElement)(unsafe.Pointer(uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p) + off))
+}
+\end{lstlisting}

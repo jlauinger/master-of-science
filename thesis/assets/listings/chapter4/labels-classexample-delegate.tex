@@ -1,0 +1,5 @@
+\begin{lstlisting}[language=Golang, label=lst:labels-classexample-delegate, caption=Usage class example: delegate]
+func (type2 *UnsafeMapType) UnsafeSetIndex(obj unsafe.Pointer, key unsafe.Pointer, elem unsafe.Pointer) {
+    mapassign(type2.rtype, *(*unsafe.Pointer)(obj), key, elem)
+}
+\end{lstlisting}

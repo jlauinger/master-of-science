@@ -1,0 +1,8 @@
+\begin{lstlisting}[language=Golang, label=lst:labels-classexample-type-reflection, caption=Usage class example: type-reflection]
+case *string:
+return unsafe.Pointer(ptr), newUnfolderString()
+case *[]string:
+return unsafe.Pointer(ptr), newUnfolderArrString()
+case *map[string]string:
+return unsafe.Pointer(ptr), newUnfolderMapString()
+\end{lstlisting}

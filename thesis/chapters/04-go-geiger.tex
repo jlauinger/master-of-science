@@ -3,12 +3,12 @@
 In this thesis, I implement a tool to automatically check Go dependencies. It shows unsafe
 pointer usages not only in the project but within all of its dependencies.
 
-\input{assets/figures/study-methodology.tex}
+\input{assets/figures/chapter1/study-methodology.tex}
 
 
 \section{Design}
 
-\input{assets/figures/go-geiger-architecture.tex}
+\input{assets/figures/chapter4/go-geiger-architecture.tex}
 
 Top-level approach
 Usage example
@@ -39,8 +39,9 @@ Description of how the data set was generated and processed
 
 Including import depth analysis
 
-\input{assets/plots/distribution-unsafe-types.tex}
-\input{assets/plots/unsafe-import-depth.tex}
+\input{assets/plots/chapter4/distribution-unsafe-types.tex}
+\input{assets/plots/chapter4/unsafe-import-depth.tex}
+\input{assets/plots/chapter4/unsafe-packages-by-registry-n30.tex}
 
 
 \subsection{Influence of Popularity}
@@ -63,7 +64,7 @@ The usages are classified in two dimensions by what is happening and what is the
 
 I analyzed the following projects.
 
-\input{assets/tables/dataset-projects.tex}
+\input{assets/tables/chapter4/dataset-projects.tex}
 
 I selected them based on their high number of unsafe usages, and taking care of that they represent a reasonably large
 diversity.
@@ -99,11 +100,11 @@ I classified the samples on two dimensions.
 The first shows what is being done, e.g. a cast or a pointer arithmetic.
 The second dimension shows the purpose of the unsafe usage, e.g. serialization or realization of generics.
 
-The results are shown in Table~\ref{tbl:survey-small-results-app} for the application code snippets, and
-Table~\ref{tbl:survey-small-results-std} for the standard library snippets.
-The different classes and an example for each of them is shown in Section~\ref{sec:survey-small-classes}.
+The results are shown in Table~\ref{tbl:labels-results-app} for the application code snippets, and
+Table~\ref{tbl:labels-results-std} for the standard library snippets.
+The different classes and an example for each of them is shown in Section~\ref{sec:labels-classes}.
 
-\input{assets/tables/dataset-labels.tex}
+\input{assets/tables/chapter4/dataset-labels.tex}
 
 I put each sample along with its classification and information about where it was taken from into its own file.
 The files are put into directories whose names indicate both classification dimensions.
@@ -115,35 +116,21 @@ Here are examples and descriptions for each of the classes used to describe what
 Unsafe pointers are used to cast some struct value into a \texttt{[]byte} value.
 Although this is a special case of the next cast, I used it to cover very common serialization operations.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-conversion-struct-byteslice, caption=Usage class example: conversion-struct-byteslice]
-func socketControlMessageHeaderAndData(b []byte) (*Cmsghdr, []byte, error) {
-    h := (*Cmsghdr)(unsafe.Pointer(&b[0]))
-    if h.Len < SizeofCmsghdr || uint64(h.Len) > uint64(len(b)) {
-        return nil, nil, EINVAL
-    }
-    return h, b[cmsgAlignOf(SizeofCmsghdr):h.Len], nil
-}
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-conversion-struct-byteslice.tex}
 
 
 \textbf{conversion-struct-struct}
 
 Unsafe pointers are used to cast some struct directly into some other struct.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-conversion-struct-struct, caption=Usage class example: conversion-struct-struct]
-out.Series = (*core.EventSeries)(unsafe.Pointer(in.Series))
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-conversion-struct-struct.tex}
 
 
 \textbf{conversion-struct-basic}
 
 Unsafe pointers are used to cast some struct into a basic Go type like \texttt{int32} or \texttt{string}.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-conversion-struct-basic, caption=Usage class example: conversion-struct-basic]
-func (codec *float32Codec) IsEmpty(ptr unsafe.Pointer) bool {
-    return *((*float32)(ptr)) == 0
-}
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-conversion-struct-basic.tex}
 
 
 \textbf{conversion-header}
@@ -151,58 +138,35 @@ func (codec *float32Codec) IsEmpty(ptr unsafe.Pointer) bool {
 Unsafe pointers are used in conjunction with the slice and string headers of the reflect package to cast or construct
 slices directly.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-conversion-header, caption=Usage class example: conversion-header]
-hdr := &reflect.SliceHeader{
-    Data: uintptr(unsafe.Pointer(&data[start])),
-    Len:  cols,
-    Cap:  cols,
-}
-retVal[i][j] = *(*[]int16)(unsafe.Pointer(hdr))
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-conversion-header.tex}
 
 
 \textbf{delegate}
 
 Unsafe pointers are used only to be passed along to some function that required unsafe pointers in the first place.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-delegate, caption=Usage class example: delegate]
-func (type2 *UnsafeMapType) UnsafeSetIndex(obj unsafe.Pointer, key unsafe.Pointer, elem unsafe.Pointer) {
-    mapassign(type2.rtype, *(*unsafe.Pointer)(obj), key, elem)
-}
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-delegate.tex}
 
 
 \textbf{unused}
 
 Though there is a variable or parameter of type unsafe pointer, it is not actually used.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-unused, caption=Usage class example: unused]
-func (type2 *safeMapType) UnsafeGetIndex(obj unsafe.Pointer, key unsafe.Pointer) unsafe.Pointer {
-    panic("does not support unsafe operation")
-}
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-unused.tex}
 
 
 \textbf{comment}
 
 A comment talks about unsafe pointers, or the code is simply commented.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-comment, caption=Usage class example: comment]
-// 	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-comment.tex}
 
 
 \textbf{syscall}
 
 Unsafe pointers are used as arguments in a direct syscall.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-syscall, caption=Usage class example: syscall]
-ifreq.Data = uintptr(unsafe.Pointer(&buffer[0]))
-_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
-if errno != 0 {
-    return -1, fmt.Errorf("SIOCETHTOOL request for %q failed, errno=%v", link.Attrs().Name, errno)
-}
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-syscall.tex}
 
 
 \textbf{data-structure}
@@ -210,37 +174,21 @@ if errno != 0 {
 A data structure containing unsafe pointers or function declaration is done.
 This is possible for example to recreate the slice header structures of the reflect package.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-data-structure, caption=Usage class example: data-structure]
-type itab struct {
-    ignore unsafe.Pointer
-    rtype  unsafe.Pointer
-}
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-data-structure.tex}
 
 
 \textbf{pointer-arithmetic-memory-layout}
 
 Using unsafe pointers, there is some form of pointer arithmetic or direct field access in a struct.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-pointer-arithmetic-memory-layout, caption=Usage class example: pointer-arithmetic-memory-layout]
-func (p *page) branchPageElement(index uint16) *branchPageElement {
-    off := uintptr(index) * unsafe.Sizeof(branchPageElement{})
-    return (*branchPageElement)(unsafe.Pointer(uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(*p) + off))
-}
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-pointer-arithmetic-memory-layout.tex}
 
 
 \textbf{direct-memory-access}
 
 Unsafe pointers are used or returned to directly dereference into memory.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-direct-memory-access, caption=Usage class example: direct-memory-access]
-func (n *decNaked) rl() (v reflect.Value) {
-    v = defUnsafeDecNakedWrapper.rl
-    ((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.l)
-    return
-}
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-direct-memory-access.tex}
 
 
 \textbf{escape-analysis-escape}
@@ -248,27 +196,14 @@ func (n *decNaked) rl() (v reflect.Value) {
 Unsafe pointers are used to deliberately create a value that is hidden to Go escape analysis.
 Although the value might and probably will escape, the escape analysis can not realize.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-escape-analysis-escape, caption=Usage class example: escape-analysis-escape]
-//go:nosplit
-func NoEscape(p unsafe.Pointer) unsafe.Pointer {
-    x := uintptr(p)
-    return unsafe.Pointer(x ^ 0)
-}
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-escape-analysis-escape.tex}
 
 
 \textbf{type-reflection}
 
 Unsafe pointers are used for some form of type distinction and similar actions for each type.
 
-\begin{lstlisting}[language=Golang, label=lst:survey-small-classexample-type-reflection, caption=Usage class example: type-reflection]
-case *string:
-    return unsafe.Pointer(ptr), newUnfolderString()
-case *[]string:
-    return unsafe.Pointer(ptr), newUnfolderArrString()
-case *map[string]string:
-    return unsafe.Pointer(ptr), newUnfolderMapString()
-\end{lstlisting}
+\input{assets/listings/chapter4/labels-classexample-type-reflection.tex}
 
 
 %\section{Evaluation}

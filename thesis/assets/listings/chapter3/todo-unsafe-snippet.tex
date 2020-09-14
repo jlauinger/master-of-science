@@ -1,0 +1,6 @@
+\begin{lstlisting}[language=Golang, label=lst:todo-unsafe-snippet, caption=Todo: unsafe code snippet?]
+// toBytes performs unholy acts to avoid allocations
+func toBytes(s string) []byte {
+    return *(*[]byte)(unsafe.Pointer(&s))
+}
+\end{lstlisting}

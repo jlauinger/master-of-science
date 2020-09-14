@@ -1,0 +1,5 @@
+\begin{lstlisting}[language=Golang, label=lst:labels-classexample-conversion-struct-basic, caption=Usage class example: conversion-struct-basic]
+func (codec *float32Codec) IsEmpty(ptr unsafe.Pointer) bool {
+    return *((*float32)(ptr)) == 0
+}
+\end{lstlisting}

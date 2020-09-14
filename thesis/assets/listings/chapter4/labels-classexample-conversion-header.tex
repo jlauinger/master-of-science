@@ -1,0 +1,8 @@
+\begin{lstlisting}[language=Golang, label=lst:labels-classexample-conversion-header, caption=Usage class example: conversion-header]
+hdr := &reflect.SliceHeader{
+    Data: uintptr(unsafe.Pointer(&data[start])),
+    Len:  cols,
+    Cap:  cols,
+}
+retVal[i][j] = *(*[]int16)(unsafe.Pointer(hdr))
+\end{lstlisting}

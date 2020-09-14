@@ -1,0 +1,7 @@
+\begin{lstlisting}[language=Golang, label=lst:labels-classexample-escape-analysis-escape, caption=Usage class example: escape-analysis-escape]
+//go:nosplit
+func NoEscape(p unsafe.Pointer) unsafe.Pointer {
+    x := uintptr(p)
+    return unsafe.Pointer(x ^ 0)
+}
+\end{lstlisting}
