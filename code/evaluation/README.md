@@ -22,3 +22,9 @@ Costa et al, which is a relevant related work. It also contains comparison notes
 The `go-safer-evaluation/` directory contains the scientific evaluation of the `go-safer` linter tool. It is split into
 two parts, an evaluation based on the labeled data set and an evaluation based on a thorough analysis of six complete
 Go packages. It also contains notes about the evaluation strategy.
+
+
+## Comparison with other external linters
+
+The `other-linters-comparison/` directory contains comparison results about how many findings of `go-geiger` are also
+found by the existing tools `go vet` and `gosec`.
