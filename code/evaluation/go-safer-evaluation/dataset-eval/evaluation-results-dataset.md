@@ -235,15 +235,16 @@ The following are the finding results of the tools:
 
 In summary, we have:
 
-| **Tool** | **TP** | **FP** | **TN** | **FN** | **Precision** | **Recall** | **Accuracy** |
-|----------|--------|--------|--------|--------|---------------|------------|--------------|
-| go-safer |   29   |    1   |   13   |    1   |   0.967       |  0.967     |    0.955     |
-| go vet   |    0   |    0   |   14   |   30   |   -           |  0         |    0.318     |
-| gosec    |   29   |   13   |    1   |    1   |   0.690       |  0.967     |    0.681     |
+| **Tool** | **TP** | **FP** | **TN** | **FN** | **Precision** | **Recall** | **Accuracy** | **F1** |
+|----------|--------|--------|--------|--------|---------------|------------|--------------|--------|
+| go-safer |   29   |    1   |   13   |    1   |   0.967       |  0.967     |    0.955     | 0.967  |
+| go vet   |    0   |    0   |   14   |   30   |   -           |  0         |    0.318     | 0      |
+| gosec    |   29   |   13   |    1   |    1   |   0.690       |  0.967     |    0.681     | 0.805  |
 
 Precision = TP/(TP+FP)  
 Recall = TP/(TP+FN)  
 Accuracy = (TP+TN)/(TP+TN+FP+FN)
+F1 = 2*(P*R)/(P+R) = TP/(TP+0.5(FP+FN))
 
 We see that Go Vet does not find anything at all, while Gosec just marks everything as potentially unsafe except for
 when there is a compilation error. This shows that the existing tools are useless for this specific pattern.
