@@ -1,9 +1,9 @@
 all:
-	pdflatex thesis
+	lualatex thesis
 	bibtex thesis
 	makeglossaries thesis
-	pdflatex thesis
-	pdflatex thesis
+	lualatex thesis
+	lualatex thesis
 
 open:
 	evince thesis.pdf &
