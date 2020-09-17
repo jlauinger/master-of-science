@@ -8,36 +8,77 @@ especially in the case of critical infrastructures like energy and food supply c
 Programming languages provide concepts to help avoiding many security problems, but they can not completely prevent
 them from being introduced.
 
+This thesis takes a deeper look into the Go programming language and specifically into its \unsafe{} \acrshort{API}.
+It analyzes the risk that comes with the use of this language feature, and presents novel software tools that help
+developers to identify and minimize it.
+
 
 %% -----------------------------------------------------------------------------
 
 \section{Motivation}\label{sec:motivation}
 
-Modern programming languages like Rust and Go have mechanisms to protect potential
-unsafe usages, e.g., dereferences of raw pointers or modifying static variables. Thus, it is
-recommended to avoid unsafe usages. However, if a developer wants to avoid unsafe
-usages and potential security vulnerabilities caused by these usages, they do not only need
-to check their code but also their dependencies.
+In the last decade, there has been an ongoing adoption of memory-safe languages for many different applications.
+Such languages include for example Google's Go (or Golang), Rust, Nim, or even Java.
+They all have different mechanisms to protect potentially dangerous operations, such as accessing raw memory,
+dereferencing raw pointers, or arbitrary conversion between incompatible types.
+However, these languages also provide ways for developers to explicitly circumvent the safety measures.
+Go uses compile-time enforcement of a strict typing system with limiting rules on pointer access and cast operations
+to achieve a high level of memory and thread safety, but it also offers the \unsafe{} package.
+It is an \acrshort{API} built into the language that allows arbitrary access to raw pointers, similar to the way
+pointers in C behave.
 
-To provide a developer the power to understand the unsafe usages within their code base,
-tools like cargo-geiger~\cite{cargogeiger} exists. Unfortunately, such a tool does not exist by today for Go.
-Thus, an in-depth analysis of how many Go projects include direct and indirect unsafe
-usages and if these projects are vulnerable does not exist, e.g., to buffer overflows~\cite{larochelle2001, alnaeli2017, wang2020}.
-Within this work, the aim is to develop a tool, probably based on go vet~\cite{govet}, that can identify
-unsafe usages in Go projects - similar to cargo-geiger. Based on this tool, the thesis should
-evaluate how common unsafe usages in Go are and try to analyze if vulnerabilities caused
-by unsafe usages exist.
+There are legitimate use cases for this, such as the implementation of a low-level networking protocol that needs
+direct access to the raw byte data, or an application with time and memory constraints that needs to cast values to
+different types without reallocating them.
+It is however dangerous to use the \unsafe{} \acrshort{API} because when used incorrectly it can cause memory safety
+bugs that lead to exploitable security vulnerabilities, as I show in this thesis.
+There can be buffer overflows leading to possible code injections when incompatible types with different sizes or
+memory alignments are converted into each other, or the compiler may be unable to correctly determine the lifetime of
+a value and allocate it on a function stack instead of the program heap, which can can lead to use-after-free
+vulnerabilities and thus all kinds of malicious program behaviors.
+Thus, when \unsafe{} code is used it must be properly audited by the developers at least.
+Furthermore, even after an initial code review it is important that security researchers can effectively analyze the
+code base for potential misuses of \unsafe{} code, and administrators who deploy the software to their systems should
+be aware of the possible consequences as well.
+
+Checking \unsafe{} code in a project can be however by hard because it can be introduced not only through first-party
+code, but also through dependencies.
+Recently, Evans et al.~\cite{evans2020} showed that in Rust programs \unsafe{} blocks are often introduced through
+third-party libraries.
+It might not be directly obvious which dependencies contain \unsafe{} code and should be audited, and checking all of
+them is tedious and would create a tremendous cost in terms of developer time.
+Not knowing about the dangers introduced through the use of external dependencies can however have severe consequences
+in terms of security vulnerabilities.
+Therefore, security analysts, developers, and administrators need tools that support them in identifying \unsafe{}
+code usages in their project including its dependencies and assessing their risk.
+There are suitable tools for other languages such as \toolCargoGeiger{}~\footnote{\url{https://github.com/rust-secure-code/cargo-geiger}}
+for Rust code, but previously there was no such tool for Go.
+Although there are tools like \toolGosec{}~\footnote{\url{https://github.com/securego/gosec}} that provide limited
+ability to identify \unsafe{} usages in a single package, they can not analyze the dependencies of the package.
+
+This thesis presents the design and implementation as well as an evaluation of two novel developer tools for this
+purpose.
+\toolGeiger{} can find and count \unsafe{} usages in a Go package and its dependencies and is therefore similar to
+\toolCargoGeiger{}.
+\toolSafer{} identifies \unsafe{} usage patterns that are dangerous and common in real-world Go code.
+Its design is based on a security analysis of code samples that use the \unsafe{} \acrshort{API}, which I concluded as
+part of this thesis as well.
+Using \toolGeiger{}, I also present a study of the current state of \unsafe{} usage in popular open-source Go projects.
+This allows researchers and developers to understand how many usages there are in the first place, how they are
+introduced, what is being done in \unsafe{} call sites, and for what purpose.
+
 
 
 %% -----------------------------------------------------------------------------
 
 \section{Contributions}\label{sec:contributions}
 
-This section presents the main contributions that I make in this thesis. They are the following:
+This section presents the main contributions that I make in this thesis.
+They are the following:
 
 \begin{enumerate}
-    \item A thorough analysis of problems and consequences of \unsafe{} API usage patterns in Go code with respect to a
-    security context,
+    \item A thorough analysis of problems and consequences of \unsafe{} \acrshort{API} usage patterns in Go code with
+    respect to a security context,
 
     \item \toolGeiger, an open-source static analysis tool to identify and count \unsafe{} usages in Go packages
     including its dependencies,
@@ -64,7 +105,7 @@ This section presents the main contributions that I make in this thesis. They ar
 \section{Outline}\label{sec:outline}
 
 This thesis is structured as follows: Chapter~\ref{ch:background} gives background information on the memory safety
-and the Go \unsafe{} API, as well as the dependency management system used in Go.
+and the Go \unsafe{} \acrshort{API}, as well as the dependency management system used in Go.
 Chapter~\ref{ch:unsafe-security-problems} analyzes and discusses possible vulnerabilities caused by \unsafe{} code
 usages which can be found in real-world application code.
 Chapter~\ref{ch:go-geiger} presents the design, implementation, and evaluation of \toolGeiger, a novel static analysis
