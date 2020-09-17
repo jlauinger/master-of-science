@@ -1,9 +1,12 @@
-%! Suppress = InclusionLoop
 %% -----------------------------------------------------------------------------
 
 \chapter{Introduction}\label{ch:introduction}
 
-In today's modern society, ...
+In today's modern society, software has become an integral part of many industries and areas of life.
+The security of that software is very important, because successful attacks on it can have serious implications,
+especially in the case of critical infrastructures like energy and food supply chains or medical services.
+Programming languages provide concepts to help avoiding many security problems, but they can not completely prevent
+them from being introduced.
 
 
 %% -----------------------------------------------------------------------------
@@ -30,25 +33,28 @@ by unsafe usages exist.
 
 \section{Contributions}\label{sec:contributions}
 
-The contributions of this thesis are:
+This section presents the main contributions that I make in this thesis. They are the following:
 
 \begin{enumerate}
-    \item A thorough analysis of problems and consequences of unsafe code patterns with respect to a security context,
+    \item A thorough analysis of problems and consequences of \unsafe{} API usage patterns in Go code with respect to a
+    security context,
 
-    \item \textit{go-geiger}, an open-source tool to identify unsafe usages in Go code including its dependencies,
+    \item \toolGeiger, an open-source static analysis tool to identify and count \unsafe{} usages in Go packages
+    including its dependencies,
 
-    \item a study of unsafe code usage in the 500 most popular open-source Go projects, including the identification
-    of three main areas of danger and an in-depth study of 1,000 application code and 400 standard library snippets,
-    used in 10 selected projects, yielding a two-dimensional classification of usages and valuable insight into how and
-    for what purpose unsafe code is used in Go applications,
+    \item an empirical study of \unsafe{} code usage in the \projsTotal{} most popular open-source Go projects on
+    \github{}, including the identification of \checkNum{three} main areas of danger and an in-depth study of
+    \numberLabeledCodeSnippets{} code samples used in \projsForLabeledCodeSnippets{} selected projects, yielding a
+    two-dimensional manual classification of usages and valuable insight into how and for what purpose unsafe code is
+    used in Go applications,
 
-    \item \textit{go-safer}, an open-source, \textit{go vet}-style, linter tool to find two unsafe usage patterns of
-    \textit{unsafe.Pointer} that were previously uncaught with existing tools,
+    \item \toolSafer{}, an open-source, \toolVet{}-style, linter tool to find \checkNum{two} \unsafe{} usage patterns
+    that were previously uncaught with existing tools, including an evaluation of its performance,
 
-    \item the submission of 14 pull requests with fixes to 62 previously vulnerable code snippets in open-source Go
-    libraries, 10 of which have been merged by the authors so far, and
+    \item the submission of \numberPRs{} pull requests with fixes to \numberBugsFixed{} previously vulnerable code
+    snippets in open-source Go libraries, \numberPRsMerged{} of which have been merged by the authors so far, and
 
-    \item a replication of a related study on unsafe Go code in concurrent work by Costa et al. \cite{costa2020},
+    \item a replication of a related study on \unsafe{} Go code in concurrent work by Costa et al.~\cite{costa2020},
     including a comparison to my work and discussion of differences.
 \end{enumerate}
 
