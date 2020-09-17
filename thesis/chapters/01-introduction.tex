@@ -57,28 +57,22 @@ The contributions of this thesis are:
 
 \section{Outline}\label{sec:outline}
 
-Outdated.
+This thesis is structured as follows: Chapter~\ref{ch:background} gives background information on the memory safety
+and the Go \unsafe{} API, as well as the dependency management system used in Go.
+Chapter~\ref{ch:unsafe-security-problems} analyzes and discusses possible vulnerabilities caused by \unsafe{} code
+usages which can be found in real-world application code.
+Chapter~\ref{ch:go-geiger} presents the design, implementation, and evaluation of \toolGeiger, a novel static analysis
+tool which finds \unsafe{} usages in a Go package as well as its dependencies.
+The chapter also contains the study methodology and results for analyzing the top \projsTotal{} most popular open-source
+Go projects, and the labeled data set of \numberLabeledCodeSnippets{} code samples.
+Chapter~\ref{ch:go-safer} shows the design, implementation, and evaluation of \toolSafer, the novel linter tool that
+can identify two dangerous and common \unsafe{} usage patterns.
+Chapter~\ref{ch:related-work} discusses related and concurrent work, including the replication of and comparison to a
+similar study on \unsafe{} usage in Go by Costa et al.~\cite{costa2020}.
+Chapter~\ref{ch:discussion} puts the findings and results of this work in context.
+Threats to validity and future work are also presented here.
+Finally, chapter 8 concludes the work.
 
-This thesis is structured as follows: Chapter 2 gives background information on the motivation
-and consequences of the safe and unsafe code language features, as well as its implementation
-in the Go programming language.
+Figure~\ref{fig:outline} shows a visual outline and the relationship between the individual chapters of this thesis.
 
-Chapter 3 describes the dependency management system found in modern languages, specifically
-the Go module system with respect to open source software.
-
-Chapter 4 contains the design and implementation of a Go static analysis tool which can identify
-unsafe code usages in the package as well as its dependencies.
-
-Chapter 5 compares the analysis tool to related work on the Rust programming language and the
-more general OWASP dependency checker.
-
-Chapter 6 analyzes possible vulnerabilities caused by unsafe code usages, specifically with
-respect to cryptographic APIs.
-
-Chapter 7 contains a survey and analysis of the top 500 most popular open source Go projects
-with respect to their usage of unsafe code in the project or its dependencies. It also has an
-analysis of identified security vulnerabilities.
-
-Finally, chapter 8 concludes the work with a discussion of the results and possible future work.
-
-\input{assets/figures/chapter1/study-methodology.tex}
+\input{assets/figures/chapter1/outline.tex}
