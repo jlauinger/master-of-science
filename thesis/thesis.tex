@@ -15,45 +15,46 @@
 ]{styles/tuda-ci/tudapub}
 
 %% configuration and packages
-\include{config/typography}
-\include{config/acronyms-setup}
-\include{config/figures}
-\include{config/tables}
-\include{config/listings}
-\include{config/utilities}
+\input{config/typography.tex}
+\input{config/acronyms-setup.tex}
+\input{config/figures.tex}
+\input{config/tables.tex}
+\input{config/listings.tex}
+\input{config/utilities.tex}
+\input{config/content-macros.tex}
 
 
 \begin{document}
 
 %% configuration that has to be inside document
-\include{config/acronyms-definition}
+\input{config/acronyms-definition.tex}
 
 %% thesis cover page and information
-\include{frontback/title}
+\input{frontback/title.tex}
 
 %% abstract and Zusammenfassung
-\include{frontback/abstract}
+\input{frontback/abstract.tex}
 
 %% acknowledgments
-\include{frontback/acknowledgments}
+\input{frontback/acknowledgments.tex}
 
 %% table of contents
 \tableofcontents
 
 %% content chapters
-\include{chapters/01-introduction}
-\include{chapters/02-background}
-\include{chapters/03-unsafe-security-problems}
-\include{chapters/04-go-geiger}
-\include{chapters/05-go-safer}
-\include{chapters/06-related-work}
-\include{chapters/07-discussion}
-\include{chapters/08-conclusion}
+%\input{chapters/01-introduction.tex}
+%\input{chapters/02-background.tex}
+%\input{chapters/03-unsafe-security-problems.tex}
+%\input{chapters/04-go-geiger.tex}
+%\input{chapters/05-go-safer.tex}
+%\input{chapters/06-related-work.tex}
+%\input{chapters/07-discussion.tex}
+%\input{chapters/08-conclusion.tex}
 
 %% appendix chapters
 \appendix
-\include{appendix/A-studied-projects}
-\include{appendix/B-evaluation-data-set-structure}
+%\input{appendix/A-studied-projects.tex}
+%\input{appendix/B-evaluation-data-set-structure.tex}
 
 %% list of acronyms
 \clearpage\phantomsection

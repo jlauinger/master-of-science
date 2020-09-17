@@ -1,0 +1,45 @@
+%% Macros that get replaced by content, allowing consistent naming and quick refactoring
+%% =====================================================================================================================
+
+%% Names ---------------------------------------------------------------------------------------------------------------
+
+\newcommand{\unsafe}{\textit{unsafe}}
+\newcommand{\toolGeiger}{\textit{go-geiger}}
+\newcommand{\toolSafer}{\textit{go-safer}}
+\newcommand{\github}{\textit{GitHub}}
+
+%% Numbers for emprical study in go-geiger evaluation ------------------------------------------------------------------
+
+\newcommand{\projsTotal}{\checkNum{500}}
+\newcommand{\projsAnalyzed}{\checkNum{343}}
+\newcommand{\projsWithoutModules}{\checkNum{150}}
+\newcommand{\projsNotCompiled}{\checkNum{7}}
+
+\newcommand{\packagesAnalyzed}{\checkNum{62,025}}
+\newcommand{\packagesAnalyzedRounded}{\checkNum{62,000}}
+
+\newcommand{\numberLabeledCodeSnippets}{\checkNum{1,400}}
+
+\newcommand{\percentageUnsafeProjects}{\checkNum{38\%}}
+\newcommand{\percentageUnsafeDependencies}{\checkNum{87\%}}
+\newcommand{\percentageUnsafeTransitiveWithDependencies}{\checkNum{91\%}}
+\newcommand{\percentageUnsafePackages}{\checkNum{5.5\%}}
+
+\newcommand{\averageUnsafeImportDepth}{\checkNum{3.08}}
+\newcommand{\stdUnsafeImportDepth}{\checkNum{1.62}}
+\newcommand{\averageGeneralImportDepth}{\checkNum{3.04}}
+
+\newcommand{\levelOneImportedUnsafePackagesCount}{\checkNum{706}}
+\newcommand{\levelOneImportedUnsafePackagesShare}{\checkNum{12.8\%}}
+\newcommand{\ImportedUnsafePackagesCount}{\checkNum{5,523}}
+
+%% Numbers for pull requests fixing bugs -------------------------------------------------------------------------------
+
+\newcommand{\numberPRs}{\checkNum{14}}
+\newcommand{\numberPRsMerged}{\checkNum{10}}
+\newcommand{\numberBugsFixed}{\checkNum{62}}
+
+%% Numbers for go-safer evaluation
+
+\newcommand{\goSaferEvaluationDatasetGosaferAccuracy}{\checkNum{95.5\%}}
+\newcommand{\goSaferEvaluationPackagesGosaferAccuracy}{\checkNum{99\%}}

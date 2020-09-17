@@ -33,18 +33,23 @@ by unsafe usages exist.
 The contributions of this thesis are:
 
 \begin{enumerate}
-    \item A thorough analysis of problems and consequences of unsafe code patterns with respect to a security context
-    \item \textit{go-geiger}, an open-source tool to identify unsafe usages in Go code including its dependencies
-    \item A study of unsafe code usage in the 500 most popular open-source Go projects, including the identification
-    of (three) main areas of danger and an in-depth study of 1000 application code and 400 standard library snippets,
+    \item A thorough analysis of problems and consequences of unsafe code patterns with respect to a security context,
+
+    \item \textit{go-geiger}, an open-source tool to identify unsafe usages in Go code including its dependencies,
+
+    \item a study of unsafe code usage in the 500 most popular open-source Go projects, including the identification
+    of three main areas of danger and an in-depth study of 1,000 application code and 400 standard library snippets,
     used in 10 selected projects, yielding a two-dimensional classification of usages and valuable insight into how and
-    for what purpose unsafe code is used in Go applications
-    \item \textit{go-safer}, an open-source, Go Vet-style, linter tool to find (two) unsafe usage patterns of \texttt{unsafe.Pointer}
-    that were previously uncaught with existing tools
-    \item The submission of (14) pull requests with fixes to (62) previously vulnerable code snippets in open-source Go
-    libraries, (10) of which have already been merged
-    \item (An IDE integration of \textit{go-geiger} and \textit{go-safer} as a language service and plugins for
-    JetBrains GoLand and Visual Studio Code)
+    for what purpose unsafe code is used in Go applications,
+
+    \item \textit{go-safer}, an open-source, \textit{go vet}-style, linter tool to find two unsafe usage patterns of
+    \textit{unsafe.Pointer} that were previously uncaught with existing tools,
+
+    \item the submission of 14 pull requests with fixes to 62 previously vulnerable code snippets in open-source Go
+    libraries, 10 of which have been merged by the authors so far, and
+
+    \item a replication of a related study on unsafe Go code in concurrent work by Costa et al. \cite{costa2020},
+    including a comparison to my work and discussion of differences.
 \end{enumerate}
 
 
