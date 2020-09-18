@@ -16,7 +16,7 @@ usages from real-world code.
 
 To assess the risk of \unsafe{} code in their applications, this work presents \toolGeiger{}, a novel tool to help
 developers quantify \unsafe{} usages not only in their project itself but including its dependencies.
-Using \toolGeiger{}, I conducted a study on \unsafe{} usage in the top \projsTotal{} most popular open-source Go
+Using \toolGeiger{}, we conducted a study on \unsafe{} usage in the top \projsTotal{} most popular open-source Go
 projects on \github{}, including a manual study of \numberLabeledCodeSnippets{} individual code samples on how \unsafe{}
 is used and for what purpose.
 The study shows that \percentageUnsafePackages{} of packages imported by the projects using the Go module system use
@@ -27,7 +27,7 @@ A replication and comparison of a concurrent study by Costa et al.~\cite{costa20
 
 This work further presents \toolSafer{}, a novel static code analysis tool that helps developers to identify
 \checkNum{two} dangerous and common misuses of the \unsafe{} API which were previously undetected with existing tools.
-Using \toolSafer{}, I identified \numberBugsFixed{} bugs in real-world code and submitted patches to the maintainers.
+Using \toolSafer{}, we identified \numberBugsFixed{} bugs in real-world code and submitted patches to the maintainers.
 An evaluation of the tool shows \goSaferEvaluationDatasetGosaferAccuracy{} accuracy on my data set of labeled \unsafe{}
 usages, and \goSaferEvaluationPackagesGosaferAccuracy{} accuracy on a set of manually inspected open-source Go packages.
 
@@ -53,7 +53,7 @@ realem Anwendungscode zu Tage.
 Um die Risiken durch \unsafe{} Code in Anwendungen abzuschätzen, stellt diese Arbeit \toolGeiger{} vor, ein neues
 Werkzeug das Entwickler*innen dabei hilft, \unsafe{} Nutzungen nicht nur in ihren Projekten sondern auch in deren
 Abhängigkeiten zu finden.
-Mit \toolGeiger{} führe ich eine Studie zur Nutzung von \unsafe{} in den Top \projsTotal{} beliebtesten Open-Source Go
+Mit \toolGeiger{} führen wir eine Studie zur Nutzung von \unsafe{} in den Top \projsTotal{} beliebtesten Open-Source Go
 Projekten auf \github{}, inklusive einer manuellen Analyse von \numberLabeledCodeSnippets{} individuellen Codestücken
 in Bezug darauf wie und zu welchem Zweck \unsafe{} benutzt wird.
 Die Studie zeigt, dass \percentageUnsafePackages{} der Packages, die von Projekten die das Go Modules System
@@ -66,7 +66,7 @@ Ergebnisse.
 Weiterhin präsentiert diese Arbeit \toolSafer{}, ein neues statisches Analysewerkzeug, das Entwickler*innen hilft,
 \checkNum{zwei} gefährliche und häufig vorkommende inkorrekte Verwendungen der \unsafe{}, die mit bisher existierenden
 Tools nicht gefunden werden, zu identifizieren.
-Mittels \toolSafer{} konnte ich \numberBugsFixed{} Fehler in realem Code finden und entsprechende Patches einreichen.
+Mittels \toolSafer{} konnten wir \numberBugsFixed{} Fehler in realem Code finden und entsprechende Patches einreichen.
 Eine Evaluation des Tool ergibt eine Accuracy von \goSaferEvaluationDatasetGosaferAccuracy{} auf meinem Datensatz von
 \unsafe{} Codezeilen, und \goSaferEvaluationPackagesGosaferAccuracy{} Accuracy auf händisch analysierten Open-Source
 Go Packages.
