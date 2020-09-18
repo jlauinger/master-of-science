@@ -1,3 +1,5 @@
+%% ---------------------------------------------------------------------------------------------------------------------
+
 \chapter{\textit{go-geiger}: Identification of Unsafe Usage}\label{ch:go-geiger}
 
 In this thesis, I implement a tool to automatically check Go dependencies. It shows unsafe
@@ -6,7 +8,9 @@ pointer usages not only in the project but within all of its dependencies.
 \input{assets/figures/chapter4/outline4.tex}
 
 
-\section{Design}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Design}\label{sec:go-geiger:design}
 
 \input{assets/figures/chapter4/go-geiger-architecture.tex}
 
@@ -15,13 +19,17 @@ Usage example
 Publication
 
 
-\section{Implementation}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Implementation}\label{sec:go-geiger:implementation}
 
 Low-level details
 Verification with tests
 
 
-\section{Evaluation}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Evaluation}\label{sec:go-geiger-evaluation}
 
 A major contribution of this thesis is an analysis of unsafe code usage in the wild:
 the top 500 most popular open source Go projects.
@@ -30,12 +38,16 @@ Threat to validity: unable to differentiate dead code in analysis.
 This is similar to many studies as summarized in the related work chapter.
 
 
-\subsection{Data Set}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Data Set}\label{subsec:go-geiger:evaluation:data-set}
 
 Description of how the data set was generated and processed
 
 
-\subsection{Usages in Projects and Dependencies}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Usages in Projects and Dependencies}\label{subsec:go-geiger:evaluation:unsafe-usage}
 
 Including import depth analysis
 
@@ -44,19 +56,28 @@ Including import depth analysis
 \input{assets/plots/chapter4/unsafe-packages-by-registry-n30.tex}
 
 
-\subsection{Influence of Popularity}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Influence of Popularity}\label{subsec:go-geiger:evaluation:popularity}
 
 Correlation with Project Star / Forks Stats, Age, etc.
 
 
-\subsection{Change of Usage over Time}
+%% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Comparison with Existing Tools}
+\subsection{Change of Usage over Time}\label{subsec:go-geiger:evaluation:over-time}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Comparison with Existing Tools}\label{subsec:go-geiger:evaluation:linters-comparison}
 
 Go vet, golint
 
 
-\section{Purpose of Unsafe in Practice: a Labeled Data Set}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Purpose of Unsafe in Practice: a Labeled Data Set}\label{sec:go-geiger:labeled-dataset}
 
 his chapter contributes an in-depth study of unsafe usages in 10 selected open-source Go projects.
 I analyzed 1000 usages in application code, and 400 usages in the standard library.
@@ -102,7 +123,6 @@ The second dimension shows the purpose of the unsafe usage, e.g. serialization o
 
 The results are shown in Table~\ref{tbl:labels-results-app} for the application code snippets, and
 Table~\ref{tbl:labels-results-std} for the standard library snippets.
-The different classes and an example for each of them is shown in Section~\ref{sec:labels-classes}.
 
 \input{assets/tables/chapter4/dataset-labels.tex}
 
@@ -316,7 +336,7 @@ Unsafe pointers are used for some form of type distinction and similar actions f
 %This is because the Grep run includes comments containing \texttt{unsafe.Pointer}, while the AST run does not.
 %
 %The different data set objects have several fields that are included in the CSV data.
-%Appendix~\ref{ch:data-structure} shows the data structure and data types of each object types in multiple tables.
+%Appendix~\ref{ch:app:data-structure} shows the data structure and data types of each object types in multiple tables.
 %
 %
 %%% -----------------------------------------------------------------------------

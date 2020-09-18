@@ -1,16 +1,25 @@
-%% -----------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
 
 \chapter{Background}\label{ch:background}
 
-Background information on technologies used.
+This chapter presents background information on memory layout and safety measures to ensure its security.
+Furthermore, the \unsafe{} \acrshort{API} provided by the Go programming language, which offers a way of circumventing
+such safety measures, is introduced.
+Finally, the Go dependency management system is described as the design of \toolGeiger{} and the empirical study
+conducted with it analyze Go code including its dependencies, as described in Chapter~\ref{ch:go-geiger}.
 
 
-\section{Memory Safety and Layout}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Memory Safety and Layout}\label{sec:background:memory-safety-layout}
+
+The working memory of a computer, more specifically the Random Access Memory (\acrshort{RAM}) is used to hold both
+application data and program instructions.
 
 General stack layout, buffer overflow description, common pitfalls especially in systems languages
 
-\input{assets/figures/chapter2/frame.tex}
 \input{assets/figures/chapter2/stack.tex}
+\input{assets/figures/chapter2/frame.tex}
 
 Systems languages have many pitfalls: buffer overflows, use-after-frees, heap overflows, ...
 
@@ -26,7 +35,9 @@ on security vulnerabilities.
 How is it syntactically achieved in Go?
 
 
-\section{Go Unsafe API}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Go Unsafe API}\label{sec:background:unsafe-api}
 
 Introduction into the unsafe package, what operations exist?
 
@@ -39,7 +50,9 @@ In the case of Go there are unsafe pointers from the unsafe package. Explain how
 can be used, and which reasons there might be to use some.
 
 
-\section{Dependency Management}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Dependency Management}\label{sec:background:dependencies}
 
 Developers should not reinvent the wheel, instead they should make use of dependencies.
 

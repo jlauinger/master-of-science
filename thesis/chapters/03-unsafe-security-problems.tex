@@ -1,3 +1,5 @@
+%% ---------------------------------------------------------------------------------------------------------------------
+
 \chapter{Unsafe Security Problems}\label{ch:unsafe-security-problems}
 
 This chapter provides an in-depth security analysis of unsafe code usages.
@@ -5,11 +7,19 @@ This chapter provides an in-depth security analysis of unsafe code usages.
 \input{assets/figures/chapter3/outline3.tex}
 
 
-\section{Buffer Overflow Vulnerabilities}
+%% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Information Leak}
+\section{Buffer Overflow Vulnerabilities}\label{sec:unsafe-security-problems:buffer-overflow}
 
-\subsection{Code Flow Redirection}
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Information Leak}\label{subsec:unsafe-security-problems:buffer-overflow:information-leak}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Code Flow Redirection}\label{subsec:unsafe-security-problems:buffer-overflow:code-flow-redirection}
 
 Notes: Go uses no \acrshort{ASLR}, binaries are statically linked and the standard library is huge.
 Therefore binaries provide a lot of ROP gadgets and spawning a shell from a buffer overflow is easier than with a
@@ -20,21 +30,34 @@ Anschauen: k8s.io/apiserver/pkg/authentication/token/cache/cached\_token\_authen
 \input{assets/listings/chapter3/todo-unsafe-snippet.tex}
 
 
-\subsection{Code Injection using ROP}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Code Injection using ROP}\label{subsec:unsafe-security-problems:buffer-overflow:code-injection}
 
 \input{assets/figures/chapter3/protocol.tex}
 \input{assets/figures/chapter3/payload.tex}
 
 
-\section{Incorrect Slice and String Casts}
+%% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Incorrect Length Information}
+\section{Incorrect Slice and String Casts}\label{sec:unsafe-security-problems:slice-casts}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Incorrect Length Information}\label{subsec:unsafe-security-problems:slice-casts:incorrect-length}
 
 go-fuse
 
-\subsection{Implicit Read-Only}
 
-\subsection{GC Race Use-After-Free}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Implicit Read-Only}\label{subsec:unsafe-security-problems:slice-casts:read-only}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{GC Race Use-After-Free}\label{subsec:unsafe-security-problems:slice-casts:gc-race}
 
 Note: to use unsafe pattern 4 in syscalls, a conversion to uintptr must occur within the call statement for the compiler
 to notice it.
@@ -45,7 +68,9 @@ doing the actual syscall must cast the uintptr to uintptr again to make the no-g
 \input{assets/figures/chapter3/gcrace-vuln.tex}
 
 
-\subsection{Escape Analysis Use-After-Free}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Escape Analysis Use-After-Free}\label{subsec:unsafe-security-problems:slice-casts:escape-analysis}
 
 No-Escape function pattern:
 
@@ -61,7 +86,11 @@ This might be because of the time delay, because the assembly looks IDENTICAL!
 Escape analysis however can still not see the connection, the escape analysis exploit still works.
 
 
-\section{Architecture-Dependent Types}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Architecture-Dependent Types}\label{sec:unsafe-security-problems:architecture-dependent-types}
+
+
 
 %%% -----------------------------------------------------------------------------
 %

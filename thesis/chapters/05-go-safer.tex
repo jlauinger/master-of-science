@@ -1,3 +1,5 @@
+%% ---------------------------------------------------------------------------------------------------------------------
+
 \chapter{\textit{go-safer}: Detecting Unsafe Misuses}\label{ch:go-safer}
 
 Another major contribution of this thesis is the development of a Go Vet-style, open-source linter tool.
@@ -6,7 +8,9 @@ It can identify some of the unsafe code patterns.
 \input{assets/figures/chapter5/outline5.tex}
 
 
-\section{Design}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Design}\label{sec:go-safer:design}
 
 Top-level approach
 Usage example
@@ -15,25 +19,36 @@ Publication
 \input{assets/figures/chapter5/go-safer-architecture.tex}
 
 
-\section{Implementation}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Implementation}\label{sec:go-safer:implementation}
 
 Go vet analysis pass infrastructure
 Low-level details
 Verification with tests
 
 
-\section{Evaluation}
+%% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Labeled Usages}
+\section{Evaluation}\label{sec:go-safer:evaluation}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Labeled Usages}\label{subsec:go-safer:evaluation:labeled-usages}
 
 Precision, Recall, calculated using manually labeled usages data set
 
 
-\subsection{Case Studies}
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Case Studies}\label{subsec:go-safer:evaluation:case-studies}
 
 Manual inspection of some projects, used to calculate precision / recall of go-safer
 
 
-\subsection{Comparison with Existing Tools}
+%% ---------------------------------------------------------------------------------------------------------------------
 
-Go vet / golint
+\subsection{Comparison with Existing Tools}\label{subsec:go-safer:evaluation:linters-comparison}
+
+Go vet / Gosec

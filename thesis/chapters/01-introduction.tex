@@ -1,4 +1,4 @@
-%% -----------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
 
 \chapter{Introduction}\label{ch:introduction}
 
@@ -15,9 +15,9 @@ It analyzes the risk that comes with the use of this language feature, and prese
 developers to identify and minimize it.
 
 
-%% -----------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
 
-\section{Motivation}\label{sec:motivation}
+\section{Motivation}\label{sec:introduction:motivation}
 
 In the last decade, there has been an ongoing adoption of memory-safe languages for many different applications.
 Such languages include for example Google's Go (or Golang), Rust, Nim, or even Java.
@@ -63,8 +63,9 @@ Not knowing about the dangers introduced through the use of external dependencie
 in terms of security vulnerabilities.
 Therefore, security analysts, developers, and administrators need tools that support them in identifying \unsafe{}
 code usages in their project including its dependencies and assessing their risk.
-There are suitable tools for other languages such as \toolCargoGeiger{}~\footnote{\url{https://github.com/rust-secure-code/cargo-geiger}}
-for Rust code, but previously there was no such tool for Go.
+There are suitable tools for other languages such as
+\toolCargoGeiger{}~\footnote{\url{https://github.com/rust-secure-code/cargo-geiger}} for Rust code, but previously there
+was no such tool for Go.
 Although there are tools like \toolGosec{}~\footnote{\url{https://github.com/securego/gosec}} that provide limited
 ability to identify \unsafe{} usages in a single package, they can not analyze the dependencies of the package.
 
@@ -85,9 +86,9 @@ projects written in the Go programming language.
 
 
 
-%% -----------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
 
-\section{Contributions}\label{sec:contributions}
+\section{Contributions}\label{sec:introduction:contributions}
 
 This section briefly outlines the main contributions that are made in this thesis.
 They are the following:
@@ -119,9 +120,9 @@ They are the following:
 \end{enumerate}
 
 
-%% -----------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
 
-\section{Outline}\label{sec:outline}
+\section{Outline}\label{sec:introduction:outline}
 
 The remainder of this thesis is structured as described in the following: Chapter~\ref{ch:background} gives background
 information on memory safety and the Go \unsafe{} \acrshort{API}, as well as the dependency management system used in
