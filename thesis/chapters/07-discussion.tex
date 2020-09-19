@@ -2,43 +2,119 @@
 
 \chapter{Discussion}\label{ch:discussion}
 
-Put the findings in context.
+This chapter puts the results of this thesis in context and discusses the findings.
+First, the dangers and practical exploitability of real-world Go applications due to usages of the \unsafe{} API is
+elaborated.
+Then, we describe in detail the patches that we sent to open-source code maintainers and give suggestions towards safer
+usage best practices for \unsafe{} code.
+Finally, threats to validity and future work are presented.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Practical Exploitability of Unsafe}\label{sec:discussion:exploitability}
 
-This was hard to implement, this was easy.
-
-In the analysis of the top 500 projects, this stood out.
+In this thesis, we took a deep look into the \unsafe{} API of the Go programming language.
+We showed that it is effectively used by almost all of the \projsAnalyzed{} top-starred open-source projects
+(\percentageUnsafeTransitiveWithDependencies{}).
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Patching Open-Source Projects}\label{sec:discussion:patches}
 
-The following Github pull requests were submitted to notify the projects.
+In the process of analyzing \unsafe{} usages in real-world Go code, and using our novel static analysis tool
+\toolSafer{}, we found \numberBugsFixed{} unsafe-related bugs that can lead to security vulnerabilities.
+Most of them are instances of incorrect constructions of slice header values, which are used with in-place conversions
+between slices of different types.
+These can cause the \textit{use-after-free} vulnerabilities due to the garbage collector freeing a value that is still
+in use or an error in the escape analysis causing a value to be placed on the stack incorrectly, as described in
+Sections~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}
+and~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}.
+Furthermore, there is the bug causing incorrect length information in a slice in the \goFuse{} library as described in
+Section~\ref{subsec:unsafe-security-problems:slice-casts:incorrect-length}.
+
+We submitted \numberPRs{} pull requests with patches to these bugs to the authors of the affected libraries on
+\github{}.
+This is a public disclosure procedure, although we did not announce the bugs on any news pages.
+Given that there are currently no actual exploits that use the bugs to inject code or leak data, this was a good choice
+compared to other procedures like a responsible disclosure for example.
+Submitting \github{} pull requests allows the code authors to easily merge the necessary changes.
 
 \input{assets/tables/chapter7/submitted-pull-requests.tex}
 
-The following pull requests did exist already:
-
-\input{assets/tables/chapter7/existing-pull-requests.tex}
+Table~\ref{tbl:pull-requests} lists the pull requests with their respective \github{} project.
+The Popularity column indicates how many projects in our data set of the top \projsTotal{} most popular Go projects use
+the respective library, showing the impact of bugs.
+For the bug in \textit{mailu/easyjson}, there was already an existing open pull request.
+So far \numberPRsMerged{} of the pull requests have been accepted by the authors.
+The remaining were not rejected either, but received no attention due to a generally high volume of open pull requests
+in the project.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Suggestions for Safer Go Code}\label{sec:discussion:safer-go-code}
 
+With our two novel static analysis tools \toolGeiger{} and \toolSafer{}, we contributed valuable developer tools that
+can assist in managing the dangers associated with the use of \unsafe{} code.
+Looking at the identified reasons to use the \unsafe{} API as shown by our manually labeled data set of classified
+usages as described in Section~\ref{sec:go-geiger:labeled-dataset}, it is clear that there are in fact many legitimate
+and safe use cases for it.
+It is therefore important to further improve the safety of such operations.
+
+Since the study data for this thesis has been collected, the most recent Go release \checkNum{1.15} from
+\checkNum{August 2020} has introduced dynamic checking of unsafe pointers both into the runtime and the \toolVet{} tool.
+
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Threats to Validity}\label{sec:discussion:threats-to-validity}
+
+This section discusses potential threats to validity to our empirical study of \unsafe{} usages in popular open-source
+Go projects.
+Internal threats concern the quality of execution for our study.
+They include a bias towards bigger projects because with a higher number of lines of code, they could be
+overrepresented in the data set of manually labeled \unsafe{} usages.
+Next, we only considered projects that use the Go module system and could compile on our machines.
+
+On the other hand, external threats to validity concern the ability to generalize our study results to new data.
+They include a bias towards certain projects as well, as the distribution of \unsafe{} usages might be correlated to the
+project size, activity or number of contributors, or others.
+Furthermore, when analyzing \unsafe{} code examples for security, we might have excluded usage patterns that are
+uncommon in the top \projsTotal{} most popular projects, but frequent in projects of a specific problem domain.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Future Work}\label{sec:discussion:future-work}
 
-This work based on the contributions of this thesis might be done in the future.
+Based on the contributions of this thesis, future research might look into the following areas.
+First, our novel data set of manually labeled \unsafe{} usages, containing code samples along labels on what is being
+done and for what purpose, could be used as a training and verification data set in machine learning applications.
+It could be used for example to evaluate possible future static analysis tools with a focus on \unsafe{} Go code,
+to train an automated classification tool that could possibly predict the danger of new \unsafe{} code patterns.
+Furthermore, it can be used as a seed for further studies on the design and adoption of \unsafe{} APIs not only in Go
+but also across other languages.
+
+Next, our novel developer tools \toolGeiger{} and \toolSafer{} presented in this thesis could be integrated into
+developer \acrshort{IDE}s.
+While the current command line interface works well for the initial development of the tools, is a preferred user
+interface for some developers anyway, and is especially suitable to be used as part of a continuous integration
+(\acrshort{CI}) automation, an \acrshort{IDE} integration has the benefit of being able to unify the display of warnings
+with the editor that the developer uses to fix them.
+For example, \toolSafer{} warnings can be displayed next to the affected line directly in the editor, and the code that
+violates the safety rules could be highlighted to effectively draw the attention of the developer.
+As described in Section~\ref{sec:related-work:static-code-analysis}, this can lead to a higher fraction of warnings
+actually being resolved.
+Such an \acrshort{IDE} integration could be implemented using the language server
+protocol~\footnote{\url{https://langserver.org/}}, as this allows for easy compatibility with most \acrshort{IDE}s
+without the need to develop individual plugins for each of them.
+
+Finally, future work could integrate the static code analysis tool \toolSafer{} into \toolVet{}, the official linter
+for Go code that ships as part of the standard compiler toolchain.
+This would be fairly easy because \toolSafer{} is build using the \toolVet{} infrastructure.
+Therefore, the analysis passes provided by \toolSafer{} could directly be added to the set of analysis shipped with
+\toolVet{}.
+Achieving this would reduce the effort to use \toolSafer{} a lot and could therefore increase the adoption of the tool,
+even only passively as part of using \toolVet{} with a \acrshort{CI} workflow, leading to safer Go applications overall.
