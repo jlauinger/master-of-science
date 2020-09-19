@@ -182,16 +182,49 @@ header structures that are described in more detail in Chapter~\ref{ch:unsafe-se
 
 \section{Dependency Management}\label{sec:background:dependencies}
 
-Developers should not reinvent the wheel, instead they should make use of dependencies.
+To break code into logical units that can be maintained separately and allow reusing them, Go offers a dependency
+management system.
+The smallest possible unit is a Go package.
+A package can contain one or more source code files which must all be in the same directory.
+It has a name which should match the name of the directory containing the source files.
+There can not be more than one package in the same folder.
+Identifiers such as function and variable names must be unique in the scope of the same package and can be accessed
+directly.
+Therefore, developers can split their code into individual code files without restrictions to organize a single package.
+When accessing code in a different package, the package name must be used as prefix in front of the identifier name.
+Furthermore, the package must be imported using an \textit{import} statement at the beginning of the file.
+Package imports are valid only within a file, not a whole package, and thus must be repeated in all files that access
+the external package.
+It is only possible to access exported fields from another package, which is indicated by starting the identifier with
+a capital letter.
+When importing the package, it is necessary to specify the complete path to the package, the name is not sufficient on
+its own.
+The import path is made up of the directory tree leading to the package directory, separated by slashes.
 
-Code is imported into a project. The code is reused, but the project of course also inherits
-all security vulnerabilities of the dependencies.
+To allow sharing code with other developers and implementing reusable libraries, it is possible to download external
+packages using the \textit{go get} command, which can fetch packages using \acrshort{HTTP}, Git, or others.
+The import path usually begins with a \acrshort{DNS} host such as \textit{github.com} which hosts the package code.
+The host part is then called \textit{registry}.
+However, a drawback is that this technique does not allow to specify a version of the imported package, which makes it
+very hard to publish stable libraries.
+Starting with Go \checkNum{1.11}, the development of the module system has fixed this by introducing modules, a new unit
+of code organization.
+Modules contain one or more packages, have a name and import path similar to packages, which can in fact be the name of
+a root package in the module.
+Furthermore, modules are required to be available as a \acrshort{VCS} repository like Git and are versioned.
+A project can define dependencies to specific versions of other versions, which resolve to the packages imported in the
+code.
+Thus, it is possible to require a specific version of an external package.
+Dependencies can obviously be transitive, because imported modules can have dependencies to other modules themselves,
+forming a dependency tree.
+Figure~\ref{fig:dependency-model} shows the relation between the different units of code organization used in Go.
 
-How are Go modules organized? How is the Go.mod file written? How is code imported?
+\input{assets/figures/chapter2/dependency-model.tex}
 
-Since lots of projects use the same dependencies, we can link projects in a dependency
-graph that shows usage of libraries in the software landscape.
-
-Especially open source software makes it easy to analyze the dependency graph, and with
-open source it is very important to reuse dependencies because time is valuable and a lot
-of open source projects are non-profit.
+Projects lock their dependencies including versions in a file called \textit{Go.mod}.
+When the code is built, the Go compiler toolchain will automatically figure out which modules need to be downloaded and
+get the code.
+There are however still many projects than do not use the module system and \textit{Go.mod} file yet, because it is only
+stable since recently with the release of Go \checkNum{1.13} in \checkNum{September 2019}.
+Since importing external dependencies can also introduce security vulnerabilities present in those libraries, this work
+focuses on auditing \unsafe{} usages not only in a project itself but also its dependencies.
