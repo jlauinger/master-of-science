@@ -138,92 +138,8 @@ Although this is a special case of the next cast, I used it to cover very common
 
 \input{assets/listings/chapter4/labels-classexample-conversion-struct-byteslice.tex}
 
+\ldots
 
-\textbf{conversion-struct-struct}
-
-Unsafe pointers are used to cast some struct directly into some other struct.
-
-\input{assets/listings/chapter4/labels-classexample-conversion-struct-struct.tex}
-
-
-\textbf{conversion-struct-basic}
-
-Unsafe pointers are used to cast some struct into a basic Go type like \texttt{int32} or \texttt{string}.
-
-\input{assets/listings/chapter4/labels-classexample-conversion-struct-basic.tex}
-
-
-\textbf{conversion-header}
-
-Unsafe pointers are used in conjunction with the slice and string headers of the reflect package to cast or construct
-slices directly.
-
-\input{assets/listings/chapter4/labels-classexample-conversion-header.tex}
-
-
-\textbf{delegate}
-
-Unsafe pointers are used only to be passed along to some function that required unsafe pointers in the first place.
-
-\input{assets/listings/chapter4/labels-classexample-delegate.tex}
-
-
-\textbf{unused}
-
-Though there is a variable or parameter of type unsafe pointer, it is not actually used.
-
-\input{assets/listings/chapter4/labels-classexample-unused.tex}
-
-
-\textbf{comment}
-
-A comment talks about unsafe pointers, or the code is simply commented.
-
-\input{assets/listings/chapter4/labels-classexample-comment.tex}
-
-
-\textbf{syscall}
-
-Unsafe pointers are used as arguments in a direct syscall.
-
-\input{assets/listings/chapter4/labels-classexample-syscall.tex}
-
-
-\textbf{data-structure}
-
-A data structure containing unsafe pointers or function declaration is done.
-This is possible for example to recreate the slice header structures of the reflect package.
-
-\input{assets/listings/chapter4/labels-classexample-data-structure.tex}
-
-
-\textbf{pointer-arithmetic-memory-layout}
-
-Using unsafe pointers, there is some form of pointer arithmetic or direct field access in a struct.
-
-\input{assets/listings/chapter4/labels-classexample-pointer-arithmetic-memory-layout.tex}
-
-
-\textbf{direct-memory-access}
-
-Unsafe pointers are used or returned to directly dereference into memory.
-
-\input{assets/listings/chapter4/labels-classexample-direct-memory-access.tex}
-
-
-\textbf{escape-analysis-escape}
-
-Unsafe pointers are used to deliberately create a value that is hidden to Go escape analysis.
-Although the value might and probably will escape, the escape analysis can not realize.
-
-\input{assets/listings/chapter4/labels-classexample-escape-analysis-escape.tex}
-
-
-\textbf{type-reflection}
-
-Unsafe pointers are used for some form of type distinction and similar actions for each type.
-
-\input{assets/listings/chapter4/labels-classexample-type-reflection.tex}
 
 
 %\section{Evaluation}
@@ -820,3 +736,91 @@ Unsafe pointers are used for some form of type distinction and similar actions f
 %To obtain the data set, do this:
 %
 %Clone it from Github?
+%
+%
+%
+%\textbf{conversion-struct-struct}
+%
+%Unsafe pointers are used to cast some struct directly into some other struct.
+%
+%\input{assets/listings/chapter4/labels-classexample-conversion-struct-struct.tex}
+%
+%
+%\textbf{conversion-struct-basic}
+%
+%Unsafe pointers are used to cast some struct into a basic Go type like \texttt{int32} or \texttt{string}.
+%
+%\input{assets/listings/chapter4/labels-classexample-conversion-struct-basic.tex}
+%
+%
+%\textbf{conversion-header}
+%
+%Unsafe pointers are used in conjunction with the slice and string headers of the reflect package to cast or construct
+%slices directly.
+%
+%\input{assets/listings/chapter4/labels-classexample-conversion-header.tex}
+%
+%
+%\textbf{delegate}
+%
+%Unsafe pointers are used only to be passed along to some function that required unsafe pointers in the first place.
+%
+%\input{assets/listings/chapter4/labels-classexample-delegate.tex}
+%
+%
+%\textbf{unused}
+%
+%Though there is a variable or parameter of type unsafe pointer, it is not actually used.
+%
+%\input{assets/listings/chapter4/labels-classexample-unused.tex}
+%
+%
+%\textbf{comment}
+%
+%A comment talks about unsafe pointers, or the code is simply commented.
+%
+%\input{assets/listings/chapter4/labels-classexample-comment.tex}
+%
+%
+%\textbf{syscall}
+%
+%Unsafe pointers are used as arguments in a direct syscall.
+%
+%\input{assets/listings/chapter4/labels-classexample-syscall.tex}
+%
+%
+%\textbf{data-structure}
+%
+%A data structure containing unsafe pointers or function declaration is done.
+%This is possible for example to recreate the slice header structures of the reflect package.
+%
+%\input{assets/listings/chapter4/labels-classexample-data-structure.tex}
+%
+%
+%\textbf{pointer-arithmetic-memory-layout}
+%
+%Using unsafe pointers, there is some form of pointer arithmetic or direct field access in a struct.
+
+%\input{assets/listings/chapter4/labels-classexample-pointer-arithmetic-memory-layout.tex}
+%
+%
+%\textbf{direct-memory-access}
+%
+%Unsafe pointers are used or returned to directly dereference into memory.
+%
+%\input{assets/listings/chapter4/labels-classexample-direct-memory-access.tex}
+%
+%
+%\textbf{escape-analysis-escape}
+%
+%Unsafe pointers are used to deliberately create a value that is hidden to Go escape analysis.
+%Although the value might and probably will escape, the escape analysis can not realize.
+%
+%\input{assets/listings/chapter4/labels-classexample-escape-analysis-escape.tex}
+%
+%
+%\textbf{type-reflection}
+%
+%Unsafe pointers are used for some form of type distinction and similar actions for each type.
+%
+%\input{assets/listings/chapter4/labels-classexample-type-reflection.tex}

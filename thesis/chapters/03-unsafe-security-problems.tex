@@ -2,7 +2,12 @@
 
 \chapter{Unsafe Security Problems}\label{ch:unsafe-security-problems}
 
-This chapter provides an in-depth security analysis of unsafe code usages.
+This chapter presents an in-depth security analysis of possible consequences and vulnerabilities that can be caused by
+misuses of the \unsafe{} \acrshort{API}.
+It is organized into three main areas of danger.
+First, buffer overflow bugs and their consequences including code injection vulnerabilities are shown.
+The next section is about incorrect conversion between slices and strings.
+Finally, the dangers of conversions between types with architecture-dependent sizes are discussed.
 
 \input{assets/figures/chapter3/outline3.tex}
 
@@ -25,10 +30,6 @@ Notes: Go uses no \acrshort{ASLR}, binaries are statically linked and the standa
 Therefore binaries provide a lot of ROP gadgets and spawning a shell from a buffer overflow is easier than with a
 comparable C program.
 
-Anschauen: k8s.io/apiserver/pkg/authentication/token/cache/cached\_token\_authenticator.go:235
-
-\input{assets/listings/chapter3/todo-unsafe-snippet.tex}
-
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
@@ -41,6 +42,14 @@ Anschauen: k8s.io/apiserver/pkg/authentication/token/cache/cached\_token\_authen
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Incorrect Slice and String Casts}\label{sec:unsafe-security-problems:slice-casts}
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Incompatible Types}\label{subsec:unsafe-security-problems:slice-casts:incompatible-types}
+
+Anschauen: k8s.io/apiserver/pkg/authentication/token/cache/cached\_token\_authenticator.go:235
+
+\input{assets/listings/chapter3/todo-unsafe-snippet.tex}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
