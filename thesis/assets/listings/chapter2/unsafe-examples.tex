@@ -1,0 +1,11 @@
+\begin{lstlisting}[language=Golang, label=lst:unsafe-examples, caption=Usage examples of the Go unsafe API]
+import "unsafe"
+
+func floatToBits(x float32) int {
+    return *(*int)(unsafe.Pointer(&x))
+}
+
+func secondByte(b [5]byte) byte {
+    return *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(&b)) + 1))
+}
+\end{lstlisting}
