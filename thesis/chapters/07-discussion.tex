@@ -3,20 +3,48 @@
 \chapter{Discussion}\label{ch:discussion}
 
 This chapter puts the results of this thesis in context and discusses the findings.
-First, the dangers and practical exploitability of real-world Go applications due to usages of the \unsafe{} API is
+First, the dangers and practical exploitability of real-world Go applications due to usage of the \unsafe{} API are
 elaborated.
-Then, we describe in detail the patches that we sent to open-source code maintainers and give suggestions towards safer
-usage best practices for \unsafe{} code.
+Then, we describe in detail the patches that we sent to open-source code maintainers and give suggestions towards a
+world with safer usage practices of \unsafe{} code.
 Finally, threats to validity and future work are presented.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\section{Practical Exploitability of Unsafe}\label{sec:discussion:exploitability}
+\section{Practical Exploitability of Unsafe Code}\label{sec:discussion:exploitability}
 
 In this thesis, we took a deep look into the \unsafe{} API of the Go programming language.
 We showed that it is effectively used by almost all of the \projsAnalyzed{} top-starred open-source projects
-(\percentageUnsafeTransitiveWithDependencies{}).
+(\percentageUnsafeTransitiveWithDependencies{}) either directly or by including \unsafe{} usages through third-party
+dependencies.
+While there are many legitimate use cases for \unsafe{} code, such as efficient conversions between otherwise
+incompatible types without allocating additional memory or accessing the foreign function interface (\acrshort{FFI}),
+we also showed in a thorough manual study that there are dangers and possible vulnerabilities that can come from it.
+While the data collected when creating our labeled data set of annotated \unsafe{} usage examples shows that the
+majority of the usages are safe and legitimate, we also found several bugs that could lead to severe vulnerabilities.
+
+A contribution of this thesis is novel evidence of possible misuses of the \unsafe{} \acrshort{API} with concrete proof
+showing how a vulnerability is introduced.
+The changes needed to avoid the misuses are often minor and subtle, which underlines the fact that \unsafe{} is a
+fragile and dangerous feature of the Go programming language.
+It is complicated to understand the dangers a given piece of code has and could have in the future, especially if there
+is interaction with other parts of the code base and other developers.
+If a bug is introduced, it can easily slip through code review and be part of a zero day exploit some time later.
+The bugs that we found during the course of this work, and to which we submitted patches as described in the next
+section, may seem few and minor at first glance, but it only takes one \textit{use-after-free} bug at a critical
+position to open up the possibility of a major remote code execution attack.
+
+The general direction that programming languages like Go or Rust take is the right one.
+By enforcing a strict safety net in most cases and still allowing escape hatches to circumvent these measures when it is
+absolutely necessary, they combine the best of two worlds.
+In most of the code base, buffer overflows, race conditions etc. are prevented at the small cost of a slightly more
+rigid coding workflow and developer training.
+There is however still the option of complete flexibility and total control over the memory if it should be needed.
+This allows organizations to focus auditing and review efforts on the code parts that use the \unsafe{} \acrshort{API},
+which is a fraction of the total code.
+Therefore, the code that really matters with respect to a security perspective can be reviewed with much more detail
+without increasing development and maintenance costs.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -24,7 +52,8 @@ We showed that it is effectively used by almost all of the \projsAnalyzed{} top-
 \section{Patching Open-Source Projects}\label{sec:discussion:patches}
 
 In the process of analyzing \unsafe{} usages in real-world Go code, and using our novel static analysis tool
-\toolSafer{}, we found \numberBugsFixed{} unsafe-related bugs that can lead to security vulnerabilities.
+\toolSafer{}, we found more than \numberBugsFixedRounded{} unsafe-related bugs that can lead to security
+vulnerabilities.
 Most of them are instances of incorrect constructions of slice header values, which are used with in-place conversions
 between slices of different types.
 These can cause the \textit{use-after-free} vulnerabilities due to the garbage collector freeing a value that is still
@@ -47,7 +76,7 @@ Table~\ref{tbl:pull-requests} lists the pull requests with their respective \git
 The Popularity column indicates how many projects in our data set of the top \projsTotal{} most popular Go projects use
 the respective library, showing the impact of bugs.
 For the bug in \textit{mailu/easyjson}, there was already an existing open pull request.
-So far \numberPRsMerged{} of the pull requests have been accepted by the authors.
+So far \numberPRsMerged{} of the pull requests have been reviewed, acknowledged, and accepted by the authors.
 The remaining were not rejected either, but received no attention due to a generally high volume of open pull requests
 in the project.
 
@@ -56,15 +85,46 @@ in the project.
 
 \section{Suggestions for Safer Go Code}\label{sec:discussion:safer-go-code}
 
-With our two novel static analysis tools \toolGeiger{} and \toolSafer{}, we contributed valuable developer tools that
-can assist in managing the dangers associated with the use of \unsafe{} code.
-Looking at the identified reasons to use the \unsafe{} API as shown by our manually labeled data set of classified
-usages as described in Section~\ref{sec:go-geiger:labeled-dataset}, it is clear that there are in fact many legitimate
-and safe use cases for it.
-It is therefore important to further improve the safety of such operations.
+Usages of \unsafe{} that get imported through third-party dependencies are dangerous because they can be hidden at first
+glance, but still get compiled into the resulting application binary.
+On top of the fact that external dependencies tend to get updated rather late if at all, as was discussed in
+Section~\ref{sec:related-work:dependency-issues}, there is now also the possibility that there is simply nobody even
+aware of the potential danger.
+Our novel tool \toolGeiger{} is a large step in the journey of improving this situation, as it allows to quickly and
+effectively differentiate the libraries that need auditing from those that do not.
+An effective next step would be to use this information even before deciding which library to use.
+If there are multiple external libraries that achieve the same goal, choosing which one to use should incorporate the
+data about how many \unsafe{} usages each library contains, if any.
+Libraries with less \unsafe{} code should be preferred over those with much.
+It would be beneficial to contribute towards a situation where library maintainers use the number of \unsafe{} usages
+in their library as a feature or part of its advertisement.
+Similar to code quality report badges on the \github{} repository of the project, there could be a badge showing if the
+library uses any \unsafe{} code, and if it does how much.
 
 Since the study data for this thesis has been collected, the most recent Go release \checkNum{1.15} from
-\checkNum{August 2020} has introduced dynamic checking of unsafe pointers both into the runtime and the \toolVet{} tool.
+\checkNum{August 2020} has enabled additional static checking of \textit{unsafe.Pointer} usages with the
+\textit{-d=checkptr} compiler flag~\footnote{\url{https://golang.org/doc/go1.14\#compiler}}.
+The development of the new check had been started with Go release \checkNum{1.14} already.
+It checks that the alignment of the target type matches the alignment of the pointer when converting unsafe pointers to
+an arbitrary type.
+Furthermore, the result of pointer arithmetic can not be a completely arbitrary heap value anymore, instead at least one
+argument of the arithmetic expression must already be a pointer into the resulting value if it is a heap value.
+Both checks prevent some misuses of \unsafe{} that can occur if the developer took a false assumption over the types
+involved in a conversion, and therefore they are a valuable step towards a safer Go with \unsafe{}.
+However, the new check can not find the misuses that are detected by \toolSafer{}, which underlines the need of
+continuous improvement of the developer tools and continued awareness of potentially still unknown dangers with the use
+of \unsafe{}.
+
+Finally, some \unsafe{} usages in the analyzed open-source projects were necessary to achieve functionality that could
+have been implemented with generics too, if they were available in Go.
+Generics are in fact one of the most widely requested features for the Go programming language, with \checkNum{79\%} of
+participants in the \checkNum{2019} Go Developer Survey~\footnote{\url{https://blog.golang.org/survey2019-results}}
+stating that they think it is a critical missing feature.
+Since generics have now been officially announced~\footnote{\url{https://blog.golang.org/go2-next-steps}} for the
+upcoming Go release \checkNum{2.0}, these \unsafe{} usages can then be replaced by the new generics support.
+Similarly, other language improvements such as a new foreign function interface could make other usages of \unsafe{}
+which are necessary at the moment obsolete, thus decreasing the room for errors made by the developers and therefore
+increasing security and safety.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
