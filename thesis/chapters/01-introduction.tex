@@ -90,18 +90,18 @@ projects written in the Go programming language.
 
 \section{Contributions}\label{sec:introduction:contributions}
 
-This section briefly outlines the main contributions that are made in this thesis.
+This section lists and briefly outlines the main contributions that are made in this thesis.
 They are the following:
 
 \begin{enumerate}
     \item A thorough analysis of problems and consequences of usage patterns of the \unsafe{} \acrshort{API} in Go code
-    with respect to a security context,
+    with respect to a security context, revealing \checkNum{three} main areas of danger,
 
     \item \toolGeiger, a novel open-source static analysis tool to identify and count \unsafe{} usages in Go packages
     including their dependencies,
 
     \item a quantitative study of \unsafe{} code usage in \projsAnalyzed{} of the top \projsTotal{} most popular
-    open-source Go projects on \github{}, including the identification of \checkNum{three} main areas of danger,
+    open-source Go projects on \github{},
 
     \item an in-depth study of \numberLabeledCodeSnippets{} code samples used in \projsForLabeledCodeSnippets{} selected
     projects, yielding a two-dimensional manual classification of usages and valuable insight into how and for what
