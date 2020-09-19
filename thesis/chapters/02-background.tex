@@ -133,8 +133,10 @@ measures provided by the language for those purposes.
 In the case of Go, there is the \unsafe{} package~\footnote{\url{https://golang.org/pkg/unsafe}}, an \acrshort{API} that
 allows developers to use raw pointers with all their benefits and dangers.
 
+\input{assets/listings/chapter2/unsafe-api.tex}
+
 The package contains \checkNum{three} functions \textit{Sizeof}, \textit{Alignof}, and \textit{Offsetof}, as well as the
-type \textit{Pointer}.
+type \textit{Pointer}, as shown in Listing~\ref{lst:unsafe-api}.
 The \textit{unsafe.Pointer} is the most important one.
 It is a pointer type in the sense that the garbage collector follows it to determine live references, but apart from
 that the normal restrictions for memory safety do not apply.
@@ -143,7 +145,7 @@ any type.
 Furthermore, they can be converted to and from \textit{uintptr} values, which is an integer type with sufficient size
 to store pointers on the specific target architecture of the program.
 Since \textit{uintptr} values behave like normal integer variables, they can be used in arithmetic expressions.
-Therefore, unsafe pointers can also be used to achieve pointer arithmetics.
+Therefore, unsafe pointers can also be used to achieve pointer arithmetic.
 With \textit{unsafe.Pointer}, developers can achieve the same flexibility as with raw \textit{void*} pointers in C.
 
 Listing~\ref{lst:unsafe-examples} shows examples of both \textit{unsafe.Pointer} features.
