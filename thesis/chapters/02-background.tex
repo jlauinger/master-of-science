@@ -5,8 +5,8 @@
 This chapter presents background information on memory layout and safety measures to ensure its security.
 Furthermore, the \unsafe{} \acrshort{API} provided by the Go programming language, which offers a way of circumventing
 such safety measures, is introduced.
-Finally, the Go dependency management system is described as the design of \toolGeiger{} and the empirical study
-conducted with it analyze Go code including its dependencies, as described in Chapter~\ref{ch:go-geiger}.
+Finally, the Go dependency management system is described as the design of \toolGeiger{} and the related empirical study
+analyze Go code including its dependencies, as described in Chapter~\ref{ch:go-geiger}.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -30,9 +30,9 @@ The heap is a data section that stores data with a lifetime greater than a singl
 variables.
 Memory can be allocated there using dedicated runtime functions like \textit{malloc} in C and must be freed after it is
 not needed anymore to avoid running out of heap memory.
-Finally, the stack is also a data section, but different from the heap it is used for local variables of functions, as
+Finally, the stack is also a data section, but in contrast to the heap it is used for local variables of functions, as
 well as their arguments and possibly return values.
-The stack pointer register (\textit{\$rsp} on the \textit{amd64} architecture) in the processor stores the current top
+The stack pointer register (\textit{\$rsp} in the \textit{amd64} architecture) in the processor stores the current top
 of the stack, which is the address of the last value that was added to the stack.
 If a new value is pushed, then the stack pointer is decremented and the data can be written to its new address.
 It is possible to decrement the stack pointer by any number of bytes to make room for several variables at once, and
@@ -77,7 +77,7 @@ return values.
 A frequent security vulnerability in programs that use traditional systems languages like C are buffer overflows.
 They happen when an array variable, for example a string, is too short for the data that is written to it, causing the
 data to overflow into and overwrite adjacent memory.
-Overflows can happen everywhere in the memory, however a very common source of security problems are stack-based buffer
+Overflows can happen anywhere in the memory, however a common source of security problems are stack-based buffer
 overflows.
 When a buffer variable is placed on the stack and too much data gets written to it, the data will be written to higher
 memory addresses, which means after overwriting the other local variables and saved registers they can cause the saved
@@ -85,7 +85,7 @@ return address to get changed.
 When an attacker can control the data that is placed there, they can change the program flow by carefully choosing the
 address that ends up being jumped to after the current function returns.
 
-A common problem with data placed on the heap is that if it gets freed but then the program continue to try and use the
+A common problem with data placed on the heap is that if it gets freed but then the program continues to try and use the
 data, it is possible that the memory at that address has already been reused and new data is accessed, potentially
 reading or writing data from another thread.
 However, the same can happen with data on the stack if there are references to the data that remain after the stack
@@ -93,9 +93,9 @@ frame has been destroyed, as dereferencing that address can then access memory t
 thus potentially change arbitrary data including the saved return address.
 This kind of problem is called \textit{use-after-free}.
 
-Buffer overflows and use-after-free vulnerabilities are a very common root cause for security problems in traditional
-systems programming language, as those usually offer direct access to the memory in terms of raw pointers and manual
-allocations~\cite{larochelle2001}.
+Buffer overflows and \textit{use-after-free} vulnerabilities are a very common root cause for security problems in
+traditional systems programming languages, as those usually offer direct access to the memory in terms of raw pointers
+and manual allocations~\cite{larochelle2001}.
 To prevent these dangers, many programming languages provide features to achieve a higher level of memory safety.
 There can be compile-time or static measures, runtime or dynamic measures, or a combination of both.
 The Go programming language uses automatic memory management, which means that developers do not need to manually
@@ -130,8 +130,8 @@ device driver, a network protocol, or an application with tight constrains on re
 different types without allocating additional memory.
 Many memory-safe programming languages like Go, but also Rust, Nim, or even Java offer ways to circumvent the safety
 measures provided by the language for those purposes.
-In the case of Go, there is the \unsafe{} package, an \acrshort{API} that allows developers to use raw pointers with
-all their benefits and dangers.
+In the case of Go, there is the \unsafe{} package~\footnote{\url{https://golang.org/pkg/unsafe}}, an \acrshort{API} that
+allows developers to use raw pointers with all their benefits and dangers.
 
 The package contains \checkNum{three} functions \textit{Sizeof}, \textit{Alignof}, and \textit{Offsetof}, as well as the
 type \textit{Pointer}.
@@ -159,16 +159,17 @@ The function expects an array of size five bytes and returns the second byte.
 Instead of direct indexing, it achieves this by obtaining the address of the array as a \textit{uintptr} value, adding
 1 and then casting the resulting address to a \textit{byte} value, again taking care of dereferencing the resulting
 pointer type.
+
+\input{assets/listings/chapter2/unsafe-examples.tex}
+
 It is important to note that while \textit{unsafe.Pointer} is a pointer type, \textit{uintptr} is not.
 This means that addresses that are stored in variables of type \textit{uintptr} are not treated as references by the
 garbage collector, and thus values referenced by it can get freed although there are still live references.
 Possible consequences of this are described in Chapter~\ref{ch:unsafe-security-problems}.
 Other dangers include that accessing raw bytes of data structures exposes low-level implementation details such as
-alignment of structure fields to even addresses, which can change with future versions of the Go compiler or runtime
-and thus break programs when they are not carefully updated later on.
+the alignment of structure fields to word-bound addresses, which can change with future versions of the Go compiler or
+runtime and thus break programs when they are not carefully updated later on.
 In general, using the \unsafe{} package must be done with caution and should be avoided whenever possible.
-
-\input{assets/listings/chapter2/unsafe-examples.tex}
 
 The other functions of the \unsafe{} packages are evaluated at compile time and can be used to gain knowledge about
 the size, alignment, or offset of a field in a structure type relative to the start of the structure.
@@ -199,18 +200,18 @@ It is only possible to access exported fields from another package, which is ind
 a capital letter.
 When importing the package, it is necessary to specify the complete path to the package, the name is not sufficient on
 its own.
-The import path is made up of the directory tree leading to the package directory, separated by slashes.
+The import path is made up of the directory tree leading to the package directory, separated by forward slashes.
 
 To allow sharing code with other developers and implementing reusable libraries, it is possible to download external
-packages using the \textit{go get} command, which can fetch packages using \acrshort{HTTP}, Git, or others.
+packages using the \textit{go get} command, which can fetch packages using \acrshort{HTTP}, Git, or other means.
 The import path usually begins with a \acrshort{DNS} host such as \textit{github.com} which hosts the package code.
 The host part is then called \textit{registry}.
 However, a drawback is that this technique does not allow to specify a version of the imported package, which makes it
 very hard to publish stable libraries.
-Starting with Go \checkNum{1.11}, the development of the module system has fixed this by introducing modules, a new unit
-of code organization.
-Modules contain one or more packages, have a name and import path similar to packages, which can in fact be the name of
-a root package in the module.
+Starting with the release of Go \checkNum{1.11}, the development of the module system has fixed this by introducing a
+new unit of code organization.
+Modules contain one or more packages, and have a name and import path similar to packages, which can in fact be the name
+of a root package in the module.
 Furthermore, modules are required to be available as a \acrshort{VCS} repository like Git and are versioned.
 A project can define dependencies to specific versions of other versions, which resolve to the packages imported in the
 code.
@@ -224,7 +225,7 @@ Figure~\ref{fig:dependency-model} shows the relation between the different units
 Projects lock their dependencies including versions in a file called \textit{Go.mod}.
 When the code is built, the Go compiler toolchain will automatically figure out which modules need to be downloaded and
 get the code.
-There are however still many projects than do not use the module system and \textit{Go.mod} file yet, because it is only
+There are however still many projects that do not use the module system and \textit{Go.mod} file yet, because it is only
 stable since recently with the release of Go \checkNum{1.13} in \checkNum{September 2019}.
 Since importing external dependencies can also introduce security vulnerabilities present in those libraries, this work
 focuses on auditing \unsafe{} usages not only in a project itself but also its dependencies.
