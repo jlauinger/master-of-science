@@ -6,7 +6,7 @@ This chapter presents an in-depth security analysis of possible consequences and
 misuses of the \unsafe{} \acrshort{API}.
 It is organized into three main areas of danger.
 First, buffer overflow bugs and their consequences including code injection vulnerabilities are shown.
-The next section is about incorrect conversion between slices and strings.
+The following section is about incorrect conversion between slices and strings.
 Finally, the dangers of conversions between types with architecture-dependent sizes are discussed.
 
 \input{assets/figures/chapter3/outline3.tex}
@@ -15,6 +15,11 @@ Finally, the dangers of conversions between types with architecture-dependent si
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Buffer Overflow Vulnerabilities}\label{sec:unsafe-security-problems:buffer-overflow}
+
+The first main area of possible vulnerabilities in the context of the \unsafe{} \acrshort{API} are buffer overflows.
+They are a rather common and dangerous problem with traditional systems programming languages like C, and without the
+safety measures provided by the Go programming language without \unsafe{} to prevent them, they can happen in Go just
+as well.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -43,37 +48,60 @@ comparable C program.
 
 \section{Incorrect Slice and String Casts}\label{sec:unsafe-security-problems:slice-casts}
 
+The second main area of danger with \unsafe{} usages is focused around the conversion of strings and slices of different
+types.
+Slices in Go are represented by a header structure that stores a pointer to the underlying data array, as well as
+information about the current slice size and allocated size.
+Strings are in fact just read-only byte slices.
+Listing~\ref{lst:reflect-header-types} shows the \acrshort{API} of these types.
+
+\input{assets/listings/chapter3/reflect-header-types.tex}
+
+
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Incompatible Types}\label{subsec:unsafe-security-problems:slice-casts:incompatible-types}
 
-Anschauen: k8s.io/apiserver/pkg/authentication/token/cache/cached\_token\_authenticator.go:235
+Listing~\ref{unsafe-string-to-bytes-direct}, taken from the \textit{k8s.io/apiserver} package, shows a direct cast
+from \textit{string} to \textit{[]byte}.
+This is an incorrect cast that misses the \textit{Cap} field.
 
-\input{assets/listings/chapter3/todo-unsafe-snippet.tex}
+\input{assets/listings/chapter3/unsafe-string-to-bytes-direct.tex}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Incorrect Length Information}\label{subsec:unsafe-security-problems:slice-casts:incorrect-length}
 
-go-fuse
+go-fuse slice conversion bug.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Implicit Read-Only}\label{subsec:unsafe-security-problems:slice-casts:read-only}
 
+The conversion pattern shown in Listing~\ref{lst:string-to-bytes} is an \unsafe{} usage pattern that is used very
+commonly in popular open-source projects, as our study described in Chapter~\ref{ch:go-geiger} revealed.
+
+\input{assets/listings/chapter3/string-to-bytes.tex}
+
+It has three not obvious but very dangerous problems that come with it.
+The first is that the resulting slice is implicitly read-only.
+
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{GC Race Use-After-Free}\label{subsec:unsafe-security-problems:slice-casts:gc-race}
 
-Note: to use unsafe pattern 4 in syscalls, a conversion to uintptr must occur within the call statement for the compiler
-to notice it.
-If you have a function that already takes a uintptr argument, like the sys package uses a lot, then that function when
-doing the actual syscall must cast the uintptr to uintptr again to make the no-garbage-collect magic happen.
+The second problem caused by the conversion shown in Listing~\ref{lst:string-to-bytes} is a \textit{use-after-free} bug
+caused by a race condition involving the garbage collector (\acrshort{GC}) used by Go.
+Figure~\ref{fig:gc} shows a visualization of the \acrshort{GC} process.
 
 \input{assets/figures/chapter3/gc.tex}
+
+Now, when the \acrshort{GC} runs at the wrong time, the underlying data array used in the slice might have already been
+collected, as illustrated by Figure~\ref{fig:gcrace-vuln}.
+
 \input{assets/figures/chapter3/gcrace-vuln.tex}
 
 
@@ -81,23 +109,28 @@ doing the actual syscall must cast the uintptr to uintptr again to make the no-g
 
 \subsection{Escape Analysis Use-After-Free}\label{subsec:unsafe-security-problems:slice-casts:escape-analysis}
 
-No-Escape function pattern:
+A third problem that comes with the incorrect construction of a new slice shown in Listing~\ref{lst:string-to-bytes} in
+the previous section is that the Go compiler's escape analysis algorithm fails.
 
-\input{assets/listings/chapter3/no-escape-function.tex}
+Listing~\ref{lst:escape-analysis-flaw} shows a proof of concept of this problem.
 
-Is the identified unsafe cast pattern safe if it is done in one statement?
+\input{assets/listings/chapter3/escape-analysis-flaw.tex}
 
-\input{assets/listings/chapter3/cast-1-statement.tex}
+It is irrelevant whether the cast between the slice header which is constructed from scratch and the final slice is done
+with a variable or in one statement, as shown in Listing~\ref{lst:string-to-bytes-1statement}.
 
-The garbage collector race exploit does not work anymore with this.
-This might be because of the time delay, because the assembly looks IDENTICAL!
+\input{assets/listings/chapter3/string-to-bytes-1statement.tex}
 
-Escape analysis however can still not see the connection, the escape analysis exploit still works.
+In fact, the assembly code that gets produced by the compiler in these cases is exactly the same.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Architecture-Dependent Types}\label{sec:unsafe-security-problems:architecture-dependent-types}
+
+The third area of possible vulnerabilities contains types that have a different size or alignment on different
+architectures.
+
 
 
 

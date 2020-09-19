@@ -1,0 +1,14 @@
+\begin{lstlisting}[language=Golang, label=lst:reflect-header-types, caption=Reflect slice and string header types and API]
+package reflect
+
+type SliceHeader struct {
+    Data uintptr
+    Len int
+    Cap int
+}
+
+type StringHeader struct {
+    Data uintptr
+    Len int
+}
+\end{lstlisting}

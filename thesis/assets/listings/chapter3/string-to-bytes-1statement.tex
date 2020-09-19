@@ -1,4 +1,4 @@
-\begin{lstlisting}[language=Golang, label=lst:cast-1-statement, caption=Unsafe slice cast in one single statement]
+\begin{lstlisting}[language=Golang, label=lst:string-to-bytes-1statement, caption=Unsafe slice cast in one single statement]
 strHeader := (*reflect.StringHeader)(unsafe.Pointer(&s))
 return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
     Data: strHeader.Data,

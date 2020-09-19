@@ -1,0 +1,14 @@
+\begin{lstlisting}[language=Golang, label=lst:architecture-dependent-types-cast, caption=Incorrect cast between architecture-dependent types]
+func main() {
+    bytesResult := GetBytes()
+    fmt.Printf("main: \%s\n", bytesResult) // expected (but failed) stdout is "abcdefgh
+}
+
+func GetBytes() []byte {
+    reader := bufio.NewReader(strings.NewReader("abcdefgh"))
+    s, _ := reader.ReadString('\n')
+    out := StringToBytes(s)
+    fmt.Printf("GetBytes: \%s\n", out) // expected stdout is "abcdefgh"
+    return out
+}
+\end{lstlisting}
