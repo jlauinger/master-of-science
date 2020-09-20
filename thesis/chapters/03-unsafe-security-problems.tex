@@ -50,30 +50,125 @@ comparable C program.
 
 The second main area of danger with \unsafe{} usages is focused around the conversion of strings and slices of different
 types.
-Slices in Go are represented by a header structure that stores a pointer to the underlying data array, as well as
-information about the current slice size and allocated size.
-Strings are in fact just read-only byte slices.
+Slices in Go are an array data type consisting of an underlying memory area and information about length and capacity.
+The length indicates how many elements are currently contained in the slice, and the capacity denotes the allocated
+space in memory.
+When a subset of the slice is taken by specifying start and end indices, then a new slice is created that uses the same
+underlying data array as the original one, and might have a capacity longer than its length if there are further
+elements in the original slice after the end of the newly taken subslice.
+It is possible to increase the size of the new slice up to its capacity, but the size can never be larger than the
+capacity.
+When new elements are added to a slice using the \textit{append} function, then a new slice is created too which has a
+higher length than the previous.
+The runtime reuses the underlying data array of the original slice as well if its capacity is big enough, or allocates
+a new array for the new slice if it is not.
+Strings in Go are read-only \textit{[]byte} slices.
+Usually they are encoded in UTF-8, but this is not required.
+The length of a string is always the number of bytes needed to store its encoded form, which is often not the same as
+the number of characters in the string.
+It is important that strings are immutable because string literals are placed in a constant data section of the binary
+when the code is compiled, meaning they are usually located within a read-only memory page and mutating them would cause
+the program to receive a segmentation fault signal and crash.
+Both slices and strings in Go are internally represented by a header structure that stores a pointer to the underlying
+data array, as well as the size and capacity.
 Listing~\ref{lst:reflect-header-types} shows the \acrshort{API} of these types.
 
 \input{assets/listings/chapter3/reflect-header-types.tex}
+
+It is possible to access the internal structure of slices and strings by casting the slice to its header representation
+using the \unsafe{} API.
+Notice that the reference to the underlying data array has the type \textit{uintptr}, therefore it is not inherently
+treated as a pointer type by the garbage collector (\acrshort{GC}).
+Instead, there is a special case in the Go runtime that recognizes slices and strings and follows the address stored in
+the \textit{Data} field to prevent it from getting collected.
+As we will see in Section~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}, there are however situations where
+this fails.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Incompatible Types}\label{subsec:unsafe-security-problems:slice-casts:incompatible-types}
 
-Listing~\ref{unsafe-string-to-bytes-direct}, taken from the \textit{k8s.io/apiserver} package, shows a direct cast
-from \textit{string} to \textit{[]byte}.
-This is an incorrect cast that misses the \textit{Cap} field.
+Converting slices to strings and vice versa can be done simply by casting them, however this will cause the Go runtime
+to allocate a new slice or string for the resulting value.
+To improve efficiency by reusing the underlying data and only reinterpret it as data of a new type, it is possible to
+use the \unsafe{} \acrshort{API} for an in-place cast.
+Since the fields in the header structures shown in Listing~\ref{lst:reflect-header-types} are different in the presence
+of the \textit{Cap} field, this is however only valid for conversions from slices to string.
+In that case, the resulting string header, which shares the same location in memory with the original slice header, will
+reuse the reference to the underlying data array as well as the length, and since the string header structure does not
+contain any more fields the capacity information will simply follow unused in memory.
+
+In contrast, when converting a string to a slice directly, the source header structure is too short.
+The resulting slice header will use correct values for its data reference and length, but the capacity field will
+contain whatever is located in memory directly after the original string header.
+There is an instance of this incorrect cast in the \textit{k8s.io/apiserver} package that is part of the
+\textit{Kubernetes} project, showing a conversoin from \textit{string} to \textit{[]byte}.
+It is shown in Listing~\ref{unsafe-string-to-bytes-direct}.
 
 \input{assets/listings/chapter3/unsafe-string-to-bytes-direct.tex}
+
+The resulting slice with random data in its capacity field is dangerous to use.
+Operations that read from a slice, like using it in a loop to iterate over its contents, mostly only use the data
+reference and length.
+However, any action on the slice that uses the capacity, like taking subslices from it or appending data, is undefined
+and can therefore become a security vulnerability.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Incorrect Length Information}\label{subsec:unsafe-security-problems:slice-casts:incorrect-length}
 
-go-fuse slice conversion bug.
+A second possible misuse in the context of slice conversions is an incorrect length value set in the slice header.
+This can happen quickly if the length information is calculated dynamically, especially if the user-supplied input data
+is used to deduce the resulting value.
+An example of such a bug is shown in Listing~\ref{lst:go-fuse-bug}.
+It is taken from the \textit{hanwen/go-fuse} library\footnote{\url{https://github.com/hanwen/go-fuse}}, a Go
+implementation of the server specification used for the userspace filesystem (\acrshort{FUSE}) available for
+Linux~\footnote{\url{https://www.kernel.org/doc/html/latest/filesystems/fuse.html}}.
+We already submitted a patch for this bug to the authors, as described in more detail in
+Section~\ref{sec:discussion:patches}.
+
+\input{assets/listings/chapter3/go-fuse-bug.tex}
+
+\acrshort{FUSE} uses a client / server architecture where filesystem implementations present a server that handles
+requests from a specific kernel module.
+The kernel module acts like a regular filesystem driver, but instead of executing operations in kernel space, it
+forwards them to the user space \acrshort{FUSE} server.
+Communication is done through the \textit{/dev/fuse} device node.
+The listing shows a part of the \textit{doBatchForget} function, which is used to clear files, identified by their inode
+number, from a cache that the filesystem might have.
+\textit{go-fuse} is designed in a way that incoming data from the \textit{/dev/fuse} node is passed to handler functions
+as byte slices (\textit{req.inData} and \textit{req.arg}) containing the raw, serialized request.
+The handler function then casts the data into a suitable structure to access individual fields.
+In this case, the request is converted into an instance of the \textit{\_BatchForgetIn} type, which provides access to
+the number of inodes to forget that are contained in the batch request through the \textit{in.Count} field.
+The individual forget messages in serialized and concatenated form are available through the \textit{req.arg} array, so
+the to access them a new slice is created by defining its slice header from scratch.
+In addition to the incorrect length calculation described in this section, this process of creating the slice has
+multiple further problems which are described in the following Sections~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}
+and~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}.
+The created slice uses the incoming request data containing the forget messages (\textit{req.arg}) as its underlying
+data array and the number of messages (\textit{in.Count}) both as length and capacity.
+
+Since the \textit{in.Count} field is supplied as part of the request sent to the library, it can be controlled by an
+attacker if they manage to conduct a man-in-the-middle (\acrshort{MITM}) attack and change the request for a malicious
+one.
+If the length is greater than the actual available number of data bytes, then the resulting \textit{forgets} slice will
+read additional data after the end of the actual batch forgets request.
+Depending of the concrete operation to forget inodes from a local cache, this could have severe consequences with
+respect to security.
+To prevent this from happening, the authors intended to check the length of the available data in line 5, and if there
+are too few bytes for the alleged number of forget requests, then the method should not proceed.
+However, as the listing shows there is no actual code to stop further execution of the method, instead there is only a
+log message noting that there was a malformed request with too few bytes available.
+A proof-of-concept implementation of a potential attacker showed that the method actually reads invalid memory data
+located after the request data.
+In this case, a simply \textit{return} statement after line 7 would have prevented this bug.
+
+This example shows that little programming errors can lead to severe bugs and potential vulnerabilities when the
+\unsafe{} \acrshort{API} is used.
+The safety measures provided by Go are circumvented, thus a similar level of safety as in C is achieved.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -130,6 +225,9 @@ In fact, the assembly code that gets produced by the compiler in these cases is 
 
 The third area of possible vulnerabilities contains types that have a different size or alignment on different
 architectures.
+This is shown in Listing~\ref{lst:architecture-dependent-types-cast}.
+
+\input{assets/listings/chapter3/architecture-dependent-types-cast.tex}
 
 
 

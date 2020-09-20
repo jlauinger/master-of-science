@@ -1,0 +1,22 @@
+% github.com/hanwen/go-fuse fuse/opcode.go:299
+
+\begin{lstlisting}[language=Golang, label=lst:go-fuse-bug, caption=Incorrect slice length bug in the go-fuse library]
+func doBatchForget(server *Server, req *request) {
+    in := (*_BatchForgetIn)(req.inData)
+    wantBytes := uintptr(in.Count) * unsafe.Sizeof(_ForgetOne{})
+
+    if uintptr(len(req.arg)) < wantBytes {
+        // We have no return value to complain, so log an error.
+        log.Printf("Too few bytes for batch forget.",
+                   len(req.arg), wantBytes, in.Count)
+    }
+
+    h := &reflect.SliceHeader{
+        Data: uintptr(unsafe.Pointer(&req.arg[0])),
+        Len:  int(in.Count),
+        Cap:  int(in.Count),
+    }
+    forgets := *(*[]_ForgetOne)(unsafe.Pointer(h))
+    // ...
+}
+\end{lstlisting}

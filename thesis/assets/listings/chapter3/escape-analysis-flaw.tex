@@ -1,14 +1,16 @@
 \begin{lstlisting}[language=Golang, label=lst:escape-analysis-flaw, caption=Escape analysis flaw proof of concept]
 func main() {
     bytesResult := GetBytes()
-    fmt.Printf("main: \%s\n", bytesResult) // expected (but failed) stdout is "abcdefgh
+    // expected (but failed) stdout is "abcdefgh
+    fmt.Printf("main: \%s\n", bytesResult)
 }
 
 func GetBytes() []byte {
     reader := bufio.NewReader(strings.NewReader("abcdefgh"))
     s, _ := reader.ReadString('\n')
     out := StringToBytes(s)
-    fmt.Printf("GetBytes: \%s\n", out) // expected stdout is "abcdefgh"
+    // expected stdout is "abcdefgh"
+    fmt.Printf("GetBytes: \%s\n", out)
     return out
 }
 \end{lstlisting}

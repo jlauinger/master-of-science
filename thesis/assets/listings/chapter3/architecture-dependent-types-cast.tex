@@ -1,14 +1,16 @@
 \begin{lstlisting}[language=Golang, label=lst:architecture-dependent-types-cast, caption=Incorrect cast between architecture-dependent types]
-func main() {
-    bytesResult := GetBytes()
-    fmt.Printf("main: \%s\n", bytesResult) // expected (but failed) stdout is "abcdefgh
+type PinkStruct struct  {
+    A uint8
+    B int
 }
 
-func GetBytes() []byte {
-    reader := bufio.NewReader(strings.NewReader("abcdefgh"))
-    s, _ := reader.ReadString('\n')
-    out := StringToBytes(s)
-    fmt.Printf("GetBytes: \%s\n", out) // expected stdout is "abcdefgh"
-    return out
+type VioletStruct struct  {
+    A uint8
+    B int64
+}
+
+func main() {
+    pink := PinkStruct{A: 1, B: 42}
+    violet := *(*VioletStruct)(unsafe.Pointer(&pink))
 }
 \end{lstlisting}
