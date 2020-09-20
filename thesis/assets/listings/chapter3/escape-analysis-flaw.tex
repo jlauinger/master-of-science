@@ -2,7 +2,7 @@
 func main() {
     bytesResult := GetBytes()
     // expected (but failed) stdout is "abcdefgh
-    fmt.Printf("main: \%s\n", bytesResult)
+    fmt.Printf("main: %s\n", bytesResult)
 }
 
 func GetBytes() []byte {
@@ -10,7 +10,7 @@ func GetBytes() []byte {
     s, _ := reader.ReadString('\n')
     out := StringToBytes(s)
     // expected stdout is "abcdefgh"
-    fmt.Printf("GetBytes: \%s\n", out)
+    fmt.Printf("GetBytes: %s\n", out)
     return out
 }
 \end{lstlisting}

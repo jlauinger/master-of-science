@@ -26,6 +26,8 @@ as well.
 
 \subsection{Information Leak}\label{subsec:unsafe-security-problems:buffer-overflow:information-leak}
 
+First section about information leak vulnerability.
+
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
@@ -255,6 +257,7 @@ The conversion pattern between strings and slices shown in Listing~\ref{lst:stri
 The \textit{Data} field of the \textit{reflect.SliceHeader} structure created in Line~3 is of type \textit{uintptr}, and
 since the header value is not derived by cast from a real slice it does not benefit from the special case built into the
 Go runtime that treats \textit{uintptr} references that are part of slice and strings as references, too.
+Specifically, the problem is that the slice header has been constructed as a composite literal.
 Therefore, after Line~7 the \textit{bytesHeader} variable effectively becomes a plain \textit{uintptr} value, and the
 original string \textit{s} is not used any longer.
 However, at this point there is no real slice created yet as this happens net earlier than in Line~8.
@@ -279,24 +282,89 @@ while there was only a weak reference to it, the data has been collected.
 The resulting bytes slice is now a dangling pointer into the former string data in memory, and the
 \textit{use-after-free} bug is complete.
 
+A common variation to this insecure casting pattern is to omit storing the slice header that is created as a composite
+literal in a variable and instead casting it into the resulting slice value within the same statement, as is shown in
+Listing~\ref{lst:string-to-bytes-1statement}.
+
+\input{assets/listings/chapter3/string-to-bytes-1statement.tex}
+
+This does however not affect the bugs and vulnerabilities shown in this
+Section~\ref{sec:unsafe-security-problems:slice-casts}.
+In fact, the assembly that the code gets compiled to is exactly the same for both versions in
+Listings~\ref{lst:string-to-bytes} and~\ref{lst:string-to-bytes-1statement}.
+Even if the assembly would be different, performing the creation of a slice header as a composite literal and casting it
+to an actual slice in the same statement would still not avoid creating a plain \textit{uintptr} reference to the
+underlying data array as far as the \acrshort{GC} is concerned.
+This is because the \textit{GC} concurrency is at the level of machine instructions, not statements in the Go source
+code.
+
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Escape Analysis Use-After-Free}\label{subsec:unsafe-security-problems:slice-casts:escape-analysis}
 
 A third problem that comes with the incorrect construction of a new slice shown in Listing~\ref{lst:string-to-bytes} in
-the previous section is that the Go compiler's escape analysis algorithm fails.
+the previous section is that the Go compiler's escape analysis (\acrshort{EA}) algorithm fails.
+\acrshort{EA} is used to decide whether a variable can be placed on a function's stack or need to be allocated on the
+heap.
+The stack is preferred because there is no explicit deallocation step needed to free the stack memory, instead the stack
+frame is removed completely when the function returns as described in Section~\ref{sec:background:memory-safety-layout}.
+In \acrshort{EA}, a value is said to escape if references to it can live longer than the current function's lifetime.
+If it does escape, then it needs to be allocated on the heap so that when the function has terminated, references that
+still exist can continue to access the memory even though the function stack has vanished.
+Otherwise, it can be placed on the stack.
+The \acrshort{EA} analysis employed by the Go compiler works by checking for each variable that is declared in a
+function whether a reference to it is stored in another value or passed to another function.
+If there is a reference stored in another object, this object has to be checked too, and if it escapes then so does the
+original variable.
+The same is true for functions: if the variable gets passed to another function then the \acrshort{EA} algorithm
+transitively looks into that function and determines if the value escapes there.
+If it does, then it must also be treated as an escaped value in the original function.
+Finally, if the function returns a reference to the variable then it obviously escapes as well.
 
+The insecure string to slice conversion shown in Listing~\ref{lst:string-to-bytes} breaks the \acrshort{EA}.
+This is because for a similar reason to the \acrshort{GC}, it misses the connection between the string parameter and
+the slice return value.
 Listing~\ref{lst:escape-analysis-flaw} shows a proof of concept of this problem.
 
 \input{assets/listings/chapter3/escape-analysis-flaw.tex}
 
-It is irrelevant whether the cast between the slice header which is constructed from scratch and the final slice is done
-with a variable or in one statement, as shown in Listing~\ref{lst:string-to-bytes-1statement}.
+In the function \textit{GetBytes}, a string variable \textit{s} is created by reading a string through a buffered
+reader.
+It is necessary to use the reader instead of a string literal, because with a literal the effects of the vulnerability
+would not be visible.
+This is however no restriction to the proof of concept.
+Creating the string from a reader is similar to accepting dynamic user input.
+Next, the string is converted to a byte slice using the insecure \textit{StringToBytes} function in Line~10.
+Printing the resulting slice in Line~12 then yields the expected output equal to the original string, which is
+\textit{abcdefgh}.
+Finally, the slice is returned to the caller function, which in this case is the \textit{main} function in Line~2.
+The slice is printed again in the \textit{main} function in Line~4, and while the expected output would be identical,
+this time invalid, random data is printed.
 
-\input{assets/listings/chapter3/string-to-bytes-1statement.tex}
+The reason for this is that when the Go \acrshort{EA} algorithm determines where to allocate the string \textit{s} in
+the \textit{GetBytes} function, it sees that \textit{s} is passed to the \textit{StringToBytes} function and therefore
+transitively analyzes that function.
+Within that function, \textit{s} is used in a cast to the \textit{strHeader} variable in Line~2 of
+Listing~\ref{lst:string-to-bytes}, then that is used to construct the \textit{bytesHeader} variable, but at this point
+there no further references to the underlying data array of \textit{s} because both \textit{s} and
+\textit{strHeader} are not used further in the function.
+Similarly to the \acrshort{GC} mark algorithm, the \textit{Data uintptr} field would only be treated as a reference with
+respect to escape analysis if the slice header had been created by cast from an actual slice.
+Therefore, the \acrshort{EA} determines that \textit{s} does not escape in \textit{StringToBytes}, and since it is not
+used any longer in \textit{GetBytes}, it does not escape at all and is placed on the stack of the \textit{GetBytes}
+function.
+The \textit{EA} algorithm fails to detect that there is a reference to parts of the string \textit{s} stored in the
+\textit{out} variable, which obviously escapes as it is returned.
 
-In fact, the assembly code that gets produced by the compiler in these cases is exactly the same.
+Printing the \textit{out} slice in Line~13 works because the stack of the \textit{GetBytes} function is still there at
+this point.
+However, when the function returns the stack is removed, and thus \textit{bytesResult} in Line~2 has become a dangling
+pointer into the former stack of \textit{GetBytes}.
+This is a \textit{use-after-free} bug because that memory can and probably will be reused at that point.
+The print statement in Line~4 outputs invalid data for this reason.
+If the \textit{main} function would modify the contents of the \textit{bytesResult} slice, it would change arbitary
+memory, with possible consequences such as information leaks or code injection.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
