@@ -371,13 +371,36 @@ memory, with possible consequences such as information leaks or code injection.
 
 \section{Architecture-Dependent Types}\label{sec:unsafe-security-problems:architecture-dependent-types}
 
-The third area of possible vulnerabilities contains types that have a different size or alignment on different
+The third area of possible vulnerabilities concerns types that have a different size or alignment on different
 architectures.
-This is shown in Listing~\ref{lst:architecture-dependent-types-cast}.
+A feature of Go is portability between different platforms.
+The same source code can usually be compiled for many different architectures without any changes in its behavior.
+However, this is only true as long as the \unsafe{} \acrshort{API} is not used.
+Since \unsafe{} code allows direct conversion between arbitrary types, there can be inconsistencies between the sizes
+and alignments of structure fields on different architectures.
+An example of this is shown in Listing~\ref{lst:architecture-dependent-types-cast}.
 
 \input{assets/listings/chapter3/architecture-dependent-types-cast.tex}
 
+There are two structure types declared, \textit{PinkStruct} and \textit{VioletStruct}, both of which have two fields
+\textit{A} and \textit{B}.
+While field \textit{B} has the same type (\textit{uint8}) in both types, field \textit{A} is of type \textit{int} and
+\textit{int64}, respectively.
+An instance of \textit{PinkStruct} is created in Line~11, which is then converted to \textit{VioletStruct} in Line~12.
+This is however only a valid operation if \textit{int} and \textit{int64} share the same size and alignment.
 
+This is true only for 64-bit platforms like \textit{amd64}.
+If the code is run on such an architecture, the conversion works fine and the field values in the resulting variable
+\textit{violet} are as expected.
+In contrast, if the code is run on an architecture where \textit{int} and \textit{int64} have different size or
+alignment, then the values of \textit{violet} are undefined.
+This is the case for example when the code is run on a 32-bit platform like \textit{i386}.
+When the structure definitions are not placed directly next to each other but in separate files, packages, or even
+modules, then spotting the difference between the incompatible structs is much harder.
+On top of that, the bug might never occur in testing but only on specific platforms that get used in production.
+Possible consequences of a bug like this depend on how the resulting struct is used in the remainder of the program.
+If data gets written to it, it changes invalid memory which can lead to a code injection vulnerability, and if it is
+passed as output it could create an information leak vulnerability.
 
 
 %%% -----------------------------------------------------------------------------

@@ -1,12 +1,11 @@
 \begin{lstlisting}[language=Golang, label=lst:architecture-dependent-types-cast, caption=Incorrect cast between architecture-dependent types]
 type PinkStruct struct  {
-    A uint8
-    B int
+    A int
+    B uint8
 }
-
 type VioletStruct struct  {
-    A uint8
-    B int64
+    A int64
+    B uint8
 }
 
 func main() {
