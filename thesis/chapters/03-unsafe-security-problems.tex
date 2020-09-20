@@ -158,13 +158,13 @@ If the length is greater than the actual available number of data bytes, then th
 read additional data after the end of the actual batch forgets request.
 Depending of the concrete operation to forget inodes from a local cache, this could have severe consequences with
 respect to security.
-To prevent this from happening, the authors intended to check the length of the available data in line 5, and if there
+To prevent this from happening, the authors intended to check the length of the available data in Line~5, and if there
 are too few bytes for the alleged number of forget requests, then the method should not proceed.
 However, as the listing shows there is no actual code to stop further execution of the method, instead there is only a
 log message noting that there was a malformed request with too few bytes available.
 A proof-of-concept implementation of a potential attacker showed that the method actually reads invalid memory data
 located after the request data.
-In this case, a simply \textit{return} statement after line 7 would have prevented this bug.
+In this case, a simply \textit{return} statement after Line~7 would have prevented this bug.
 
 This example shows that little programming errors can lead to severe bugs and potential vulnerabilities when the
 \unsafe{} \acrshort{API} is used.
@@ -180,8 +180,40 @@ commonly in popular open-source projects, as our study described in Chapter~\ref
 
 \input{assets/listings/chapter3/string-to-bytes.tex}
 
-It has three not obvious but very dangerous problems that come with it.
+It takes a string argument and converts it into a slice of bytes without allocating additional memories.
+This allows to access the raw bytes contained in the string in an efficient manner.
+First, the string is converted into the \textit{reflect.StringHeader} representation.
+Then, a slice header is created as a composite literal and the reference to the underlying data array and length
+information are copied from the string header.
+The capacity is set to the same value as the length, as it would be in a slice that uses the full allocated capacity.
+Finally, the slice header is converted into an actual \textit{[]byte} slice which is returned.
+
+There are three not obvious but very dangerous problems that come with this type of slice creation, which are described
+in this and the following two subsections.
 The first is that the resulting slice is implicitly read-only.
+
+Regularly, slices in Go are mutable and strings are not.
+The reason for this is that slices are created dynamically, with their backing array usually placed on the heap, while
+strings are mostly constants that are part of the constant data or text section of the program binary after compilation.
+The actual string characters, to which the data reference in the string header will be pointing, are therefore usually
+located on a memory page that is not writable, and muting the string would thus make the program receive a segmentation
+fault signal from the operating system.
+To statically prevent this at compilation time, strings are always immutable in Go, while slices are mutable.
+If a developer writes code that changes parts of a string in-place, then the compiler will not accept the code and thus
+prevent the possible segmentation fault.
+
+In contrast, slices are mutable, and thus so is the slice returned by the \textit{StringToBytes} function in
+Listing~\ref{lst:string-to-bytes}.
+Code that changes the resulting slice will be accepted by the compiler because it is not able to infer its connection to
+a former string.
+However, since the slice uses the same underlying data array as the original string used to do, the data is still
+potentially located within read-only memory, and modifying it will crash the program.
+It is only implicitly read-only, but the runtime is not aware of it.
+While this first problem of the conversion pattern does not cause a direct security vulnerability, it underlines that
+there are many consequences of using the \unsafe{} \acrshort{API} that are not obvious.
+Although it is possible in theory to manually ensure that no usages of the \textit{StringToBytes} function modify the
+slice it returns, but in practice it is very hard to do so, especially if new developers join the project after time and
+start using the function without having all possible consequences in mind.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -190,14 +222,62 @@ The first is that the resulting slice is implicitly read-only.
 
 The second problem caused by the conversion shown in Listing~\ref{lst:string-to-bytes} is a \textit{use-after-free} bug
 caused by a race condition involving the garbage collector (\acrshort{GC}) used by Go.
-Figure~\ref{fig:gc} shows a visualization of the \acrshort{GC} process.
+Go uses a move-and-sweep GC that runs concurrently with all other threads of a program to free unused heap
+memory~\cite{sibiryov2017}.
+It is triggered by one of two conditions, either when the heap usage has increased to a specific size (usually when the
+usage has doubles since the last \acrshort{GC} run), or after a fixed time has passed without any \acrshort{GC} runs.
+The \acrshort{GC} takes all variables that are present in the scope of the program and marks them as live.
+Then, it recursively follows all pointer types within live variables and marks their target values as live, too.
+After this marking phase has completed, the sweep phase frees all memory that is not marked as live.
+Finally, the markings are reset and a new \acrshort{GC} run can be triggered.
 
-\input{assets/figures/chapter3/gc.tex}
+Figure~\ref{fig:gc-visualization} shows a visualization of the marking phase in a \acrshort{GC} run.
+The variables in scope can be either on the stack, which is not managed by the \acrshort{GC}, or on the heap, in which
+case they are marked as being live as well.
+The arrows indicate references from pointer types to their targets, and the blue values on the heap are the ones marked
+as live.
+The white heap values will be freed in the sweep phase of the \acrshort{GC}.
 
-Now, when the \acrshort{GC} runs at the wrong time, the underlying data array used in the slice might have already been
-collected, as illustrated by Figure~\ref{fig:gcrace-vuln}.
+\input{assets/figures/chapter3/gc-visualization.tex}
+
+The \acrshort{GC} treats all pointer types and the special \textit{Data} field of actual slices and strings as reference
+types.
+Importantly though, it does not treat normal \textit{uintptr} values as references although they contain addresses.
+This means that converting a \textit{uintptr} value to an \textit{unsafe.Pointer} value is an invalid and dangerous
+operation.
+If the \textit{GC} runs while the pointer has not been constructed, then it does not mark the value at the address
+stored in the \textit{uintptr} value as live and thus frees the memory.
+Creating an \textit{unsafe.Pointer} from this address therefore creates a potentially dangling pointer because it points
+to memory that has been freed.
+This is a \textit{use-after-free} bug.
+
+The conversion pattern between strings and slices shown in Listing~\ref{lst:string-to-bytes} contains exactly this bug.
+The \textit{Data} field of the \textit{reflect.SliceHeader} structure created in Line~3 is of type \textit{uintptr}, and
+since the header value is not derived by cast from a real slice it does not benefit from the special case built into the
+Go runtime that treats \textit{uintptr} references that are part of slice and strings as references, too.
+Therefore, after Line~7 the \textit{bytesHeader} variable effectively becomes a plain \textit{uintptr} value, and the
+original string \textit{s} is not used any longer.
+However, at this point there is no real slice created yet as this happens net earlier than in Line~8.
+The underlying data array of the string \textit{s} is therefore not a live value as far as the \acrshort{GC} is
+concerned.
 
 \input{assets/figures/chapter3/gcrace-vuln.tex}
+
+If the \acrshort{GC} runs at the wrong time, the underlying data array used in the slice might have already been
+collected by the time the resulting slice is created.
+This is possible because since the \acrshort{GC} runs concurrently to the application logic, it can trigger at any time.
+This is especially true if the Go program has several threads that all contribute to the heap usage.
+Figure~\ref{fig:gcrace-vuln} illustrates the vulnerability.
+The green boxes show the original string value and its header, which is represented at position 1 in the memory schema.
+The reference to the underlying data of the string and resulting slice is shown in red at memory position 2.
+Then the slice header is created, which is colored blue and located at position 3 in the memory.
+References indicated by arrows are strong if the arrow is continuous, like the reference the string header has, and
+weak if the arrow is dashed, like the new slice header has.
+Then, after the \textit{GC} runs, there is only the resulting bytes slice left, which is also shown in blue.
+It now has a strong reference to the underlying data array (at position 2), but since the \acrshort{GC} has already run
+while there was only a weak reference to it, the data has been collected.
+The resulting bytes slice is now a dangling pointer into the former string data in memory, and the
+\textit{use-after-free} bug is complete.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
