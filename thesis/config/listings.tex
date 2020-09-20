@@ -9,17 +9,27 @@
     frame=L,
     rulecolor=\color{black},
     %backgroundcolor=\color{verylightgray},
-    basicstyle=\footnotesize,
+    basicstyle=\footnotesize\ttfamily,
+    columns=fullflexible,
     keywordstyle=\color{blue},
     numbers=left,
     numbersep=5pt,
+    numberstyle=\footnotesize\noncopynumber,
     showstringspaces=false,
     stringstyle=\color{darkgreen},
     tabsize=4,
     language=Golang,
     xleftmargin=45pt,
-    %xrightmargin=45pt,
-    framexleftmargin=20pt,
+    %xrightmargin=40pt,
+    framexleftmargin=22pt,
     framexrightmargin=5pt,
     framexbottommargin=0pt
+}
+
+\usepackage{accsupp}
+
+\newcommand{\noncopynumber}[1]{
+    \BeginAccSupp{method=escape,ActualText={}}
+    #1
+    \EndAccSupp{}
 }
