@@ -5,9 +5,14 @@
 This chapter presents an in-depth security analysis of possible consequences and vulnerabilities that can be caused by
 misuses of the \unsafe{} \acrshort{API}.
 It is organized into three main areas of danger.
-First, buffer overflow bugs and their consequences including code injection vulnerabilities are shown.
-The following section is about incorrect conversion between slices and strings.
+First, buffer overflow bugs and their consequences including code injection and information leak vulnerabilities are
+shown.
+The following section is about incorrect conversion between slices and strings, which among others can lead to
+\textit{use-after-free} bugs on multiple ways.
 Finally, the dangers of conversions between types with architecture-dependent sizes are discussed.
+Proof-of-concept code show the practical exploitability of vulnerable implementations that contain incorrect usages of
+\unsafe{} code, and threat models motivate the severeness and indicate how such a bug can be introduced in real-world
+code, if the vulnerable code is not already taken from real open-source projects.
 
 \input{assets/figures/chapter3/outline3.tex}
 
@@ -17,9 +22,11 @@ Finally, the dangers of conversions between types with architecture-dependent si
 \section{Buffer Overflow Vulnerabilities}\label{sec:unsafe-security-problems:buffer-overflow}
 
 The first main area of possible vulnerabilities in the context of the \unsafe{} \acrshort{API} are buffer overflows.
-They are a rather common and dangerous problem with traditional systems programming languages like C, and without the
-safety measures provided by the Go programming language without \unsafe{} to prevent them, they can happen in Go just
-as well.
+They are a rather common and dangerous problem with traditional systems programming languages like C, accounting for
+many of the most severe security vulnerabilities~\cite{larochelle2001} \jl{second citation}.
+Without the safety measures provided by the Go programming language, as described in
+Section~\ref{sec:background:memory-safety-layout} to prevent them, which are not effective when using \unsafe{} code,
+they can happen in Go just as well.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -82,6 +89,8 @@ In this case, the \textit{harmlessData} array is created on the stack of the fun
 buffer overflow exploits as described in Section~\ref{sec:background:memory-safety-layout}.
 An attacker can use this vulnerability to redirect the code flow by carefully crafting the input data such that the
 saved return instruction pointer on the stack is overwritten with the address of a function of the attacker's choosing.
+To find the needed amount of padding before the address in the input data, as well as to find the target function's
+address, the attacker can use a debugger such as \textit{GDB}.
 
 A threat model for this kind of vulnerability would be an application that, similarly to the threat model described in
 Section~\ref{subsec:unsafe-security-problems:buffer-overflow:information-leak} uses a client server model, but this time
@@ -99,12 +108,69 @@ the binary.
 Going a step further, this subsection shows how the same bug shown in the previous section in
 Listing~\ref{lst:buffer-overflow} can be used with return-oriented programming (\acrshort{ROP}) to create a code
 injection exploit.
+The most basic approach to inject arbitrary code is to place machine instructions into the exploit input data, which
+will then be written to the stack.
+They can be before or after the address that gets overwritten at the position of the saved return instruction pointer,
+but usually it is placed after because there is more space available.
+The instruction pointer is then set to the start address of the machine instructions payload.
+Since stack addresses can be slightly unpredictable in practice, for example because environment variables with
+different lengths might be located on the stack, a \textit{NOP-slide} can be used to make the exploit more robust.
+\textit{NOP}, or \textit{no-op}, is a machine instruction that does nothing at all, the processor simply continues with
+the following instruction.
+A \textit{NOP-slide} then is a series of such instructions.
+Using this, it is sufficient to overwrite the return instruction pointer with an address somewhere within the
+\textit{NOP} instructions to make the processor go through all remaining of them until it reaches the exploit code,
+similar to sliding down a slope.
+Thus, the address does not have to match the exact start of the payload code anymore, instead it can have a tolerance.
+Figure~\ref{fig:stack-smashing-payload} shows a visualization of an example input data used to spawn a shell that an
+attacker can then use to execute arbitrary code.
 
-\input{assets/figures/chapter3/payload.tex}
+\input{assets/figures/chapter3/stack-smashing-payload.tex}
 
-Go uses no \acrshort{ASLR}, binaries are statically linked and the standard library is huge.
-Therefore binaries provide a lot of ROP gadgets and spawning a shell from a buffer overflow is easier than with a
-comparable C program.
+However, such a type of exploit does not work an modern operating systems because they employ mitigation techniques
+against this.
+Executing machine instructions that are placed in memory that is part of the stack is prevented because the memory pages
+containing the stack are marked as non-executable.
+This technique is called Data Execution Prevention (\acrshort{DEP}).
+It takes care of having sections in memory be either executable or writable, but not both.
+That way, attackers can not easily write code into the memory and then jump into this code.
+To work around \acrshort{DEP}, attackers can reuse existing functions in the binary, because as part of the text section
+these are located on executable (but not writable) memory pages.
+There is Address Space Layout Randomization (\acrshort{ASLR}), which loads dynamically linked libraries at random memory
+positions to avoid having predictable function addresses usable by attackers for code that is part of standard
+libraries, like the C library \textit{glibc}.
+However, \acrshort{ASLR} does not apply to statically linked code, which the Go compiler mostly creates.
+On top of that, the Go standard library is very large, providing a lot of reusable code fragments.
+
+Return-oriented programming (\acrshort{ROP}) is a specific technique for reusing code that suggests jumping to very
+small so-called gadgets, which are sequences of two or few more machine instructions that do not modify the stack
+pointer register and end with a return instruction.
+With these properties, gadgets can be chained because after the execution of a fragment the return instruction fetches
+the next address to jump to from the stack, which the attacker can control.
+Depending on the available \acrshort{ROP} gadgets, the attacker can therefore concatenate them and thus write a program
+with a limited set of assembler instructions available.
+The large Go standard library and its many available gadgets make exploiting a buffer overflow, once it exists in a Go
+program, even easier compared to a C program where an attacker would have to work around \acrshort{ASLR}, for example.
+
+A strategy to exploit a buffer overflow to achieve code injection using \acrshort{ROP} is to use the \textit{mprotect}
+and \textit{read} system calls.
+A system call, or syscall, is a function provided by the operating system which can be executed using the
+\textit{syscall} machine instruction.
+The processor registers control which syscall gets executed and which parameters it receives.
+Therefore, an attacker only needs \acrshort{ROP} gadgets to control the content of the registers, as well as to trigger
+the syscall.
+Using the \textit{mprotect} call, the attacker can set a memory area of their choosing to have both writable and
+executable flags, for example the heap area.
+Then, using the \textit{read} call, they can read store data in that memory section, which is usually an exploit payload
+spawning a shell to receive further arbitrary commands.
+The payload is simply provided as part of the input string created by the attacker.
+Finally, by using the address of the code area just like an address of another \acrshort{ROP} gadget the attacker can
+make the processor jump to the payload code.
+Because in contrast to the stack the code is now located on an executable page, it gets executed and the code injection
+attack succeeds.
+More details and proof-of-concept code for this type of exploit, as well as all other exploits presented in this
+Chapter~\ref{ch:unsafe-security-problems}, are available in a dedicated repository on
+\github{}\footnote{\url{https://github.com/jlauinger/go-unsafepointer-poc}}.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
