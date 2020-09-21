@@ -67,16 +67,44 @@ unnoticed in code review due to the same reason, a reviewer who looks at the pro
 
 \subsection{Code Flow Redirection}\label{subsec:unsafe-security-problems:buffer-overflow:code-flow-redirection}
 
-Notes: Go uses no \acrshort{ASLR}, binaries are statically linked and the standard library is huge.
-Therefore binaries provide a lot of ROP gadgets and spawning a shell from a buffer overflow is easier than with a
-comparable C program.
+To create a classic input-based buffer overflow vulnerability, we create a byte slice that has a length of 512 bytes,
+but back it up with an underlying, much shorter byte buffer of only eight bytes.
+As described in much more detail in Section~\ref{sec:unsafe-security-problems:slice-casts}, slices can be created using
+a cast from the \textit{reflect.SliceHeader} type which reflects the internal slice representation.
+This is done in Lines~8 to 10 of Listing~\ref{lst:buffer-overflow}.
 
-\input{assets/figures/chapter3/payload.tex}
+\input{assets/listings/chapter3/buffer-overflow.tex}
+
+Then, a reader is used to read input data into this malicious slice in Line~12.
+Since it has a length of 512 bytes, the function reads up to this many bytes, however since the actual data array used
+by the slice is much shorter, this will overflow into the memory behind the data array.
+In this case, the \textit{harmlessData} array is created on the stack of the function, which means it is vulnerable to
+buffer overflow exploits as described in Section~\ref{sec:background:memory-safety-layout}.
+An attacker can use this vulnerability to redirect the code flow by carefully crafting the input data such that the
+saved return instruction pointer on the stack is overwritten with the address of a function of the attacker's choosing.
+
+A threat model for this kind of vulnerability would be an application that, similarly to the threat model described in
+Section~\ref{subsec:unsafe-security-problems:buffer-overflow:information-leak} uses a client server model, but this time
+with a length information indicating how many bytes are sent within a variable-length data section as part of the
+protocol.
+If such a length field is used to construct a slice in the way shown in Listing~\ref{lst:buffer-overflow}, then an
+attacker can control the resulting slice length and potentially exploit this bug to redirect to arbitrary code within
+the binary.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Code Injection using ROP}\label{subsec:unsafe-security-problems:buffer-overflow:code-injection}
+
+Going a step further, this subsection shows how the same bug shown in the previous section in
+Listing~\ref{lst:buffer-overflow} can be used with return-oriented programming (\acrshort{ROP}) to create a code
+injection exploit.
+
+\input{assets/figures/chapter3/payload.tex}
+
+Go uses no \acrshort{ASLR}, binaries are statically linked and the standard library is huge.
+Therefore binaries provide a lot of ROP gadgets and spawning a shell from a buffer overflow is easier than with a
+comparable C program.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------

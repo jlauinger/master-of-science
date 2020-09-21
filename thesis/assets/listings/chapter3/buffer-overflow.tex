@@ -1,0 +1,11 @@
+\begin{lstlisting}[language=Golang, label=lst:buffer-overflow, caption=Buffer overflow leading to code flow redirection]
+func main() {
+    harmlessData := [8]byte{'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'}
+
+    confusedSlice := make([]byte, 512)
+    sliceHeader := (*reflect.SliceHeader)(unsafe.Pointer(&confusedSlice))
+    sliceHeader.Data = uintptr(unsafe.Pointer(&(harmlessData[0])))
+
+    _, _ = bufio.NewReader(os.Stdin).Read(confusedSlice)
+}
+\end{lstlisting}
