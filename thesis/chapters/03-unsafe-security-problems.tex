@@ -26,7 +26,41 @@ as well.
 
 \subsection{Information Leak}\label{subsec:unsafe-security-problems:buffer-overflow:information-leak}
 
-First section about information leak vulnerability.
+Unlike C, where buffer overflows are rather common~\cite{larochelle2001}, Go uses a strict type system that encodes the
+buffer length in the type information.
+This prevents most buffer overflow vulnerabilities at compile time because the compiler can detect whether a given
+buffer will be large enough to store the data that gets written to it, as described in
+Section~\ref{sec:background:memory-safety-layout}.
+However, this safety measure is circumvented when the \unsafe{} \acrshort{API} is used in Go.
+Using direct casts through the \textit{unsafe.Pointer} type, it is possible to convert between buffers of different
+sizes.
+Listing~\ref{lst:information-leak} shows such a situation.
+
+\input{assets/listings/chapter3/information-leak.tex}
+
+In Line~4, a buffer of size four bytes called \textit{harmlessBuffer} is initialized with data.
+Then, Line~5 declares a buffer containing a secret value, which should stay internal to the application.
+Using the \unsafe{} \acrshort{API}, the \textit{harmlessBuffer} is then converted to a have a new length of ten bytes,
+although there is no reallocation.
+The resulting buffer is finally printed, which outputs not only the harmless four bytes, but also the secret.
+The secret data could for example be a cryptographic private key or password information.
+Therefore, this bug has created an information leak vulnerability.
+
+To motivate a threat model that is more elaborated than this plain proof of concept,
+Figure~\ref{fig:information-leak-threat-model-protocol} shows the specification of a simple client / server
+communication protocol.
+Both request and response types are contain a version and message type field as well as a buffer for message-specific,
+serialized data of length 512 bytes.
+
+\input{assets/figures/chapter3/information-leak-threat-model-protocol.tex}
+
+If the client or server handling these messages uses the \unsafe{} \acrshort{API} to convert the serialized data to a
+specific data structure, then the field lengths must match.
+Imagine a company where two different teams are working on the client and server, respectively, and they printed the
+protocol diagrams to hang them on the wall when the specification was decided.
+A developer in one of the teams could easily miss the announcement of a protocol change that affects the buffer size,
+and when they write incorrect code based on the outdated information on the printed diagram, the mistake could become
+unnoticed in code review due to the same reason, a reviewer who looks at the protocol diagram in the team room.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -37,13 +71,12 @@ Notes: Go uses no \acrshort{ASLR}, binaries are statically linked and the standa
 Therefore binaries provide a lot of ROP gadgets and spawning a shell from a buffer overflow is easier than with a
 comparable C program.
 
+\input{assets/figures/chapter3/payload.tex}
+
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Code Injection using ROP}\label{subsec:unsafe-security-problems:buffer-overflow:code-injection}
-
-\input{assets/figures/chapter3/protocol.tex}
-\input{assets/figures/chapter3/payload.tex}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
