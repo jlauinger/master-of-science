@@ -14,53 +14,53 @@ pointer usages not only in the project but within all of its dependencies.
 
 \input{assets/figures/chapter4/go-geiger-architecture.tex}
 
-Top-level approach
-Usage example
-Publication
+%Top-level approach
+%Usage example
+%Publication
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Implementation}\label{sec:go-geiger:implementation}
 
-Low-level details
-Verification with tests
+%Low-level details
+%Verification with tests
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Evaluation}\label{sec:go-geiger-evaluation}
 
-A major contribution of this thesis is an analysis of unsafe code usage in the wild:
-the top 500 most popular open source Go projects.
+%A major contribution of this thesis is an analysis of unsafe code usage in the wild:
+%the top 500 most popular open source Go projects.
 
-Threat to validity: unable to differentiate dead code in analysis.
-This is similar to many studies as summarized in the related work chapter.
+%Threat to validity: unable to differentiate dead code in analysis.
+%This is similar to many studies as summarized in the related work chapter.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Data Set}\label{subsec:go-geiger:evaluation:data-set}
 
-Description of how the data set was generated and processed
+%Description of how the data set was generated and processed
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Usages in Projects and Dependencies}\label{subsec:go-geiger:evaluation:unsafe-usage}
 
-Including import depth analysis
+%Including import depth analysis
 
 \input{assets/plots/chapter4/distribution-unsafe-types.tex}
 \input{assets/plots/chapter4/unsafe-import-depth.tex}
-\input{assets/plots/chapter4/unsafe-packages-by-registry-n30.tex}
+%\input{assets/plots/chapter4/unsafe-packages-by-registry-n30.tex}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Influence of Popularity}\label{subsec:go-geiger:evaluation:popularity}
 
-Correlation with Project Star / Forks Stats, Age, etc.
+%Correlation with Project Star / Forks Stats, Age, etc.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -72,73 +72,73 @@ Correlation with Project Star / Forks Stats, Age, etc.
 
 \subsection{Comparison with Existing Tools}\label{subsec:go-geiger:evaluation:linters-comparison}
 
-Go vet, golint
+%Go vet, golint
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Purpose of Unsafe in Practice: a Labeled Data Set}\label{sec:go-geiger:labeled-dataset}
 
-his chapter contributes an in-depth study of unsafe usages in 10 selected open-source Go projects.
-I analyzed 1000 usages in application code, and 400 usages in the standard library.
-The usages are classified in two dimensions by what is happening and what is the higher-level purpose.
-
-I analyzed the following projects.
-
-\input{assets/tables/chapter4/dataset-projects.tex}
-
-I selected them based on their high number of unsafe usages, and taking care of that they represent a reasonably large
-diversity.
-The projects contain applications based around containers and operations, chat, infrastructure as a service, data
-storage, visualization, and machine learning.
-
-When selecting samples to look at, I deliberately separated the standard library from application usages.
-This is based on the results of the large-scale study shown in Chapter~\ref{ch:survey}, which show that all projects
-must use the standard library, and the hypothesis that the standard library uses unsafe patterns differently.
-It has to do so because the standard library takes care of low-level memory management by design.
-
-Standard library is defined by the packages that live in the Go standard library and the \texttt{golang.org/x/sys}
-module.
-I took the decision to include the sys package because it contains a lot of syscall infrastructure and in general
-behaves more like the standard library than application code.
-It is also maintained by the core Go developer team.
-Obviously, application packages is defined as packages that are not part of the standard library.
-
-I randomly sampled 1000 snippets from application packages and 400 snippets from the standard library.
-The samples are taken without duplicates in version, that is the same snippet by module, file, and line number is not
-taken twice if there is a different version of the same module also available.
-This is done by best effort: if the line number changes between module versions there might still be logical
-duplication.
-The set of deduplication is module, package, file, line number.
-I only took samples that contain \texttt{unsafe.Pointer}, no other unsafe matches.
-
-Both because there is no easy way to find out if an imported dependency is maintained by a project itself, or by a
-third party, and because it gives a better picture on real unsafe usages in the industry, the unsafe samples are taken
-from all dependencies.
-Therefore, the snippets are not all part of packages from the ten projects, but some more packages.
-
-I classified the samples on two dimensions.
-The first shows what is being done, e.g. a cast or a pointer arithmetic.
-The second dimension shows the purpose of the unsafe usage, e.g. serialization or realization of generics.
-
-The results are shown in Table~\ref{tbl:labels-results-app} for the application code snippets, and
-Table~\ref{tbl:labels-results-std} for the standard library snippets.
-
-\input{assets/tables/chapter4/dataset-labels.tex}
-
-I put each sample along with its classification and information about where it was taken from into its own file.
-The files are put into directories whose names indicate both classification dimensions.
-
-Here are examples and descriptions for each of the classes used to describe what is happening in an unsafe usage.
-
-\textbf{conversion-struct-byteslice}
-
-Unsafe pointers are used to cast some struct value into a \texttt{[]byte} value.
-Although this is a special case of the next cast, I used it to cover very common serialization operations.
-
-\input{assets/listings/chapter4/labels-classexample-conversion-struct-byteslice.tex}
-
-\ldots
+%This chapter contributes an in-depth study of unsafe usages in 10 selected open-source Go projects.
+%I analyzed 1000 usages in application code, and 400 usages in the standard library.
+%The usages are classified in two dimensions by what is happening and what is the higher-level purpose.
+%
+%I analyzed the following projects.
+%
+%\input{assets/tables/chapter4/dataset-projects.tex}
+%
+%I selected them based on their high number of unsafe usages, and taking care of that they represent a reasonably large
+%diversity.
+%The projects contain applications based around containers and operations, chat, infrastructure as a service, data
+%storage, visualization, and machine learning.
+%
+%When selecting samples to look at, I deliberately separated the standard library from application usages.
+%This is based on the results of the large-scale study shown in Chapter~\ref{ch:survey}, which show that all projects
+%must use the standard library, and the hypothesis that the standard library uses unsafe patterns differently.
+%It has to do so because the standard library takes care of low-level memory management by design.
+%
+%Standard library is defined by the packages that live in the Go standard library and the \texttt{golang.org/x/sys}
+%module.
+%I took the decision to include the sys package because it contains a lot of syscall infrastructure and in general
+%behaves more like the standard library than application code.
+%It is also maintained by the core Go developer team.
+%Obviously, application packages is defined as packages that are not part of the standard library.
+%
+%I randomly sampled 1000 snippets from application packages and 400 snippets from the standard library.
+%The samples are taken without duplicates in version, that is the same snippet by module, file, and line number is not
+%taken twice if there is a different version of the same module also available.
+%This is done by best effort: if the line number changes between module versions there might still be logical
+%duplication.
+%The set of deduplication is module, package, file, line number.
+%I only took samples that contain \texttt{unsafe.Pointer}, no other unsafe matches.
+%
+%Both because there is no easy way to find out if an imported dependency is maintained by a project itself, or by a
+%third party, and because it gives a better picture on real unsafe usages in the industry, the unsafe samples are taken
+%from all dependencies.
+%Therefore, the snippets are not all part of packages from the ten projects, but some more packages.
+%
+%I classified the samples on two dimensions.
+%The first shows what is being done, e.g. a cast or a pointer arithmetic.
+%The second dimension shows the purpose of the unsafe usage, e.g. serialization or realization of generics.
+%
+%The results are shown in Table~\ref{tbl:labels-results-app} for the application code snippets, and
+%Table~\ref{tbl:labels-results-std} for the standard library snippets.
+%
+%\input{assets/tables/chapter4/dataset-labels.tex}
+%
+%I put each sample along with its classification and information about where it was taken from into its own file.
+%The files are put into directories whose names indicate both classification dimensions.
+%
+%Here are examples and descriptions for each of the classes used to describe what is happening in an unsafe usage.
+%
+%\textbf{conversion-struct-byteslice}
+%
+%Unsafe pointers are used to cast some struct value into a \texttt{[]byte} value.
+%Although this is a special case of the next cast, I used it to cover very common serialization operations.
+%
+%\input{assets/listings/chapter4/labels-classexample-conversion-struct-byteslice.tex}
+%
+%\ldots
 
 
 
