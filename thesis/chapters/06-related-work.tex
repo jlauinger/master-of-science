@@ -19,14 +19,91 @@ While I personally could not find substantial errors in the paper, it has not ye
 Since it is a very relevant concurrent work to this thesis, I nevertheless reproduced their empirical study and compared
 it to the results of this thesis.
 
-Comparison of projects in data set, including dependencies
-Different numbers worked out, difference due to different project data set and counting 1st/3rd party differently
-Manual Labeling Comparison: Costa not complete, those that overlap match
-Vet errors seem to match
+The authors present a study of \checkNum{2,438} popular Go projects which are downloaded on \checkNum{October 2nd, 2019}.
+Their project selection was done by taking the top \checkNum{3,000} most-starred open-source projects on \github{},
+filtering out archived, inactive, and young projects with less than \checkNum{10} commits.
+Furthermore, they removed educational projects such as books or learning material, as well as projects that failed to
+be downloaded for some reason.
+Then, they counted the number of \unsafe{} usages in each project using a parser to generate the abstract syntax tree
+(\acrshort{AST}).
+They find that \checkNum{24\%} of the studied projects use \unsafe{} code.
+In contrast, the study presented in this thesis in Chapter~\ref{ch:go-geiger} finds that \percentageUnsafeProjects{}
+use \unsafe{}.
+This difference is due to the different choice of projects, which was verified by comparing the set of analyzed projects
+available through the published replication package\footnote{\url{https://zenodo.org/record/3871931}}.
+While Costa et al. analyzed more than \checkNum{2,400} projects, I only analyzed \projsAnalyzed{}, indicating that
+\unsafe{} usage is more prevalent in more popular projects.
+Furthermore, a fundamental difference of this work to~\cite{costa2020} is that the study by Costa et al. did not look
+at dependencies, instead they only analyzed the projects directly.
+My analysis on the projects including their dependencies in contrast showed that
+\percentageUnsafeTransitiveWithDependencies{} of the projects use \unsafe{} either directly or through some included
+library.
+To compare the study to~\cite{costa2020}, it is therefore necessary to focus on the \unsafe{} usages contained in the
+top-level projects, which is done by taking into account only usages that are detected within the main project module
+indicated by the \textit{go.mod} file in the root directory.
+However, this can be inaccurate if there are multiple modules contained within the same project repository, because in
+that case the study by Costa et al. would include code for that project that is seen as dependency in my study.
+There are \checkNum{25} projects for which~\cite{costa2020} reports \unsafe{} usages, but my study does not, however
+they are all included in the \percentageUnsafeTransitiveWithDependencies{} of projects for which my study indicates that
+they use \unsafe{} code through their dependencies.
+For this reason, I conclude that the difference in the fraction of projects using \unsafe{} is due to a different
+definition of project and dependency code.
+
+There are \checkNum{86} projects for which my study and~\cite{costa2020} reported different absolute numbers of
+\unsafe{} usage sites, while the numbers matched exactly for all remaining projects.
+To find the reason for the difference, I replicated the study to the best of my possibilities given that Costa et al.
+did neither include the exact revisions of the projects under analysis nor their parsing tool to count the \unsafe{}
+usages in their replication package.
+Table~\ref{tbl:costa-counts-comparison} shows the top \checkNum{10} projects with highest difference, including their
+respective absolute counts found in the studies and the reason for the difference.
 
 \input{assets/tables/chapter6/costa-counts-comparison.tex}
 
+For the \textit{jetstack/cert-manager} project, the difference is due to the changes in the code between
+\checkNum{October 2019} and \checkNum{Mai 2020}, which was when the project data set for this thesis was collected.
+This is indicated as \textit{Reason~a} in the table.
+For \textit{peterq/pan-light}, there are multiple Go modules included in the project repository, so for this project
+the difference is due to varying definitions of dependency code as described previously.
+\textit{Reason~d} corresponds to this situation.
+Finally, there are four projects that did not yet support the Go module system in \checkNum{October 2019} and included
+vendored copies of their dependencies in the repository (\textit{Reason~c}), and four projects which contained separate
+specific code for different architectures, which are not counted by \toolGeiger{} and thus not included in this work's
+study (\textit{Reason~b}).
+Therefore, the counts associated with \textit{Reason~b} are higher in~\cite{costa2020}.
+The only significant methodical difference therefore is the different counting of code that is available separately for
+different architectures, which is a limitation of the \toolGeiger{} tool.
+
+By looking at \unsafe{} usage counts for each week since \checkNum{2015} in the history of \checkNum{270} projects
+selected from the total projects data set, Costa et al. showed that while the share of packages containing \unsafe{}
+code did not change significantly, the number of individual \unsafe{} usages increased over time.
+The study by Costa et al. also includes a set of manually labeled purposes of \unsafe{} usages, however the authors
+labeled one entire file from each project with a single label, while the labeled data set presented in this thesis is
+built with a granularity of a label for a single line of code.
+Comparing the labels was possible on only \checkNum{25} code samples that are included in both sets.
+Furthermore, the data set presented in~\cite{costa2020} is incomplete at least in the version published as replication
+package.
+\checkNum{20} of the \checkNum{25} mutual code samples did not actually have a label in the data set
+by~\cite{costa2020}.
+The remaining \checkNum{five} matched reasonably well at least, as shown in Table~\ref{tbl:costa-labels-comparison}.
+
 \input{assets/tables/chapter6/costa-labels-comparison.tex}
+
+\checkNum{Three} of the labels were exact matches of the label provided by~\cite{costa2020} and one of the two labels
+assigned to the sample in my data set presented in this thesis.
+The second label is lost because~\cite{costa2020} only did a one-dimensional labelling.
+For the remaining \checkNum{two} samples, the labels did not match, however my labels are more fine-grained with respect
+to the specific line of code.
+The labels assigned by~\cite{costa2020} are appropriate for their scope, which is the complete file containing the line
+of code shown in the table.
+Overall, the usage purposes identified by~\cite{costa2020} matched the ones identified in this thesis with most of them
+being used for the foreign function interface (\acrshort{FFI}) and efficient type casting, and few of them to achieve
+reflection and direct pointer manipulations.
+
+Additional contributions of~\cite{costa2020} include a manual correlation of \unsafe{} usages to project domains, which
+showed that networking projects are the biggest group, followed by development tools, container virtualization,
+databases, and projects that offer bindings to other projects.
+Bindings and networking projects include the most projects with heavy use of \unsafe{} (more than \checkNum{100} calls
+in a project).
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -59,13 +136,7 @@ cryptolint, CogniCryptSAST, DLint \cite{egele2013, kruger2018, gong2015, smith20
 counting, updating, introducing vulnerabilities \cite{xia2014, mirhosseini2017, kula2017, watanabe2017, pashchenko2018}
 
 
-%%% -----------------------------------------------------------------------------
-%
-%\chapter{Related work}\label{ch:related-work}
-%
-%Put the work in context with current literature.
-%
-%
+
 %%% -----------------------------------------------------------------------------
 %
 %\section{Dependency analysis in Rust with Cargo Geiger}\label{sec:cargo-geiger}

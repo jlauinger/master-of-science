@@ -4,18 +4,18 @@
     \label{tbl:costa-labels-comparison}
     \begin{tabularx}{\textwidth}{X|l|l}
         \toprule
-        \multicolumn{3}{l}{Source Code} \\
+        \multicolumn{3}{l}{\footnotesize\textit{Source Code}} \\
         Labels in~\cite{costa2020} & My labels                           & Match \\
         \midrule
-        \multicolumn{3}{l}{\textit{*(*uintptr)(unsafe.Pointer(uintptr(unsafe.Pointer(\&b[0])) + uintptr(i))) \^{}= kw}} \\
+        \multicolumn{3}{l}{\footnotesize\textit{*(*uintptr)(unsafe.Pointer(uintptr(unsafe.Pointer(\&b[0])) + uintptr(i))) \^{}= kw}} \\
         Performance Optimization   & pointer-arithmetic / efficiency     & match  \\ \hline
-        \multicolumn{3}{l}{\textit{return Pointer\{unsafe.Pointer(v.Pointer()), v.Type()\}}} \\
+        \multicolumn{3}{l}{\footnotesize\textit{return Pointer\{unsafe.Pointer(v.Pointer()), v.Type()\}}} \\
         Reflect                    & cast-pointer / reflect              & match  \\ \hline
-        \multicolumn{3}{l}{\textit{raw := (*unix.InotifyEvent)(unsafe.Pointer(\&buf[offset]))}} \\
+        \multicolumn{3}{l}{\footnotesize\textit{raw := (*unix.InotifyEvent)(unsafe.Pointer(\&buf[offset]))}} \\
         System Call                & cast-struct / serialization         & mine more fine-grained \\ \hline
-        \multicolumn{3}{l}{\textit{entryHdr := (*entryHdr)(unsafe.Pointer(\&entryHdrBuf[0]))}} \\
+        \multicolumn{3}{l}{\footnotesize\textit{entryHdr := (*entryHdr)(unsafe.Pointer(\&entryHdrBuf[0]))}} \\
         Convert from byte          & cast-bytes / efficiency             & match  \\ \hline
-        \multicolumn{3}{l}{\textit{if n := int(uintptr(unsafe.Pointer(\&b[0]))) \% wordSize; n != 0 \{}} \\
+        \multicolumn{3}{l}{\footnotesize\textit{if n := int(uintptr(unsafe.Pointer(\&b[0]))) \% wordSize; n != 0 \{}} \\
         Performance Optimization   & pointer-arithmetic / serialization  & mine more fine-grained \\
         \bottomrule
     \end{tabularx}
