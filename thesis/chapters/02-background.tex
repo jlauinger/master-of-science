@@ -2,11 +2,12 @@
 
 \chapter{Background}\label{ch:background}
 
-This chapter presents background information on memory layout and safety measures to ensure its security.
-Furthermore, the \unsafe{} \acrshort{API} provided by the Go programming language, which offers a way of circumventing
-such safety measures, is introduced.
-Finally, the Go dependency management system is described as the design of \toolGeiger{} and the related empirical study
+This chapter presents background information on memory layout and safety measures to ensure its security as well as the
+\unsafe{} \acrshort{API} provided by the Go programming language, which offers a way of circumventing such safety
+measures.
+Next, the Go dependency management system is described as the design of \toolGeiger{} and the related empirical study
 analyze Go code including its dependencies, as described in Chapter~\ref{ch:go-geiger}.
+Finally, there is an introduction into the concepts of static code analysis and abstract syntax trees.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -238,4 +239,83 @@ focuses on auditing \unsafe{} usages not only in a project itself but also its d
 
 \section{Static Code Analysis}\label{sec:background:static-code-analysis}
 
-\todo{Add 1-2 pages about concepts of static analysis: abstract syntax trees, linting rules, etc.}
+Static code analysis describes techniques that examine source code for particular properties, such as code metrics or
+the presence of specific bugs, without running the program.
+In the last point, it is different from dynamic code analysis which executes the code and employs runtime checks.
+Using static code analysis, it is possible to automatically test if the source code matches certain expectations.
+Based on the level of abstraction that an analysis tool is looking at, it can be classified into lexical, syntactic,
+or semantic analysis.
+Lexical analysis deals with the source code as text, with the most common purpose being coding style enforcement.
+For syntactic analysis, the code is parsed to obtain an abstract syntax tree (\acrshort{AST}), which allows for example
+to do type checking and reporting code metrics such as the cyclomatic complexity or McCabe metric~\cite{watson1996} or
+the number of \unsafe{} usages, as described in Chapter~\ref{ch:go-geiger}.
+Finally, semantic analysis also takes care of the control and data flow, which describe what statements in the code can
+be executed in which order and how is data being transferred between variables.
+This allows for example to detect unused or dead code, or detect whether a variable is used before it is initialized.
+To do this, a control flow graph (\acrshort{CFG}) is used.
+
+Figure~\ref{fig:ast} shows an example of an \acrshort{AST}.
+It represents a code fragment of just one statement, which is \textit{x := 3 + 5}.
+Source code of programming language is a formal language that follows a grammar, which is the syntax of the language.
+Syntactically valid programs are words in the formal language and can be represented as the tree of grammar rules used
+to construct the word.
+Such a grammar construction begins with a start symbol, such as \textit{AssignStmt} in this case, which is can have
+children which are recursively substituted for concrete values.
+In Figure~\ref{fig:ast}, the right hand side of the assignment is an addition, an instance of a binary expression, with
+basic integer literals 3 and 5 used for the addition.
+The \acrshort{AST} shows the composition of the source code into logical units of growing size, with the leafs being
+identifiers, literals, or any other nodes that do not contain further children, such as an empty return statement for
+example.
+To obtain the \acrshort{AST}, it is possible to use the standard parser bundled with the language's compiler.
+An advantage of running static analysis steps on the \acrshort{AST} is that it is independent from any concrete lexical
+representation such as white space.
+Identifier names can also be easily replaced by different names in the abstract representation, which makes the
+\acrshort{AST} perfect for name refactoring operations or recognizing specific types even if they are aliased in the
+source code.
+The latter is very useful for the design of \toolGeiger{}, as described in Chapter~\ref{ch:go-geiger}.
+
+\input{assets/figures/chapter2/ast.tex}
+
+In contrast, the \acrshort{CFG} is not a purely based on syntax anymore, but needs a semantic analysis to be
+constructed.
+It is a directed graph showing possible execution paths through the code segments.
+It can contain cycles and is not necessarily connected (neither strongly nor weakly).
+Nodes in the control flow graph denote logical pieces of the source code in the sense that they form a unit of
+execution.
+They can be seen as an atomic step of computation.
+While \acrshort{CFG} nodes are also nodes in the \acrshort{AST}, there are \acrshort{AST} nodes that are not their own
+\acrshort{CFG} node.
+Edges in the \acrshort{CFG} then represent all possible paths of execution.
+An example of a \acrshort{CFG} can be seen in Figure~\ref{fig:cfg}.
+It shows a simple loop: \textit{for x < 5 \{ x += 1 \}}.
+
+\input{assets/figures/chapter2/cfg.tex}
+
+There are two logical steps of execution in this code example.
+After any previous code is executed and control flows to the \textit{for} loop, first the loop condition \textit{x < 5}
+is checked.
+Then, there are two outgoing edges on the node because the condition can be either true or false.
+If it is true, then control flows to the assignment node representing the \textit{x += 1} statement.
+That node then has an edge back to the loop condition node to check whether the loop should be run again.
+Otherwise, the code following behind the loop is executed.
+Such a \acrshort{CFG} is an excellent tool to detect dead code, which would be represented by an isolated connectivity
+component in the graph.
+Furthermore, using node annotations that indicate whether variables are read or assigned, it is possible to detect
+control flow anomalies such as read-before-write, which would show that a variable is used before it is initialized.
+It is also useful to detect where a variable is assigned for the last time before a particular statement, thus what
+value it has at time of execution of that statement, which will be used for the design of the \unsafe{}-focused linter
+\toolSafer{} described in Chapter~\ref{ch:go-safer}.
+
+There are a number of existing static code analysis tools for the Go programming language.
+The most official is \toolVet{}\footnote{\url{https://golang.org/cmd/vet}}, which is included as part of the main Go
+\acrshort{CLI} and thus is installed by default with the Go compiler.
+As described in more detail in Section~\ref{sec:go-safer:implementation} about the implementation of \toolSafer{}, it
+is built using a modular system of individual analysis steps.
+Examples of these steps include checking if returned values from functions are unused, type checking of the format
+specifiers used in the \textit{fmt.Printf} function with respect to the concrete parameters, or detecting unreachable
+code.
+Another static analysis tool with a focus on security is \toolGosec{}\footnote{\url{https://github.com/securego/gosec}}.
+Similar to \toolVet{}, it contains a number of different rules that the source code is checked against, for example if
+insecure hash functions are used, template strings contain unescaped data, returned error values from functions are
+actually checked.
+Such static analysis tools that detect insecure code or common mistakes are called linters.
