@@ -217,7 +217,7 @@ new unit of code organization.
 Modules contain one or more packages, and have a name and import path similar to packages, which can in fact be the name
 of a root package in the module.
 Furthermore, modules are required to be available as a \acrshort{VCS} repository like Git and are versioned.
-A project can define dependencies to specific versions of other versions, which resolve to the packages imported in the
+A project can define dependencies to specific versions of other modules, which resolve to the packages imported in the
 code.
 Thus, it is possible to require a specific version of an external package.
 Dependencies can obviously be transitive, because imported modules can have dependencies to other modules themselves,
