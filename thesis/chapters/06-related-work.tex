@@ -209,17 +209,221 @@ Doing this can improve heap usage because some values are not unnecessarily allo
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\section{Static Code Analysis}\label{sec:related-work:static-code-analysis}
+\section{Static and Dynamic Code Analysis}\label{sec:related-work:static-code-analysis}
 
-cryptolint, CogniCryptSAST, DLint \cite{egele2013, kruger2018, gong2015, smith2020, gabet2020, wickert2019, bodden2016}
-C++\cite{song2019}
+Previous work has presented static code analysis tools that are designed with a focus on security vulnerabilities in
+mind, similar to the \toolSafer{} linter introduced in this work.
+For Android projects built in Java, there is \toolCryptolint{}~\cite{egele2013}.
+It is a static analysis tool that detects misuses of cryptographic \acrshort{API}s in Android apps, such as the use of
+the electronic code book (\acrshort{ECB}) cipher mode.
+Its authors Egele et al. found that \checkNum{88\%} of the \checkNum{11,748} Android applications that they analyzed
+contained at least one misuse.
+The specification language \textit{CrySL}~\cite{kruger2018} can be used to formally describe rules that ensure
+cryptographic \acrshort{API}s are used correctly.
+Static analysis tools like \textit{CogniCryptSAST}~\cite{kruger2017} can then ensure those rules are followed by an
+application and thus find cryptographic misuses that are potential security vulnerabilities.
+Wickert et al.~\cite{wickert2019} presented a labeled data set of \checkNum{201} cryptographic misuses in Java projects.
+It is organized in two dimensions: the specific cryptographic \acrshort{API} that is used, and the category of misuse.
+The authors integrated their novel data set into \textit{MuBench}~\cite{amann2016}, which is both a collection of
+\acrshort{API} misuses as well as a framework to evaluate precision and recall of static analysis tools on the data
+sets.
+
+For JavaScript, Gong et al.~\cite{gong2015} presented \textit{DLint}, which is both a static and dynamic linter.
+On top of common problems with JavaScript source code that are also found by previous static-only linters, it adds a
+dynamic analysis approach that is able to check \checkNum{28} additional potential problems with the code.
+In an empirical study on \checkNum{more than 200} popular websites, the authors found on average \checkNum{29} problems
+that were missed statically.
+Song et al.~\cite{song2019} provide a detailed overview of available static and dynamic analysis tools for the C and C++
+languages, including a taxonomy of the tools and security vulnerabilities detected by them.
+They find that although there has been decades of research into analysis tools for these languages, there is still room
+for improvement in particular with respect to incorrect usages of pointer types and security vulnerabilities that are
+caused by them.
+These include among others the detection of dangling pointers, bound checking for buffer accesses by pointers, and
+finding invalid conversions between incompatible types.
+For the Go programming language, Bodden et al.~\cite{bodden2016} present an analysis of information flow and possible
+data leaks through taint analysis.
+Gabet et al.~\cite{gabet2020} contribute work on the static detection of race conditions and safe access of shared
+memory through mutexes.
+Similar to \textit{CrySL}, it is based on a formal model of communication in Go and rules to detect incorrect instances.
+
+Smith et al.~\cite{smith2020} conducted a study on the usability of static analysis tools with a focus on security
+problems.
+They found that often problems that could have been found by the tools are not fixed by the developers because the user
+interfaces are too complex and the tool is abandoned.
+The authors recommend four design guidelines to improve the usability of static analysis tools.
+They include suggestions how to fix a specific bug rather than just pointing out its existence, integrating the tools
+within the existing workflows of developers, including showing results within the code editor near the relevant code,
+and contextualizing warning messages to the concrete incorrect code, such as including specific variable names.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Security Issues with Dependencies}\label{sec:related-work:dependency-issues}
 
+
+
 counting, updating, introducing vulnerabilities \cite{xia2014, mirhosseini2017, kula2017, watanabe2017, pashchenko2018}
+
+%\subsection{Vulnerable Open Source Dependencies: Counting Those That Matter}
+%\label{subsec:vulnerable-open-source-dependencies:-counting-those-that-matter}
+%
+%Pashchenko et al.~\cite{pashchenko2018} in a quite recent study propose a way of counting relevant dependencies in a
+%project and identifying whether the dependencies are vulnerable.
+%The study is done for Java, and specifically for Maven dependency management.
+%The authors note that failure of identifying relevant dependencies might lead to bad allocation of development resources.
+%
+%A central point is dependency scoping (production versus testing) which many studies did not incorporate in the past.
+%If a vulnerability is found in a dependency only relevant for testing, it might not be worth to put resources onto its
+%mitigation.
+%This is extremely relevant for me!
+%As of now, I also do not distinguish between testing and production library.
+%This is probably not even possible with the Go dependency management system.
+%A key insight for distiguishing this related work from my work would be to highlight the relative instability of the
+%incredibly new Golang dependency system compared to the very seasoned Maven system.
+%The authors find that around 20 \% of dependencies are for testing only (not deployed).
+%
+%Furthermore, it is very important to transitively look at dependencies of dependencies because they can just as well
+%introduce problems into the main project.
+%This is something my study already perfectly does.
+%
+%The authors contribute a method of determining whether a dependency is actively maintained or halted.
+%It is done by looking at the release cycle with an exponential smoothing model.
+%There are only a few vulnerabilities in halted libraries that they found, but those are especially important because
+%mitigation cannot be done by a simple upgrade.
+%
+%The authors introduce the important concept of reliability for bug fixing.
+%This is, the developers are directly reliable for fixing their main package and own dependencies, and they need to
+%make sure their direct dependencies are up to date but cannot fix them.
+%The indirect, or transitive, depencies are out of responsiblity for the developers since they cannot even be upgraded
+%manually.
+%A major finding is that grouping the dependencies of a project into these reliability groups gives a better picture into
+%how much the developers can actually do, and the authors find that for more than 80 \% of the problems the developers
+%can mitigate themselves through an upgrade or fixing their own code.
+%
+%Identification of vulnerabilities is done by matching code patterns to vulnerability databases both in a manual and an
+%automated fashion.
+%The developers contribute a tool that can provide annotations to the code as to which vulnerablity it might belong.
+%
+%A very relevant insight for me: the authors first did an incorrect dependency popularity measurement.
+%They counted the times the dependency gets imported, possibly distorting the popularity if a project is decomposed into
+%many small own dependencies~\cite{sajnani2014}.
+%A better way is to count the projects that include the dependency.
+%I already use the second approach in Table~\ref{tbl:pull-requests} for the supplied pull requests for fixes.
+%However, I need to make sure in the plot generation that I use the same metrics.
+%
+%The authors compare to other ecosystems such as Pip and NPM, but not Go.
+%For NPM, they cite a relevant study on Javascript dependency vulnerabilites~\cite{lauinger2017}, which showed that
+%transitive project dependencies are more vulnerable than direct dependencies.
+%They reason that this might be the case because developers are less aware of the existence of those dependencies, and
+%have less control about them.
+%The authors highlight that this is a finding specific to Javascript because NPM allows several versions of the same
+%library to be used in the same project, while Maven does not.
+%I need to find out if this is possible with Go modules too, I think it is not.
+%I think Go behaves like Maven.
+%However, I need to highlight that in my data survey there are of course different versions of the same library, and this
+%is even necessary to analyze unsafe usage over time.
+%
+%Within threats to validity, the authors note that the selection of libraries was potentially biased, that the
+%vulnerability database may not cover all vulnerabilites, the study only used Maven, and that project IDs were approximated.
+%
+%This is an extremely valuable related work that I definitely need to cite both in the background on Go dependencies
+%and the survey as well.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Do developers update their library dependencies?}
+%\label{subsec:do-developers-update-their-library-dependencies?}
+%
+%Kula et al.~\cite{kula2017} conduct a study on Github projects and developer survey on how dependencies are updated.
+%They find that developers often think library updates are extra work and deprioritize it.
+%The study is done on Maven and Java and finds that libraries are rarely updated.
+%Specifically, security updates are included less often because developers were unaware of them.
+%Upon getting the news, developers promptly updated away from vulnerable dependencies.
+%
+%Available updates are traditionally announced on the homepage of the library, through change logs and semantic versioning.
+%Other possibilities include security advisories.
+%
+%When selecting vulnerabilities for analyzing security advisories, the authors only use denial of service and man in the
+%middle vulnerabilities.
+%This means that the survey is both rather shallow and biased towards web projects.
+%
+%This work is minor to medium relevant.
+%It's to include in a list of examples to cite, but on its own it is less effective as a related work than the others
+%I read.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Can automated pull requests encourage software developers to upgrade out-of-date dependencies?}
+%\label{subsec:can-automated-pull-requests-encourage-software-developers-to-upgrade-out-of-date-dependencies?}
+%
+%Mirhosseini et al.~\cite{mirhosseini2017} answer the research question whether automated pull requests such as greenkeeper
+%or pyup can encourage developers to update dependencies.
+%They find that badges provide a good incentive to developers to keep them green by updating.
+%Automated pull requests offer an actionable solution to update, but notification fatigue can work against update
+%discipline.
+%That is, maintaining many open source projects can lead to a lot of pull request notifications, especially if there is
+%one opened for every single dependency.
+%
+%The authors analyze about 7,400 Github projects, grouped into badges, automated pull requests, and a baseline.
+%Automated pull requests lead to 1.6 times, badges to 1.4 higher probability to update.
+%Pull requests also mean faster updates.
+%On purpose, they use a broad sample of Github projects instead of the most popular ones.
+%This is something I should talk about too in my work!
+%In summary, both versions of update helpers had a positive impact, with pull requests being in the lead.
+%
+%A surprising finding was that only about 30 \% of automated PRs was merged, compared to about 80 \% of general PRs.
+%Some merged update PRs were also downgraded again after some days, hinting incompatibilities introduced.
+%Using CI correlated with marginally higher merge rate.
+%
+%They also conduct a developer survey.
+%Developers had mixed feelings about badges versus automated pull requests.
+%They suggested to use batched updates, resulting in fewer pull requests and less fatigue.
+%
+%The authors identified through survey different updating strategies: quick, scheduled, reactive.
+%A developer said, reasoned through possible new errors in libraries and minor benefits, that in the reality of commercial
+%software engineering, staying on bleeding edge library versions usually costs more than it benefits, and the better
+%approach is to update infrequently.
+%My work should act on this and argue that this is true for feature releases but very bad for security releases.
+%Maybe one could do something with semver here.
+%
+%The survey also showed that a single bad update of one library can very strongly cause developers to be reluctant from
+%updating in the future.
+%From this, we can argue for high responsible in library releasing to not destroy the necessary environment for timely
+%ships of security fixes.
+%
+%The authors further cite another work stating that vulnerabilities are often contained in dependencies~\cite{xia2014}.
+%CI is not always a guarantee that an update does not break the software.
+%Badges can counteract fatigue, and more importantly they rely on a different mechanism: social pressure.
+%
+%This has very relevance for me because of the survey on update preferences.
+%It is interesting to cite this within the argument that libraries must be updated in order to remove already fixed
+%vulnerabilities from dependent projects.
+%
+%
+%%% -----------------------------------------------------------------------------
+%
+%\subsection{Understanding the Origins of Mobile App Vulnerabilities: A Large-scale Measurement Study of Free and Paid Apps}
+%\label{subsec:understanding-the-origins-of-mobile-app-vulnerabilities:-a-large-scale-measurement-study-of-free-and-paid-apps}
+%
+%Watanabe et al.~\cite{watanabe2017} conduct a study on the origins of mobile vulnerabilities.
+%They inspect both free and paid Android apps.
+%They find that 70 \% of bugs come from dependencies, 50 \% from third-party dependencies.
+%More expensive and/or popular apps tended to have more vulnerabilities.
+%
+%An interesting finding for me: 50 \% of vulnerabilities were found in unreachable code.
+%As I also already found one manual vulnerability that was unreachable, it might be interesting to argue that there is a
+%very feasible risk that the studies are distorted due to failure to identify dead code.
+%
+%The authors claim that a limitation of static analysis is that obfuscated, runtime-dynamic code might introduce
+%vulnerabilities that the analysis missed.
+%This might be true, but such code is also to be treated as dangerous in my opinion.
+%
+%In contrast to my work, this is based on Android and Java at best, not Go.
+%
+%This is only minor relevant as another study.
+%
 
 
 
