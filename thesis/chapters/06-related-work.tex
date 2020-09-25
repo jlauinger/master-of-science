@@ -110,9 +110,57 @@ in a project).
 
 \section{Unsafe APIs Across Languages}\label{sec:related-work:unsafe-across-languages}
 
-Rust \cite{evans2020, qin2020}, Java \cite{huang2019, mastrangelo2015, wickert2019}, WebAssembly, C++ \cite{alnaeli2017, larochelle2001}
+Similar to the Go \unsafe{} \acrshort{API}, there are other programming languages that offer ways to circumvent their
+respective measures for memory safety.
+Rust offers a sophisticated concept of value ownership that prevents invalid memory accesses like
+\textit{use-after-free} bugs~\cite{matsakis2014}.
+To allow developers to circumvent this safety measure when necessary, for example to implement low-level functions, it
+provides the \unsafe{} keyword to mark a function or code block that is allowed to do five additional, potentially
+unsafe operations.
+They include dereferencing raw pointers, calling \unsafe{} functions, and accessing mutable static
+variables~\cite{matsakis2014}.
+This achieves the same level of possibilities as offered by the \unsafe{} \acrshort{API} in Go.
+Recently, two studies have analyzed the usage of \unsafe{} code blocks in open-source Rust libraries and applications.
+Evans et al.~\cite{evans2020} presented an empirical study revealing that \checkNum{less than 30\%} of analyzed
+libraries directly contained \unsafe{} code, however \checkNum{more than half} did when their dependencies were included
+in the analysis.
+Over the course of their \checkNum{10 months} study, they found that these numbers did not change significantly.
+Most of the \unsafe{} Rust code is used to call other Rust functions, while interoperability with external C code was a
+smaller concern.
+The authors conducted an N=\checkNum{20} survey about the reasons to use \unsafe{} on Reddit, which showed that the most
+popular reasons were performance optimizations, advanced data structures, or a more elegant interface made possible by
+using \unsafe{} \acrshort{API}s.
+\checkNum{10\%} of developers indicated that they have used \unsafe{} just to make the code compile in the past.
+\jl{evtl. rausnehmen.}
+Qin et al.~\cite{qin2020} studied bug reports that were related to \unsafe{} code usage in Rust, which revealed that the
+most common bug classes are buffer overflows, null-pointer dereferencing, reading uninitialized memory, and
+\textit{use-after-free}.
+Often, the cause of the bug was an incorrect check for specific edge cases, which could be fixed by conditionally
+skipping the execution of \unsafe{} code.
+The authors note that it is very dangerous to have hidden \unsafe{} code in regular functions, which can be called from
+safe Rust code, because developers then often need to make sure the input data is in a proper state which is not
+immediately obvious.
+Furthermore, Almohri et al.~\cite{almohri2018} presented a system to ensure memory safety while executing \unsafe{} code
+in Rust by limiting access to the program's memory during the times \unsafe{} functions run.
+This is done by splitting the memory address space into regions with different trust levels and thus creates a sandbox
+that the \unsafe{} code runs in.
+Since it is possible to compile Rust to WebAssembly, a binary intermediate code representation that is shipped to web
+browsers~\cite{rourke2018}, usage of \unsafe{} blocks in Rust might lead vulnerabilities that occur in the virtual
+machine environment when executing the WebAssembly code.
+Lehmann et al.~\cite{lehmann2020} presented a study on this possibility.
 
-Other empirical studies \cite{difranco2017, lu2013, chou2001, leesatapornwongsa2016, lauinger2017, jin2012, gunawi2014, gu2015}
+Java also contains an \unsafe{} API with the \textit{sun.misc.Unsafe} library, which can cause security vulnerabilities
+when misused~\cite{mastrangelo2019}.
+Mastrangelo et al.~\cite{mastrangelo2015} showed that \checkNum{25\%} of the artifacts analyzed in an empirical study
+used the \unsafe{} library.
+Huang et al.~\cite{huang2019} analyzed the causes and consequences of misuses of that library, and showed different
+patterns in which affected programs can crash due to such programming errors.
+
+Finally, for the non memory-safe languages C and C++ there is previous work on achieving partial memory safety at
+least~\cite{burow2018, nagarakatte2009}.
+Song et al.~\cite{song2019} present tools that help with the process of identifying vulnerabilities in applications.
+Furthermore, there have been comprehensive studies in the past about vulnerabilities related to memory
+safety~\cite{szekeres2013,alnaeli2017,larochelle2001}.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -126,7 +174,8 @@ Concurrency, channels, escape analysis \cite{wang2020, sibiryov2017, tu2019, giu
 
 \section{Static Code Analysis}\label{sec:related-work:static-code-analysis}
 
-cryptolint, CogniCryptSAST, DLint \cite{egele2013, kruger2018, gong2015, smith2020, gabet2020}
+cryptolint, CogniCryptSAST, DLint \cite{egele2013, kruger2018, gong2015, smith2020, gabet2020, wickert2019}
+C++\cite{song2019}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
