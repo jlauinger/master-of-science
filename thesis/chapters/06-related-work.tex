@@ -167,14 +167,51 @@ safety~\cite{szekeres2013,alnaeli2017,larochelle2001}.
 
 \section{Other Go Vulnerabilities}\label{sec:related-work:other-go-vulnerabilities}
 
-Concurrency, channels, escape analysis \cite{wang2020, sibiryov2017, tu2019, giunti2020, lange2017, zhou2017, dilley2019, hill2002, hannan1998, choi1999}
+There has been a lot of previous research on security vulnerabilities in Go programs that are not related to the
+\unsafe{} \acrshort{API}~\cite{zhou2017, hill2002, hannan1998, choi1999}.
+One of the features Go is most known for is its excellent features for concurrent program execution~\cite{donovan2015}.
+To synchronize concurrent threads, it offers both message passing through channels and exclusive memory access by using
+mutually exclusive locking of variables through mutexes.
+Tu et al.~\cite{tu2019} present a study of about \checkNum{170} concurrency-related bugs in \checkNum{six} open-source
+Go applications.
+To do this, they identified commits that are related to fixing such bugs by searching the project history for related
+keywords.
+They found that there is an even distribution between bugs related to message passing and shared memory, and that the
+usage of both techniques did not change significantly over time.
+They conclude that adding new features to make a language safer is not necessarily sufficient, because new bug classes
+can be introduced especially if developers are not familiar with the new concepts.
+
+Other related work on concurrency in Go includes a detailed analysis of message passing in open-source
+projects~\cite{dilley2019}, which found that most projects use channels for synchronous message passing and common
+models to organize concurrent threads are not well supported by static analysis tools.
+Lange et al.~\cite{lange2017} present work on detecting dead locks and infinite loops that are caused by incorrect
+usages of channels.
+To to this, they build a model of possible communication patterns in the Go application and apply bounded verification
+to find incorrect ones.
+Giunti~\cite{giunti2020} contributed a framework that can generate concurrent Go code that is free from data races and
+deadlocks from a formal communication model expressed in a special calculus.
+
+Wang et al.~\cite{wang2020} discussed how the escape analysis of the Go compiler misses the connection between the
+underlying data arrays of strings and slices when they are incorrectly converted into each other by creating a composite
+literal header value as described in Section~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}.
+The authors however use this property to optimize the heap memory consumption of Go programs.
+They present a transpiler that modifies the intermediate binary representation created by the Go compiler, which is then
+converted to architecture-dependent specific assembly afterwards.
+When a local variable is passed by reference to another function, it is usually seen as escaped because the Go compiler
+uses a conservative approach to detect escaped values.
+Therefore the variable will be allocated on the heap.
+The transpiler checks whether there is any possible concurrent access to that variable, and if there are none then it
+might be possible to allocate on the stack of the calling function instead.
+To achieve this, the reference passed to the function is converted into a \textit{uintptr} value and back to a reference
+to break the connection between the values as seen by the escape analysis on purpose.
+Doing this can improve heap usage because some values are not unnecessarily allocated there.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Static Code Analysis}\label{sec:related-work:static-code-analysis}
 
-cryptolint, CogniCryptSAST, DLint \cite{egele2013, kruger2018, gong2015, smith2020, gabet2020, wickert2019}
+cryptolint, CogniCryptSAST, DLint \cite{egele2013, kruger2018, gong2015, smith2020, gabet2020, wickert2019, bodden2016}
 C++\cite{song2019}
 
 
