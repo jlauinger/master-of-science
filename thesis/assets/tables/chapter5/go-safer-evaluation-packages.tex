@@ -1,12 +1,12 @@
-\begin{table}[h]
+\begin{table}[htp!]
     \centering
     \caption[Evaluation results for \toolSafer{} on manually analyzed packages packages]
-        {Evaluation results for \toolSafer{} on manually analyzed packages packages \newline \footnotesize
-        Tools: \underline{a} \toolSafer{}, \underline{b} \toolVet{}, \underline{c} \toolGosec{} \newline}
+        {Evaluation results for \toolSafer{} on manually analyzed packages packages~\newline \tiny ~\newline \footnotesize
+        Tools: \underline{a} \toolSafer{}, \underline{b} \toolVet{}, \underline{c} \toolGosec{} \tiny ~\newline}
     \label{tbl:gosafer-evaluation-packages}
     \begin{adjustbox}{max width=\textwidth}
         \begin{tabular}{l||rrr|rrr|rrr|rrr||lll|lll|lll|lll}
-            Package    & \multicolumn{3}{c|}{TP}                         & \multicolumn{3}{c|}{FP}                          & \multicolumn{3}{c|}{TN}                         & \multicolumn{3}{c||}{FN}                         & \multicolumn{3}{c|}{Precision}          & \multicolumn{3}{c|}{Recall}             & \multicolumn{3}{c|}{Accuracy}          & \multicolumn{3}{c}{F1-Score}           \\
+            Package    & \multicolumn{3}{c|}{\textbf{TP}}                & \multicolumn{3}{c|}{\textbf{FP}}                 & \multicolumn{3}{c|}{\textbf{TN}}                & \multicolumn{3}{c||}{\textbf{FN}}                & \multicolumn{3}{c|}{\textbf{Precision}} & \multicolumn{3}{c|}{\textbf{Recall}}    & \multicolumn{3}{c|}{\textbf{Accuracy}} & \multicolumn{3}{c}{\textbf{F1-Score}}  \\
             {}         & \textit{a}            & \textit{b} & \textit{c} & \textit{a}             & \textit{b} & \textit{c} & \textit{a}            & \textit{b} & \textit{c} & \textit{a}             & \textit{b} & \textit{c} & \textit{a}    & \textit{b} & \textit{c} & \textit{a}    & \textit{b} & \textit{c} & \textit{a}   & \textit{b} & \textit{c} & \textit{a}   & \textit{b} & \textit{c} \\
             \hline
             v1         & 0                     & 0          & 0          & 0                      & 0          & 676        & 676                   & 676        & 1          & 0                      & 0          & 0          & -             & -          & 0          & -             & -          & -          & 1            & 1          & 0.001      & -            & -          & -          \\

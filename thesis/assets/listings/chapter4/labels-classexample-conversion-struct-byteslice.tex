@@ -1,9 +1,0 @@
-\begin{lstlisting}[language=Golang, label=lst:labels-classexample-conversion-struct-byteslice, caption=Usage class example: conversion-struct-byteslice]
-func socketControlMessageHeaderAndData(b []byte) (*Cmsghdr, []byte, error) {
-    h := (*Cmsghdr)(unsafe.Pointer(&b[0]))
-    if h.Len < SizeofCmsghdr || uint64(h.Len) > uint64(len(b)) {
-        return nil, nil, EINVAL
-    }
-    return h, b[cmsgAlignOf(SizeofCmsghdr):h.Len], nil
-}
-\end{lstlisting}

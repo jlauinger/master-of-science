@@ -1,7 +1,0 @@
-\begin{lstlisting}[language=Golang, label=lst:labels-classexample-direct-memory-access, caption=Usage class example: direct-memory-access]
-func (n *decNaked) rl() (v reflect.Value) {
-    v = defUnsafeDecNakedWrapper.rl
-    ((*unsafeReflectValue)(unsafe.Pointer(&v))).ptr = unsafe.Pointer(&n.l)
-    return
-}
-\end{lstlisting}

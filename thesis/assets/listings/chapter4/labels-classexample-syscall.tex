@@ -1,7 +1,0 @@
-\begin{lstlisting}[language=Golang, label=lst:labels-classexample-syscall, caption=Usage class example: syscall]
-ifreq.Data = uintptr(unsafe.Pointer(&buffer[0]))
-_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), SIOCETHTOOL, uintptr(unsafe.Pointer(ifreq)))
-if errno != 0 {
-    return -1, fmt.Errorf("SIOCETHTOOL request for %q failed, errno=%v", link.Attrs().Name, errno)
-}
-\end{lstlisting}

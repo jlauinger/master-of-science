@@ -14,9 +14,9 @@ pointer usages not only in the project but within all of its dependencies.
 
 \input{assets/figures/chapter4/go-geiger-architecture.tex}
 
-Top-level approach
-Usage example
-Publication
+Usage: \textit{go-geiger ./my/package}
+
+\input{assets/images/chapter4/go-geiger-screenshot.tex}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -67,12 +67,16 @@ Correlation with Project Star / Forks Stats, Age, etc.
 
 \subsection{Change of Usage over Time}\label{subsec:go-geiger:evaluation:over-time}
 
+\input{assets/tables/chapter4/unsafe-usage-over-time.tex}
+
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Comparison with Existing Tools}\label{subsec:go-geiger:evaluation:linters-comparison}
 
 \toolVet{}, \toolGosec{}
+
+\input{assets/tables/chapter4/go-geiger-linter-comparison.tex}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -131,14 +135,7 @@ The files are put into directories whose names indicate both classification dime
 
 Here are examples and descriptions for each of the classes used to describe what is happening in an unsafe usage.
 
-\textbf{conversion-struct-byteslice}
-
-Unsafe pointers are used to cast some struct value into a \texttt{[]byte} value.
-Although this is a special case of the next cast, I used it to cover very common serialization operations.
-
-\input{assets/listings/chapter4/labels-classexample-conversion-struct-byteslice.tex}
-
-\ldots
+\input{assets/listings/chapter4/dataset-label-class-examples.tex}
 
 
 

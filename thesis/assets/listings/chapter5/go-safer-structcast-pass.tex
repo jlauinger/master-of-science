@@ -8,5 +8,4 @@ type B struct {
 func unsafeFunction(a A) B {
     return *(*B)(unsafe.Pointer(&a))
 }
-
 \end{lstlisting}

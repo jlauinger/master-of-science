@@ -1,0 +1,55 @@
+\begin{lstlisting}[language=Golang, label=lst:dataset-label-class-examples, caption=Example code snippets for different classes in the data set]
+// cast-basic, efficiency
+out.TimeoutSeconds = (*int32)(unsafe.Pointer(in.TimeoutSeconds))
+
+// cast-bytes, serialization
+return (*(*[SizeofTcTbfQopt]byte)(unsafe.Pointer(x)))[:]
+
+// cast-header, efficiency
+hdr := &reflect.SliceHeader{
+    Data: uintptr(unsafe.Pointer(&data[i])),
+    Len:  stride,
+    Cap:  stride,
+}
+retVal = append(retVal, *(*[]uint8)(unsafe.Pointer(hdr)))
+
+// cast-pointer, serialization
+func lookupGoTypeUnfolder(to interface{}) (unsafe.Pointer, ptrUnfolder) {
+    switch ptr := to.(type) {
+    case *interface{}:
+        return unsafe.Pointer(ptr), newUnfolderIfc()
+    // ...
+
+// cast-struct, efficiency
+out.Configuration = (*runtime.Unknown)(unsafe.Pointer(in.Configuration))
+
+// definition, serialization
+type unsafeType struct {
+    safeType
+    rtype    unsafe.Pointer
+    ptrRType unsafe.Pointer
+}
+
+// delegate, serialization
+func (encoder *dynamicEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+    obj := encoder.valType.UnsafeIndirect(ptr)
+    stream.WriteVal(obj)
+}
+
+// memory-access, serialization
+deReferenced := *((*unsafe.Pointer)(ptr))
+if deReferenced == nil {
+    return true
+}
+
+// pointer-arithmetic, layout
+unaligned := brokenUnaligned && uintptr(unsafe.Pointer(&value[0]))&3 != 0
+
+// syscall, no-gc
+n, _, errno := syscall.Syscall(syscall.SYS_RECVMSG, s, uintptr(unsafe.Pointer(h)), uintptr(flags))
+
+// unused, unused
+func (encoder emptyArrayEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+    stream.WriteEmptyArray()
+}
+\end{lstlisting}
