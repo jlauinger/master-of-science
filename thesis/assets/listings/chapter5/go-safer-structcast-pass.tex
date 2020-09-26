@@ -1,0 +1,12 @@
+\begin{lstlisting}[language=Golang, label=lst:gosafer-structcast-pass, caption=Vulnerable code example detected by the \toolSafer{} structcast pass]
+type A struct {
+    x int
+}
+type B struct {
+    y int64
+}
+func unsafeFunction(a A) B {
+    return *(*B)(unsafe.Pointer(&a))
+}
+
+\end{lstlisting}
