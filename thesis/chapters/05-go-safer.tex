@@ -3,9 +3,12 @@
 \chapter{\textit{go-safer}: Detecting Unsafe Misuses}\label{ch:go-safer}
 
 Another major contribution of this thesis is the development of \toolSafer{}, a \toolVet{}-style, open-source linter
-tool.
-It can identify some of the unsafe code patterns described in Chapter~\ref{ch:unsafe-security-problems}.
-This chapter describes the design and implementation of \toolSafer{}, as well as an evaluation of its effectiveness.
+tool with a focus on the \unsafe{} \acrshort{API} in Go.
+It can identify some of the unsafe code patterns described in Chapter~\ref{ch:unsafe-security-problems} and thus help
+developers to write safer code.
+This chapter describes the design and implementation of \toolSafer{}, as well as an evaluation of its effectiveness both
+using the labeled data set of \unsafe{} usages presented in the previous chapter and a manual analysis of \checkNum{six}
+open-source Go packages.
 
 \input{assets/figures/chapter5/outline5.tex}
 
@@ -14,9 +17,13 @@ This chapter describes the design and implementation of \toolSafer{}, as well as
 
 \section{Design}\label{sec:go-safer:design}
 
-\toolSafer{} is available on \github{}\footnote{\url{https://github.com/jlauinger/go-safer}}.
-
-\input{assets/figures/chapter5/go-safer-architecture.tex}
+The \toolSafer{} static analysis tool is designed as a linter to detect two misuses of the \unsafe{} \acrshort{API}.
+The first is the incorrect conversion pattern between slices and strings by creating their header structures as
+composite literals as described in Sections~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}
+and~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}.
+The second is a direct conversion between struct types containing incompatible types with architecture-dependent sizes.
+The source code and documentation of \toolSafer{} is available on
+\github{}\footnote{\url{https://github.com/jlauinger/go-safer}}.
 
 \input{assets/listings/chapter5/go-safer-sliceheader-pass.tex}
 
@@ -30,6 +37,8 @@ Usage: \textit{go-safer ./my/package}
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Implementation}\label{sec:go-safer:implementation}
+
+\input{assets/figures/chapter5/go-safer-architecture.tex}
 
 Go vet analysis pass infrastructure
 Low-level details
