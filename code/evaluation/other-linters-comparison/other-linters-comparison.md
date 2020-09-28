@@ -17,6 +17,11 @@ specialized `go-safer` evaluation which is done on my data set of labeled unsafe
 packages that I manually analyzed completely.
 
 
+| Scenario        | TP (both)          | FN (only go-geiger) | FP (only linter) |
+|                 | go vet  | gosec    | go vet  | gosec     | go vet  | gosec  |
+| Any message     | 219     | 36,279   | 76,738  | 40,678    | 31,224  | 0      |
+| Related message | 213     | 36,267   | 76,744  | 18,019    | 114,306 | 0      |
+
 ## Results
 
 **go vet**:

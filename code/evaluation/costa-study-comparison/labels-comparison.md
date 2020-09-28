@@ -14,10 +14,10 @@ Only 20 labeled instances in Costa's and my data set match. Differences:
    
 Stats:
  - 15 instances where Costa's label is missing
- - 4 matches
- - 1 non-matches
+ - 3 matches
+ - 2 non-matches
  
-In the non-match and also one match, my labeling is better / more detailed.
+In the non-matches, my labeling is better / more detailed.
 
 
 ## Detailed matches and mismatches
@@ -308,7 +308,7 @@ pointer-arithmetic / serialization
 
 if n := int(uintptr(unsafe.Pointer(&b[0]))) % wordSize; n != 0 {
 
-MATCH: matches, mine more detailed
+MATCH: mine more detailed
 
 --------
 
