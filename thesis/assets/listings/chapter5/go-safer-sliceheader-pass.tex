@@ -1,4 +1,4 @@
-\begin{lstlisting}[language=Golang, label=lst:gosafer-sliceheader-pass, caption=Vulnerable code example detected by the \toolSafer{} sliceheader pass]
+\begin{lstlisting}[language=Golang, label=lst:go-safer-sliceheader-pass, caption=Vulnerable code example detected by the \toolSafer{} sliceheader pass]
 func unsafeFunction(s string) []byte {
     sH := (*reflect.StringHeader)(unsafe.Pointer(&s))
     bH := &reflect.SliceHeader{
