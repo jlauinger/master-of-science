@@ -6,8 +6,8 @@ Another major contribution of this thesis is the development of \toolSafer{}, a 
 tool with a focus on the \unsafe{} \acrshort{API} in Go.
 It can identify some of the unsafe code patterns described in Chapter~\ref{ch:unsafe-security-problems} and thus help
 developers to write safer code.
-This chapter describes the design and implementation of \toolSafer{}, as well as an evaluation of its effectiveness both
-using the labeled data set of \unsafe{} usages presented in the previous chapter and a manual analysis of \checkNum{six}
+This chapter describes the design and implementation of \toolSafer{}, and presents an evaluation of its effectiveness
+both using the labeled data set of \unsafe{} usages presented in the previous chapter and a manual analysis of \checkNum{six}
 open-source Go packages.
 
 \input{assets/figures/chapter5/outline5.tex}
@@ -17,15 +17,15 @@ open-source Go packages.
 
 \section{Design}\label{sec:go-safer:design}
 
-The \toolSafer{} static analysis tool is designed as a linter to identify two misuses of the \unsafe{} \acrshort{API}
-that were previously undetected with existing tools such as \toolVet{} and \toolGosec{}.
+The \toolSafer{} static analysis tool is designed as a linter to identify \checkNum{two} misuses of the \unsafe{}
+\acrshort{API} that were previously undetected with existing tools such as \toolVet{} and \toolGosec{}.
 The selection of the code patterns that are detected is based on the \unsafe{} usage examples identified using
 \toolGeiger{} in popular open-source Go projects as described in Chapter~\ref{ch:go-geiger}, as well as the manual
 analysis of possible vulnerabilities related to the use of the \unsafe{} \acrshort{API} presented in
 Chapter~\ref{ch:unsafe-security-problems}.
 The first is the incorrect conversion pattern between slices and strings by creating their header structures as
 composite literals as described in Section~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}.
-Listing~\ref{lst:go-safer-sliceheader-pass} shows example code that uses this unsafe pattern.
+Listing~\ref{lst:go-safer-sliceheader-pass} shows a code example that uses this unsafe pattern.
 
 \input{assets/listings/chapter5/go-safer-sliceheader-pass.tex}
 
@@ -44,7 +44,7 @@ composite literals of the new type name are recognized just like the original ty
 The second misuse that \toolSafer{} detects is a direct conversion between struct types containing incompatible types
 with architecture-dependent sizes as described in
 Section~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}.
-Listing~\ref{go-safer-structcast-pass} is an example of such code.
+Listing~\ref{lst:go-safer-structcast-pass} shows an example of such code.
 
 \input{assets/listings/chapter5/go-safer-structcast-pass.tex}
 
@@ -57,11 +57,11 @@ These are the types with architecture-dependent sizes available in Go.
 
 The source code and documentation of \toolSafer{} is available on
 \github{}\footnote{\url{https://github.com/jlauinger/go-safer}}.
-It can be installed using the standard Go \acrshort{CLI} tool and is run with the source code packages that should be
-checked as parameters.
+It can be installed using the standard Go \acrshort{CLI} tool.
+To run it, append the package names that should be checked as parameters.
 For example, to check a local package run \textit{go-safer ./my/package}.
 There is no limitation on the number of packages that can be supplied as parameters.
-Figure~\ref{go-safer-screenshot} shows a screenshot of \toolSafer{} containing a few warnings about insecure slice
+Figure~\ref{fig:go-safer-screenshot} shows a screenshot of \toolSafer{} containing a few warnings about insecure slice
 conversions.
 
 \input{assets/images/chapter5/go-safer-screenshot.tex}
@@ -95,7 +95,7 @@ Then, the abstract syntax tree (\acrshort{AST}) and control flow graph (\acrshor
 existing analysis passes which the novel \toolSafer{} passes depend upon.
 After all analysis passes have run, the results are also presented to the user by the same code used in \toolVet{}.
 This composition using many existing parts allows to keep the required new code to a minimum, reuses well-tested pieces
-of code, and allows to integrate the new \toolSafer{} features into a familiar workflow.
+of code, and allows integrating the new \toolSafer{} features into a familiar workflow.
 
 The \textit{sliceheader} analysis pass first receives the \acrshort{AST} and filters it for composite literals and
 assignment statements.
@@ -103,7 +103,7 @@ These are given by \textit{ast.CompositeLit} and \textit{ast.AssignStmt} nodes.
 Recursively going down the \textit{AST} even after a composite literal has been found ensures that \toolSafer{} also
 detects such literals that are part of a bigger structure type that contains a slice header as one of its fields.
 Then, the type of either the composite literal or the assignment receiver is checked.
-For assignments, this is done by looking up the left hand side identifier in a typing table provided by the parser.
+For assignments, this is done by looking up the left hand side identifier in a type table provided by the parser.
 Since Go supports multiple assignments in one statement, there can be multiple variables on the left hand side.
 In this case, \toolSafer{} checks all of them to see if any meets the conditions to trigger a warning.
 To check whether the type matches either \textit{reflect.StringHeader} or \textit{reflect.SliceHeader}, the given type
@@ -118,13 +118,13 @@ A composite literal of a header type is already enough to issue a warning, but f
 check whether the receiver variable is a slice or string header that was created by conversion from a real slice or
 string.
 To do this, the \acrshort{AST} assignment node is located within the \acrshort{CFG}.
-Then, going backwards in the \acrshort{CFG}, the first node that assigns the value of the receiver variable is found.
+Then, going backwards in the \acrshort{CFG}, the last node that assigns the value of the receiver variable is found.
 This node is the effective value of the slice or string header structure at the time of the assignment under
 investigation.
 Finally, \toolSafer{} checks whether the right hand side value of the statement defining that value is a conversion
 from an actual slice or string value.
-It has to be a cast through an \textit{unsafe.Pointer} value for that.
-If this is the case, then the assignment is legitimate and \toolSafer{} does not print a warning.
+It has to be a cast through an \textit{unsafe.Pointer} value for this to be possible.
+If it is the case, then the assignment is legitimate and \toolSafer{} does not print a warning.
 However, if the variable is not derived by a conversion from a slice or string, or no \acrshort{CFG} node defining the
 variable can be found, then a warning is issued.
 The last case is possible for example if the slice or string header is passed in as a function parameter, because then
@@ -147,7 +147,8 @@ and \toolSafer{} generates a warning.
 A set of automated tests verifies that \toolSafer{} works as expected.
 These tests also use the framework provided by the Go analysis infrastructure, which allows tests to be written as
 individual source packages where expected warnings are given as line comments in the respective lines.
-On the other hand, lines that must not trigger any warnings can either have no comment or an explit \textit{ok} comment.
+On the other hand, lines that must not trigger any warnings can either have no comment or an explicit \textit{ok}
+comment.
 This allows a fast and effective composition of new test cases.
 At the same time, the test cases provide formal documentation about positive and negative examples for the code patterns
 detected by \toolSafer{}.
@@ -157,9 +158,9 @@ detected by \toolSafer{}.
 
 \section{Evaluation}\label{sec:go-safer:evaluation}
 
-In order to make a valuable contribution to the safety of Go programs and at the same time be an effective tool for
-developers, it is important that \toolSafer{} can find actual bugs in real-world Go projects, and at the same time has
-a low rate of false positives and false negatives.
+In order to make a valuable contribution to the safety of Go programs and also be an effective tool for developers, it
+is important that \toolSafer{} can find actual bugs in real-world Go projects, and at the same time has a low rate of
+false positives and false negatives.
 False negatives would mean that the tool misses incorrect and therefore potentially vulnerable usages of the \unsafe{}
 \acrshort{API}.
 On the other hand, a high rate of false positives would mean that it generates many warnings that are not related to
@@ -221,8 +222,8 @@ A high recall shows that there are few false negatives, therefore a high fractio
 \toolSafer{}.
 Developers thus have a reliable tool at hand to be trusted in detecting bugs of the particular class of \unsafe{}
 misuses that it is specialized in.
-Accuracy and F1-score are high as well, which follows from both high precision and recall and emphasizes the benefit
-quality \toolSafer{} provides.
+Accuracy and F1-score are high as well, which follows from both high precision and recall and emphasizes the quality
+\toolSafer{} provides.
 
 A manual analysis shows that the false positive is due to a slice header that is created from a real slice, however
 the slice is referenced through a slightly obfuscated, reflected pointer which \toolSafer{} can not connect to the
@@ -254,14 +255,14 @@ Table~\ref{tbl:go-safer-evaluation-packages-stats} shows the packages used for t
 
 Each of the \checkNum{six} packages was then analyzed manually to find any insecure code that \toolSafer{} should
 detect.
-A \acrshort{CSV} file contained a positive or negative label for every line of code that contains a usage of the
-\unsafe{} \acrshort{API}.
+The results of this are saved as a \acrshort{CSV} file containing a positive or negative label for every line of code
+that includes a usage of the \unsafe{} \acrshort{API}.
 Lines that do not use the \acrshort{API} should not be analyzed by \toolSafer{} at all, therefore they are not included
 as negative in order to avoid a very large number of true negatives which would skew the accuracy and yield less
 valuable evaluation results.
 Should \toolSafer{} generate a warning for such a line, it will still be counted as false positive.
 After the manual analysis, \toolSafer{} was run on the packages and all warnings were saved again.
-Similar to Section~\ref{subsec:go-safer:evaluation:labeled-usages}, the warnings and labels were then matches and
+Similar to Section~\ref{subsec:go-safer:evaluation:labeled-usages}, the warnings and labels were then matched and
 counted.
 Table~\ref{tbl:go-safer-evaluation-packages} shows the results of the evaluation for each package individually as well
 as in total.
@@ -295,7 +296,7 @@ For both evaluation sets described in the previous sections, these tools were al
 warnings were saved.
 This allows to identify true and false positives and negatives in the same way as for \toolSafer{}.
 However, only the respective warnings that are related to the \unsafe{} \acrshort{API} are counted.
-For \toolVet{}, this is is \textit{"possible misuse of unsafe.Pointer"} message generated by the \textit{unsafeptr}
+For \toolVet{}, this is the \textit{"possible misuse of unsafe.Pointer"} message generated by the \textit{unsafeptr}
 pass, and for \toolGosec{} it is rule \checkNum{\textit{G103}} resulting in the \textit{"use of unsafe should be
 audited"} message.
 
@@ -304,11 +305,11 @@ next to those of \toolSafer{}, in the remaining two lines and columns \textit{b}
 Both evaluations, on the labeled data set and \checkNum{six} manually analyzed packages, reveal that \toolVet{} did not
 generate any \unsafe{}-related warnings, while \toolGosec{} simply flagged all usages of \unsafe{} as potentially
 dangerous.
-The \toolGosec{} contain some false negatives because there are code lines in the evaluation data set that do
+The \toolGosec{} results contain some false negatives because there are code lines in the evaluation data set that do
 not contain a direct call of a function belonging to the \unsafe{} package.
 These are assignments to slice and string headers which are previously created, which are detected by \toolSafer{} but
 not \toolGosec{}.
-Similarly, there are on true positives for \toolGosec{} in Table~\ref{tbl:go-safer-evaluation-packages} because there
+Similarly, there are no true positives for \toolGosec{} in Table~\ref{tbl:go-safer-evaluation-packages} because there
 are no positive samples in that evaluation set that contain a direct usage of \textit{unsafe.Pointer} in the line of
 code.
 
@@ -316,13 +317,13 @@ The reported performance metrics are not very meaningful for \toolVet{} and \too
 With the evaluation on the labeled data set of \unsafe{} usages shown in Table~\ref{tbl:go-safer-evaluation-dataset},
 \toolVet{} has a low accuracy of \checkNum{31.8\%} although precision and recall are not defined.
 This accuracy simply mirrors the fraction of negative samples in the overall sample set.
-Similarly, the inverse of that fraction (\checkNum{69\%})is seen as the accuracy of \toolGosec{} in that table.
+Similarly, the inverse of that fraction (\checkNum{68.1\%}) is seen as the accuracy of \toolGosec{} in that table.
 It also has a rather high precision and recall but this is simply the result of generating warnings for every sample in
 the set.
-In the second evaluation on the \checkNum{six} packages, there is none that even achieves a defined and greater than
-zero precision or recall for either \toolVet{} or \toolGosec{} because both tools do not report any true positives.
+In the second evaluation on the \checkNum{six} packages, none of them achieves a defined and greater than zero precision
+or recall for either \toolVet{} or \toolGosec{} because both tools do not report any true positives.
 However, \toolVet{} still gets a high accuracy of \checkNum{95.2\%} because this evaluation set contains a lot more
 negative samples than positve ones.
 
 In summary, this comparison shows that neither \toolVet{} nor \toolGosec{} are suitable for the purpose that
-\toolSafer{} fulfills.
+\toolSafer{} fulfills, the tools achieve different goals.
