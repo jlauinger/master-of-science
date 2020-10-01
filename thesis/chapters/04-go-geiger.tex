@@ -2,8 +2,11 @@
 
 \chapter{\textit{go-geiger}: Identification of Unsafe Usage}\label{ch:go-geiger}
 
-In this thesis, I implement a tool to automatically check Go dependencies. It shows unsafe
-pointer usages not only in the project but within all of its dependencies.
+This chapter presents \toolGeiger{}, a tool to find usages of the \unsafe{} \acrshort{API} in Go packages and their
+dependencies.
+Furthermore, an empirical study on \unsafe{} usage in open-source projects using \toolGeiger{} is shown, and a novel
+data set of labeled samples of \unsafe{} code is described.
+Figure~\ref{fig:outline4} shows which parts of the contributions of this thesis are given in this chapter.
 
 \input{assets/figures/chapter4/outline4.tex}
 
@@ -12,16 +15,78 @@ pointer usages not only in the project but within all of its dependencies.
 
 \section{Design}\label{sec:go-geiger:design}
 
+The novel tool \toolGeiger{} is designed to identify usages of the \unsafe{} \acrshort{API} in Go source code.
+In contrast to existing tools like \toolGosec{}, it includes the dependencies of Go packages in the analysis, which
+gives a much better picture of possible \unsafe{} usages.
+It is inspired by \toolCargoGeiger{}\footnote{\url{https://github.com/rust-secure-code/cargo-geiger}}, a similar tool
+for detecting the use of unsafe code blocks in Rust programs.
+Figure~\ref{fig:go-geiger-architecture} shows the architecture of \toolGeiger{}.
+
 \input{assets/figures/chapter4/go-geiger-architecture.tex}
 
-Usage: \textit{go-geiger ./my/package}
+First, the dependency tree of the packages that are given for analysis is built.
+Then, the sources of all the packages in this tree are parsed, and the resulting abstract syntax tree (\acrshort{AST})
+is inspected.
+Within the \acrshort{AST}, usages of the \unsafe{} \acrshort{API} are identified.
+Each usage is assigned a tuple of labels consisting of \textit{match type} and \textit{context type}.
+The match type represents the part of the \unsafe{} \acrshort{API} that is used.
+It can be either of the four \unsafe{} package members \textit{Pointer}, \textit{Sizeof}, \textit{Offsetof}, and
+\textit{Alignof}, the \textit{reflect} package fields \textit{SliceHeader} and \textit{StringHeader}, or the
+\textit{uintptr} keyword.
+The context type indicates the functional part of code that the usage is found in.
+It can be either an \textit{assignment}, a \textit{call} of a function, a function \textit{parameter} definition, or a
+\textit{variable} definition.
+If the context can not be assigned to one of these four options, then it is set to \textit{other}.
+This context allows to filter the search for \unsafe{} usages to particular functional code positions.
+There is a \toolGeiger{} command line parameter to request this filtering.
+For example, it is possible to count only \unsafe{} usages that are used within parameters of function calls.
+After the \unsafe{} usages are identified, they are counted.
+For this, it is necessary to take care of package deduplication.
+If a particular package exists in the dependency tree multiple times and is reachable on different paths, it must still
+be counted only once when calculating the sum of \unsafe{} usages in a package's dependencies.
+This is because the package does not get any less safe by including the same code multiple times, the code is already
+part of the resulting program.
+Finally, the analysis results are shown to the user.
+It is possible to output the \unsafe{} usage counts as well as the lines of code containing the usages.
+
+The source code and documentation of \toolGeiger{} is available on
+\github{}\footnote{\url{https://github.com/jlauinger/go-geiger}}.
+It can be installed using the standard Go \acrshort{CLI} tool.
+To execute it, append the package names that should be checked as parameters.
+For example, to examine a local package for \unsafe{} usages run \textit{go-geiger ./my/package}.
+There is no limitation on the number of packages that can be supplied as parameters.
+Figure~\ref{fig:go-geiger-screenshot} shows a screenshot of \toolGeiger{}.
+It presents the analyis results for the \textit{go-geiger} source code itself.
+The output is truncated is missing parts of the table with \unsafe{} counts, which have been excluded to decrease the
+space needed to display the figure.
 
 \input{assets/images/chapter4/go-geiger-screenshot.tex}
+
+The output shown in Figure~\ref{fig:go-geiger-screenshot} is composed of three parts.
+The first is a table showing the \unsafe{} usage counts for each package in the dependency tree for the packages
+given for analysis.
+The first column indicates the total number of usages in the package including all its dependencies.
+The second column shows the number for the package alone, without the dependencies.
+The heading for this column is \textit{local package}.
+Next, there are five columns with individual usage counts for the four possible usage contexts described above,
+\textit{variable}, \textit{parameter}, \textit{assignment}, \textit{call}, as well as \textit{other} for all matches
+that could not be assigned to any of them.
+These columns add up to the \textit{local package} count.
+Finally, the import path for the package is given to identify it.
+Lines that are printed in green (the last \checkNum{two} lines in Figure~\ref{fig:go-geiger-screenshot}) represent
+packages with no local \unsafe{} usages.
+Red lines are packages that directly contain \unsafe{} code, and white lines indicate that the package does not
+contain \unsafe{} usages itself but instead introduces them through its dependencies.
+After the table, there is a summary of the number of packages belonging into these three categories green, red, and
+white, and finally a legend for the colors.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Implementation}\label{sec:go-geiger:implementation}
+
+These steps are done using the \acrshort{AST} inspection \acrshort{API} that is provided as part of the Go programming
+language\footnote{\url{https://golang.org/pkg/go/ast/}}.
 
 Low-level details
 Verification with tests
