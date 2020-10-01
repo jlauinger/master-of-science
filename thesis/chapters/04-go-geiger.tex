@@ -75,8 +75,8 @@ These columns add up to the \textit{local package} count.
 Finally, the import path for the package is given to identify it.
 Lines that are printed in green (the last \checkNum{two} lines in Figure~\ref{fig:go-geiger-screenshot}) represent
 packages with no local \unsafe{} usages.
-Red lines are packages that directly contain \unsafe{} code, and white lines indicate that the package does not
-contain \unsafe{} usages itself but instead introduces them through its dependencies.
+Red lines (e.g. the \checkNum{seventh} line) are packages that directly contain \unsafe{} code, and white lines indicate
+that the package does not contain \unsafe{} usages itself but instead introduces them through its dependencies.
 After the table, there is a summary of the number of packages belonging into these three categories green, red, and
 white, and finally a legend for the colors.
 
@@ -85,11 +85,41 @@ white, and finally a legend for the colors.
 
 \section{Implementation}\label{sec:go-geiger:implementation}
 
-These steps are done using the \acrshort{AST} inspection \acrshort{API} that is provided as part of the Go programming
-language\footnote{\url{https://golang.org/pkg/go/ast/}}.
+The identification of the dependency tree for the packages to analyze, as well as the parsing of the source code is done
+using the standard Go compiler toolchain.
+It is accessable using the \textit{packages}
+\acrshort{API}\footnote{\url{https://pkg.go.dev/golang.org/x/tools/go/packages}}.
+Similarly, the inspection of the \acrshort{AST} is done using the \acrshort{API} available though the \textit{ast}
+package in Go\footnote{\url{https://golang.org/pkg/go/ast/}}.
 
-Low-level details
-Verification with tests
+To find \unsafe{} usages corresponding to the different match types shown in Figure~\ref{fig:go-geiger-architecture},
+the \acrshort{AST} is filtered for \textit{SelectorExpr} and \textit{Ident} nodes.
+The first represent selector expressions, which indicate possible access of a member of another package, like in a usage
+of \textit{unsafe.Pointer}.
+The second is used to find instances of \textit{uintptr}.
+In both cases the concrete identifier names in the \acrshort{AST} nodes are checked to distinguish \unsafe{} usages from
+arbitrary other field accesses.
+The context type is determined by going up in the \acrshort{AST} starting at the expression node corresponding to a
+given \unsafe{} usage.
+For example, an \unsafe{} usage is considered part of the \textit{assignment} context type if it is a descendent of
+either an \textit{AssignStmt}, \textit{CompositeLit}, or \textit{ReturnStmt} node.
+The \textit{call}, \textit{parameter}, and \textit{variable} classes correspond to \textit{CallExpr}, \textit{FuncDecl},
+and \textit{GenDecl} nodes, respectively.
+To achieve an effective assignment of the context type, the order in which the different types are checked is important.
+This is because an \unsafe{} usage have reason to be included in several context types such as \textit{call} and
+\textit{assignment} in an example like \textit{x := f(unsafe.Pointer(y))}.
+
+The \unsafe{} usage counts are first collected for each package.
+A cache is used to avoid analyzing the same package multiple times if it is present several times in the dependency
+tree.
+When the usage count including dependencies is calculated, \toolGeiger{} starts with the root packages that were
+requested for analysis by the user, and recursively calculates the respective counts.
+Again, the cache is used to avoid summing up multiple times.
+This approach is a depth-first traversal of the dependency tree.
+
+Automated acceptance testing verifies that \toolGeiger{} works as intended.
+The test is done by running \toolGeiger{} on a test fixture package with a known number of \unsafe{} usages.
+Then, the output is checked for the expected usage counts.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
