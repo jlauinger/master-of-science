@@ -126,18 +126,41 @@ Then, the output is checked for the expected usage counts.
 
 \section{Evaluation}\label{sec:go-geiger-evaluation}
 
-A major contribution of this thesis is an analysis of unsafe code usage in the wild:
-the top 500 most popular open source Go projects.
+To evaluate \toolGeiger{} on real-world data, it is used to gather empirical data about the usage of \unsafe{} in
+popular open-source Go projects.
 
-Threat to validity: unable to differentiate dead code in analysis.
-This is similar to many studies as summarized in the related work chapter.
+The study answers the following research questions:
+
+\begin{enumerate}[left=0.5cm, label={RQ\arabic*}]
+    \item How prevalent is \unsafe{} in Go projects? \label{rq:prevalApp}
+    \item How deep are \unsafe{} code packages buried in the dependency tree? \label{rq:depsDepth}
+    \item Which \unsafe{} keywords are used most? \label{rq:distTypes}
+    \item Which \unsafe{} operations are used in practice, and for what purpose? \label{rq:purpose}
+\end{enumerate}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Data Set}\label{subsec:go-geiger:evaluation:data-set}
 
-Description of how the data set was generated and processed
+To build the data set of \unsafe{} usages, first the top \projsTotal{} most-starred open-source Go projects available on
+\github{} were downloaded.
+This initial download was done on \checkNum{May 27, 2020}.
+Since \toolGeiger{} is specifically built to analyze the project dependencies, all projects that do not support the Go
+modules system were then removed from the set.
+This is necessary to ensure that all dependencies can be automatically resolved and the respective sources are available
+for analysis.
+There were \projsWithoutModules{} projects that had no support for modules.
+Furthermore, \projsNotCompiled{} could not be compiled and thus also had to be excluded from the data set.
+Since \toolGeiger{} analyzes the \acrshort{AST}, it can not work on packages that can not be parsed.
+This results in a set of \projsAnalyzed{} Go projects.
+
+These packages were then analyzed using \toolGeiger{} as well as the existing static analysis tools \toolVet{} and
+\toolGosec{} to allow a comparison between the findings of these tools.
+The resulting findings were stored in machine-readable \acrshort{CSV} files.
+All data files as well as the data acquisition tool used to download the projects and run the analysis tools on them
+are available in a data repository on \github{}\footnote{\url{https://github.com/stg-tud/unsafe_go_study_results}}.
+The data set contains \checkNum{XX} unique \unsafe{} usages in \packagesAnalyzed{} packages.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -149,6 +172,10 @@ Including import depth analysis
 \input{assets/plots/chapter4/distribution-unsafe-types.tex}
 \input{assets/plots/chapter4/unsafe-import-depth.tex}
 \input{assets/plots/chapter4/unsafe-packages-by-registry-n30.tex}
+
+\begin{tcolorbox}[boxsep=1pt, enlarge top by=5pt, title=Answer to \ref{rq:depsDepth}]
+    Most imported packages containing \unsafe{} usages are found around a depth of \checkNum{3} in the dependency tree.
+\end{tcolorbox}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
