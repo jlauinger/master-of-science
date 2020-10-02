@@ -3,7 +3,13 @@
 \label{sec:appr}
 
 %This section describes problems related to \unsafe{} that we identified, as well as information on how to exploit these issues in the wild.
-In the following, we present our two novel tools, \toolUsage{} and \toolSA{}, that aid in locating, evaluating and fixing potentially dangerous \unsafe{} usages.
+%In the following, we present our two novel tools, \toolUsage{} and \toolSA{}, that aid in locating, evaluating and fixing potentially dangerous \unsafe{} usages.
+In the following, we present our two novel tools: 
+\new{\toolUsage{} aids to provide an overview of all different types of \unsafe{} usages %and their context, e.g., an assignment, 
+of a project and the dependencies. 
+Thus, it supports auditing a project and perhaps selecting dependencies more carefully. 
+In contrast, \toolSA{} is a linter, which can be easily integrated into a developers workflow and can identify known potentially dangerous \unsafe{} patterns.}
+%\toolUsage{} \new{to aid the detection of all \unsafe{} usages, and \toolSA{} to identify known potentially dangerous \unsafe{} patterns.}
 
 
 
@@ -32,7 +38,7 @@ The \unsafe{} dependency tree, usage counts, as well as identified code snippets
 %\subsubsection*{Implementation}
 
 We detect all usages of methods and fields from the \textit{unsafe} package, specifically: \textit{Pointer}, \textit{Sizeof}, \textit{Offsetof}, and \textit{Alignof}.
-Furthermore, because they often are used in unsafe operations, we also count occurrences of \textit{SliceHeader} \textit{StringHeader} from the \textit{reflect} package, and \textit{uintptr}.
+Furthermore, because they often are used in unsafe operations, we also count occurrences of \textit{SliceHeader} and \textit{StringHeader} from the \textit{reflect} package, and \textit{uintptr}.
 All of these usages are referred to as \unsafe{} usages in this paper.
 %The first six \unsafe{} types are detected by finding selector expression nodes with matching field names, while \textit{uintptr} usages are found by inspecting identifier nodes in the AST.
 Additionally, we determine the context in which the \unsafe{} usage is found, i.e., 
@@ -45,7 +51,7 @@ We determine the context by looking up in the AST starting from the node represe
 
 
 
-\subsection{\toolSA{}: An Unsafe-focused Linter}
+\subsection{\toolSA{}: An Unsafe-Focused Linter}
 \label{sec:appr:toolSA}
 
 %This section presents \toolSA{}, a novel static code analysis tool to find dangerous \unsafe{} usage patterns that were previously uncaught with existing tools. 
@@ -75,7 +81,7 @@ It finds composite literals and assignments in the AST.
 Then, for each it checks whether the type of the %literal or assignment 
 receiver is \textit{reflect.StringHeader}, \textit{reflect.SliceHeader}, or some derived type with the same signature.
 For assignments, the analysis pass then finds the last node in the CFG where the receiver object's value is defined, and checks if it is derived correctly by casting a string/slice.
-If we can not infer with certainty that the assignment receiver object was created by a cast, then \toolSA{} issues a warning.
+If it can not infer with certainty that the assignment receiver object was created by a cast, then \toolSA{} issues a warning.
 
 The \textit{structcast} pass discovers instances of in-place casts between different struct types that include architecture-dependent field sizes. 
 This can create a security risk when ported to other platforms because \unsafe{} casts can lead to misaligned fields, and thus, memory access outside a value's bounds on some platforms, allowing the same exploit vectors as a buffer overflow does.

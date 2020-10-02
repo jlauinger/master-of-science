@@ -3,7 +3,7 @@
 
 Programming languages with direct memory access through pointers, such as C/C++, suffer from the dangers of memory corruption, including buffer overflows \cite{alnaeli2017, larochelle2001} or \textit{use-after-free} of pointers.
 Microsoft e.g., reports that memory safety accounts for around 70\% of all their bugs\footnote{\url{https://msrc-blog.microsoft.com/2019/07/16/a-proactive-approach-to-more-secure-code/}}. 
-To avoid these dangers, many programming languages, such as Java, Rust, Nim or Google's Go, use automatic memory management and  prevent using low-level memory details like pointers in favor of managed object references.
+To avoid these dangers, many programming languages, such as Java, Rust, Nim, or Google's Go, use automatic memory management and prevent using low-level memory details like pointers in favor of managed object references.
 Thus, these languages are memory safe, eliminating most memory corruption bugs. 
 However, there are valid use cases for such low-level features.
 %Systems languages may need to enforce a specific memory layout to interact with hardware or network protocols, or developers may want to achieve high performance by reusing values in memory without the need or reallocation. 
@@ -16,7 +16,7 @@ However, there are valid use cases for such low-level features.
 %if explicitly requested.
 %
 %To serve these needs
-Therefore, safe languages provide, to varying degrees, escape hatches to perform potentially \unsafe{} operations.
+Safe languages therefore provide, to varying degrees, escape hatches to perform potentially \unsafe{} operations.
 Escape hatches may be used for optimization purposes, to directly access hardware, to use the foreign function interface (FFI), to access external libraries, or to circumvent limitations of the programming language. 
 
 However, escape hatches may have severe consequences, e.g. they may introduce vulnerabilities.
@@ -33,7 +33,7 @@ It is intended to give a general overview of \unsafe{} usages in a project. % an
 As \unsafe{} usages are benign when used correctly, safe usages of \unsafe{} exist.
 However, we identified two patterns which cause potentially dangerous \unsafe{} usages and can break the memory safety mechanisms, e.g., by allowing access to additional memory regions via type casts.
 To identify these patterns, we implemented our second tool \toolSA{} (Section~\ref{sec:appr:toolSA}).
-Thus, \toolSA{} helps during application development by providing meaningful hints for these usages of \unsafe{} that were previously uncaught with existing tools.
+It helps during application development by providing meaningful hints for these usages of \unsafe{} that were previously uncaught with existing tools.
 
 With the help of \toolUsage{}, we performed a quantitative evaluation of the top \initalProjs{} most-starred Go projects on GitHub to see how often \unsafe{} is used in the wild (Section~\ref{sec:eval:unsafewild}). 
 Including their dependencies, we analyzed more than \packagesAnalyzedRounded{} individual packages. % for usage of \unsafe{}.
@@ -42,13 +42,13 @@ projects contain \unsafe{} usages either in first-party or imported third-party 
 
 We also created a novel data set with \checkNum{1,400} labeled occurrences of \unsafe{}, providing insights into the motivation for introducing unsafe in the source code in the first place (Section~\ref{sec:eval:labeledData}). 
 Additionally, we provide insights into the dangers and possible exploit vectors to some of the patterns we found in the wild, indicating the severe nature of these bugs (Section~\ref{sec:appr:vulnerabilites}). 
-Therefore, we developed proof-of-concepts also leading to information leaks or code execution for the identified issues. 
-So far, in the course of this work we submitted \numberPRs{} pull requests to analyzed projects and libraries, fixing over \numberBugsFixed{} individual potentially dangerous \unsafe{} usages.
+Therefore, we developed proof-of-concepts for the identified issues, leading to information leaks or code execution.
+So far, in the course of this work we submitted \numberPRs{} pull requests to analyzed projects and libraries, fixing over \numberBugsFixed{} individual potentially dangerous \unsafe{} usages \new{ as presented in Section~\ref{sec:discussion}}.
 
 In this paper, we make the following contributions:
 %
 \begin{itemize}
-\item \toolUsage{}, a first-of-its-kind tool for detecting and scoring \unsafe{} usage in Go projects and their dependencies,
+\item \toolUsage{}, a first-of-its-kind tool for detecting and scoring \unsafe{} usages in Go projects and their dependencies,
 \item a novel static code analysis tool, \toolSA{}, to aid in identifying potentially problematic \unsafe{} usage patterns that were previously uncaught with existing tools,
 \item a quantitative evaluation on the usage of \unsafe{} in \projsAnalyzed{} top-starred Go projects on GitHub,
 \item a novel data set with \checkNum{1,400} labeled occurrences of \unsafe{}, providing insights into what is being used in real-world Go projects and for what purpose, and

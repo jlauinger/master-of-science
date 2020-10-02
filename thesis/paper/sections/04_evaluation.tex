@@ -93,7 +93,7 @@ This section answers \ref{rq:distTypes} and \ref{rq:purpose}.
 Figure~\ref{fig:unsafe-tokens-distribution} shows the distribution of the different \unsafe{} types in our data set.
 Packages that are imported in different versions by the projects are counted once per version, as they might contain different \unsafe{} usages and coexist in the wild.
 %We found various different usages of \unsafe{} in the analyzed projects, 
-In our data set \textit{uintptr} and \textit{unsafe.Pointer} are used about equally often and by far the most common with almost 100,000 findings. 
+In our data set \textit{uintptr} and \textit{unsafe.Pointer} are used about equally often and are by far the most common with almost 100,000 findings. 
 Next, \textit{unsafe.Sizeof} is still used a bit ($\sim 3,700$), while the other \unsafe{} types are rarely used~($< 1,000$).
 
 \begin{tcolorbox}[boxsep=1pt, enlarge top by=5pt, title=Answer to \ref{rq:distTypes}]
@@ -152,7 +152,7 @@ Both subsets share that hiding from escape analysis with \checkNum{0.1\%} (\text
 %Another interesting observation is that there seem to be two main motivations which occur only for the standard- or 3rd party libraries respectively. 
 %Only the standard library makes use of \unsafe{} to implement types being \checkNum{5\%} of the analyzed code snippets. 
 %All usages (\checkNum{2\%}) to solve the missing generics functionality in Go are within 3rd party libraries. 
-Implementation of generics functionality which is currently missing in Go is only done in few samples (\checkNum{2\%}), although some of the finding in the serialization class could alternatively be achieved with generics as well.
+Implementation of generics functionality which is currently missing in Go is only done in few samples (\checkNum{2\%}), although some of the findings in the serialization class could alternatively be achieved with generics as well.
 
 %It is obvious that most of the \unsafe{} found in the wild is used to improve efficiency by casting different types in place, or for fast (un)marshalling operations that would otherwise need either reflection or support for generics.
 %Furthermore, \unsafe{} is required to call some functions that expect it, such as atomic operations or certain \textit{FFI} functions.

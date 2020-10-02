@@ -8,14 +8,14 @@ In this section, we give a brief introduction to \unsafe{} in Go and then presen
 
 The Go programming language, like other memory-safe languages, provides an \unsafe{}~package\footnote{\url{https://golang.org/pkg/unsafe}}, which offers 
 (a) the functions \textit{Sizeof}, \textit{Alignof}, and \textit{Offsetof} that are evaluated at compile time and provide access into memory alignment details of Go data types that are otherwise inaccessible, %unnecessary to know, and thus, inaccessible.
-and (b) a pointer type, \textit{unsafe.Pointer} that allows developers to circumvent restrictions of regular pointer types.
+and (b) a pointer type, \textit{unsafe.Pointer}, that allows developers to circumvent restrictions of regular pointer types.
 
 One can cast any pointer to/from \textit{unsafe.Pointer}, thus enabling casts between completely arbitrary types, as illustrated in  
 %
 %In the remainders of this section, we discuss two example use cases of the \unsafe{} package in practice. 
 Listing~\ref{lst:unsafe-ex-in-place-cast}.
 %shows the usage of the \unsafe{} package to cast between arbitrary types.
-In this example, \textit{in.Items} is assigned to a new type (\textit{out.Items}) in line 3 without reallocation for efficiency reasons. %\footnote{This code was taken from the Kubernetes \textit{k8s.io/apiserver} module with minor adjustments.} 
+In this example, \textit{in.Items} is assigned to a new type (\textit{out.Items}) in Line~3 without reallocation for efficiency reasons. %\footnote{This code was taken from the Kubernetes \textit{k8s.io/apiserver} module with minor adjustments.} 
 Furthermore, casts between \textit{unsafe.Pointer} and \textit{uintptr} are also enabled, mainly for pointer arithmetic.
 A \textit{uintptr} is an integer type with a length sufficient to store memory addresses. 
 However, it is not a pointer type, hence, not treated as a reference.
@@ -24,21 +24,22 @@ However, it is not a pointer type, hence, not treated as a reference.
 %
 Listing~\ref{lst:unsafe-ex-escape-analysis} presents an example of casts involving \textit{uintptr}. 
 %The code is taken from the \textit{modern-go/reflect2} module.
-In Line 2, the \textit{unsafe.Pointer} is converted to \textit{uintptr}.
+In Line~2, the \textit{unsafe.Pointer} is converted to \textit{uintptr}.
 Thus, the memory address is stored within a non-reference type.
-Hence, the back-conversion in Line 3 causes the \textit{unsafe.Pointer} to be hidden from the \textit{escape analysis (EA)} which Go's garbage collector uses 
+Hence, the back-conversion in Line~3 causes the \textit{unsafe.Pointer} to be hidden from the \textit{escape analysis (EA)} which Go's garbage collector uses 
 %manages the memory allocations and tries to identify memory which can be freed up.
 %For this task, it uses \textit{escape analysis (EA)} 
 to determine whether a pointer is local to a function and can be stored in the corresponding stack frame, 
 or whether it can \textit{escape} the function and needs to be stored on the heap \cite{wang2020}. 
-Since \textit{uintptr} values are not pointer types, storing the address of a pointer in a variable of such a type and then converting it back causes the \textit{EA} to miss the chain of references to the underlying value in memory. 
+%Since \textit{uintptr} values are not pointer types,
+Storing the address of a pointer in a variable of \textit{uintptr} type and then converting it back causes the \textit{EA} to miss the chain of references to the underlying value in memory. 
 Therefore, Go will assume a value does not escape when it actually does, and may place it on the stack.
 Correctly used it can improve efficiency because deallocation is faster on the stack than on the heap~\cite{wang2020}.
 However, used incorrectly it can cause security problems as shown later in Section~\ref{sec:appr:vulnerabilites}.
 
 \begin{lstlisting}[language=Golang, label=lst:unsafe-ex-in-place-cast, caption=In-place cast using the \unsafe{} package
 from the Kubernetes \textit{k8s.io/apiserver} module with minor changes.
-,float, belowskip=-1.5em]
+,float, belowskip=-1.5em, aboveskip=0em]
 func autoConvert(in *PolicyList, out *audit.PolicyList) error {
 	// [...]
 	out.Items = *(*[]audit.Policy)(unsafe.Pointer(&in.Items))
@@ -74,12 +75,12 @@ It is used to convert a string to a byte slice without copying the data.
 As in Go strings essentially are read-only byte slices, this is commonly done by projects to increase efficiency of serialization operations. % and is possible as in Go, strings are essentially read-only byte slices.
 Internally, each slice is represented by a data structure that contains its current length, allocated capacity, and memory address of the actual underlying data array.
 The \textit{reflect} header structures provide access to this internal representation.
-In Listing~\ref{lst:string-to-bytes} this conversion is done in line 2, 3, and 8 respectively.
+In Listing~\ref{lst:string-to-bytes} this conversion is done in Lines~2, 3, and~8 respectively.
 First, an \textit{unsafe.Pointer} is used to convert a string to a \textit{reflect.StringHeader} type.
 Then, a \textit{reflect.SliceHeader} instance is created and its fields are filled by copying the respective values from the string header.
 Finally, the slice header object is converted into a slice of type \textit{[]byte}.
 
-\begin{lstlisting}[language=Golang, label=lst:string-to-bytes, caption=Conversion from string to bytes using \unsafe{}, float, belowskip=-1.5em]
+\begin{lstlisting}[language=Golang, label=lst:string-to-bytes, caption=Conversion from string to bytes using \unsafe{}, float, belowskip=-1.5em, aboveskip=0em]
 func StringToBytes(s string) []byte {
 	strHeader := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	bytesHeader := reflect.SliceHeader{
@@ -115,7 +116,7 @@ The last point, although documented briefly in the \textit{unsafe} package, is a
 Casting a \textit{uintptr} variable back to a pointer type creates a potentially dangling pointer because the memory at that address might have already been freed if the GC was triggered right before the conversion.
 
 Although not directly obvious, Listing~\ref{lst:string-to-bytes} contains such a condition.
-Because the \textit{reflect.SliceHeader} value is created as a composite literal instead of being derived from an actual slice value, its \textit{Data} field is not treated as a reference if the GC runs between lines 3 and 8. 
+Because the \textit{reflect.SliceHeader} value is created as a composite literal instead of being derived from an actual slice value, its \textit{Data} field is not treated as a reference if the GC runs between Lines~3 and~8. 
 Thus, the underlying data array of the \textit{[]byte} slice produced by the conversion might have already been collected.
 This creates a potential \textit{use-after-free} or buffer reuse condition that, even worse, is triggered non-deterministically when the GC runs at just the "right" time.
 %If the buffer is reused after being freed and the slice resulting from the cast is pointing to it, it can provide access to completely unrelated data. % even in concurrent Goroutines. 
@@ -131,19 +132,19 @@ When the resulting string header (shown in blue at memory position 3) is created
 \subsubsection*{Escape Analysis Flaw}
 
 A third problem found in Listing~\ref{lst:string-to-bytes} is that the \textit{escape analysis (EA)} algorithm can not infer a connection between the string parameter \textit{s} and the resulting byte slice.
-Although, they use the same underlying data array, the EA misses this due to the fact that the intermediate representation as a \textit{uintptr} is not treated as a reference type.
+Although they use the same underlying data array, the EA misses this due to the fact that the intermediate representation as a \textit{uintptr} is not treated as a reference type.
 This can cause undefined behavior if the returned value from the casting function is used incorrectly.
 
 Listing~\ref{lst:escape-analysis} shows a program that uses the conversion function presented earlier~(Listing~\ref{lst:string-to-bytes}).
-In the \textit{main} function, \textit{GetBytes} is called~(Line 2), which creates a string and turns it into a byte slice using the conversion function.
+In the \textit{main} function, \textit{GetBytes} is called~(Line~2), which creates a string and turns it into a byte slice using the conversion function.
 Within the \textit{GetBytes} function, we create the string using a \textit{bufio} reader similarly to if it were user-provided input.
-After the cast, \textit{GetBytes} prints the resulting bytes~(Line 10) and returns them to \textit{main}, which also prints the bytes~(Line~3).
-Although, one might assume that both print statements result in the same string to be displayed, the second one in \textit{main} fails and prints invalid data.
+After the cast, \textit{GetBytes} prints the resulting bytes~(Line~10) and returns them to \textit{main}, which also prints the bytes~(Line~3).
+Although one might assume that both print statements result in the same string to be displayed, the second one in \textit{main} fails and prints invalid data.
 
 
 % // expected (but failed) stdout is "abcdefgh
 % // expected stdout is "abcdefgh"
-\begin{lstlisting}[language=Golang, label=lst:escape-analysis, caption=Escape analysis flaw example, float, belowskip=-1.5em]
+\begin{lstlisting}[language=Golang, label=lst:escape-analysis, caption=Escape analysis flaw example, float, belowskip=-1.5em, aboveskip=0em]
 func main() {
 	bytesResult := GetBytes()
 	fmt.Printf("main: %s\n", bytesResult)
@@ -197,4 +198,5 @@ Using the \textit{mprotect} syscall, we set both the writable and executable per
 Finally, we jump to this payload and execute it using a final ROP-gadget to open a shell.
 An in-depth discussion of the exploit would go beyond the scope of this paper and exceed the space available to present our research.
 Therefore, we made it available online\footnote{\url{https://github.com/jlauinger/go-unsafepointer-poc}\label{fn:poc}} together with five other proof-of-concepts. 
+\new{Furthermore, an in-depth write-up about exploiting \unsafe{} issues in Go exists as a series of blog articles\footurl{https://dev.to/jlauinger/exploitation-exercise-with-unsafe-pointer-in-go-information-leak-part-1-1kga}.}
 
