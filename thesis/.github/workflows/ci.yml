@@ -20,7 +20,7 @@ jobs:
 
     - name: Get file name
       id: vars
-      run: echo ::set-output name=filename::thesis-lauinger-$(date +%Y%m%d)-(git rev-parse --short=7 ${{ github.sha }})
+      run: echo ::set-output name=filename::thesis-lauinger-$(date +%Y%m%d)-$(git rev-parse --short=7 ${{ github.sha }})
 
     - name: Create PDF file with SHA in its name
       run: mv thesis.pdf ${{ steps.vars.outputs.filename }}.pdf
@@ -47,7 +47,7 @@ jobs:
 
       - name: Get file name
         id: vars
-        run: echo ::set-output name=filename::thesis-lauinger-$(date +%Y%m%d)-(git rev-parse --short=7 ${{ github.sha }})
+        run: echo ::set-output name=filename::thesis-lauinger-$(date +%Y%m%d)-$(git rev-parse --short=7 ${{ github.sha }})
 
       - uses: actions/download-artifact@v2
         with:
