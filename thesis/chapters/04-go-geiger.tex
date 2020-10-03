@@ -126,24 +126,30 @@ Then, the output is checked for the expected usage counts.
 
 \section{Evaluation}\label{sec:go-geiger-evaluation}
 
-To evaluate \toolGeiger{} on real-world data, it is used to gather empirical data about the usage of \unsafe{} in
+To evaluate \toolGeiger{} on real-world code, it is used to gather empirical data about the usage of \unsafe{} in
 popular open-source Go projects.
-
-The study answers the following research questions:
+This section presents a study which was designed to answer the following research questions:
 
 \begin{enumerate}[left=0.5cm, label={RQ\arabic*}]
     \item How prevalent is \unsafe{} in Go projects? \label{rq:prevalApp}
     \item How deep are \unsafe{} code packages buried in the dependency tree? \label{rq:depsDepth}
     \item Which \unsafe{} keywords are used most? \label{rq:distTypes}
+    \item Is there a correlation between \unsafe{} usage and common project metrics such as age or popularity? \label{rq:popularity}
+    \item How does the use of \unsafe{} change over time? \label{rq:changeTime}
+    \item Does \toolGeiger{} provide additional insights into \unsafe{} usage compared to existing linter tools? \label{rq:linterComparison}
     \item Which \unsafe{} operations are used in practice, and for what purpose? \label{rq:purpose}
 \end{enumerate}
+
+The following sections first discuss how the data for this study was gathered and then answer research
+questions~\ref{rq:prevalApp} to~\ref{rq:linterComparison}.
+Then, Section~\ref{sec:go-geiger:labeled-dataset} presents the answer to~\ref{rq:purpose}.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Data Set}\label{subsec:go-geiger:evaluation:data-set}
 
-To build the data set of \unsafe{} usages, first the top \projsTotal{} most-starred open-source Go projects available on
+To build a data set of \unsafe{} usages, first the top \projsTotal{} most-starred open-source Go projects available on
 \github{} were downloaded.
 This initial download was done on \checkNum{May 27, 2020}.
 Since \toolGeiger{} is specifically built to analyze the project dependencies, all projects that do not support the Go
