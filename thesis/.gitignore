@@ -24,6 +24,7 @@
 *.glg
 *.gls
 *.glsdefs
+*.mw
 /*.pdf
 paper/*.pdf
 output/
