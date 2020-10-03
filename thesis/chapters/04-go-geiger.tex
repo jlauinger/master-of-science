@@ -284,7 +284,8 @@ The plot suggests that there is no correlation between either age, number of sta
 of \unsafe{} usages in a project.
 
 \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:popularity}]
-    \todo{no correlation}
+    There is no significant correlation between the number of \unsafe{} usages and a project's age, number of stars, or
+    number of forks.
 \end{tcolorbox}
 
 
@@ -292,10 +293,34 @@ of \unsafe{} usages in a project.
 
 \subsection{Change of Usage over Time}\label{subsec:go-geiger:evaluation:over-time}
 
+The data set collected in this study contains one version of each analyzed project.
+Therefore, it is not directly possible to measure the change of \unsafe{} usage in projects over time.
+However, there are a number of modules that are included in several versions by different projects, which means these
+modules allow an analysis of such changes in \unsafe{} usage.
+To answer research question~\ref{rq:changeTime}, this subsection discusses the differences between different version of
+an examplary module, \textit{golang.org/x/sys}.
+
+The module is present in the data set with a total of \sysModuleVersions{} versions.
+A subset of the versions with a fair distribution of release dates in \checkNum{2019} and \checkNum{2020}, as well as a
+rather old version from \checkNum{2017} is shown in Table~\ref{tbl:unsafe-usage-over-time}.
+The table shows the version identifiers alongside their release dates and number of \unsafe{} usages in the particular
+version.
+The module versions are ordered by their release date.
+
 \input{assets/tables/chapter4/unsafe-usage-over-time.tex}
 
+It is evident that there is a monotonous increase in \unsafe{} usage, with an increase from \sysModuleLeastUnsafe{} to
+\sysModuleMostUnsafe{} (\sysModuleUnsafeIncrease) over the \checkNum{2.5 years} period from \checkNum{2017} to
+\checkNum{2020}.
+A manual analysis of the changes in the module source code shows that the increased usages of \unsafe{} in this case are
+caused by additional system call \acrshort{API}s that are supported by the module.
+Dispatching to the underlying system call code requires the use of \textit{unsafe.Pointer}.
+Therefore, in this case more features provided by a dependency cause more \unsafe{} code to be imported into a project.
+
 \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:changeTime}]
-    \todo{add result}
+    Changes in \unsafe{} usage in particular modules are motivated for example by new \acrshort{API} requirements and
+    can be significant, with e.g. about a \sysModuleUnsafeIncreaseRounded{} increase found in the
+    \textit{sys} module.
 \end{tcolorbox}
 
 
