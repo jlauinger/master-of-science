@@ -140,7 +140,7 @@ This section presents a study which was designed to answer the following researc
     \item Which \unsafe{} operations are used in practice, and for what purpose? \label{rq:purpose}
 \end{enumerate}
 
-The following sections first discuss how the data for this study was gathered and then answer research
+The following subsections first discuss how the data for this study was gathered and then answer research
 questions~\ref{rq:prevalApp} to~\ref{rq:linterComparison}.
 Then, Section~\ref{sec:go-geiger:labeled-dataset} presents the answer to~\ref{rq:purpose}.
 
@@ -160,38 +160,129 @@ There were \projsWithoutModules{} projects that had no support for modules.
 Furthermore, \projsNotCompiled{} could not be compiled and thus also had to be excluded from the data set.
 Since \toolGeiger{} analyzes the \acrshort{AST}, it can not work on packages that can not be parsed.
 This results in a set of \projsAnalyzed{} Go projects.
+These have between \checkNum{72,988} and \checkNum{3,075} stars, with an average of \checkNum{7,860}.
 
+As a next step, the dependency trees for all projects were built, resulting in \packagesAnalyzed{} unique packages.
 These packages were then analyzed using \toolGeiger{} as well as the existing static analysis tools \toolVet{} and
 \toolGosec{} to allow a comparison between the findings of these tools.
 The resulting findings were stored in machine-readable \acrshort{CSV} files.
 All data files as well as the data acquisition tool used to download the projects and run the analysis tools on them
 are available in a data repository on \github{}\footnote{\url{https://github.com/stg-tud/unsafe_go_study_results}}.
-The data set contains \checkNum{XX} unique \unsafe{} usages in \packagesAnalyzed{} packages.
+The data set contains \uniqueUnsafeFindings unique \unsafe{} usages.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \subsection{Usages in Projects and Dependencies}\label{subsec:go-geiger:evaluation:unsafe-usage}
 
-Including import depth analysis
+To attribute \unsafe{} usages to either a project (as first-party code) or one of its dependencies (as third-party
+code), the root module of the project is used.
+Since the data set was constructed such that all projects support the Go module system as described in the previous
+section, there is a top-level \textit{go.mod} file present for each of them.
+The module specified in that file is stored with the project information as its root module.
+Then, packages that are part of this module are first-party project code, while packages present in the dependency tree
+but not in the root module are dependencies.
+
+By looking at \unsafe{} findings that are part of first-party packages, it is possible to determine how many projects
+directly use \unsafe{} in their code.
+The data shows that this is the case for \unsafeProjects{} (\percentageUnsafeProjects{}) of the \projsAnalyzed{}
+projects.
+However, including the complete dependency tree into the analysis reveals that \unsafePackages{}
+(\percentageUnsafePackages{}) of the \packagesAnalyzed{} unique packages contain at least one \unsafe{} usage.
+This results in \unsafeTransitiveWithDependencies{} (\percentageUnsafeTransitiveWithDependencies{}) of the projects
+transitively importing \unsafe{} usages.
+These numbers are taken without the Go standard library.
+All analyzed projects import this library and it contains \unsafe{} usages, which means that including it
+\checkNum{100\%} of the projects would transitively use \unsafe{}.
+This answers research question~\ref{rq:prevalApp} about the prevalence of \unsafe{} in Go projects.
+Because the standard library is developed by the Go core team, we assume that it is well audited and safe to use.
+Since there is no way to exclude it from a project anyways, the analysis presented in this study is more meaningful
+when the standard library is not causing a project to be counted as using \unsafe{}.
+
+\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:prevalApp}]
+    About \percentageUnsafeProjectsRounded{} of projects contain \unsafe{} usages in their first-party code.
+    Approximately \percentageUnsafeTransitiveWithDependenciesRounded{} of projects transitively import at least one
+    third-party dependency package with \unsafe{} usages.
+\end{tcolorbox}
+
+To answer research question~\ref{rq:depsDepth} about how deep in the dependency tree packages using \unsafe{} are
+usually located, the import depth of all packages used by a project is determined.
+Import depth denotes the minimum depth of a package in the dependency tree of a particular project, which is the
+shortest path from the project root module to the package.
+Thus, all packages included in the root module have an import depth of \checkNum{zero}.
+Packages imported be those have a depth of \checkNum{one}, and so on.
+The depth is calculated using breadth-first search on the dependency tree, which saves time when packages are imported
+many times because only the mimimum depth is important here.
+Figure~\ref{fig:unsafe-import-depth} presents a heatmap plot of the number of packages containing \unsafe{} usages by
+their import depth.
+The y-axis denotes the depth, the color intensity shows the number of \unsafe{} packages at a given depth, and the
+x-axis represents the \projsAnalyzed{} analyzed projects.
+On the left hand side, next to the heat map, the horizontal bar chart visualizes the total number of packages at each
+import depth summed up over all projects.
+Packages that do not contain any \unsafe{} usages are not shown in the graph at all as they are irrelevant for
+answering~\ref{rq:depsDepth}.
+
+\input{assets/plots/chapter4/unsafe-import-depth.tex}
+
+The graph shows that most packages containing \unsafe{} usages are imported fairly early, however not directly at the
+first level.
+The average depth is \averageUnsafeImportDepth{} with a standard deviation of \stdUnsafeImportDepth{}.
+The general import depth of all packages, containing \unsafe{} of not, is similar if slightly lower at
+\averageGeneralImportDepth{}.
+While the numbers are fairly low, the number of packages at each level of import depth increases exponentially.
+Thus, while being possible it is hard for developers to manually audit dependency packages for \unsafe{} usages.
+The novel \toolGeiger{} tool helps by quickly identifying the packages containing \unsafe{}, therefore it is possible to
+conduct a focused review of the \unsafe{} code without wasting time on identifying the relevant packages for it.
+Only the first level of dependencies contains the packages that the project developers added themselves, thus they are
+obvious to the developers.
+The data set shows that \levelOneImportedUnsafePackagesCount{} (\levelOneImportedUnsafePackagesShare{}) of the
+\levelOneOmportedPackagesCount{} packages imported at the first level contain at least one \unsafe{} usage.
+This further shows that the majority of \unsafe{} code is introduced further down in the dependency tree.
+
+\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:depsDepth}]
+    Most imported packages with at least one \unsafe{} usage are located around a depth of
+    \averageUnsafeImportDepthRounded{} in the dependency tree.
+\end{tcolorbox}
+
+Research question~\ref{rq:distTypes} is about which \unsafe{} tokens are used the most.
+As described in Section~\ref{sec:go-geiger:design}, \toolGeiger{} identifies usages of the four members of the \unsafe{}
+package, the \textit{reflect.SliceHeader} and \textit{reflect.StringHeader} types, and \textit{uintptr}.
+Figure~\ref{fig:unsafe-tokens-distribution} shows the distribution of these \unsafe{} types in the data set of Go
+projects.
+The individual counts sum up to the total number of \uniqueUnsafeFindings{} \unsafe{} findings in the data set.
 
 \input{assets/plots/chapter4/distribution-unsafe-types.tex}
-\input{assets/plots/chapter4/unsafe-import-depth.tex}
-\input{assets/plots/chapter4/unsafe-packages-by-registry-n30.tex}
 
-\begin{tcolorbox}[boxsep=1pt, enlarge top by=5pt, title=Answer to \ref{rq:depsDepth}]
-    Most imported packages containing \unsafe{} usages are found around a depth of \checkNum{3} in the dependency tree.
+The data shows that \textit{uintptr} is the most common \unsafe{} token, with \checkNum{99,741} findings.
+Next, \textit{unsafe.Pointer} has a similarly high prevalence of \checkNum{94,431} samples.
+These two lead the usage counts by far, with the next being \textit{unsafe.Sizeof} at only \checkNum{3,667} usages and
+all other token types found less than \checkNum{1,000} times.
+With a mere \checkNum{8} usages found, \textit{unsafe.Alignof} is the most rare.
+
+\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:distTypes}]
+    In the wild, uintptr and unsafe.Pointer are orders of magnitude more common than other unsafe usages.
 \end{tcolorbox}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Influence of Popularity}\label{subsec:go-geiger:evaluation:popularity}
+\subsection{Influence of Age and Popularity}\label{subsec:go-geiger:evaluation:popularity}
 
-Correlation with Project Star / Forks Stats, Age, etc.
-
+This subsection answers research question~\ref{rq:popularity} about whether there is a correlation between \unsafe{}
+usage and the common projects metrics age and popularity.
+Popularity is measured by the number of stars and number of forks that a project has on \github{}.
+Figure~\ref{fig:correlation-popularity} presents a scatter plot showing the number of \unsafe{} usages on the x-axis and
+multiple project metrics on the y-axis.
+Each dot represents one project.
+Red dots indicate a project's age, blue dots show the number of stars, and green dots denote the number of forks.
 \todo{Add scatter plot that shows correlation between unsafe usage and project stars/forks/age using differently colored
 dots. It should result in no correlation.}
+
+\input{assets/plots/chapter4/correlation-popularity.tex}
+
+\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:popularity}]
+    \todo{add result}
+\end{tcolorbox}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -199,6 +290,10 @@ dots. It should result in no correlation.}
 \subsection{Change of Usage over Time}\label{subsec:go-geiger:evaluation:over-time}
 
 \input{assets/tables/chapter4/unsafe-usage-over-time.tex}
+
+\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:changeTime}]
+    \todo{add result}
+\end{tcolorbox}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -208,6 +303,10 @@ dots. It should result in no correlation.}
 \toolVet{}, \toolGosec{}
 
 \input{assets/tables/chapter4/go-geiger-linter-comparison.tex}
+
+\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:linterComparison}]
+    \todo{add result}
+\end{tcolorbox}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -267,6 +366,12 @@ The files are put into directories whose names indicate both classification dime
 Here are examples and descriptions for each of the classes used to describe what is happening in an unsafe usage.
 
 \input{assets/listings/chapter4/dataset-label-class-examples.tex}
+
+\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:purpose}]
+    \checkNum{More than half} of the \unsafe{} usages in projects and 3rd party libraries are to improve efficiency via
+    \unsafe{} casts.
+    In the Go standard library, \checkNum{every third} use of \unsafe{} is to avoid garbage collection.
+\end{tcolorbox}
 
 
 
