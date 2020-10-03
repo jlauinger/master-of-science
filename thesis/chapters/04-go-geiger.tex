@@ -423,17 +423,79 @@ However, they are taken without duplicating lines that are present in different 
 If a module is included in multiple versions, than a line of code within it can not be drawn twice from differnt
 versions.
 Furthermore, this labeled data set contains only usages of \textit{unsafe.Pointer}.
-Table~\ref{tbl:dataset-classes} presents the number of samples for each label.
-The columns denote the dimension of purpose, while the rows show the operation type dimension.
-Columns are divided into separate counts for the \textit{app} and \textit{std} groups of samples.
-
-\input{assets/tables/chapter4/dataset-classes.tex}
 
 Listing~\ref{lst:dataset-label-class-examples} shows code examples and descriptions for each of the classes used to
 describe what is happening in an unsafe usage.
 Each example also contains its respective purpose label.
 
 \input{assets/listings/chapter4/dataset-label-class-examples.tex}
+
+The classes are outlined briefly in the following paragraphs.
+For the \unsafe{} operation type dimension, the most common labels are conversions between types.
+The \textit{cast-struct}, \textit{cast-basic}, \textit{cast-header}, \textit{cast-bytes}, and \textit{cast-pointer}
+classes represent conversions between arbitrary types, where one of them is a structure, a basic type such as
+\textit{int}, a slice or string header structure, a \textit{[]byte} array, or \textit{unsafe.Pointer} directly,
+respectively.
+The \textit{memory-access} class is used where unsafe.Pointer values are dereferenced, used to manipulate corresponding
+memory or for comparison with another address.
+\textit{Pointer-arithmetic} is a class containing any form of arithmetic address manipulation such as advancing an
+array.
+The \textit{definition} class denotes usages where a field or method of type \textit{unsafe.Pointer} is declared for
+later usage.
+When \unsafe{} is only required to pass it along to another function that expects a parameter of type
+\textit{unsafe.Pointer}, the \textit{delegate} label is applied.
+Thus, for this class the need for \unsafe{} is at a different location in the code.
+\textit{Syscall} represents calls using the Go \textit{syscall} package or \textit{golang.org/x/sys} module.
+Finally, \textit{unused} contains instances of \unsafe{} that are not actually used in the analyzed code, such as dead
+code or unused parameters.
+
+In the purpose dimension, the \textit{efficiency} class represents cases where unsafe is used only to improve time or
+space efficiency of the code.
+Usages in this class could be rewritten to not use \unsafe{}.
+The \textit{serialization} class includes (un)marshalling and (de)serialization operations like in-place casts between
+complex types and bytes.
+\textit{Generics} is used where \unsafe{} is used to build functionality that would be implemented using generics if
+they were available in Go.
+The \textit{avoid garbage collection} class contains usages to ask the Go compiler to not free a value while it is used,
+for example by a function written in assembly.
+\textit{Atomic operations} is a class of usages of the atomic \acrshort{API}, which requires \unsafe{} for some of its
+functions.
+The \textit{foreign function interface} (\acrshort{FFI}) class includes all cases of interoperability with C code (CGo),
+as well as calls to functions that receive their parameters as unsafe pointers.
+\textit{Hide from escape analysis} contains instances where \unsafe{} is used to deliberately exlude a value from being
+seen by the \acrshort{EA} algorithm.
+The \textit{memory layout control} class represents code used for low-level memory management.
+\textit{Types} samples are used by the standard library for low-level implementation of the Go type system.
+\textit{Reflect} includes instances of type reflection, as well as re-implementations of types contained in the regular
+Go \textit{reflect} package, for example to use \textit{unsafe.Pointer} instead of \textit{uintptr} for slice headers.
+Lastly, \textit{unused} is the class for unused occurrences again.
+
+Table~\ref{tbl:dataset-classes} presents the number of samples for each label.
+The columns denote the dimension of purpose, while the rows show the operation type dimension.
+Columns are divided into separate counts for the \textit{app} and \textit{std} groups of samples.
+
+\input{assets/tables/chapter4/dataset-classes.tex}
+
+The data shows that efficiency is by far the most prevalent reason to use \unsafe{} code in real-world Go application
+code.
+While the usages in \textit{cast} classes make up about \checkNum{58\%} of the application code samples, only about
+\checkNum{5\%} of the standard library usages are for efficiency.
+Within the \textit{efficiency} class, casting operation cover most of the usages with \checkNum{97\%} (\textit{app}) and
+\checkNum{80\%} (\textit{std}) of the samples.
+Next, the second most important motivation for \unsafe{} code in the application class is performing serialization or
+deserialization operations, including marshalling of structured data to interchangeable formats.
+This accounts for \checkNum{28\%} of the usages.
+The standard library shows a different most common usage, which is avoiding garbage collection with \checkNum{25\%}.
+This purpose is only found in \checkNum{2\%} of the \textit{app} samples.
+Next, the \textit{type} (\checkNum{18\%}), \textit{\acrshort{FFI}} (\checkNum{15\%}), and \textit{memory layout}
+(\checkNum{13\%}) classes are common in the \textit{std} samples.
+A common distribution is the hiding from escape analysis class, which is rare both in the \textit{app}
+(\checkNum{0.1\%}) and \textit{std} (\checkNum{2\%}) groups.
+The same is true for the \textit{reflection} class (\checkNum{1\%} in both sets).
+There are also only few samples (\checkNum{2\%}) that are used to implement generics functionality, which is not
+available in current versions of Go.
+Some of the findings in the \textit{serialization} class could however be achieved with generics as well, so the classes
+overlap slightly.
 
 \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:purpose}]
     \checkNum{More than half} of the \unsafe{} usages in projects and 3rd party libraries are to improve efficiency via
