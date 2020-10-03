@@ -18,17 +18,17 @@ jobs:
       with:
         root_file: thesis.tex
 
-    - name: Get short SHA
+    - name: Get file name
       id: vars
-      run: echo ::set-output name=sha_short::$(git rev-parse --short=7 ${{ github.sha }})
+      run: echo ::set-output name=filename::thesis-lauinger-$(date +%Y%m%d)-(git rev-parse --short=7 ${{ github.sha }})
 
     - name: Create PDF file with SHA in its name
-      run: mv thesis.pdf thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
+      run: mv thesis.pdf ${{ steps.vars.outputs.filename }}.pdf
 
     - uses: actions/upload-artifact@v2
       with:
-        name: thesis-lauinger-${{ steps.vars.outputs.sha_short }}
-        path: thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
+        name: ${{ steps.vars.outputs.filename }}
+        path: ${{ steps.vars.outputs.filename }}.pdf
 
     - uses: actions/upload-artifact@v2
       with:
@@ -45,18 +45,18 @@ jobs:
       - name: Install pdftotext
         run: sudo apt-get install -y xpdf
 
-      - name: Get short SHA
+      - name: Get file name
         id: vars
-        run: echo ::set-output name=sha_short::$(git rev-parse --short=7 ${{ github.sha }})
+        run: echo ::set-output name=filename::thesis-lauinger-$(date +%Y%m%d)-(git rev-parse --short=7 ${{ github.sha }})
 
       - uses: actions/download-artifact@v2
         with:
-          name: thesis-lauinger-${{ steps.vars.outputs.sha_short }}
+          name: ${{ steps.vars.outputs.filename }}
 
       - name: What is in the directory?
         run: ls -la
 
       - name: Report word count
         run: |
-          pdftotext thesis-lauinger-${{ steps.vars.outputs.sha_short }}.pdf
-          wc -w thesis-lauinger-${{ steps.vars.outputs.sha_short }}.txt
+          pdftotext ${{ steps.vars.outputs.filename }}.pdf
+          wc -w ${{ steps.vars.outputs.filename }}.txt
