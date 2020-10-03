@@ -389,57 +389,49 @@ Section~\ref{subsec:go-geiger:evaluation:unsafe-usage}.
 
 \section{Purpose of Unsafe in Practice: a Labeled Data Set}\label{sec:go-geiger:labeled-dataset}
 
-This chapter contributes an in-depth study of unsafe usages in 10 selected open-source Go projects.
-I analyzed 1000 usages in application code, and 400 usages in the standard library.
-The usages are classified in two dimensions by what is happening and what is the higher-level purpose.
-
-I analyzed the following projects.
+This chapter presents an in-depth study of the purpose of \unsafe{} usages in \projsForLabeledCodeSnippets{} selected
+open-source Go projects.
+The result of this is a manually labeled data set of \numberLabeledCodeSnippets{} code samples.
+It is available online in the same data repository as the study results presented in the previous section.
+These samples are divided into \numberLabeledCodeSnippetsStd{} standard library samples (\textit{std}) and
+\numberLabeledCodeSnippetsApp{} non-standard-library application samples (\textit{app}).
+The purpose of this data set is to understand what operations are done in practice using the \unsafe{} \acrshort{API},
+and for what purpose.
+Thus, each sample is labeled in two dimensions by the operation type and its higher-level goal.
+The \numberLabeledCodeSnippets{} code samples are drawn from the projects listed in Table~\ref{tbl:dataset-projects}.
 
 \input{assets/tables/chapter4/dataset-projects.tex}
 
-I selected them based on their high number of unsafe usages, and taking care of that they represent a reasonably large
-diversity.
+They were selected based on their high number of \unsafe{} usages, and taking care that they represent a reasonably
+large diversity.
 The projects contain applications based around containers and operations, chat, infrastructure as a service, data
 storage, visualization, and machine learning.
-
 When selecting samples to look at, I deliberately separated the standard library from application usages.
-This is based on the results of the large-scale study shown in Chapter~\ref{ch:survey}, which show that all projects
-must use the standard library, and the hypothesis that the standard library uses unsafe patterns differently.
-It has to do so because the standard library takes care of low-level memory management by design.
+This decision is based on the results presented in Section~\ref{subsec:go-geiger:evaluation:unsafe-usage}, which show
+that all projects must use the standard library, as well as the hypothesis that the standard library uses different
+\unsafe{} patterns.
 
-Standard library is defined by the packages that live in the Go standard library and the \texttt{golang.org/x/sys}
-module.
-I took the decision to include the sys package because it contains a lot of syscall infrastructure and in general
-behaves more like the standard library than application code.
-It is also maintained by the core Go developer team.
-Obviously, application packages is defined as packages that are not part of the standard library.
+Standard library is defined by the packages that live in the Go \textit{std} and the \texttt{golang.org/x/sys} module.
+The \textit{sys} module is included because it contains a lot of system call infrastructure and is the replacement for
+the deprecated \textit{syscall} package\footnote{\url{https://golang.org/pkg/syscall}}.
+Thus, it is also maintained by the core Go developer team.
+Application code samples then are taken from packages that are not part of the standard library.
+The \numberLabeledCodeSnippets{} code examples were sampled randomly from all packages present in the dependency trees
+of the projects shown in Table~\ref{tbl:dataset-projects}.
+This increases the variety of code authors contributing to the code examples.
+However, they are taken without duplicating lines that are present in different versions of the same module.
+If a module is included in multiple versions, than a line of code within it can not be drawn twice from differnt
+versions.
+Furthermore, this labeled data set contains only usages of \textit{unsafe.Pointer}.
+Table~\ref{tbl:dataset-classes} presents the number of samples for each label.
+The columns denote the dimension of purpose, while the rows show the operation type dimension.
+Columns are divided into separate counts for the \textit{app} and \textit{std} groups of samples.
 
-I randomly sampled 1000 snippets from application packages and 400 snippets from the standard library.
-The samples are taken without duplicates in version, that is the same snippet by module, file, and line number is not
-taken twice if there is a different version of the same module also available.
-This is done by best effort: if the line number changes between module versions there might still be logical
-duplication.
-The set of deduplication is module, package, file, line number.
-I only took samples that contain \texttt{unsafe.Pointer}, no other unsafe matches.
+\input{assets/tables/chapter4/dataset-classes.tex}
 
-Both because there is no easy way to find out if an imported dependency is maintained by a project itself, or by a
-third party, and because it gives a better picture on real unsafe usages in the industry, the unsafe samples are taken
-from all dependencies.
-Therefore, the snippets are not all part of packages from the ten projects, but some more packages.
-
-I classified the samples on two dimensions.
-The first shows what is being done, e.g. a cast or a pointer arithmetic.
-The second dimension shows the purpose of the unsafe usage, e.g. serialization or realization of generics.
-
-The results are shown in Table~\ref{tbl:labels-results-app} for the application code snippets, and
-Table~\ref{tbl:labels-results-std} for the standard library snippets.
-
-\input{assets/tables/chapter4/dataset-labels.tex}
-
-I put each sample along with its classification and information about where it was taken from into its own file.
-The files are put into directories whose names indicate both classification dimensions.
-
-Here are examples and descriptions for each of the classes used to describe what is happening in an unsafe usage.
+Listing~\ref{lst:dataset-label-class-examples} shows code examples and descriptions for each of the classes used to
+describe what is happening in an unsafe usage.
+Each example also contains its respective purpose label.
 
 \input{assets/listings/chapter4/dataset-label-class-examples.tex}
 
