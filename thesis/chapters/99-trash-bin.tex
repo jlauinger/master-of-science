@@ -1979,3 +1979,691 @@ They state that there exists possible bias in project selection, and that approa
 insecure in the future.
 
 Medium relevant, cite in related work and both survey chapters I think.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% former chapter 4
+
+\section{Evaluation}
+
+%% -----------------------------------------------------------------------------
+
+\chapter{Survey of unsafe code usages in popular Go projects}\label{ch:survey}
+
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Most popular open source Go projects}\label{sec:most-popular-projects}
+
+I downloaded the top 500 most popular (by number of stars) Go projects from Github.
+They can be found through Github search.
+
+Using the \texttt{github.com/google/go-github/github}~\cite{gogithub} and \texttt{github.com/go-git/go-git/v5}~\cite{gogit}
+Go libraries, I found, saved, downloaded, and checkout out these projects using a Go program.
+
+The projects, including the revision I checked out, and some meta data is shown in Table~\ref{tbl:projects}.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Methods of generating data points}\label{sec:survey-acquisition-methods}
+
+Iteration of three data acquisition programs, getting faster and faster: Bash, Python, Go.
+
+Loading packages used by the program by running \texttt{go list -deps -json ./...}, then parsing the JSON output.
+
+CSV is used to write data to disk.
+Interop with Go structure types is achieved using the \texttt{github.com/gocarina/gocsv}~\cite{gocsv} library.
+
+Program uses the following steps:
+
+\begin{enumerate}
+    \item Read projects to analyze from CSV file
+    \item Get package list for a given project
+    \item Run requested analysis type
+    \item Parse output and match findings to package and file
+    \item Append findings for this project to CSV file
+    \item Continue with step 2 for the next project, until done
+\end{enumerate}
+
+There are five different analysis types:
+
+\begin{itemize}
+    \item Grep
+    \item Go Vet
+    \item Gosec
+    \item Abstract Syntax Tree
+    \item My linter (go-safer)
+\end{itemize}
+
+The time needed to run these analysis on the 500 projects described in Section~\ref{sec:most-popular-projects} is shown
+in Table~\ref{tbl:survey-analysis-wallclocktime}.
+
+\begin{table}[h]
+    \centering
+    \caption{Wall-clock runtime for different analysis types used for the data survey}
+    \label{tbl:survey-analysis-wallclocktime}
+    \begin{tabular}{ll}
+        \toprule
+        Analysis Type & Wall-Clock Time \\
+        \midrule
+        (Project Download) & 4 hours \\
+        Grep & 15 minutes \\
+        Go Vet & 3 hours \\
+        Gosec & 24 hours \\
+        Abstract Syntax Tree & 1 hour \\
+        Go-Safer Linter & 3.5 hours \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Description and structure of data set}\label{sec:survey-dataset}
+
+In the data set I obtained, there are the following objects: projects, packages, modules,  Grep findings, Go Vet findings,
+Gosec findings, Go-safer (linter) findings, AST unsafe findings, AST functions, AST statements, and error conditions.
+
+The data set size in terms of object count is shown in Table~\ref{tbl:survey-dataset-size}
+
+\begin{table}[h]
+    \centering
+    \caption{Survey data set size in terms of object count}
+    \label{tbl:survey-dataset-size}
+    \begin{tabular}{lr}
+        \toprule
+        Object type & Data point count \\
+        \midrule
+        Projects & 495 \\
+        Packages & 40,384 \\
+        Modules & 3,202 \\
+        Grep findings & 2,850,140 \\
+        Go Vet findings & 120,416 \\
+        Gosec findings & 124,165 \\
+        Go-safer (linter) findings & 321 \\
+        AST unsafe findings & 2,590,346 \\
+        AST functions & 782,760 \\
+        AST statements & 1,205,214 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+A thing worth mentioning is that there a bit less \acrshort{ast} unsafe findings compared to the Grep unsafe findings.
+This is because the Grep run includes comments containing \texttt{unsafe.Pointer}, while the AST run does not.
+
+The different data set objects have several fields that are included in the CSV data.
+Appendix~\ref{ch:app:data-structure} shows the data structure and data types of each object types in multiple tables.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Methods of analyzing the data}\label{sec:survey-analysis-methods}
+
+How did I process the data set?
+Approach to build results etc.
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Jupyter Notebooks}\label{subsec:survey-jupyter}
+
+Describe purpose, deployment and notebook structure.
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Python Flask application for manual classification}\label{subsec:survey-classification}
+
+Describe purpose, development and deployment.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Survey Results}\label{sec:survey-results}
+
+These sections go through the results of the data survey.
+Unsafe usages include usages of \texttt{unsafe.Pointer}, \texttt{uintptr}, \texttt{reflect.SliceHeader} and more.
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Usage statistics in projects, modules, packages, and registries}\label{subsec:results-stats}
+
+First is some statistics about how many unsafe usages were found using Grep.
+Unsafe usages are occurrences of the following tokens:
+
+\begin{itemize}
+    \item \texttt{unsafe.Pointer}
+    \item \texttt{unsafe.Sizeof}
+    \item \texttt{unsafe.Alignof}
+    \item \texttt{unsafe.Offsetof}
+    \item \texttt{uintptr}
+    \item \texttt{reflect.SliceHeader}
+    \item \texttt{reflect.StringHeader}
+\end{itemize}
+
+Figure~\ref{fig:unsafe-usages-by-project-n30} shows the top 30 projects with the most unsafe usages.
+We see that \texttt{kubernetes/kubernetes} and \texttt{rancher/k3s} lead the list with more than 10,000 usages.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/stats/unsafe-usages-by-project-n30.tikz}}
+    \caption{Unsafe usages by project for the top 30 projects with most usages}
+    \label{fig:unsafe-usages-by-project-n30}
+\end{figure}
+
+Looking at individual modules, we see from Figure~\ref{fig:unsafe-usages-by-module-n30} that most usages are contained
+in the Go standard library.
+Second place with still a lot of unsafe usages is the \texttt{k8s/kubernetes} module, followed by
+\texttt{golang.org/x/sys}.
+The \texttt{sys} module already has some space to the \texttt{kubernetes} one, and after that the modules have much
+fewer unsafe usages.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/stats/unsafe-usages-by-module-n30.tikz}}
+    \caption{Unsafe usages by module for the top 30 modules with most usages}
+    \label{fig:unsafe-usages-by-module-n30}
+\end{figure}
+
+Figure~\ref{fig:unsafe-usages-by-package-n30} shows the top 30 packages with the most unsafe usages.
+Keeping in mind that we just learned that the standard library has the most usages, we can now see that they are mostly
+in the \texttt{runtime}, \texttt{syscall}, and \texttt{reflect} packages.
+We can identify some more packages from this figure which are analyzed in more detail in Chapter~\ref{ch:code-vulnerabilities}.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/stats/unsafe-usages-by-package-n30.tikz}}
+    \caption{Unsafe usages by package for the top 30 packages with most usages}
+    \label{fig:unsafe-usages-by-package-n30}
+\end{figure}
+
+Looking at Figure~\ref{fig:unsafe-usages-by-registry}, we see that if we skip the standard library and the Kubernetes
+situation, almost all unsafe usages are contained in packages that are hosted on github.com.
+However, the data also shows (without plot) that github.com is by far the largest registry, therefore this is expected.
+The other big registry is gorgonia.org, which hosts a machine learning framework that will be part of the discussion in
+Chapter~\ref{ch:code-vulnerabilities}.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=7cm]{assets/plots/stats/unsafe-usages-by-registry-n12.tikz}}
+    \caption{Unsafe usages by registry for the top 12 registries with most usages}
+    \label{fig:unsafe-usages-by-registry}
+\end{figure}
+
+Finally, we see from Figure~\ref{fig:fraction-of-unsafe-modules-and-packages} that only about 20 percent of modules, and
+less than 5 percent of packages contain unsafe usages.
+We conclude that they are clustered in a small group of packages.
+In other words, if a package contains \textit{any} unsafe usage then it will probably contain \textit{many}.
+
+\begin{figure}[ht]
+    \centering
+    \subfigure[Modules]{
+        {\scriptsize \includegraphics[width=0.4\textwidth]{assets/plots/stats/pie-modules.tikz}}
+        \label{subfig:fraction-of-unsafe-modules}
+    }
+    \subfigure[Packages]{
+        {\scriptsize \includegraphics[width=0.4\textwidth]{assets/plots/stats/pie-packages.tikz}}
+        \label{subfig:fraction-of-unsafe-packages}
+    }
+    \caption{Fraction of modules and packages containing unsafe usages}
+    \label{fig:fraction-of-unsafe-modules-and-packages}
+\end{figure}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Distribution of different unsafe token types}\label{subsec:results-tokens-distribution}
+
+As stated above, the Grep analysis searched for different types of unsafe tokens.
+Figure~\ref{fig:unsafe-tokens-distribution} gives an overview of the distribution.
+We see that \texttt{unsafe.Pointer} and \texttt{uintptr} are by far the most common, with \texttt{uintptr} being only
+slightly in the lead.
+Looking at the types that are less common might be even more interesting than the most common ones.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=0.5\textwidth, height=9cm]{assets/plots/tokens-distribution/distribution-different-unsafe-token-types.tikz}}
+    \caption{Distribution of different types of unsafe token types}
+    \label{fig:unsafe-tokens-distribution}
+\end{figure}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Module and package popularity}\label{subsec:results-popularity}
+
+To understand the severity of unsafe usage findings, we correlate with the popularity of modules and packages.
+Popularity is measured in terms of number of projects that include the module / package.
+
+Figure~\ref{fig:popularity-module} shows the most popular modules.
+The Go standard library as well as some almost-standard, official utility modules are most popular.
+The first real non-standard module is \texttt{github.com/golang/protobuf}.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/popularity/popularity-module-n30.tikz}}
+    \caption{Module popularity by number of importing projects, N=30}
+    \label{fig:popularity-module}
+\end{figure}
+
+Figure~\ref{fig:popularity-package} shows the most popular packages:
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/popularity/popularity-package-without-std-n30.tikz}}
+    \caption{Package popularity by number of importing projects, excluding standard library, N=30}
+    \label{fig:popularity-package}
+\end{figure}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Fluctuation of unsafe usages count over time}\label{subsec:results-time-change}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=10cm]{assets/plots/time-change/fluctuation-in-versions-of-sys.tikz}}
+    \caption{Number of unsafe usages in different versions (every other) of sys over time}
+    \label{fig:fluctuation-in-versions-of-sys}
+\end{figure}
+
+Figure~\ref{fig:fluctuation-in-versions-of-sys} shows the number of \texttt{unsafe.Pointer} usages in different versions
+of the \texttt{golang.org/x/sys} package.
+We can see that the number changes over time.
+In this case, it ranges between 315 and 440.
+This is because different versions of the same package can contain different code, and therefore a different number of
+\texttt{unsafe.Pointer} usages.
+Here the reason for this is that syscall stubs get added or removed.
+
+For \texttt{sys}, the number of unsafe usages gradually increases over time.
+Todo: include an example commit compare.
+
+We can take away two important insights from this.
+
+\begin{enumerate}
+    \item It is important to pin the version of the module / package when doing analysis on the code, e.g.\ running a
+    survey on the usage of unsafe code patterns.
+    \item Even when a vulnerability is fixed in the latest version of a library, projects that use that library will
+    still be affected until they upgrade the library.
+    Different projects can use different versions of the same library.
+\end{enumerate}
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Correlations of unsafe tokens used together in a file or statement}\label{subsec:results-correlation-together}
+
+The data shows that 1061 files contain at least one \texttt{unsafe.Pointer}.
+1147 files contain at least one \texttt{uintptr}.
+There are 496 files that contain each at least one of both.
+
+In terms of line, there are 12135 distinct lines of code that contain \texttt{unsafe.Pointer}.
+There are 11951 lines that contain \texttt{uintptr}.
+We can already see that since there are more \texttt{uintptr} occurrences in total, but less lines, that \texttt{uintptr}
+is clustered more within the same line.
+
+There are 6846 usages of \texttt{unsafe.Pointer} that are within files where at least one other \texttt{uintptr} occurs.
+On the other hand, 5939 usages of \texttt{uintptr} are in files where at least one other \texttt{unsafe.Pointer} occurs.
+
+Of about 21,000 unsafe usages, 11,738 are in a function that contains another usage, while 8,841 are not.
+
+There are 13,757 usages in statements that contain no further unsafe usage.
+7,246 usages are within statements where at least one other unsafe usage occurs within that same statement.
+Those are distributed among 2,123 statements, making an average of 3.4 unsafe usages per statement for the statements
+that contain at least one usage.
+
+The important part is that unsafe usages may occur in clusters.
+Those are interesting to look into.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=3cm]{assets/plots/correlation-together/use-in-same-line.tikz}}
+    \caption{Usage of unsafe together in the same line}
+    \label{fig:correlations-unsafe-usage-same-line}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \subfigure[Functions]{
+        {\scriptsize \includegraphics[width=0.4\textwidth]{assets/plots/correlation-together/use-in-same-function.tikz}}
+        \label{subfig:correlations-unsafe-usage-same-function}
+    }
+    \subfigure[Statements]{
+        {\scriptsize \includegraphics[width=0.4\textwidth]{assets/plots/correlation-together/use-in-same-statement.tikz}}
+        \label{subfig:correlations-unsafe-usage-same-statement}
+    }
+    \caption{Usage of unsafe in the same function or statement}
+    \label{fig:correlations-unsafe-usage-same-function-and-statement}
+\end{figure}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Go Vet and Gosec tools coverage of unsafe snippets}\label{subsec:results-vet-gosec}
+
+The Gosec coverage is not interesting because Gosec only has a single rule concerning unsafe usages which is the
+existence of \texttt{unsafe.Pointer} in the code.
+This is already identified by the Grep analysis.
+
+Go Vet has an analysis pass for possible misuses of \texttt{unsafe.Pointer}.
+Figure~\ref{fig:vet-findings-per-project-n30} shows the Vet findings per project for the top 30 projects with the most
+findings.
+We see that the projects with the most findings are \texttt{gohugoio/hugo}, \texttt{cli/cli},
+and \texttt{sql-machine-learning/sqlflow}.
+They are different projects than the ones with the highest numbers of unsafe usages.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/vet-gosec/vet-findings-per-project-n30.tikz}}
+    \caption{Go Vet findings per projects for the top 30 projects with the most findings}
+    \label{fig:vet-findings-per-project-n30}
+\end{figure}
+
+From the correlation between findings shown in Figure~\ref{fig:correlation-vet-grep-findings}, we see that Vet findings
+are almost completely unrelated to the unsafe findings.
+There are only about 200 lines where an unsafe usage was found and Go Vet issued a warning.
+Of those not even all warnings were related to a possible misuse of \texttt{unsafe.Pointer}.
+We can conclude that either almost all projects use \texttt{unsafe.Pointer} only in a safe way, or Go Vet is not very
+good at detecting possible misuses.
+In the following chapters, we will see that the second case is true.
+I will also present a new linter tool that detects some of the unsafe patterns identified in this thesis.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=4cm]{assets/plots/vet-gosec/vet-findings-correlated-unsafe-findings.tikz}}
+    \caption{Correlation of Go Vet and Grep unsafe findings}
+    \label{fig:correlation-vet-grep-findings}
+\end{figure}
+
+Table~\ref{tbl:vet-misuse-findings} shows the packages that were found to produce Go Vet pointer misuse warnings.
+The number of Vet findings is shown before and after deduplication, that is not counting the same line of source code
+more than once.
+We see that the runtime has incredibly many findings before deduplication.
+It still has by far the most warnings after deduplication, but with less than 200 its two orders of magnitude less.
+These two orders come exactly from the fact that I analysed around 500 projects, all of which use the \texttt{runtime}
+package and all of which therefore add to the non-deduplicated count.
+
+\begin{table}
+    \centering
+    \caption{Vet possible misuse of unsafe.Pointer findings per package}
+    \label{tbl:vet-misuse-findings}
+
+    \subtable[Raw findings before deduplication]{
+        \label{subtbl:vet-findings-duplicates}
+        \begin{tabular}{lr}
+            \toprule
+            Package                                 & Number of findings          \\
+            \midrule
+            runtime                                 &                      60164 \\
+            sync/atomic                             &                        338 \\
+            strings                                 &                        335 \\
+            github.com/modern-go/reflect2           &                         46 \\
+            golang.org/x/sys/unix                   &                         16 \\
+            github.com/spaolacci/murmur3            &                         11 \\
+            gorgonia.org/tensor                     &                          8 \\
+            github.com/apache/arrow/go/arrow/math   &                          6 \\
+            github.com/minio/simdjson-go            &                          4 \\
+            github.com/apache/arrow/go/arrow/memory &                          4 \\
+            github.com/AndreasBriese/bbloom         &                          4 \\
+            github.com/coocood/bbloom               &                          2 \\
+            github.com/segmentio/encoding/json      &                          1 \\
+            \bottomrule
+        \end{tabular}
+    }
+
+    \subtable[After deduplication]{
+        \label{subtbl:vet-findings-deduplicated}
+        \begin{tabular}{lr}
+            \toprule
+            Package                                 & Number of findings          \\
+            \midrule
+            runtime                                 &                         175 \\
+            gorgonia.org/tensor                     &                           8 \\
+            github.com/apache/arrow/go/arrow/math   &                           6 \\
+            github.com/minio/simdjson-go            &                           3 \\
+            github.com/apache/arrow/go/arrow/memory &                           3 \\
+            github.com/spaolacci/murmur3            &                           2 \\
+            github.com/coocood/bbloom               &                           2 \\
+            github.com/AndreasBriese/bbloom         &                           2 \\
+            sync/atomic                             &                           1 \\
+            strings                                 &                           1 \\
+            golang.org/x/sys/unix                   &                           1 \\
+            github.com/segmentio/encoding/json      &                           1 \\
+            github.com/modern-go/reflect2           &                           1 \\
+            \bottomrule
+        \end{tabular}
+    }
+\end{table}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Correlation of unsafe usages with project features}\label{subsec:results-correlation-project}
+
+Figure~\ref{fig:correlations-project-imports-grep-vet} shows a dot for each project.
+The x and y axis show the number of modules and packages imported by the project.
+We see a linear correlation which is expected.
+More modules mean more packages as each module must have at least one package.
+
+The dot color shows the number of unsafe usages found by Grep, and we see that the more packages a project imports, the
+more unsafe usages it has.
+
+The size of the dot represents the number of Vet findings for the project.
+Here we see something interesting:
+The size of the dot is inverse correlated to the number of imports.
+One could expect that the more unsafe usages a project has (dot is more red), the more Vet findings it might have (dot
+is bigger).
+However the opposite is true.
+We could conclude that projects that use more unsafe code have a higher overall code quality.
+More on this will be elaborated in the discussion in Chapter~\ref{ch:conclusions}.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/correlation-project/correlation-imports-grep-vet.tikz}}
+    \caption{Correlation of number of imports, Grep unsafe, and Vet findings of projects}
+    \label{fig:correlations-project-imports-grep-vet}
+\end{figure}
+
+Figure~\ref{fig:correlations-project-unsafe-stars} and Figure~\ref{fig:correlations-project-unsafe-age} correlate a
+project's unsafe usages count with its number of stars, and its age, respectively.
+
+We see no particular correlation between number of stars and unsafe count.
+We can however see that there seem to be two clusters of projects, one with around 5000 usages, and one with at least
+6000 usages.
+
+There does not seem to be a correlation between project age and number of unsafe usages either.
+The dots look very equally distributed.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/correlation-project/correlation-unsafe-stars.tikz}}
+    \caption{Correlation of number of unsafe usages and number of stars of projects}
+    \label{fig:correlations-project-unsafe-stars}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/correlation-project/correlation-unsafe-age.tikz}}
+    \caption{Correlation of number of unsafe usages and age of projects}
+    \label{fig:correlations-project-unsafe-age}
+\end{figure}
+
+Finally, Figure~\ref{fig:correlations-module-unsafe-popularity} shows a correlation between popularity and number of
+unsafe usages for a module.
+It is the only plot in this subsection that is about modules, not projects.
+We can clearly see the modules with many unsafe usages tend to get imported rather rarely compared to the other ones.
+This has a good and a bad side:
+There are no high-impact-high-probability modules, which would contain lots of unsafe usages and are very popular at the
+same time.
+These would be excellent targets for an attacker.
+On the other hand, the modules with many unsafe usages are by default audited less because they are less popular,
+meaning that potential bugs are more likely to be missed due to the lower number of users of the module.
+
+\begin{figure}[ht]
+    \centering
+    {\scriptsize \includegraphics[width=\textwidth, height=9cm]{assets/plots/correlation-project/correlation-unsafe-module-popularity.tikz}}
+    \caption{Correlation of number of unsafe usages and popularity of modules}
+    \label{fig:correlations-module-unsafe-popularity}
+\end{figure}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Most interesting modules for analysis}\label{subsec:results-most-interesting-modules}
+
+To determine which modules are the most interesting ones for analysis in Chapter~\ref{ch:code-vulnerabilities}, I use
+a score.
+It is the product of unsafe usage count in a module and the import count of that module, a good indication of its
+popularity.
+Table~\ref{tbl:most-interesting-modules-by-score} shows the top 20 most interesting modules.
+
+\begin{table}
+    \centering
+    \caption{Most interesting modules for analysis by score, N=20}
+    \label{tbl:most-interesting-modules-by-score}
+    \begin{tabular}{rlrrr}
+        \toprule
+        {} &                           Module & Unsafe usages count & Import count &    Score \\
+        \midrule
+        1  &                              std &                6676 &          495 &  3304620 \\
+        2  &                 golang.org/x/sys &                1163 &          235 &   273305 \\
+        3  &                 golang.org/x/net &                  91 &          217 &    19747 \\
+        4  &      github.com/json-iterator/go &                 225 &           71 &    15975 \\
+        5  &    github.com/modern-go/reflect2 &                 215 &           71 &    15265 \\
+        6  &                k8s.io/kubernetes &                1887 &            8 &    15096 \\
+        7  &       github.com/golang/protobuf &                  65 &          168 &    10920 \\
+        8  &         github.com/gogo/protobuf &                 103 &          105 &    10815 \\
+        9  &  github.com/hashicorp/go-msgpack &                 792 &           12 &     9504 \\
+        10 &       github.com/ugorji/go/codec &                 823 &           11 &     9053 \\
+        11 &               golang.org/x/tools &                 178 &           42 &     7476 \\
+        12 &              golang.org/x/crypto &                  28 &          191 &     5348 \\
+        13 &             github.com/ugorji/go &                 804 &            6 &     4824 \\
+        14 &       github.com/davecgh/go-spew &                  38 &          106 &     4028 \\
+        15 &                 go.etcd.io/bbolt &                 148 &           24 &     3552 \\
+        16 &   k8s.io/apiextensions-apiserver &                 124 &           26 &     3224 \\
+        17 &               gonum.org/v1/gonum &                 416 &            5 &     2080 \\
+        18 &         github.com/docker/docker &                  42 &           47 &     1974 \\
+        19 &   github.com/vishvananda/netlink &                 158 &           12 &     1896 \\
+        20 &                gvisor.dev/gvisor &                1846 &            1 &     1846 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Based on the table, we can identify interesting modules that are worth looking into:
+
+\begin{itemize}
+    \item \texttt{k8s.io/kubernetes} because it has a lot of unsafe usages
+    \item \texttt{github.com/json-iterator/go} because it is getting imported quite often and has unsafe usages
+    \item \texttt{github.com/modern-go/reflect2}, and
+    \item \texttt{github.com/golang/protobuf} due to the same reason
+\end{itemize}
+
+
+%% -----------------------------------------------------------------------------
+
+\subsection{Number of reflect.SliceHeader and reflect.StringHeader usages}\label{subsec:results-sliceheader}
+
+SliceHeader and StringHeader count: 341 and XX (StringHeader todo) after deduplication.
+
+These get analyzed in depth in Chapter~\ref{ch:code-vulnerabilities}, as slices and thus strings provide a very good
+attack surface for vulnerabilites coming from misuse of unsafe code.
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Publication of data set}\label{sec:survey-publication}
+
+To obtain the data set, do this:
+
+Clone it from Github?
+
+
+
+\textbf{conversion-struct-struct}
+
+Unsafe pointers are used to cast some struct directly into some other struct.
+
+\input{assets/listings/chapter4/labels-classexample-conversion-struct-struct.tex}
+
+
+\textbf{conversion-struct-basic}
+
+Unsafe pointers are used to cast some struct into a basic Go type like \texttt{int32} or \texttt{string}.
+
+\input{assets/listings/chapter4/labels-classexample-conversion-struct-basic.tex}
+
+
+\textbf{conversion-header}
+
+Unsafe pointers are used in conjunction with the slice and string headers of the reflect package to cast or construct
+slices directly.
+
+\input{assets/listings/chapter4/labels-classexample-conversion-header.tex}
+
+
+\textbf{delegate}
+
+Unsafe pointers are used only to be passed along to some function that required unsafe pointers in the first place.
+
+\input{assets/listings/chapter4/labels-classexample-delegate.tex}
+
+
+\textbf{unused}
+
+Though there is a variable or parameter of type unsafe pointer, it is not actually used.
+
+\input{assets/listings/chapter4/labels-classexample-unused.tex}
+
+
+\textbf{comment}
+
+A comment talks about unsafe pointers, or the code is simply commented.
+
+\input{assets/listings/chapter4/labels-classexample-comment.tex}
+
+
+\textbf{syscall}
+
+Unsafe pointers are used as arguments in a direct syscall.
+
+\input{assets/listings/chapter4/labels-classexample-syscall.tex}
+
+
+\textbf{data-structure}
+
+A data structure containing unsafe pointers or function declaration is done.
+This is possible for example to recreate the slice header structures of the reflect package.
+
+\input{assets/listings/chapter4/labels-classexample-data-structure.tex}
+
+
+\textbf{pointer-arithmetic-memory-layout}
+
+Using unsafe pointers, there is some form of pointer arithmetic or direct field access in a struct.
+
+\input{assets/listings/chapter4/labels-classexample-pointer-arithmetic-memory-layout.tex}
+
+
+\textbf{direct-memory-access}
+
+Unsafe pointers are used or returned to directly dereference into memory.
+
+\input{assets/listings/chapter4/labels-classexample-direct-memory-access.tex}
+
+
+\textbf{escape-analysis-escape}
+
+Unsafe pointers are used to deliberately create a value that is hidden to Go escape analysis.
+Although the value might and probably will escape, the escape analysis can not realize.
+
+\input{assets/listings/chapter4/labels-classexample-escape-analysis-escape.tex}
+
+
+\textbf{type-reflection}
+
+Unsafe pointers are used for some form of type distinction and similar actions for each type.
+
+\input{assets/listings/chapter4/labels-classexample-type-reflection.tex}
