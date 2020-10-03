@@ -8,6 +8,10 @@ all:
 open:
 	evince thesis.pdf &
 
+release:
+	@cp thesis.pdf thesis-lauinger-$$(date +%Y%m%d)-$$(git rev-parse --short=7 HEAD).pdf
+	@echo Releasing thesis-lauinger-$$(date +%Y%m%d)-$$(git rev-parse --short=7 HEAD).pdf
+
 clean:
 	rm -f *.bcf *.bib.bak *.acn *.acr *.alg *.glg *.glo *.gls *.ist *.lol *.lot *.fdb_latexmk *.aux *.bbl *.aux *.synctex.gz *.log *.out *.blg *.lof *.toc *.len *.nav *.snm *.vrb *.backup *.tex~ *.bib~ *.glsdefs *.run.xml *-blx.bib *.auxlock *.xmpi
 	rm -f frontback/*.lol frontback/*.lot frontback/*.fdb_latexmk frontback/*.aux frontback/*.bbl frontback/*.aux frontback/*.synctex.gz frontback/*.log frontback/*.out frontback/*.blg frontback/*.lof frontback/*.toc frontback/*.len frontback/*.nav frontback/*.snm frontback/*.vrb frontback/*.backup frontback/*.tex~ frontback/*.bib~
