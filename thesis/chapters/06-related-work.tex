@@ -47,11 +47,11 @@ that case the study by Costa et al. would include code for that project that is 
 There are \checkNum{25} projects for which~\cite{costa2020} reports \unsafe{} usages  but my study does not.
 However they are all included in the \percentageUnsafeTransitiveWithDependencies{} of projects for which my study
 indicates that they use \unsafe{} code through their dependencies.
-For this reason, I conclude that the difference in the fraction of projects using \unsafe{} is due to a different
-definition of project and dependency code.
+For this reason, it can be concluded that the difference in the fraction of projects using \unsafe{} is due to a
+different definition of project and dependency code.
 
-There are \checkNum{86} projects for which my study and~\cite{costa2020} reported different absolute numbers of
-\unsafe{} usage sites, while the numbers matched exactly for all remaining projects.
+There are \checkNum{86} projects for which the study in this thesis and~\cite{costa2020} reported different absolute
+numbers of \unsafe{} usage sites, while the numbers matched exactly for all remaining projects.
 To find the reason for the difference, I replicated the study to the best of my possibilities given that Costa et al.
 did neither include the exact revisions of the projects under analysis nor their parsing tool to count the \unsafe{}
 usages in their replication package.
@@ -81,8 +81,8 @@ The study by Costa et al. also includes a set of manually labeled purposes of \u
 labeled one entire file from each project with a single label, while the labeled data set presented in this thesis is
 built with a granularity of a label for a single line of code.
 Comparing the labels was possible on only \checkNum{25} code samples that are included in both sets.
-Furthermore, the data set presented in~\cite{costa2020} is incomplete, specifically at least the version published as
-replication package.
+Furthermore, the data set presented in~\cite{costa2020} is incomplete, at least the version published as replication
+package.
 \checkNum{20} of the \checkNum{25} mutual code samples did not actually have a label in the data set
 by~\cite{costa2020}.
 The remaining \checkNum{five} matched reasonably well at least, as shown in Table~\ref{tbl:costa-labels-comparison}.
@@ -91,7 +91,7 @@ The remaining \checkNum{five} matched reasonably well at least, as shown in Tabl
 
 \checkNum{Three} of the labels were exact matches of the label provided by~\cite{costa2020} and one of the two labels
 assigned to the sample in my data set presented in this thesis.
-The second label is lost because~\cite{costa2020} only did a one-dimensional labelling.
+The second label is lost because~\cite{costa2020} only did a one-dimensional labeling.
 For the remaining \checkNum{two} samples, the labels did not match, however my labels are more fine-grained with respect
 to the specific line of code.
 The labels assigned by~\cite{costa2020} are appropriate for their scope, which is the complete file containing the line
@@ -261,7 +261,7 @@ and contextualizing warning messages to the concrete incorrect code, such as inc
 
 \section{Security Issues with Dependencies}\label{sec:related-work:dependency-issues}
 
-Concerning the dependencies of projects, previous work has analyzed different aspects.
+Concerning the dependencies or imports of projects, previous work has analyzed different aspects.
 Pashchenko et al.~\cite{pashchenko2018} discussed how to focus on the most important dependencies when looking for
 security vulnerabilities.
 The study is done for Java, specifically for the Maven dependency management system.
@@ -288,7 +288,7 @@ for Android.
 They found that \checkNum{70\%} of them were introduced through vulnerable dependencies.
 \checkNum{50\%} of the bugs came from third-party dependencies, where developers can not easily fix them but instead
 have to rely on the maintainers or replace the library with an alternative one.
-Xia et al.~\cite{xia2014} also presents work on the prevalence of outdated libraries in open-source project
+Xia et al.~\cite{xia2014} also present work on the prevalence of outdated libraries in open-source project
 dependencies across different languages.
 
 When insecure dependencies have been identified, it is important to update or replace the affected libraries as soon as

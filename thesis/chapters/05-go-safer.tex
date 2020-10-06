@@ -4,11 +4,12 @@
 
 Another major contribution of this thesis is the development of \toolSafer{}, a \toolVet{}-style, open-source linter
 tool with a focus on the \unsafe{} \acrshort{API} in Go.
-It can identify some of the unsafe code patterns described in Chapter~\ref{ch:unsafe-security-problems} and thus help
+It can identify some of the insecure code patterns described in Chapter~\ref{ch:unsafe-security-problems} and thus help
 developers to write safer code.
 This chapter describes the design and implementation of \toolSafer{}, and presents an evaluation of its effectiveness
-both using the labeled data set of \unsafe{} usages presented in the previous chapter and a manual analysis of \checkNum{six}
+both using the labeled data set of \unsafe{} usages presented in the previous chapter and a manual analysis of
 open-source Go packages.
+Figure~\ref{fig:outline5} shows which parts of the contributions of this thesis are given in this chapter.
 
 \input{assets/figures/chapter5/outline5.tex}
 
@@ -26,6 +27,7 @@ Chapter~\ref{ch:unsafe-security-problems}.
 The first is the incorrect conversion pattern between slices and strings by creating their header structures as
 composite literals as described in Section~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}.
 Listing~\ref{lst:go-safer-sliceheader-pass} shows a code example that uses this unsafe pattern.
+The insecure creation of a \textit{reflect.SliceHeader} instance is done in Lines~3--7.
 
 \input{assets/listings/chapter5/go-safer-sliceheader-pass.tex}
 
@@ -45,6 +47,8 @@ The second misuse that \toolSafer{} detects is a direct conversion between struc
 with architecture-dependent sizes as described in
 Section~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}.
 Listing~\ref{lst:go-safer-structcast-pass} shows an example of such code.
+Here, Line~8 contains an incorrect cast between the incompatible structures \textit{A} (Lines~1--3) and \textit{B}
+(Lines~4--6).
 
 \input{assets/listings/chapter5/go-safer-structcast-pass.tex}
 
@@ -58,8 +62,8 @@ These are the types with architecture-dependent sizes available in Go.
 The source code and documentation of \toolSafer{} is available on
 \github{}\footnote{\url{https://github.com/jlauinger/go-safer}}.
 It can be installed using the standard Go \acrshort{CLI} tool.
-To run it, append the package names that should be checked as parameters.
-For example, to check a local package run \textit{go-safer ./my/package}.
+To run it, the package names that should be checked are appended as parameters.
+For example, to check a local package the command would be \textit{go-safer ./my/package}.
 There is no limitation on the number of packages that can be supplied as parameters.
 Figure~\ref{fig:go-safer-screenshot} shows a screenshot of \toolSafer{} containing a few warnings about insecure slice
 conversions.
@@ -108,7 +112,7 @@ Since Go supports multiple assignments in one statement, there can be multiple v
 In this case, \toolSafer{} checks all of them to see if any meets the conditions to trigger a warning.
 To check whether the type matches either \textit{reflect.StringHeader} or \textit{reflect.SliceHeader}, the given type
 is checked for assignability to the underlying structure of the header types.
-This structure, as illustrated in Figure~\ref{fig:go-safer-architecture}, is one \textit{uintptr} fields and then one
+This structure, as illustrated in Figure~\ref{fig:go-safer-architecture}, is one \textit{uintptr} field and then one
 or two \textit{int} fields.
 Comparing to the structure instead of the name of the type makes it possible to detect type aliases to the header types
 which might exist.
@@ -124,7 +128,7 @@ investigation.
 Finally, \toolSafer{} checks whether the right hand side value of the statement defining that value is a conversion
 from an actual slice or string value.
 It has to be a cast through an \textit{unsafe.Pointer} value for this to be possible.
-If it is the case, then the assignment is legitimate and \toolSafer{} does not print a warning.
+If that is the case, then the assignment is legitimate and \toolSafer{} does not print a warning.
 However, if the variable is not derived by a conversion from a slice or string, or no \acrshort{CFG} node defining the
 variable can be found, then a warning is issued.
 The last case is possible for example if the slice or string header is passed in as a function parameter, because then
@@ -184,8 +188,6 @@ Finally, the performance is compared to the existing static analysis tools \tool
 In addition to this academic evaluation, \toolSafer{} was also used to discover more than \numberBugsFixedRounded{} bugs
 that existed in the open-source projects used for the study on real-world usage of \unsafe{} presented in
 Chapter~\ref{ch:go-geiger} or their dependencies.
-These bugs as well as suitable patches that were sent to the respective project maintainers are discussed in
-Section~\ref{sec:discussion:patches}.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -246,15 +248,15 @@ These packages are chosen using the results of the study on \unsafe{} usage in o
 Chapter~\ref{ch:go-geiger}.
 Evaluating \toolSafer{}, an \unsafe{}-related linter, on packages that do not actually contain any \unsafe{} usages does
 not provide valuable insights.
-To create a variation both of the amount of \unsafe{} usages and package size, the \checkNum{six} packages are selected
-to include two packages each with few, medium and many \unsafe{} usages.
+Table~\ref{tbl:go-safer-evaluation-packages-stats} shows the \checkNum{six} packages used for this evaluation, including
+their number of Go files, lines of code, and \unsafe{} usages.
+To create a variation both of the amount of \unsafe{} and package size, they are selected to include two packages
+each with few, medium, and many \unsafe{} usages.
 For every category, there is one small and one large package each.
-Table~\ref{tbl:go-safer-evaluation-packages-stats} shows the packages used for this evaluation.
 
 \input{assets/tables/chapter5/go-safer-evaluation-packages-stats.tex}
 
-Each of the \checkNum{six} packages was then analyzed manually to find any insecure code that \toolSafer{} should
-detect.
+Each of the \checkNum{six} packages was analyzed manually to find any insecure code that \toolSafer{} should detect.
 The results of this are saved as a \acrshort{CSV} file containing a positive or negative label for every line of code
 that includes a usage of the \unsafe{} \acrshort{API}.
 Lines that do not use the \acrshort{API} should not be analyzed by \toolSafer{} at all, therefore they are not included
