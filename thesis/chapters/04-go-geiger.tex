@@ -274,13 +274,21 @@ usage and the common projects metrics age and popularity.
 Popularity is measured by the number of stars and number of forks that a project has on \github{}.
 Figure~\ref{fig:correlation-popularity} presents a scatter plot showing the number of \unsafe{} usages on the x-axis and
 multiple project metrics on the y-axis.
-Each dot represents one project.
-Red dots indicate a project's age, blue dots show the number of stars, and green dots denote the number of forks.
+Usages that are part of the Go standard library are not counted in this graph.
+Each data point represents one project.
+Green crosses indicate a project's age, blue circles show the number of stars, and orange diamonds denote the number of
+forks.
 
 \input{assets/plots/chapter4/correlation-popularity.tex}
 
-The plot suggests that there is no correlation between either age, number of stars, nor number of forks and the number
-of \unsafe{} usages in a project.
+The plot overall shows a uniform distribution between \unsafe{} usages and the different project metrics, except for
+a gap between a \checkNum{few hundred} and \checkNum{1,000} usages of \unsafe{}.
+There are both many projects with fewer and with more usages, but none with about \checkNum{750}.
+This could be an indicator that once projects have included more than only a couple of \unsafe{} usages, they tend to
+have more of them more easily.
+Furthermore, there is only one project with more than \checkNum{3,500} \unsafe{} usages, which is
+\textit{kubernetes/kubernetes}.
+There is no obvious correlation neither betwenn \unsafe{} usage and project age, nor number of stars or forks.
 
 \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:popularity}]
     There is no significant correlation between the number of \unsafe{} usages and a project's age, number of stars, or
