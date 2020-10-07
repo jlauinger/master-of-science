@@ -16,10 +16,6 @@ It analyzes the risk that comes with the use of this language feature, and prese
 developers to identify and minimize it.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
-
-\section{Motivation}\label{sec:introduction:motivation}
-
 In the last decade, there has been an ongoing adoption of memory-safe languages for many different applications.
 Such languages include for example Google's Go, Rust, Nim, or even Java.
 Memory safety is one of the most important areas of software security, because a large number of vulnerabilities is
@@ -70,6 +66,11 @@ was no such tool for Go.
 Although there are tools like \toolGosec{}~\footnote{\url{https://github.com/securego/gosec}} that provide the ability
 to identify \unsafe{} usages in a single package, they can not analyze the dependencies of the package.
 
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Problem Statement}\label{sec:introduction:problem-statement}
+
 This thesis presents the design and implementation as well as an evaluation of two novel developer tools for this
 purpose.
 \toolGeiger{} can find and count \unsafe{} usages in a Go package and its dependencies and is therefore similar in its
@@ -84,6 +85,22 @@ Based on that knowledge, informed decisions can be made on whether or not to use
 a code review process for a particular organization should be designed to achieve the best performance.
 To draw a big picture, the goal of this thesis is to analyze and improve \unsafe{} code in software projects written in
 the Go programming language in the wild.
+
+Figure~\ref{fig:outline} shows a visual outline and the relationship between the individual chapters of this thesis.
+The relevant chapters contain a version of this figure with the respective parts highlighted to assist in following
+along.
+
+\input{assets/figures/chapter1/outline1.tex}
+
+It is worth noting that this thesis does not use the typical structure of presenting a design, an implementation, and
+lastly an evaluation.
+Instead, both software tools \toolGeiger{} and \toolSafer{} have their own design, implementation, and evaluation
+sections in their respective chapters.
+The necessary theoretical work based on the background information discussed in Chapter~\ref{ch:background} is presented
+in its own chapter before introducing the tools.
+Furthermore, the methodology and results of the study on \unsafe{} code in open-source Go projects is presented in
+Chapter~\ref{ch:go-geiger} alongside the \toolGeiger{} tool, because first, the study data is gathered using \toolGeiger,
+and second, it simultaneously serves as an evaluation of \toolGeiger{}.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -124,36 +141,17 @@ They are the following:
 \section{Outline}\label{sec:introduction:outline}
 
 The remainder of this thesis is structured as described in the following: Chapter~\ref{ch:background} gives background
-information on memory safety and the Go \unsafe{} \acrshort{API}, as well as the dependency management system used in
-Go and static code analysis.
+information on the Go \unsafe{} \acrshort{API} and other concepts needed for this thesis.
 Chapter~\ref{ch:unsafe-security-problems} analyzes and discusses possible vulnerabilities caused by \unsafe{} code
-usages which can be found in real-world application code, including the development of proof-of-concept exploit code.
-Then, Chapter~\ref{ch:go-geiger} presents the design, implementation, and evaluation of \toolGeiger, a novel static
-analysis tool which finds and counts \unsafe{} usages in a Go package as well as its dependencies.
-The chapter also describes the methodology and results for the empirical study analyzing the top \projsTotal{} most
-popular open-source Go projects on \github{}, and presents the labeled data set of \numberLabeledCodeSnippets{} code
-samples, which categorizes \unsafe{} usages by what is being done and for what purpose.
-After that, Chapter~\ref{ch:go-safer} shows the design, implementation, and evaluation of \toolSafer, the novel linter
-tool that can identify \checkNum{two} dangerous and common \unsafe{} usage patterns.
-Next, Chapter~\ref{ch:related-work} discusses related and concurrent work, including amongst others the replication of
-and comparison to a similar study on \unsafe{} usage in Go by Costa et al.~\cite{costa2020}.
+usages.
+Then, Chapter~\ref{ch:go-geiger} presents the design, implementation, and evaluation of \toolGeiger, the novel static
+analysis tool which finds and counts \unsafe{} usages.
+The chapter also describes the methodology and results for the empirical study on \unsafe{} code in the wild, and
+presents the labeled data set of \unsafe{} code samples.
+After that, Chapter~\ref{ch:go-safer} shows the design, implementation, and evaluation of \toolSafer, the novel,
+\unsafe{}-focused linter tool.
+Next, Chapter~\ref{ch:related-work} discusses related and concurrent work.
 Chapter~\ref{ch:discussion} puts the findings and results of this work in context and discusses their meaning and
 impact.
 Threats to validity and possible future work are also presented there.
 Finally, Chapter~\ref{ch:conclusion} concludes the work.
-
-Figure~\ref{fig:outline} shows a visual outline and the relationship between the individual chapters of this thesis.
-The relevant chapters contain a version of this figure with the respective parts highlighted to assist in following
-along.
-
-\input{assets/figures/chapter1/outline1.tex}
-
-It is worth noting that this thesis does not use the typical structure of presenting a design, an implementation, and
-lastly an evaluation.
-Instead, both software tools \toolGeiger{} and \toolSafer{} have their own design, implementation, and evaluation
-sections in their respective chapters.
-The necessary theoretical work based on the background information discussed in Chapter~\ref{ch:background} is presented
-in its own chapter before introducing the tools.
-Furthermore, the methodology and results of the study on \unsafe{} code in open-source Go projects is presented in
-Chapter~\ref{ch:go-geiger} alongside the \toolGeiger{} tool, because first, the study data is gathered using \toolGeiger,
-and second, it simultaneously serves as an evaluation of \toolGeiger{}.

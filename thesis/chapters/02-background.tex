@@ -2,123 +2,6 @@
 
 \chapter{Background}\label{ch:background}
 
-This chapter presents background information on memory layout and safety measures to ensure its security as well as the
-\unsafe{} \acrshort{API} provided by the Go programming language, which offers a way of circumventing such safety
-measures.
-Next, the Go dependency management system is described as the design of \toolGeiger{} and the related empirical study
-analyze Go code including its dependencies, as described in Chapter~\ref{ch:go-geiger}.
-Finally, there is an introduction into the concepts of static code analysis and abstract syntax trees.
-
-
-%% ---------------------------------------------------------------------------------------------------------------------
-
-\section{Memory Safety and Layout}\label{sec:background:memory-safety-layout}
-
-The working memory of a computer, more specifically the Random Access Memory (\acrshort{RAM}) is used to hold both
-application data and program instructions.
-It is essentially a single string of bytes that each have an increasing address.
-To organize this memory effectively, it is divided into memory pages that can get mapped into virtual memory sections.
-These sections and pages are managed by the operating system (\acrshort{OS}).
-Virtual memory allows each process to address its data regardless of its actual position in the physical memory.
-When a process is loaded by the \acrshort{OS}, its execution will always start at the same virtual address which is
-stored in the executable file.
-The \acrshort{OS} will then take care of translating the virtual address into an actual absolute memory address.
-The virtual memory of a process is further divided into different functional areas, most importantly the text sections,
-the heap, and the stack.
-
-The text sections contain the machine-readable program instructions.
-The heap is a data section that stores data with a lifetime greater than a single function, for example global
-variables.
-Memory can be allocated there using dedicated runtime functions like \textit{malloc} in C and must be freed after it is
-not needed anymore to avoid running out of heap memory.
-Finally, the stack is also a data section, but in contrast to the heap it is used for local variables of functions, as
-well as their arguments and possibly return values.
-The stack pointer register (\textit{rsp} in the \textit{amd64} architecture) in the processor stores the current top
-of the stack, which is the address of the last value that was added to the stack.
-If a new value is pushed, then the stack pointer is decremented and the data can be written to its new address.
-It is possible to decrement the stack pointer by any number of bytes to make room for several variables at once, and
-then those variables can be accessed by adding a fixed offset to the stack pointer.
-Because the active, allocated stack memory is always at addresses equal or higher than the stack pointer, and adding
-new data means the value of the stack pointer is reduced, the stack grows from the top of the memory to the bottom.
-Figure~\ref{fig:stack} shows a visualization of the concept of pushing data to the stack.
-
-\input{assets/figures/chapter2/stack.tex}
-
-The stack itself is organized in frames.
-When a function is called, a new stack frame is created for this function.
-The caller function starts setting up the parameters of the callee.
-How this is done depends on the specific architecture that the program is run on, as well as the calling convention,
-which together form the Application Binary Interface (\acrshort{ABI}).
-Figure~\ref{fig:stack-frame-layout} shows an example stack frame for a C function call.
-The source code for the function is included in the figure.
-The stack frame is using the \textit{amd64} 64-bit Linux calling convention.
-
-The first six parameters of the \textit{example} function are passed in registers, but the last two are pushed on the
-stack in reverse order.
-Next, the address of the next instruction of the caller function, that is the address that the callee should return
-to after it has finished, is saved on the stack.
-This allows to chain function calls, including recursion, because returning simply removes the stack frame and jumps
-to the saved return address of that frame.
-The return address marks the end of the caller stack frame, after that begins the callee stack frame for the new
-function.
-It starts by saving the current state of the processor registers so that the function can use them for calculations and
-later restore their values to the original ones expected by the caller function.
-After that, local variables of the function are allocated on the stack.
-In this example, they are placed in the order of definition in the source code, but that is not a requirement.
-The compiler will decide how to place the local variables and keep track of their addresses as relative offsets to the
-stack pointer register.
-When the function returns, the stack pointer will be incremented by the size of the callee stack frame, and then the
-return address will be fetched and put into the instruction pointer register.
-The return value of the function is passed in a register in this example.
-In a Go program, returning values can also be achieved using the stack, which the compiler does in the case of multiple
-return values.
-
-\input{assets/figures/chapter2/stack-frame-layout.tex}
-
-A frequent security vulnerability in programs that use traditional systems languages like C are buffer overflows.
-They happen when an array variable, for example a string, is too short for the data that is written to it, causing the
-data to overflow into and overwrite adjacent memory.
-Overflows can happen anywhere in the memory, however a common source of security problems are stack-based buffer
-overflows.
-When a buffer variable is placed on the stack and too much data gets written to it, the data will be written to higher
-memory addresses, which means after overwriting the other local variables and saved registers they can cause the saved
-return address to get changed.
-When an attacker can control the data that is placed there, they can change the program flow by carefully choosing the
-address that ends up being jumped to after the current function returns.
-
-A common problem with data placed on the heap is that if it gets freed but then the program continues to try and use the
-data, it is possible that the memory at that address has already been reused and new data is accessed, potentially
-reading or writing data from another thread.
-However, the same can happen with data on the stack if there are references to the data that remain after the stack
-frame has been destroyed, as dereferencing that address can then access memory that belongs to a different frame and
-thus potentially change arbitrary data including the saved return address.
-This kind of problem is called \textit{use-after-free}.
-
-Buffer overflows and \textit{use-after-free} vulnerabilities are a very common root cause for security problems in
-traditional systems programming languages, as those usually offer direct access to the memory in terms of raw pointers
-and manual allocations~\cite{larochelle2001}.
-To prevent these dangers, many programming languages provide features to achieve a higher level of memory safety.
-There can be compile-time or static measures, runtime or dynamic measures, or a combination of both.
-The Go programming language uses automatic memory management, which means that developers do not need to manually
-allocate and free memory for data structures, instead a value is simply declared and the compiler adds the code to
-properly allocate the appropriate space in memory.
-The Go runtime uses a garbage collector (\acrshort{GC}) that analyzes which values can still be referenced by active
-pointer values, and automatically frees all unreachable values.
-This technique prevents \textit{use-after-free} vulnerabilities because there is no explicit deallocation.
-Furthermore, the Go type system prevents invalid conversions between incompatible types, such as data structures with
-different size.
-Buffers can be expressed either as arrays with fixed length, or slices.
-In the case of arrays, the type system encodes the length of the buffer as a type information, for example instances
-of \textit{[10]byte} and \textit{[20]byte} have fundamentally different types and can not be converted into each other
-or passed to a function that expects a buffer of different length.
-In contrast, in C it would be common to pass around a pointer to the beginning of the buffer, which would not carry
-information about the length.
-In the case of slices, they are represented by a header structure containing information about the allocated size as
-well as a pointer to the underlying data, which will be described in slightly more detail in
-Chapter~\ref{ch:unsafe-security-problems}.
-The Go runtime takes care that there can not be any accesses outside the slice bounds.
-\jl{shorten this section if there is not enough space.}
-
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
@@ -183,6 +66,252 @@ network protocols or device drivers.
 In this thesis the term \unsafe{} usage refers to all members of the \unsafe{} package as well as the slice and string
 header structures that are described in more detail in Chapter~\ref{ch:unsafe-security-problems}.
 
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Slices and Strings in Go}\label{sec:background:slices}
+
+Slices in Go are an array data type consisting of an underlying memory area and information about length and capacity.
+The length indicates how many elements are currently contained in the slice, and the capacity denotes the allocated
+space in memory.
+When a subset of the slice is taken by specifying start and end indices, then a new slice is created that uses the same
+underlying data array as the original one, and might have a capacity longer than its length if there are further
+elements in the original slice after the end of the newly-taken subslice.
+It is possible to increase the size of the new slice up to its capacity, but the size can never be larger than the
+capacity.
+When new elements are added to a slice using the \textit{append} function, then a new slice is created too which has a
+higher length than the previous.
+The runtime reuses the underlying data array of the original slice as well if its capacity is big enough, or allocates
+a new array for the new slice if it is not.
+Strings in Go are read-only \textit{[]byte} slices.
+Usually they are encoded in UTF-8, but this is not required.
+The length of a string is always the number of bytes needed to store its encoded form, which is often not the same as
+the number of characters in the string.
+It is important that strings are immutable because string literals are placed in a constant data section of the binary
+when the code is compiled, meaning they are usually located within a read-only memory page and mutating them would cause
+the program to receive a segmentation fault signal and crash.
+
+\input{assets/listings/chapter3/reflect-header-types.tex}
+
+It is possible to access the internal structure of slices and strings by casting them to their header representation
+using the \unsafe{} \acrshort{API}.
+Listing~\ref{lst:reflect-header-types} shows the \acrshort{API} of these header types.
+As the name suggests, slices correspond to the \textit{SliceHeader} type (Line~3), while strings are associated with the
+\textit{StringHeader} type (Line~9).
+The \textit{Len} fields (Lines~5 and ~11) denote the current length of the slice or string, and finally the
+\textit{SliceHeader} type has an additional \textit{Cap} field (Line~6).
+It stores the allocated capacity of the slice, which is the available size it can grow to until its data array must be
+reallocated when new elements are added.
+Notice that the reference to the underlying data array has the type \textit{uintptr} in both types (Lines~4 and~10),
+therefore it is not inherently treated as a pointer type by the garbage collector (\acrshort{GC}).
+Instead, there is a special case in the Go runtime that recognizes slices and strings and follows the address stored in
+the \textit{Data} field to prevent it from getting collected.
+To prevent these dangers, many programming languages provide features to achieve a higher level of memory safety.
+There can be compile-time or static measures, runtime or dynamic measures, or a combination of both.
+The Go programming language uses automatic memory management, which means that developers do not need to manually
+allocate and free memory for data structures, instead a value is simply declared and the compiler adds the code to
+properly allocate the appropriate space in memory.
+Furthermore, the Go type system prevents invalid conversions between incompatible types, such as data structures with
+different size.
+Buffers can be expressed either as arrays with fixed length, or slices.
+In the case of arrays, the type system encodes the length of the buffer as a type information, for example instances
+of \textit{[10]byte} and \textit{[20]byte} have fundamentally different types and can not be converted into each other
+or passed to a function that expects a buffer of different length.
+In contrast, in C it would be common to pass around a pointer to the beginning of the buffer, which would not carry
+information about the length.
+In the case of slices, they are represented by a header structure containing information about the allocated size as
+well as a pointer to the underlying data, which will be described in slightly more detail in
+Chapter~\ref{ch:unsafe-security-problems}.
+The Go runtime takes care that there can not be any accesses outside the slice bounds.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Memory Management}\label{sec:background:memory}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Stack and Heap}\label{subsec:background:memory:stack-heap}
+
+The working memory of a computer, more specifically the Random Access Memory (\acrshort{RAM}) is used to hold both
+application data and program instructions.
+It is essentially a single string of bytes that each have an increasing address.
+To organize this memory effectively, it is divided into memory pages that can get mapped into virtual memory sections.
+These sections and pages are managed by the operating system (\acrshort{OS}).
+Virtual memory allows each process to address its data regardless of its actual position in the physical memory.
+When a process is loaded by the \acrshort{OS}, its execution will always start at the same virtual address which is
+stored in the executable file.
+The \acrshort{OS} will then take care of translating the virtual address into an actual absolute memory address.
+The virtual memory of a process is further divided into different functional areas, most importantly the text sections,
+the heap, and the stack.
+
+The text sections contain the machine-readable program instructions.
+The heap is a data section that stores data with a lifetime greater than a single function, for example global
+variables.
+Memory can be allocated there using dedicated runtime functions like \textit{malloc} in C and must be freed after it is
+not needed anymore to avoid running out of heap memory.
+Finally, the stack is also a data section, but in contrast to the heap it is used for local variables of functions, as
+well as their arguments and possibly return values.
+The stack pointer register (\textit{rsp} in the \textit{amd64} architecture) in the processor stores the current top
+of the stack, which is the address of the last value that was added to the stack.
+If a new value is pushed, then the stack pointer is decremented and the data can be written to its new address.
+It is possible to decrement the stack pointer by any number of bytes to make room for several variables at once, and
+then those variables can be accessed by adding a fixed offset to the stack pointer.
+Because the active, allocated stack memory is always at addresses equal or higher than the stack pointer, and adding
+new data means the value of the stack pointer is reduced, the stack grows from the top of the memory to the bottom.
+Figure~\ref{fig:stack} shows a visualization of the concept of pushing data to the stack.
+
+\input{assets/figures/chapter2/stack.tex}
+
+The stack itself is organized in frames.
+When a function is called, a new stack frame is created for this function.
+The caller function starts setting up the parameters of the callee.
+How this is done depends on the specific architecture that the program is run on, as well as the calling convention,
+which together form the Application Binary Interface (\acrshort{ABI}).
+Figure~\ref{fig:stack-frame-layout} shows an example stack frame for a C function call.
+The source code for the function is included in the figure.
+The stack frame is using the \textit{amd64} 64-bit Linux calling convention.
+
+The first six parameters of the \textit{example} function are passed in registers, but the last two are pushed on the
+stack in reverse order.
+Next, the address of the next instruction of the caller function, that is the address that the callee should return
+to after it has finished, is saved on the stack.
+This allows to chain function calls, including recursion, because returning simply removes the stack frame and jumps
+to the saved return address of that frame.
+The return address marks the end of the caller stack frame, after that begins the callee stack frame for the new
+function.
+It starts by saving the current state of the processor registers so that the function can use them for calculations and
+later restore their values to the original ones expected by the caller function.
+After that, local variables of the function are allocated on the stack.
+In this example, they are placed in the order of definition in the source code, but that is not a requirement.
+The compiler will decide how to place the local variables and keep track of their addresses as relative offsets to the
+stack pointer register.
+When the function returns, the stack pointer will be incremented by the size of the callee stack frame, and then the
+return address will be fetched and put into the instruction pointer register.
+The return value of the function is passed in a register in this example.
+In a Go program, returning values can also be achieved using the stack, which the compiler does in the case of multiple
+return values.
+
+\input{assets/figures/chapter2/stack-frame-layout.tex}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Garbage Collection (GC)}\label{subsec:background:memory:gc}
+
+The Go runtime uses a garbage collector (\acrshort{GC}) that analyzes which values can still be referenced by active
+pointer values, and automatically frees all unreachable values.
+This technique prevents \textit{use-after-free} vulnerabilities because there is no explicit deallocation.
+Go uses a move-and-sweep GC that runs concurrently with all other threads of a program to free unused heap
+memory~\cite{sibiryov2017}.
+It is triggered by one of two conditions, either when the heap usage has increased to a specific size (usually when the
+usage has doubles since the last \acrshort{GC} run), or after a fixed time has passed without any \acrshort{GC} runs.
+The \acrshort{GC} takes all variables that are present in the scope of the program and marks them as live.
+Then, it recursively follows all pointer types within live variables and marks their target values as live, too.
+After this marking phase has completed, the sweep phase frees all memory that is not marked as live.
+Finally, the markings are reset and a new \acrshort{GC} run can be triggered.
+
+Figure~\ref{fig:gc-visualization} shows a visualization of the marking phase in a \acrshort{GC} run.
+The variables in scope can be either on the stack, which is not managed by the \acrshort{GC}, or on the heap, in which
+case they are marked as being live as well.
+The arrows indicate references from pointer types to their targets, and the blue values on the heap are the ones marked
+as live.
+The white heap values will be freed in the sweep phase of the \acrshort{GC}.
+
+\input{assets/figures/chapter3/gc-visualization.tex}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Exploit Techniques and Mitigations}\label{sec:background:exploit-techniques}
+
+A frequent security vulnerability in programs that use traditional systems languages like C are buffer overflows.
+They happen when an array variable, for example a string, is too short for the data that is written to it, causing the
+data to overflow into and overwrite adjacent memory.
+Overflows can happen anywhere in the memory, however a common source of security problems are stack-based buffer
+overflows.
+When a buffer variable is placed on the stack and too much data gets written to it, the data will be written to higher
+memory addresses, which means after overwriting the other local variables and saved registers they can cause the saved
+return address to get changed.
+When an attacker can control the data that is placed there, they can change the program flow by carefully choosing the
+address that ends up being jumped to after the current function returns.
+
+A common problem with data placed on the heap is that if it gets freed but then the program continues to try and use the
+data, it is possible that the memory at that address has already been reused and new data is accessed, potentially
+reading or writing data from another thread.
+However, the same can happen with data on the stack if there are references to the data that remain after the stack
+frame has been destroyed, as dereferencing that address can then access memory that belongs to a different frame and
+thus potentially change arbitrary data including the saved return address.
+This kind of problem is called \textit{use-after-free}.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Buffer Overflow}\label{subsec:background:exploit-techniques:buffer-overflow}
+
+Buffer overflows and \textit{use-after-free} vulnerabilities are a very common root cause for security problems in
+traditional systems programming languages, as those usually offer direct access to the memory in terms of raw pointers
+and manual allocations~\cite{larochelle2001}.
+The most basic approach to inject arbitrary code is to place machine instructions into the exploit input data, which
+will then be written to the stack.
+They can be before or after the address that gets overwritten at the position of the saved return instruction pointer,
+but usually it is placed after because there is more space available.
+The instruction pointer is then set to the start address of the machine instructions payload.
+Since stack addresses can be slightly unpredictable in practice, for example because environment variables with
+different lengths might be located on the stack, a \textit{NOP-slide} can be used to make the exploit more robust.
+\textit{NOP}, or \textit{no-op}, is a machine instruction that does nothing at all, the processor simply continues with
+the following instruction.
+A \textit{NOP-slide} then is a series of such instructions.
+Using this, it is sufficient to overwrite the return instruction pointer with an address somewhere within the
+\textit{NOP} instructions to make the processor go through all remaining of them until it reaches the exploit code,
+similar to sliding down a slope.
+Thus, the address does not have to match the exact start of the payload code anymore, instead it can have a tolerance.
+Figure~\ref{fig:stack-smashing-payload} shows a visualization of an example input data used to spawn a shell that an
+attacker can then use to execute arbitrary code.
+
+\input{assets/figures/chapter3/stack-smashing-payload.tex}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Data Execution Prevention (DEP)}\label{subsec:background:exploit-techniques:dep}
+
+However, such a type of exploit does not work an modern operating systems because they employ mitigation techniques
+against this.
+Executing machine instructions that are placed in memory that is part of the stack is prevented because the memory pages
+containing the stack are marked as non-executable.
+This technique is called Data Execution Prevention (\acrshort{DEP}).
+It takes care of having sections in memory be either executable or writable, but not both.
+That way, attackers can not easily write code into the memory and then jump into this code.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Address Space Layout Randomization (ASLR)}\label{subsec:background:exploit-techniques:aslr}
+
+To work around \acrshort{DEP}, attackers can reuse existing functions in the binary, because as part of the text section
+these are located on executable (but not writable) memory pages.
+There is Address Space Layout Randomization (\acrshort{ASLR}), which loads dynamically-linked libraries into random
+memory positions to avoid having predictable function addresses usable by attackers for code that is part of standard
+libraries, like the C library \textit{glibc}.
+However, \acrshort{ASLR} does not apply to statically-linked code, which the Go compiler mostly creates.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Return Oriented Programming (ROP)}\label{subsec:background:exploit-techniques:rop}
+
+Return-oriented programming (\acrshort{ROP}) is a specific technique for reusing code that suggests jumping to very
+small so-called gadgets, which are sequences of two or few more machine instructions that do not modify the stack
+pointer register and end with a return instruction \jl{add citation}.
+With these properties, gadgets can be chained because after the execution of a fragment the return instruction fetches
+the next address to jump to from the stack, which the attacker can control.
+Depending on the available \acrshort{ROP} gadgets, the attacker can therefore concatenate them and thus write a program
+with a limited set of assembler instructions available.
+The Go standard library is very large and thus provides many available gadgets.
+This makes exploiting a buffer overflow, once it exists in a Go program, even easier compared to a C program where an
+attacker would have to work around \acrshort{ASLR}, for example.
+
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
@@ -208,12 +337,25 @@ its own.
 The import path is made up of the directory tree leading to the package directory, separated by forward slashes.
 For example, a valid import path would be \textit{my-application/storage/database}.
 
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{GOPATH and GOROOT}\label{subsec:background:dependencies:gopath}
+
 To allow sharing code with other developers and implementing reusable libraries, it is possible to download external
 packages using the \textit{go get} command, which can fetch packages using \acrshort{HTTP}, Git, or other means.
 The import path usually begins with a \acrshort{DNS} host such as \textit{github.com} which hosts the package code.
 The host part is then called \textit{registry}.
 However, a drawback is that this technique does not allow to specify a version of the imported package, which makes it
 very hard to publish stable libraries.
+
+\todo{Explain GOPATH and GOROOT}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Go Module System}\label{subsec:background:dependencies:modules}
+
 Starting with the release of Go \checkNum{1.11}, the development of the module system has fixed this by introducing a
 new unit of code organization.
 Modules contain one or more packages, and have a name and import path similar to packages, which can in fact be the name
@@ -263,6 +405,11 @@ be executed in which order and how data is being transferred between variables.
 This allows for example to detect unused or dead code, or detect whether a variable is used before it is initialized.
 To do this, a control flow graph (\acrshort{CFG}) is used.
 
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Abstract Syntax Tree (AST)}\label{subsec:background:static-code-analysis:ast}
+
 Figure~\ref{fig:ast} shows an example of an \acrshort{AST}.
 It represents a code fragment of just one statement, which is \textit{x := 3 + 5}.
 Source code of programming languages is a formal language that follows a grammar, which is its syntax.
@@ -281,9 +428,13 @@ representation such as white space.
 Identifier names can also be easily replaced by different names in the abstract representation, which makes the
 \acrshort{AST} perfect for name refactoring operations or recognizing specific types even if they are aliased in the
 source code.
-The latter is very useful for the design of \toolGeiger{}, as described in Chapter~\ref{ch:go-geiger}.
 
 \input{assets/figures/chapter2/ast.tex}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Control Flow Graph (CFG)}\label{subsec:background:static-code-analysis:cfg}
 
 In contrast, the \acrshort{CFG} is not purely based on syntax anymore, but needs semantic analysis to be constructed.
 It is a directed graph showing possible execution paths through the code segments.
@@ -312,7 +463,11 @@ Furthermore, using node annotations that indicate whether variables are read or 
 control flow anomalies such as read-before-write, which would show that a variable is used before it is initialized.
 It is also useful to detect where a variable is assigned for the last time before a particular statement, thus what
 value it has at time of execution of that statement.
-This will be used for the design of the \unsafe{}-focused linter \toolSafer{} described in Chapter~\ref{ch:go-safer}.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Go Linters \toolVet{} and \toolGosec{}}\label{subsec:background:static-code-analysis:linters}
 
 There are a number of existing static code analysis tools for the Go programming language.
 The most official is \toolVet{}\footnote{\url{https://golang.org/cmd/vet}}, which is included as part of the main Go
@@ -327,3 +482,4 @@ Similar to \toolVet{}, it contains a number of different rules that the source c
 insecure hash functions are used, template strings contain unescaped data, or returned error values from functions are
 actually checked.
 Such static analysis tools that detect insecure code or common mistakes are called linters.
+

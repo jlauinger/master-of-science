@@ -1,3 +1,19 @@
+% Analysis of Security Problems with Unsafe
+%   Architecture Dependent Types
+%   Incorrect Slice and String Casts
+%     Implicit Read Only
+%     GC Race Use-After-Free
+%     Escape Analysis Use-After-Free
+%   Buffer Oberflow Vulnerabilities
+%     Incompatible Types
+%     Incorrect Length Information
+%     Code Injection
+%   Summary?
+
+
+
+
+
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \chapter{Analysis of Security Problems with Unsafe}\label{ch:unsafe-security-problems}
@@ -16,157 +32,51 @@ Finally, the dangers of conversions between types with architecture-dependent si
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\section{Buffer Overflow Vulnerabilities}\label{sec:unsafe-security-problems:buffer-overflow}
+\section{Architecture-Dependent Types}\label{sec:unsafe-security-problems:architecture-dependent-types}
 
-The first main area of possible vulnerabilities in the context of the \unsafe{} \acrshort{API} are buffer overflows.
-They are a rather common and dangerous problem with traditional systems programming languages like C, accounting for
-many of the most severe security vulnerabilities~\cite{larochelle2001} \jl{second citation}.
-When \unsafe{} code is used in Go, the safety measures provided by the language described in
-Section~\ref{sec:background:memory-safety-layout} are circumvented.
-Therefore, buffer overflows can happen just as well in that case.
+The third area of possible vulnerabilities concerns types that have a different size or alignment on different
+architectures.
+A feature of Go is portability between different platforms.
+The same source code can usually be compiled for many different architectures without any changes in its behavior.
+However, this is only true as long as the \unsafe{} \acrshort{API} is not used.
+Since \unsafe{} code allows direct conversion between arbitrary types, there can be inconsistencies between the sizes
+and alignments of structure fields on different architectures.
+An example of this is shown in Listing~\ref{lst:architecture-dependent-types-cast}.
 
+\input{assets/listings/chapter3/architecture-dependent-types-cast.tex}
 
-%% ---------------------------------------------------------------------------------------------------------------------
+There are two structure types declared, \textit{PinkStruct} (Lines~1--4) and \textit{VioletStruct} (Lines~5--8), both of
+which have two fields \textit{A} and \textit{B}.
+While field \textit{B} has the same type (\textit{uint8}) in both types, field \textit{A} is of type \textit{int}
+(Line~2) and \textit{int64} (Line~6), respectively.
+An instance of \textit{PinkStruct} is created in Line~11, which is then converted to \textit{VioletStruct} in Line~12.
+This is however only a valid operation if \textit{int} and \textit{int64} share the same size and alignment.
 
-\subsection{Information Leak}\label{subsec:unsafe-security-problems:buffer-overflow:information-leak}
+This is true only for 64-bit platforms like \textit{amd64}.
+If the code is run on such an architecture, the conversion works fine and the field values in the resulting variable
+\textit{violet} are as expected.
+In contrast, if the code is run on an architecture where \textit{int} and \textit{int64} have different size or
+alignment, then the values of \textit{violet} are undefined.
+This is the case for example when the code is run on a 32-bit platform like \textit{i386}.
+When the structure definitions are not placed directly next to each other but in separate files, packages, or even
+modules, then spotting the difference between the incompatible structs is much harder.
+On top of that, the bug might never occur in testing but only on specific platforms that get used in production.
+Possible consequences of a bug like this depend on how the resulting struct is used in the remainder of the program.
+If data gets written to it, it changes invalid memory which can lead to a code injection vulnerability, and if it is
+passed as output it could create an information leak vulnerability.
 
-Go uses a strict type system that encodes the buffer length in the type information.
-This prevents most buffer overflow vulnerabilities at compile time because the compiler can detect whether a given
-buffer will be large enough to store the data that gets written to it, as described in
-Section~\ref{sec:background:memory-safety-layout}.
-However, this safety measure is circumvented when the \unsafe{} \acrshort{API} is used in Go.
-Using direct casts through the \textit{unsafe.Pointer} type, it is possible to convert between buffers of different
-sizes.
-Listing~\ref{lst:information-leak} shows such a situation.
+On top of other field sizes, there could also be a different endianess on some architecture.
+In this case, using a direct cast using the \unsafe{} \acrshort{API} is not aware of possible changes of the byte order,
+for example incoming network data and data stored in the memory could be represented as big and little endians and cause
+a mismatch.
+When such data is stored as the length of a slice, the number could be misinterpreted and thus a slice with a wrong
+length could be created.
+This in term causes a buffer overflow vulnerability with the consequences discussed earlier.
 
-\input{assets/listings/chapter3/information-leak.tex}
-
-In Line~2, a buffer of size four bytes called \textit{harmlessBuffer} is initialized with data.
-Then, Line~2 declares a buffer containing a secret value, which should stay internal to the application.
-Using the \unsafe{} \acrshort{API}, the \textit{harmlessBuffer} is then converted to a have a new length of ten bytes,
-although there is no reallocation (Line~4).
-The resulting buffer is finally printed (Line~5), which outputs not only the harmless four bytes, but also the secret.
-The secret data could for example be a cryptographic private key or password information.
-Therefore, this bug has created an information leak vulnerability.
-
-To motivate a situation where this bug can have serious consequences,
-Figure~\ref{fig:information-leak-threat-model-protocol} shows the specification of a simple client / server
-communication protocol.
-Both request and response types contain a version and message type field as well as a buffer for message-specific,
-serialized data of length 512 bytes.
-
-\input{assets/figures/chapter3/information-leak-threat-model-protocol.tex}
-
-If the client or server handling these messages uses the \unsafe{} \acrshort{API} to convert the serialized data to a
-specific data structure, then the field lengths must match.
-Imagine a company where two different teams are working on the client and server, respectively, and they printed the
-protocol diagrams to hang them on the wall when the specification was decided.
-A developer in one of the teams could easily miss the announcement of a protocol change that affects the buffer size,
-and when they write incorrect code based on the outdated information on the printed diagram, the mistake could become
-unnoticed in code review due to the same reason, a reviewer who looks at the protocol diagram in the team room.
-
-
-%% ---------------------------------------------------------------------------------------------------------------------
-
-\subsection{Code Flow Redirection}\label{subsec:unsafe-security-problems:buffer-overflow:code-flow-redirection}
-
-To create a classic input-based buffer overflow vulnerability, a byte slice with a length of 512 bytes is initializated,
-but backed up with an underlying, much shorter byte buffer of only eight bytes.
-Slices can be created using a cast from the \textit{reflect.SliceHeader} type which reflects the internal slice
-irepresentation.
-This is done in Lines~4 to~6 of Listing~\ref{lst:buffer-overflow}.
-
-\input{assets/listings/chapter3/buffer-overflow.tex}
-
-Then, a reader is used to read input data into this malicious slice in Line~8.
-Since it has a length of 512 bytes, the function reads up to this many bytes, however since the actual data array used
-by the slice is much shorter, this will overflow into the memory behind the data array.
-In this case, the \textit{harmlessData} array is created on the stack of the function, which means it is vulnerable to
-buffer overflow exploits as described in Section~\ref{sec:background:memory-safety-layout}.
-An attacker can use this vulnerability to redirect the code flow by carefully crafting the input data such that the
-saved return instruction pointer on the stack is overwritten with the address of a function of the attacker's choice.
-To find the needed amount of padding before the address in the input data, as well as to find the target function's
-address, the attacker can use a debugger such as \textit{GDB}.
-
-A threat model for this kind of vulnerability would be an application that, similarly to the threat model described in
-Section~\ref{subsec:unsafe-security-problems:buffer-overflow:information-leak}, uses a client server model, but this
-time with a length information indicating how many bytes are sent within a variable-length data section as part of the
-protocol.
-If such a length field is used to construct a slice in the way shown in Listing~\ref{lst:buffer-overflow}, then an
-attacker can control the resulting slice length and potentially exploit this bug to redirect to arbitrary code within
-the binary.
-
-
-%% ---------------------------------------------------------------------------------------------------------------------
-
-\subsection{Code Injection using ROP}\label{subsec:unsafe-security-problems:buffer-overflow:code-injection}
-
-Going a step further, this subsection shows how the same bug shown in the previous section in
-Listing~\ref{lst:buffer-overflow} can be used with return-oriented programming (\acrshort{ROP}) to create a code
-injection exploit.
-The most basic approach to inject arbitrary code is to place machine instructions into the exploit input data, which
-will then be written to the stack.
-They can be before or after the address that gets overwritten at the position of the saved return instruction pointer,
-but usually it is placed after because there is more space available.
-The instruction pointer is then set to the start address of the machine instructions payload.
-Since stack addresses can be slightly unpredictable in practice, for example because environment variables with
-different lengths might be located on the stack, a \textit{NOP-slide} can be used to make the exploit more robust.
-\textit{NOP}, or \textit{no-op}, is a machine instruction that does nothing at all, the processor simply continues with
-the following instruction.
-A \textit{NOP-slide} then is a series of such instructions.
-Using this, it is sufficient to overwrite the return instruction pointer with an address somewhere within the
-\textit{NOP} instructions to make the processor go through all remaining of them until it reaches the exploit code,
-similar to sliding down a slope.
-Thus, the address does not have to match the exact start of the payload code anymore, instead it can have a tolerance.
-Figure~\ref{fig:stack-smashing-payload} shows a visualization of an example input data used to spawn a shell that an
-attacker can then use to execute arbitrary code.
-
-\input{assets/figures/chapter3/stack-smashing-payload.tex}
-
-However, such a type of exploit does not work an modern operating systems because they employ mitigation techniques
-against this.
-Executing machine instructions that are placed in memory that is part of the stack is prevented because the memory pages
-containing the stack are marked as non-executable.
-This technique is called Data Execution Prevention (\acrshort{DEP}).
-It takes care of having sections in memory be either executable or writable, but not both.
-That way, attackers can not easily write code into the memory and then jump into this code.
-To work around \acrshort{DEP}, attackers can reuse existing functions in the binary, because as part of the text section
-these are located on executable (but not writable) memory pages.
-There is Address Space Layout Randomization (\acrshort{ASLR}), which loads dynamically-linked libraries into random
-memory positions to avoid having predictable function addresses usable by attackers for code that is part of standard
-libraries, like the C library \textit{glibc}.
-However, \acrshort{ASLR} does not apply to statically-linked code, which the Go compiler mostly creates.
-
-Return-oriented programming (\acrshort{ROP}) is a specific technique for reusing code that suggests jumping to very
-small so-called gadgets, which are sequences of two or few more machine instructions that do not modify the stack
-pointer register and end with a return instruction \jl{add citation}.
-With these properties, gadgets can be chained because after the execution of a fragment the return instruction fetches
-the next address to jump to from the stack, which the attacker can control.
-Depending on the available \acrshort{ROP} gadgets, the attacker can therefore concatenate them and thus write a program
-with a limited set of assembler instructions available.
-The Go standard library is very large and thus provides many available gadgets.
-This makes exploiting a buffer overflow, once it exists in a Go program, even easier compared to a C program where an
-attacker would have to work around \acrshort{ASLR}, for example.
-
-A strategy to exploit a buffer overflow to achieve code injection using \acrshort{ROP} is to use the \textit{mprotect}
-and \textit{read} system calls.
-A system call, or syscall, is a function provided by the operating system which can be executed using the
-\textit{syscall} machine instruction.
-The processor registers control which syscall gets executed and which parameters it receives.
-Therefore, an attacker only needs \acrshort{ROP} gadgets to control the contents of the registers, as well as to trigger
-the syscall.
-Using the \textit{mprotect} call, the attacker can set a memory area of their choice to have both writable and
-executable flags, for example the heap area.
-Then, using the \textit{read} call, they can store data in that memory section, which is usually an exploit payload
-spawning a shell to receive further arbitrary commands.
-The payload is simply provided as part of the input string created by the attacker.
-Finally, by using the address of the code area just like an address of another \acrshort{ROP} gadget the attacker can
-make the processor jump to the payload code.
-Because in contrast to the stack the code is now located on an executable page, it gets executed and the code injection
-attack succeeds.
-More details and proof-of-concept code for this type of exploit, as well as all other exploits presented in this
-Chapter~\ref{ch:unsafe-security-problems}, are available in a dedicated repository on
-\github{}\footnote{\url{https://github.com/jlauinger/go-unsafepointer-poc}}.
+\begin{insight}
+    Different type sizes and endianess on various architectures, used with direct conversions through
+    \textit{unsafe.Pointer}, can cause invalid memory access such as buffer overflows.
+\end{insight}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -175,120 +85,6 @@ Chapter~\ref{ch:unsafe-security-problems}, are available in a dedicated reposito
 
 The second main area of danger with \unsafe{} usages is focused around the conversion of slices and string of different
 types.
-Slices in Go are an array data type consisting of an underlying memory area and information about length and capacity.
-The length indicates how many elements are currently contained in the slice, and the capacity denotes the allocated
-space in memory.
-When a subset of the slice is taken by specifying start and end indices, then a new slice is created that uses the same
-underlying data array as the original one, and might have a capacity longer than its length if there are further
-elements in the original slice after the end of the newly-taken subslice.
-It is possible to increase the size of the new slice up to its capacity, but the size can never be larger than the
-capacity.
-When new elements are added to a slice using the \textit{append} function, then a new slice is created too which has a
-higher length than the previous.
-The runtime reuses the underlying data array of the original slice as well if its capacity is big enough, or allocates
-a new array for the new slice if it is not.
-Strings in Go are read-only \textit{[]byte} slices.
-Usually they are encoded in UTF-8, but this is not required.
-The length of a string is always the number of bytes needed to store its encoded form, which is often not the same as
-the number of characters in the string.
-It is important that strings are immutable because string literals are placed in a constant data section of the binary
-when the code is compiled, meaning they are usually located within a read-only memory page and mutating them would cause
-the program to receive a segmentation fault signal and crash.
-
-\input{assets/listings/chapter3/reflect-header-types.tex}
-
-It is possible to access the internal structure of slices and strings by casting them to their header representation
-using the \unsafe{} \acrshort{API}.
-Listing~\ref{lst:reflect-header-types} shows the \acrshort{API} of these header types.
-As the name suggests, slices correspond to the \textit{SliceHeader} type (Line~3), while strings are associated with the
-\textit{StringHeader} type (Line~9).
-The \textit{Len} fields (Lines~5 and ~11) denote the current length of the slice or string, and finally the
-\textit{SliceHeader} type has an additional \textit{Cap} field (Line~6).
-It stores the allocated capacity of the slice, which is the available size it can grow to until its data array must be
-reallocated when new elements are added.
-Notice that the reference to the underlying data array has the type \textit{uintptr} in both types (Lines~4 and~10),
-therefore it is not inherently treated as a pointer type by the garbage collector (\acrshort{GC}).
-Instead, there is a special case in the Go runtime that recognizes slices and strings and follows the address stored in
-the \textit{Data} field to prevent it from getting collected.
-
-
-%% ---------------------------------------------------------------------------------------------------------------------
-
-\subsection{Incompatible Types}\label{subsec:unsafe-security-problems:slice-casts:incompatible-types}
-
-Converting slices to strings and vice versa can be done simply by casting them, however this will cause the Go runtime
-to allocate a new slice or string for the resulting value.
-To improve efficiency by reusing the underlying data and only reinterpret it as data of a new type, it is possible to
-use the \unsafe{} \acrshort{API} for an in-place cast.
-Since the fields in the header structures shown in Listing~\ref{lst:reflect-header-types} are different in the presence
-of the \textit{Cap} field, this is however only valid for conversions from slices to string.
-In that case, the resulting string header, which shares the same location in memory with the original slice header, will
-reuse the reference to the underlying data array as well as the length, and since the string header structure does not
-contain any more fields the capacity information will remain in adjacent, unused memory.
-
-In contrast, when converting a string to a slice directly, the source header structure is too short.
-The resulting slice header will use correct values for its data reference and length, but the capacity field will
-contain whatever is located in memory directly after the original string header.
-
-\input{assets/listings/chapter3/unsafe-string-to-bytes-direct.tex}
-
-The resulting slice with random data in its capacity field is dangerous to use.
-Operations that read from a slice, like using it in a loop to iterate over its contents, mostly only use the data
-reference and length.
-However, any action on the slice that uses the capacity, like taking subslices from it or appending data, is undefined
-and can therefore become a security vulnerability.
-There is an instance of this incorrect cast in the \textit{k8s.io/apiserver} package that is part of the
-\textit{Kubernetes} project, showing a conversoin from \textit{string} to \textit{[]byte}.
-It is shown in Listing~\ref{lst:unsafe-string-to-bytes-direct}.
-
-
-%% ---------------------------------------------------------------------------------------------------------------------
-
-\subsection{Incorrect Length Information}\label{subsec:unsafe-security-problems:slice-casts:incorrect-length}
-
-A second possible misuse in the context of slice conversions is an incorrect length value set in the slice header.
-This can happen quickly if the length information is calculated dynamically, especially if the user-supplied input data
-is used to deduce the resulting value.
-An example of such a bug is shown in Listing~\ref{lst:go-fuse-bug}.
-It is taken from the \textit{hanwen/go-fuse} library\footnote{\url{https://github.com/hanwen/go-fuse}}, a Go
-implementation of the server specification used for the userspace filesystem (\acrshort{FUSE}) available for
-Linux~\footnote{\url{https://www.kernel.org/doc/html/latest/filesystems/fuse.html}}.
-We already submitted a patch for this bug to the authors.
-
-\input{assets/listings/chapter3/go-fuse-bug.tex}
-
-\acrshort{FUSE} uses a client / server architecture where filesystem implementations present a server that handles
-requests from a specific kernel module.
-The kernel module acts like a regular filesystem driver, but instead of executing operations in kernel space, it
-forwards them to the user space \acrshort{FUSE} server.
-Communication is done through the \textit{/dev/fuse} device node.
-The listing shows a part of the \textit{doBatchForget} function, which is used to clear files, identified by their inode
-number, from a cache that the filesystem might have.
-\textit{go-fuse} is designed in a way that incoming data from the \textit{/dev/fuse} node is passed to handler functions
-as byte slices (\textit{req.inData} and \textit{req.arg} in Lines~2 and~5) containing the raw, serialized request.
-The handler function then casts the data into a suitable structure to access individual fields.
-In this case, the request is converted into an instance of the \textit{\_BatchForgetIn} type (Line~2), which provides
-access to the number of inodes to forget that are contained in the batch request through the \textit{in.Count} field
-(Line~3).
-The individual forget messages in serialized and concatenated form are available through the \textit{req.arg} array, so
-to access them a new slice is created by defining its slice header from scratch (Lines~11--15).
-The created slice uses the incoming request data containing the forget messages (\textit{req.arg}, Line~12) as its
-underlying data array and the number of messages (\textit{in.Count}) both as length and capacity (Lines~13 and~14).
-
-Since the \textit{in.Count} field is supplied as part of the request sent to the library, it can be controlled by an
-attacker if they manage to conduct a man-in-the-middle attack and change the request for a malicious
-one.
-If the length is greater than the actual available number of data bytes, then the resulting \textit{forgets} slice
-(Line~16) will read additional data after the end of the actual batch forgets request.
-Depending of the concrete operation to forget inodes from a local cache, this could have severe consequences with
-respect to security.
-To prevent this from happening, the authors intended to check the length of the available data in Line~5, and if there
-are too few bytes for the alleged number of forget requests, then the method should not proceed.
-However, as the listing shows there is no actual code to stop further execution of the method, instead there is only a
-log message noting that there was a malformed request with too few bytes available (Lines~7--8).
-A proof-of-concept implementation of a potential attacker showed that the method actually reads invalid memory data
-located after the request data.
-In this case, a simple \textit{return} statement after Line~8 would have prevented this bug.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -341,23 +137,6 @@ start using the function without having all possible consequences in mind.
 
 The second problem caused by the conversion shown in Listing~\ref{lst:string-to-bytes} is a \textit{use-after-free} bug
 caused by a race condition involving the garbage collector (\acrshort{GC}) used by Go.
-Go uses a move-and-sweep GC that runs concurrently with all other threads of a program to free unused heap
-memory~\cite{sibiryov2017}.
-It is triggered by one of two conditions, either when the heap usage has increased to a specific size (usually when the
-usage has doubles since the last \acrshort{GC} run), or after a fixed time has passed without any \acrshort{GC} runs.
-The \acrshort{GC} takes all variables that are present in the scope of the program and marks them as live.
-Then, it recursively follows all pointer types within live variables and marks their target values as live, too.
-After this marking phase has completed, the sweep phase frees all memory that is not marked as live.
-Finally, the markings are reset and a new \acrshort{GC} run can be triggered.
-
-Figure~\ref{fig:gc-visualization} shows a visualization of the marking phase in a \acrshort{GC} run.
-The variables in scope can be either on the stack, which is not managed by the \acrshort{GC}, or on the heap, in which
-case they are marked as being live as well.
-The arrows indicate references from pointer types to their targets, and the blue values on the heap are the ones marked
-as live.
-The white heap values will be freed in the sweep phase of the \acrshort{GC}.
-
-\input{assets/figures/chapter3/gc-visualization.tex}
 
 The \acrshort{GC} treats all pointer types and the special \textit{Data} field of actual slices and strings as reference
 types.
@@ -490,48 +269,199 @@ memory, with possible consequences such as information leaks or code injection.
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\section{Architecture-Dependent Types}\label{sec:unsafe-security-problems:architecture-dependent-types}
+\section{Buffer Overflow Vulnerabilities}\label{sec:unsafe-security-problems:buffer-overflow}
 
-The third area of possible vulnerabilities concerns types that have a different size or alignment on different
-architectures.
-A feature of Go is portability between different platforms.
-The same source code can usually be compiled for many different architectures without any changes in its behavior.
-However, this is only true as long as the \unsafe{} \acrshort{API} is not used.
-Since \unsafe{} code allows direct conversion between arbitrary types, there can be inconsistencies between the sizes
-and alignments of structure fields on different architectures.
-An example of this is shown in Listing~\ref{lst:architecture-dependent-types-cast}.
+The first main area of possible vulnerabilities in the context of the \unsafe{} \acrshort{API} are buffer overflows.
+They are a rather common and dangerous problem with traditional systems programming languages like C, accounting for
+many of the most severe security vulnerabilities~\cite{larochelle2001} \jl{second citation}.
+When \unsafe{} code is used in Go, the safety measures provided by the language described in
+Section~\ref{sec:background:memory-safety-layout} are circumvented.
+Therefore, buffer overflows can happen just as well in that case.
 
-\input{assets/listings/chapter3/architecture-dependent-types-cast.tex}
 
-There are two structure types declared, \textit{PinkStruct} (Lines~1--4) and \textit{VioletStruct} (Lines~5--8), both of
-which have two fields \textit{A} and \textit{B}.
-While field \textit{B} has the same type (\textit{uint8}) in both types, field \textit{A} is of type \textit{int}
-(Line~2) and \textit{int64} (Line~6), respectively.
-An instance of \textit{PinkStruct} is created in Line~11, which is then converted to \textit{VioletStruct} in Line~12.
-This is however only a valid operation if \textit{int} and \textit{int64} share the same size and alignment.
+%% ---------------------------------------------------------------------------------------------------------------------
 
-This is true only for 64-bit platforms like \textit{amd64}.
-If the code is run on such an architecture, the conversion works fine and the field values in the resulting variable
-\textit{violet} are as expected.
-In contrast, if the code is run on an architecture where \textit{int} and \textit{int64} have different size or
-alignment, then the values of \textit{violet} are undefined.
-This is the case for example when the code is run on a 32-bit platform like \textit{i386}.
-When the structure definitions are not placed directly next to each other but in separate files, packages, or even
-modules, then spotting the difference between the incompatible structs is much harder.
-On top of that, the bug might never occur in testing but only on specific platforms that get used in production.
-Possible consequences of a bug like this depend on how the resulting struct is used in the remainder of the program.
-If data gets written to it, it changes invalid memory which can lead to a code injection vulnerability, and if it is
-passed as output it could create an information leak vulnerability.
+\subsection{Incompatible Types}\label{subsec:unsafe-security-problems:slice-casts:incompatible-types}
 
-On top of other field sizes, there could also be a different endianess on some architecture.
-In this case, using a direct cast using the \unsafe{} \acrshort{API} is not aware of possible changes of the byte order,
-for example incoming network data and data stored in the memory could be represented as big and little endians and cause
-a mismatch.
-When such data is stored as the length of a slice, the number could be misinterpreted and thus a slice with a wrong
-length could be created.
-This in term causes a buffer overflow vulnerability with the consequences discussed earlier.
+Converting slices to strings and vice versa can be done simply by casting them, however this will cause the Go runtime
+to allocate a new slice or string for the resulting value.
+To improve efficiency by reusing the underlying data and only reinterpret it as data of a new type, it is possible to
+use the \unsafe{} \acrshort{API} for an in-place cast.
+Since the fields in the header structures shown in Listing~\ref{lst:reflect-header-types} are different in the presence
+of the \textit{Cap} field, this is however only valid for conversions from slices to string.
+In that case, the resulting string header, which shares the same location in memory with the original slice header, will
+reuse the reference to the underlying data array as well as the length, and since the string header structure does not
+contain any more fields the capacity information will remain in adjacent, unused memory.
 
-\begin{insight}
-    Different type sizes and endianess on various architectures, used with direct conversions through
-    \textit{unsafe.Pointer}, can cause invalid memory access such as buffer overflows.
-\end{insight}
+In contrast, when converting a string to a slice directly, the source header structure is too short.
+The resulting slice header will use correct values for its data reference and length, but the capacity field will
+contain whatever is located in memory directly after the original string header.
+
+\input{assets/listings/chapter3/unsafe-string-to-bytes-direct.tex}
+
+The resulting slice with random data in its capacity field is dangerous to use.
+Operations that read from a slice, like using it in a loop to iterate over its contents, mostly only use the data
+reference and length.
+However, any action on the slice that uses the capacity, like taking subslices from it or appending data, is undefined
+and can therefore become a security vulnerability.
+There is an instance of this incorrect cast in the \textit{k8s.io/apiserver} package that is part of the
+\textit{Kubernetes} project, showing a conversoin from \textit{string} to \textit{[]byte}.
+It is shown in Listing~\ref{lst:unsafe-string-to-bytes-direct}.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Incorrect Length Information}\label{subsec:unsafe-security-problems:slice-casts:incorrect-length}
+
+A second possible misuse in the context of slice conversions is an incorrect length value set in the slice header.
+This can happen quickly if the length information is calculated dynamically, especially if the user-supplied input data
+is used to deduce the resulting value.
+An example of such a bug is shown in Listing~\ref{lst:go-fuse-bug}.
+It is taken from the \textit{hanwen/go-fuse} library\footnote{\url{https://github.com/hanwen/go-fuse}}, a Go
+implementation of the server specification used for the userspace filesystem (\acrshort{FUSE}) available for
+Linux~\footnote{\url{https://www.kernel.org/doc/html/latest/filesystems/fuse.html}}.
+We already submitted a patch for this bug to the authors.
+
+\input{assets/listings/chapter3/go-fuse-bug.tex}
+
+\acrshort{FUSE} uses a client / server architecture where filesystem implementations present a server that handles
+requests from a specific kernel module.
+The kernel module acts like a regular filesystem driver, but instead of executing operations in kernel space, it
+forwards them to the user space \acrshort{FUSE} server.
+Communication is done through the \textit{/dev/fuse} device node.
+The listing shows a part of the \textit{doBatchForget} function, which is used to clear files, identified by their inode
+number, from a cache that the filesystem might have.
+\textit{go-fuse} is designed in a way that incoming data from the \textit{/dev/fuse} node is passed to handler functions
+as byte slices (\textit{req.inData} and \textit{req.arg} in Lines~2 and~5) containing the raw, serialized request.
+The handler function then casts the data into a suitable structure to access individual fields.
+In this case, the request is converted into an instance of the \textit{\_BatchForgetIn} type (Line~2), which provides
+access to the number of inodes to forget that are contained in the batch request through the \textit{in.Count} field
+(Line~3).
+The individual forget messages in serialized and concatenated form are available through the \textit{req.arg} array, so
+to access them a new slice is created by defining its slice header from scratch (Lines~11--15).
+The created slice uses the incoming request data containing the forget messages (\textit{req.arg}, Line~12) as its
+underlying data array and the number of messages (\textit{in.Count}) both as length and capacity (Lines~13 and~14).
+
+Since the \textit{in.Count} field is supplied as part of the request sent to the library, it can be controlled by an
+attacker if they manage to conduct a man-in-the-middle attack and change the request for a malicious
+one.
+If the length is greater than the actual available number of data bytes, then the resulting \textit{forgets} slice
+(Line~16) will read additional data after the end of the actual batch forgets request.
+Depending of the concrete operation to forget inodes from a local cache, this could have severe consequences with
+respect to security.
+To prevent this from happening, the authors intended to check the length of the available data in Line~5, and if there
+are too few bytes for the alleged number of forget requests, then the method should not proceed.
+However, as the listing shows there is no actual code to stop further execution of the method, instead there is only a
+log message noting that there was a malformed request with too few bytes available (Lines~7--8).
+A proof-of-concept implementation of a potential attacker showed that the method actually reads invalid memory data
+located after the request data.
+In this case, a simple \textit{return} statement after Line~8 would have prevented this bug.
+
+
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Information Leak}\label{subsec:unsafe-security-problems:buffer-overflow:information-leak}
+
+Go uses a strict type system that encodes the buffer length in the type information.
+This prevents most buffer overflow vulnerabilities at compile time because the compiler can detect whether a given
+buffer will be large enough to store the data that gets written to it, as described in
+Section~\ref{sec:background:memory-safety-layout}.
+However, this safety measure is circumvented when the \unsafe{} \acrshort{API} is used in Go.
+Using direct casts through the \textit{unsafe.Pointer} type, it is possible to convert between buffers of different
+sizes.
+Listing~\ref{lst:information-leak} shows such a situation.
+
+\input{assets/listings/chapter3/information-leak.tex}
+
+In Line~2, a buffer of size four bytes called \textit{harmlessBuffer} is initialized with data.
+Then, Line~2 declares a buffer containing a secret value, which should stay internal to the application.
+Using the \unsafe{} \acrshort{API}, the \textit{harmlessBuffer} is then converted to a have a new length of ten bytes,
+although there is no reallocation (Line~4).
+The resulting buffer is finally printed (Line~5), which outputs not only the harmless four bytes, but also the secret.
+The secret data could for example be a cryptographic private key or password information.
+Therefore, this bug has created an information leak vulnerability.
+
+To motivate a situation where this bug can have serious consequences,
+Figure~\ref{fig:information-leak-threat-model-protocol} shows the specification of a simple client / server
+communication protocol.
+Both request and response types contain a version and message type field as well as a buffer for message-specific,
+serialized data of length 512 bytes.
+
+\input{assets/figures/chapter3/information-leak-threat-model-protocol.tex}
+
+If the client or server handling these messages uses the \unsafe{} \acrshort{API} to convert the serialized data to a
+specific data structure, then the field lengths must match.
+Imagine a company where two different teams are working on the client and server, respectively, and they printed the
+protocol diagrams to hang them on the wall when the specification was decided.
+A developer in one of the teams could easily miss the announcement of a protocol change that affects the buffer size,
+and when they write incorrect code based on the outdated information on the printed diagram, the mistake could become
+unnoticed in code review due to the same reason, a reviewer who looks at the protocol diagram in the team room.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Code Flow Redirection}\label{subsec:unsafe-security-problems:buffer-overflow:code-flow-redirection}
+
+To create a classic input-based buffer overflow vulnerability, a byte slice with a length of 512 bytes is initializated,
+but backed up with an underlying, much shorter byte buffer of only eight bytes.
+Slices can be created using a cast from the \textit{reflect.SliceHeader} type which reflects the internal slice
+irepresentation.
+This is done in Lines~4 to~6 of Listing~\ref{lst:buffer-overflow}.
+
+\input{assets/listings/chapter3/buffer-overflow.tex}
+
+Then, a reader is used to read input data into this malicious slice in Line~8.
+Since it has a length of 512 bytes, the function reads up to this many bytes, however since the actual data array used
+by the slice is much shorter, this will overflow into the memory behind the data array.
+In this case, the \textit{harmlessData} array is created on the stack of the function, which means it is vulnerable to
+buffer overflow exploits as described in Section~\ref{sec:background:memory-safety-layout}.
+An attacker can use this vulnerability to redirect the code flow by carefully crafting the input data such that the
+saved return instruction pointer on the stack is overwritten with the address of a function of the attacker's choice.
+To find the needed amount of padding before the address in the input data, as well as to find the target function's
+address, the attacker can use a debugger such as \textit{GDB}.
+
+A threat model for this kind of vulnerability would be an application that, similarly to the threat model described in
+Section~\ref{subsec:unsafe-security-problems:buffer-overflow:information-leak}, uses a client server model, but this
+time with a length information indicating how many bytes are sent within a variable-length data section as part of the
+protocol.
+If such a length field is used to construct a slice in the way shown in Listing~\ref{lst:buffer-overflow}, then an
+attacker can control the resulting slice length and potentially exploit this bug to redirect to arbitrary code within
+the binary.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\subsection{Code Injection using ROP}\label{subsec:unsafe-security-problems:buffer-overflow:code-injection}
+
+Going a step further, this subsection shows how the same bug shown in the previous section in
+Listing~\ref{lst:buffer-overflow} can be used with return-oriented programming (\acrshort{ROP}) to create a code
+injection exploit.
+A strategy to exploit a buffer overflow to achieve code injection using \acrshort{ROP} is to use the \textit{mprotect}
+and \textit{read} system calls.
+A system call, or syscall, is a function provided by the operating system which can be executed using the
+\textit{syscall} machine instruction.
+The processor registers control which syscall gets executed and which parameters it receives.
+Therefore, an attacker only needs \acrshort{ROP} gadgets to control the contents of the registers, as well as to trigger
+the syscall.
+Using the \textit{mprotect} call, the attacker can set a memory area of their choice to have both writable and
+executable flags, for example the heap area.
+Then, using the \textit{read} call, they can store data in that memory section, which is usually an exploit payload
+spawning a shell to receive further arbitrary commands.
+The payload is simply provided as part of the input string created by the attacker.
+Finally, by using the address of the code area just like an address of another \acrshort{ROP} gadget the attacker can
+make the processor jump to the payload code.
+Because in contrast to the stack the code is now located on an executable page, it gets executed and the code injection
+attack succeeds.
+More details and proof-of-concept code for this type of exploit, as well as all other exploits presented in this
+Chapter~\ref{ch:unsafe-security-problems}, are available in a dedicated repository on
+\github{}\footnote{\url{https://github.com/jlauinger/go-unsafepointer-poc}}.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Summary}
+
+\todo{write summary}
+
