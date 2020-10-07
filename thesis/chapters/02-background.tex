@@ -90,7 +90,7 @@ It is important that strings are immutable because string literals are placed in
 when the code is compiled, meaning they are usually located within a read-only memory page and mutating them would cause
 the program to receive a segmentation fault signal and crash.
 
-\input{assets/listings/chapter3/reflect-header-types.tex}
+\input{assets/listings/chapter2/reflect-header-types.tex}
 
 It is possible to access the internal structure of slices and strings by casting them to their header representation
 using the \unsafe{} \acrshort{API}.
@@ -145,6 +145,9 @@ The \acrshort{OS} will then take care of translating the virtual address into an
 The virtual memory of a process is further divided into different functional areas, most importantly the text sections,
 the heap, and the stack.
 
+\input{assets/figures/chapter2/memory-layout-stack-frame.tex}
+\input{assets/listings/chapter2/stack-example-function.tex}
+
 The text sections contain the machine-readable program instructions.
 The heap is a data section that stores data with a lifetime greater than a single function, for example global
 variables.
@@ -160,8 +163,6 @@ then those variables can be accessed by adding a fixed offset to the stack point
 Because the active, allocated stack memory is always at addresses equal or higher than the stack pointer, and adding
 new data means the value of the stack pointer is reduced, the stack grows from the top of the memory to the bottom.
 Figure~\ref{fig:stack} shows a visualization of the concept of pushing data to the stack.
-
-\input{assets/figures/chapter2/stack.tex}
 
 The stack itself is organized in frames.
 When a function is called, a new stack frame is created for this function.
@@ -191,8 +192,6 @@ return address will be fetched and put into the instruction pointer register.
 The return value of the function is passed in a register in this example.
 In a Go program, returning values can also be achieved using the stack, which the compiler does in the case of multiple
 return values.
-
-\input{assets/figures/chapter2/stack-frame-layout.tex}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -240,7 +239,7 @@ The arrows indicate references from pointer types to their targets, and the blue
 as live.
 The white heap values will be freed in the sweep phase of the \acrshort{GC}.
 
-\input{assets/figures/chapter3/gc-visualization.tex}
+\input{assets/figures/chapter2/gc-visualization.tex}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -291,7 +290,7 @@ Thus, the address does not have to match the exact start of the payload code any
 Figure~\ref{fig:stack-smashing-payload} shows a visualization of an example input data used to spawn a shell that an
 attacker can then use to execute arbitrary code.
 
-\input{assets/figures/chapter3/stack-smashing-payload.tex}
+\input{assets/figures/chapter2/stack-smashing-payload.tex}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
