@@ -1,13 +1,12 @@
 \chapter*{Abstract}
 
 \checkNum{One decade} after its first published version, the Go programming language has become a popular and
-widely used systems programming language.
-It aims to achieve thorough memory and thread safety by using compile-time measures such as a strict type system that
-prevents invalid memory access.
+widely used modern programming language.
+It aims to achieve thorough memory and thread safety by using measures such as a strict type system and automated memory
+management with garbage collection, which prevents invalid memory access.
 However, there is also the \unsafe{} package which allows developers to deliberately circumvent this safety net.
-There are a number of legitimate use cases for doing this, for example a low-level network protocol implementation that
-needs access to the raw byte representation of some data, or an in-place type conversion saving reallocation costs to
-improve efficiency.
+There are a number of legitimate use cases for doing this, for example an in-place type conversion saving reallocation
+costs to improve efficiency, or interacting with C code through the foreign function interface.
 
 Misusing the \unsafe{} API can however lead to security vulnerabilities such as buffer overflow and use-after-free bugs.
 This work contributes an analysis of \unsafe{} usage patterns with respect to a security context.
@@ -21,14 +20,14 @@ Using \toolGeiger{}, a study on \unsafe{} usage in the top \projsTotal{} most po
 \unsafe{} is used and for what purpose.
 The study shows that \percentageUnsafePackages{} of packages imported by the projects using the Go module system use
 \unsafe{}.
-\percentageUnsafeProjects{} of the projects use \unsafe{} directly, but \percentageUnsafeTransitiveWithDependencies{}
-include \unsafe{} usages through any of their dependencies.
+Furthermore, \percentageUnsafeProjects{} of the projects use \unsafe{} directly, and
+\percentageUnsafeTransitiveWithDependencies{} include \unsafe{} usages through any of their dependencies.
 A replication and comparison of a concurrent study by Costa et al.~\cite{costa2020} matches these results.
 
 This work further presents \toolSafer{}, a novel static code analysis tool that helps developers to identify
 \checkNum{two} dangerous and common misuses of the \unsafe{} API which were previously undetected with existing tools.
-Using \toolSafer{}, \numberBugsFixed{} bugs in real-world code were identified and patches have been submitted to the
-maintainers.
+Using \toolSafer{}, \numberBugsFixed{} bugs in real-world code were identified and patches have been submitted to and
+accepted by the maintainers.
 An evaluation of the tool shows \goSaferEvaluationDatasetGosaferAccuracy{} accuracy on the data set of labeled \unsafe{}
 usages, and \goSaferEvaluationPackagesGosaferAccuracy{} accuracy on a set of manually inspected open-source Go packages.
 
@@ -36,14 +35,14 @@ usages, and \goSaferEvaluationPackagesGosaferAccuracy{} accuracy on a set of man
 \chapter*{Zusammenfassung}
 
 \checkNum{Ein Jahrzehnt} nach der ersten veröffentlichten Version ist die Programmiersprache Go heute eine beliebte und
-weit verbreitete Systemprogrammierungssprache.
-Sie strebt Speicher- und Threadsicherheit durch Compiler-Maßnahmen wie ein striktes Typsystem, das
-ungültige Speicherzugriffe verhindert, an.
+weit verbreitete, moderne Sprache.
+Sie strebt Speicher- und Threadsicherheit durch Maßnahmen wie ein striktes Typsystem und automatische
+Speicherverwaltung, die ungültige Speicherzugriffe verhindert, an.
 Es gibt allerdings ebenfalls das \unsafe{} Package, eine API die es Entwickler*innen erlaubt, diese
 Maßnahmen zu umgehen.
-In manchen Fällen kann dies gerechtfertigt sein, beispielsweise bei der Implementierung eines
-Netzwerkprotokolls, das direkten Zugriff auf die konkreten Daten benötigt, oder zur Konvertierung von Daten in einen
-anderen Typ, ohne diese im Speicher zu kopieren, um so die Effizienz des Programms zu steigern.
+In manchen Fällen kann dies gerechtfertigt sein, beispielsweise bei der Konvertierung von Daten in einen anderen Typ,
+ohne diese im Speicher zu kopieren, um so die Effizienz des Programms zu steigern, oder um externen C Code über das
+Foreign Function Interface zu nutzen.
 
 Eine falsche Benutzung der \unsafe{} API kann jedoch zu Sicherheitsproblemen wie Buffer Overflows und Use-After-Frees
 führen.
@@ -59,8 +58,8 @@ Projekten auf \github{}, inklusive einer manuellen Analyse von \numberLabeledCod
 in Bezug darauf wie und zu welchem Zweck \unsafe{} benutzt wird.
 Die Studie zeigt, dass \percentageUnsafePackages{} der Packages, die von Projekten die das Go Modules System
 unterstützen, importiert werden, \unsafe{} verwenden.
-\percentageUnsafeProjects{} der Projekte nutzen \unsafe{} direkt, und \percentageUnsafeTransitiveWithDependencies{}
-enthalten \unsafe{} Code durch ihre Abhängigkeiten.
+Darüber hinaus nutzen \percentageUnsafeProjects{} der Projekte \unsafe{} direkt, und
+\percentageUnsafeTransitiveWithDependencies{} enthalten \unsafe{} Code durch ihre Abhängigkeiten.
 Eine Replikation sowie ein Vergleich mit einer zeitgleichen Studie von Costa et al.~\cite{costa2020} bestätigt diese
 Ergebnisse.
 
@@ -68,7 +67,7 @@ Weiterhin präsentiert diese Arbeit \toolSafer{}, ein neues statisches Analysewe
 \checkNum{zwei} gefährliche und häufig vorkommende inkorrekte Verwendungen der \unsafe{}, die mit bisher existierenden
 Tools nicht gefunden werden, zu identifizieren.
 Mittels \toolSafer{} konnten \numberBugsFixed{} Fehler in realem Code gefunden und entsprechende Patches eingereicht
-werden.
+werden, die von den Maintainern bestätigt wurden.
 Eine Evaluation des Tool ergibt eine Accuracy von \goSaferEvaluationDatasetGosaferAccuracy{} auf dem Datensatz von
 \unsafe{} Codezeilen, und \goSaferEvaluationPackagesGosaferAccuracy{} Accuracy auf händisch analysierten Open-Source
 Go Packages.

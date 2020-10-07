@@ -1,7 +1,22 @@
 %% Configuration for the styling of research questions
 %% =====================================================================================================================
 
-%% Boxes for RQ answers ------------------------------------------------------------------------------------------------
+%% Boxes for RQ answers and insights -----------------------------------------------------------------------------------
 
 \usepackage{morewrites}
 \usepackage{tcolorbox}
+
+%% RQ answer  box formatting -------------------------------------------------------------------------------------------
+
+\newenvironment{answerToRQ}[1][]{
+    \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~#1]
+}{\end{tcolorbox}}
+
+%% Insight box formatting ----------------------------------------------------------------------------------------------
+
+\newcounter{insightNumber}
+
+\newenvironment{insight}{%
+    \refstepcounter{insightNumber}
+    \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Insight~\theinsightNumber]
+}{\end{tcolorbox}}

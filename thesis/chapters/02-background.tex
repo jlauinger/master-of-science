@@ -33,7 +33,7 @@ Memory can be allocated there using dedicated runtime functions like \textit{mal
 not needed anymore to avoid running out of heap memory.
 Finally, the stack is also a data section, but in contrast to the heap it is used for local variables of functions, as
 well as their arguments and possibly return values.
-The stack pointer register (\textit{\$rsp} in the \textit{amd64} architecture) in the processor stores the current top
+The stack pointer register (\textit{rsp} in the \textit{amd64} architecture) in the processor stores the current top
 of the stack, which is the address of the last value that was added to the stack.
 If a new value is pushed, then the stack pointer is decremented and the data can be written to its new address.
 It is possible to decrement the stack pointer by any number of bytes to make room for several variables at once, and
@@ -130,16 +130,17 @@ However, they also take away some flexibility from the developer.
 There are legitimate use cases where direct access to the raw memory is required, for example when implementing a
 device driver, a network protocol, or an application with tight constrains on resources which needs to convert between
 different types without allocating additional memory.
-Many memory-safe programming languages like Go, but also Rust, Nim, or even Java offer ways to circumvent the safety
+Many memory-safe programming languages like Go, and also Rust, Nim, or even Java offer ways to circumvent the safety
 measures provided by the language for those purposes.
 In the case of Go, there is the \unsafe{} package~\footnote{\url{https://golang.org/pkg/unsafe}}, an \acrshort{API} that
 allows developers to use raw pointers with all their benefits and dangers.
 
 \input{assets/listings/chapter2/unsafe-api.tex}
 
-The package contains \checkNum{three} functions \textit{Sizeof}, \textit{Alignof}, and \textit{Offsetof}, as well as the
-type \textit{Pointer}, as shown in Listing~\ref{lst:unsafe-api}.
-The \textit{unsafe.Pointer} is the most important one.
+Listing~\ref{lst:unsafe-api} shows the \acrshort{API} of this package.
+It contains \checkNum{three} functions \textit{Sizeof}, \textit{Alignof}, and \textit{Offsetof} (Lines~5--7),
+as well as the type \textit{Pointer} (Line 3).
+The \textit{unsafe.Pointer} is the most important package member.
 It is a pointer type in the sense that the garbage collector follows it to determine live references, but apart from
 that the normal restrictions for memory safety do not apply.
 In particular, unsafe pointers can be converted to and from any other pointer type, allowing arbitrary casts between
@@ -151,18 +152,18 @@ Therefore, unsafe pointers can also be used to achieve pointer arithmetic.
 With \textit{unsafe.Pointer}, developers can achieve the same flexibility as with raw \textit{void*} pointers in C.
 
 Listing~\ref{lst:unsafe-examples} shows examples of both \textit{unsafe.Pointer} features.
-The \textit{floatToBits} function illustrates how the variable \textit{x} of type \textit{float32} is first cast to an
-unsafe pointer and then to a value of type \textit{int}.
+The \textit{floatToBits} function (Line~3) illustrates how the variable \textit{x} of type \textit{float32} is first
+cast to an unsafe pointer and then to a value of type \textit{int} (Line~4).
 Since the unsafe conversion rules only allow arbitrary casts between any pointer type, \textit{x} is first converted
 into a pointer value and the resulting \textit{int} pointer is dereferenced before returning the final value.
 This conversion yields the raw bits of the floating point value stored using the IEEE 751 format.
 It would be impossible using the normal Go conversion rules because \textit{float32} and \textit{int} are incompatible
 types.
-The \textit{secondByte} function shows how pointer arithmetic is used to manually iterate over an array type.
+The \textit{secondByte} function (Line~7) shows how pointer arithmetic is used to manually iterate over an array type.
 The function expects an array of size five bytes and returns the second byte.
 Instead of direct indexing, it achieves this by obtaining the address of the array as a \textit{uintptr} value, adding
 1 and then casting the resulting address to a \textit{byte} value, again taking care of dereferencing the resulting
-pointer type.
+pointer type (Line~8).
 
 \input{assets/listings/chapter2/unsafe-examples.tex}
 
@@ -185,7 +186,7 @@ header structures that are described in more detail in Chapter~\ref{ch:unsafe-se
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\section{Dependency Management}\label{sec:background:dependencies}
+\section{Dependency Management in Go}\label{sec:background:dependencies}
 
 To break code into logical units that can be maintained separately and allow reusing them, Go offers a dependency
 management system.
@@ -205,6 +206,7 @@ a capital letter.
 When importing the package, it is necessary to specify the complete path to the package, the name is not sufficient on
 its own.
 The import path is made up of the directory tree leading to the package directory, separated by forward slashes.
+For example, a valid import path would be \textit{my-application/storage/database}.
 
 To allow sharing code with other developers and implementing reusable libraries, it is possible to download external
 packages using the \textit{go get} command, which can fetch packages using \acrshort{HTTP}, Git, or other means.
@@ -216,13 +218,22 @@ Starting with the release of Go \checkNum{1.11}, the development of the module s
 new unit of code organization.
 Modules contain one or more packages, and have a name and import path similar to packages, which can in fact be the name
 of a root package in the module.
-Furthermore, modules are required to be available as a \acrshort{VCS} repository like Git and are versioned.
+Furthermore, modules are required to be available as a revision control repository like Git and are versioned.
 A project can define dependencies to specific versions of other modules, which resolve to the packages imported in the
 code.
 Thus, it is possible to require a specific version of an external package.
 Dependencies can be transitive, because imported modules can have dependencies to other modules themselves,
 forming a dependency tree.
-Figure~\ref{fig:dependency-model} shows the relation between the different units of code organization used in Go.
+Figure~\ref{fig:dependency-model} shows an example of the relations between the different units of code organization
+used in Go.
+The \textit{github.com/example/example} module is the main application module and its current version is
+\textit{v2.0.0}.
+It contains three separate packages \textit{A}, \textit{B}, and \textit{C}, all of which are composed of individual Go
+source files.
+The module depends upon two other modules \textit{X} and \textit{Y}, both of which are imported with a specific version.
+These again contain one or more packages with source files, and further depend on more modules.
+The \textit{Y} module is effectively imported in two different versions, \textit{v1.0.1} and \textit{v5.3.0}, so both
+their sources will be compiled and included in the resulting binary.
 
 \input{assets/figures/chapter2/dependency-model.tex}
 
@@ -231,8 +242,6 @@ When the code is built, the Go compiler toolchain will automatically figure out 
 get the code.
 There are however still many projects that do not use the module system and \textit{Go.mod} file yet, because it is only
 stable since recently with the release of Go \checkNum{1.13} in \checkNum{September 2019}.
-Since importing external dependencies can also introduce security vulnerabilities present in those libraries, this work
-focuses on auditing \unsafe{} usages not only in a project itself but also its dependencies.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------

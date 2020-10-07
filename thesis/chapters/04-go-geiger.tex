@@ -202,11 +202,11 @@ Because the standard library is developed by the Go core team, we assume that it
 Since there is no way to exclude it from a project anyways, the analysis presented in this study is more meaningful
 when the standard library is not causing a project to be counted as using \unsafe{}.
 
-\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:prevalApp}]
+\begin{answerToRQ}[\ref{rq:prevalApp}]
     About \percentageUnsafeProjectsRounded{} of projects contain \unsafe{} usages in their first-party code.
     Approximately \percentageUnsafeTransitiveWithDependenciesRounded{} of projects transitively import at least one
     third-party dependency package with \unsafe{} usages.
-\end{tcolorbox}
+\end{answerToRQ}
 
 To answer research question~\ref{rq:depsDepth} about how deep in the dependency tree packages using \unsafe{} are
 usually located, the import depth of all packages used by a project is determined.
@@ -242,10 +242,10 @@ The data set shows that \levelOneImportedUnsafePackagesCount{} (\levelOneImporte
 \levelOneOmportedPackagesCount{} packages imported at the first level contain at least one \unsafe{} usage.
 This further shows that the majority of \unsafe{} code is introduced further down in the dependency tree.
 
-\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:depsDepth}]
+\begin{answerToRQ}[\ref{rq:depsDepth}]
     Most imported packages with at least one \unsafe{} usage are located around a depth of
     \averageUnsafeImportDepthRounded{} in the dependency tree.
-\end{tcolorbox}
+\end{answerToRQ}
 
 Research question~\ref{rq:distTypes} is about which \unsafe{} tokens are used the most.
 As described in Section~\ref{sec:go-geiger:design}, \toolGeiger{} identifies usages of the four members of the \unsafe{}
@@ -262,9 +262,9 @@ These two lead the usage counts by far, with the next being \textit{unsafe.Sizeo
 all other token types found less than \checkNum{1,000} times.
 With a mere \checkNum{8} usages found, \textit{unsafe.Alignof} is the most rare.
 
-\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:distTypes}]
+\begin{answerToRQ}[\ref{rq:distTypes}]
     In the wild, uintptr and unsafe.Pointer are orders of magnitude more common than other unsafe usages.
-\end{tcolorbox}
+\end{answerToRQ}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -292,10 +292,10 @@ Furthermore, there is only one project with more than \checkNum{3,500} \unsafe{}
 \textit{kubernetes/kubernetes}.
 There is no obvious correlation neither between \unsafe{} usage and project age, nor number of stars or forks.
 
-\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:popularity}]
+\begin{answerToRQ}[\ref{rq:popularity}]
     There is no significant correlation between the number of \unsafe{} usages and a project's age, number of stars, or
     number of forks.
-\end{tcolorbox}
+\end{answerToRQ}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -326,11 +326,11 @@ caused by additional system call \acrshort{API}s that are supported by the modul
 Dispatching to the underlying system call code requires the use of \textit{unsafe.Pointer}.
 Therefore, in this case more features provided by a dependency cause more \unsafe{} code to be imported into a project.
 
-\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:changeTime}]
+\begin{answerToRQ}[\ref{rq:changeTime}]
     Changes in \unsafe{} usage in particular modules are motivated for example by new \acrshort{API} requirements and
     can be significant, with e.g. about a \sysModuleUnsafeIncreaseRounded{} increase over \checkNum{2.5} years found in
     the \textit{sys} module.
-\end{tcolorbox}
+\end{answerToRQ}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -387,11 +387,11 @@ It is worth noting that the numbers in Table~\ref{tbl:go-geiger-evaluation-linte
 Therefore the numbers do not add up to the same count of total findings discussed in
 Section~\ref{subsec:go-geiger:evaluation:unsafe-usage}.
 
-\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:linterComparison}]
+\begin{answerToRQ}[\ref{rq:linterComparison}]
     The existing tools \toolVet{} and \toolGosec{} do not provide any benefit over \toolGeiger{} for the specific task
     it is designed for.
     Instead, \toolGeiger{} finds all and more of their \unsafe{}-related results.
-\end{tcolorbox}
+\end{answerToRQ}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -506,8 +506,8 @@ available in current versions of Go.
 Some of the findings in the \textit{serialization} class could however be achieved with generics as well, so the classes
 overlap slightly.
 
-\begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~\ref{rq:purpose}]
+\begin{answerToRQ}[\ref{rq:purpose}]
     \checkNum{More than half} of the \unsafe{} usages in projects and 3rd party libraries are to improve efficiency via
     \unsafe{} casts.
     In the Go standard library, \checkNum{every third} use of \unsafe{} is to avoid garbage collection.
-\end{tcolorbox}
+\end{answerToRQ}

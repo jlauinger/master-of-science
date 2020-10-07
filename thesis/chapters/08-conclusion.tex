@@ -28,9 +28,10 @@ top \projsTotal{} most-starred open-source Go projects on \github{}.
 This study revealed that \percentageUnsafeProjects{} of the projects contained \unsafe{} usages, however
 \percentageUnsafeTransitiveWithDependencies{} included \unsafe{} code through third-party dependencies.
 Of the \packagesAnalyzed{} packages that were analyzed in total, \percentageUnsafePackages{} contained \unsafe{} code.
-The average depth in the dependency tree of \averageUnsafeImportDepth{} showed that it is very hard to manually audit
-the complete code base including external libraries, highlighting the importance of support by developer tools for this
-task.
+The average depth in the dependency tree of \averageUnsafeImportDepth{} showed that most packages with \unsafe{} usages
+are rather close to the root module.
+However, it is still hard to manually audit the complete code base including external libraries, highlighting the
+importance of support by developer tools for this task.
 
 We created a novel data set of \numberLabeledCodeSnippets{} manually labelled \unsafe{} code samples.
 They are classified in two dimensions on what is being done and for what purpose.
@@ -51,7 +52,8 @@ not good in detecting \unsafe{} misuses with a large number of false negatives a
 Using \toolSafer{}, more than \numberBugsFixedRounded{} bugs in open-source Go libraries were found and \numberPRs{}
 pull requests to the authors to fix them have been submitted.
 
-In summary, \unsafe{} code is commonly used in the most popular Go projects for a number of reasons.
+In summary, \unsafe{} code is commonly used in the most popular Go projects for a number of reasons such as efficiency
+or the foreign function interface.
 Using the novel static analysis tools, developers can embrace this fact and mitigate the risks that come with it by
 effectively localizing and checking \unsafe{} usages in their own and third-party code.
 Additionally, the novel evidence of how to actually exploit possible vulnerabilities related to \unsafe{} code helps
