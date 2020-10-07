@@ -197,6 +197,28 @@ return values.
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
+\subsection{Escape Analysis (EA)}\label{subsec:background:memory:ea}
+
+\acrshort{EA} is used to decide whether a variable can be placed on a function's stack or needs to be allocated on the
+heap.
+The stack is preferred because there is no explicit deallocation step needed to free the stack memory, instead the stack
+frame is removed completely when the function returns as described in Section~\ref{sec:background:memory-safety-layout}.
+In \acrshort{EA}, a value is said to escape if references to it can live longer than the current function's lifetime.
+If it does escape, then it needs to be allocated on the heap so that when the function has terminated, references that
+still exist can continue to access the memory even though the function stack has vanished.
+Otherwise, it can be placed on the stack.
+The \acrshort{EA} analysis employed by the Go compiler works by checking for each variable that is declared in a
+function whether a reference to it is stored in another value or passed to another function.
+If there is a reference stored in another object, this object has to be checked too, and if it escapes then so does the
+original variable.
+The same is true for functions: if the variable gets passed to another function then the \acrshort{EA} algorithm
+transitively looks into that function and determines if the value escapes there.
+If it does, then it must also be treated as an escaped value in the original function.
+Finally, if the function returns a reference to the variable then it obviously escapes as well.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
 \subsection{Garbage Collection (GC)}\label{subsec:background:memory:gc}
 
 The Go runtime uses a garbage collector (\acrshort{GC}) that analyzes which values can still be referenced by active
