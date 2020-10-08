@@ -1,14 +1,15 @@
 \chapter*{Abstract}
 
 \checkNum{One decade} after its first published version, the Go programming language has become a popular and
-widely used modern programming language.
+widely-used modern programming language.
 It aims to achieve thorough memory and thread safety by using measures such as a strict type system and automated memory
 management with garbage collection, which prevents invalid memory access.
 However, there is also the \unsafe{} package which allows developers to deliberately circumvent this safety net.
 There are a number of legitimate use cases for doing this, for example an in-place type conversion saving reallocation
 costs to improve efficiency, or interacting with C code through the foreign function interface.
 
-Misusing the \unsafe{} API can however lead to security vulnerabilities such as buffer overflow and use-after-free bugs.
+Misusing the \unsafe{} API can however lead to security vulnerabilities such as buffer overflow and
+\textit{use-after-free} bugs.
 This work contributes an analysis of \unsafe{} usage patterns with respect to a security context.
 It reveals possible code injection and information leak vulnerabilities in proof-of-concept code as well as common code
 usages from real-world code.
@@ -38,24 +39,24 @@ usages, and \goSaferEvaluationPackagesGosaferAccuracy{} accuracy on a set of man
 weit verbreitete, moderne Sprache.
 Sie strebt Speicher- und Threadsicherheit durch Maßnahmen wie ein striktes Typsystem und automatische
 Speicherverwaltung, die ungültige Speicherzugriffe verhindert, an.
-Es gibt allerdings ebenfalls das \unsafe{} Package, eine API die es Entwickler*innen erlaubt, diese
+Es gibt allerdings ebenfalls das \unsafe{} Package, eine API, die es Entwickler*innen erlaubt, diese
 Maßnahmen zu umgehen.
 In manchen Fällen kann dies gerechtfertigt sein, beispielsweise bei der Konvertierung von Daten in einen anderen Typ,
 ohne diese im Speicher zu kopieren, um so die Effizienz des Programms zu steigern, oder um externen C Code über das
 Foreign Function Interface zu nutzen.
 
-Eine falsche Benutzung der \unsafe{} API kann jedoch zu Sicherheitsproblemen wie Buffer Overflows und Use-After-Frees
-führen.
+Eine falsche Benutzung der \unsafe{} API kann jedoch zu Sicherheitsproblemen wie Buffer Overflows und
+\textit{Use-After-Frees} führen.
 Diese Arbeit analysiert Verwendungsmuster von \unsafe{} Code im Hinblick auf Sicherheitsrisiken.
 Dabei treten mögliche Code Injection und Information Leak Verwundbarkeiten sowohl in Proof-of-Concepts als auch in
 realem Anwendungscode zu Tage.
 
 Um die Risiken durch \unsafe{} Code in Anwendungen abzuschätzen, stellt diese Arbeit \toolGeiger{} vor, ein neues
-Werkzeug das Entwickler*innen dabei hilft, \unsafe{} Nutzungen nicht nur in ihren Projekten sondern auch in deren
+Werkzeug, das Entwickler*innen dabei hilft, \unsafe{} Nutzungen nicht nur in ihren Projekten, sondern auch in deren
 Abhängigkeiten zu finden.
-Mit \toolGeiger{} führen wir eine Studie zur Nutzung von \unsafe{} in den Top \projsTotal{} beliebtesten Open-Source Go
-Projekten auf \github{}, inklusive einer manuellen Analyse von \numberLabeledCodeSnippets{} individuellen Codestücken
-in Bezug darauf wie und zu welchem Zweck \unsafe{} benutzt wird.
+Mit \toolGeiger{} wird eine Studie zur Nutzung von \unsafe{} in den Top \projsTotal{} beliebtesten Open-Source Go
+Projekten auf \github{} durchgeführt, inklusive einer manuellen Analyse von \numberLabeledCodeSnippets{} individuellen
+Codestücken in Bezug darauf wie und zu welchem Zweck \unsafe{} benutzt wird.
 Die Studie zeigt, dass \percentageUnsafePackages{} der Packages, die von Projekten die das Go Modules System
 unterstützen, importiert werden, \unsafe{} verwenden.
 Darüber hinaus nutzen \percentageUnsafeProjects{} der Projekte \unsafe{} direkt, und
@@ -64,8 +65,8 @@ Eine Replikation sowie ein Vergleich mit einer zeitgleichen Studie von Costa et 
 Ergebnisse.
 
 Weiterhin präsentiert diese Arbeit \toolSafer{}, ein neues statisches Analysewerkzeug, das Entwickler*innen hilft,
-\checkNum{zwei} gefährliche und häufig vorkommende inkorrekte Verwendungen der \unsafe{}, die mit bisher existierenden
-Tools nicht gefunden werden, zu identifizieren.
+\checkNum{zwei} gefährliche und häufig vorkommende inkorrekte Verwendungen der \unsafe{} \acrshort{API}, die mit bisher
+existierenden Tools nicht gefunden werden, zu identifizieren.
 Mittels \toolSafer{} konnten \numberBugsFixed{} Fehler in realem Code gefunden und entsprechende Patches eingereicht
 werden, die von den Maintainern bestätigt wurden.
 Eine Evaluation des Tool ergibt eine Accuracy von \goSaferEvaluationDatasetGosaferAccuracy{} auf dem Datensatz von

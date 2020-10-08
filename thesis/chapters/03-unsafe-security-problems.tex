@@ -5,7 +5,7 @@
 This chapter presents an in-depth security analysis of possible vulnerabilities that can be caused by misuses of the
 \unsafe{} \acrshort{API}, and their consequences.
 It is organized into three main areas of danger.
-First, the dangers of conversions between types with architecture-dependent sizes are discussed.
+First, conversions between types with architecture-dependent sizes are discussed.
 Then, an incorrect conversion between slices and strings is analyzed.
 Finally, buffer overflow bugs and their consequences are shown.
 Figure~\ref{fig:outline3} shows the parts of the contributions of this thesis that are presented in this chapter.
@@ -17,10 +17,10 @@ Figure~\ref{fig:outline3} shows the parts of the contributions of this thesis th
 
 \section{Architecture-Dependent Types}\label{sec:unsafe-security-problems:architecture-dependent-types}
 
-The first area of possible vulnerabilities is about types that have a different size or alignment on different
+The first area of possible vulnerabilities is about types that have a different size or alignment on various
 architectures.
 A feature of Go is portability between different platforms~\cite{brimzhanova2019}.
-The same source code can usually be compiled for many different architectures without any changes in its behavior.
+The same source code can usually be compiled for many architectures without any changes in its behavior.
 However, this is only true as long as the \unsafe{} \acrshort{API} is not used.
 Since \unsafe{} code allows direct conversion between arbitrary types, there can be inconsistencies between the sizes
 and alignments of structure fields on different architectures.
@@ -37,8 +37,8 @@ This is however only a valid operation if \textit{int} and \textit{int64} share 
 This is true for 64-bit platforms like \textit{amd64}.
 If the code is run on such an architecture, the conversion works fine and the field values in the resulting variable
 \textit{violet} are as expected.
-In contrast, if the code is run on an architecture where \textit{int} and \textit{int64} have different size or
-alignment, then the values of \textit{violet} are undefined.
+In contrast, if the code is run on an architecture where \textit{int} and \textit{int64} have different sizes or
+alignments, then the values of \textit{violet} are undefined.
 This is the case for example when the code is run on a 32-bit platform like \textit{i386}.
 When the structure definitions are not placed directly next to each other but in separate files, packages, or even
 modules, then spotting the difference between the incompatible structs is much harder.
@@ -48,7 +48,7 @@ If data gets written to it, it changes invalid memory which can lead to a code i
 passed as output it can create an information leak vulnerability.
 
 On top of incompatible field sizes, there could also be a different endianess on some architecture.
-In this case, using a direct cast using the \unsafe{} \acrshort{API} is not aware of possible changes of the byte order,
+In this case, using a direct cast using the \unsafe{} \acrshort{API} is unaware of possible changes of the byte order,
 for example incoming network data and data stored in the memory could be represented as big and little endians and cause
 a mismatch.
 When such data is stored as the length of a slice, the number could be misinterpreted and thus a slice with a wrong
@@ -90,7 +90,7 @@ The first problem is that the resulting slice is implicitly read-only.
 Regularly, slices in Go are mutable and strings are not.
 As described in Section~\ref{sec:background:slices}, this is because the underlying string data array is usually located
 on a read-only memory page.
-If a developer writes code that changes parts of a string in-place, then the compiler will not accept the code and thus
+If a developer writes code that changes parts of a string in-place, then the compiler will not accept that code and thus
 prevent the possible segmentation fault.
 
 The slice returned by the \textit{StringToBytes} function in Listing~\ref{lst:string-to-bytes} is mutable.
@@ -103,8 +103,8 @@ It is only implicitly read-only, but the runtime is not aware of it.
 While this first problem of the conversion pattern does not cause a direct security vulnerability, it underlines that
 there are many consequences of using the \unsafe{} \acrshort{API} that are not obvious.
 Although it is possible in theory to manually ensure that no usages of the \textit{StringToBytes} function modify the
-slice it returns, in practice it is very hard to do so, especially if new developers join the project after time and
-start using the function without having all possible consequences in mind.
+slice it returns, in practice it is very hard to do so, especially if new developers join the project after some time
+and start using the function without having all possible consequences in mind.
 
 \begin{insight}
     Using in-place conversions using the \unsafe{} API can create fragile code with implicit rules that all developers
@@ -116,7 +116,7 @@ start using the function without having all possible consequences in mind.
 
 \subsection{GC Race Use-After-Free}\label{subsec:unsafe-security-problems:slice-casts:gc-race}
 
-The second problem caused by the conversion shown in Listing~\ref{lst:string-to-bytes} is a \textit{use-after-free} bug
+The second problem with the conversion shown in Listing~\ref{lst:string-to-bytes} is a \textit{use-after-free} bug
 caused by a race condition involving the garbage collector (\acrshort{GC}) used by the Go runtime.
 As discussed in Section~\ref{subsec:background:memory:gc}, the \acrshort{GC} treats all pointer types and the special
 \textit{Data} field of actual slices and strings as reference types.
@@ -150,7 +150,7 @@ If the Go program has several threads that all contribute to the heap usage, thi
 Figure~\ref{fig:gcrace-vuln} illustrates the vulnerability.
 The green boxes show the original string value and its header, which is represented at position 1 in the memory schema.
 The reference to the underlying data of the string and resulting slice is shown in red at memory position 2.
-Then the slice header is created, which is colored blue and located at position 3 in the memory.
+Then, the slice header is created, which is colored blue and located at position 3 in the memory.
 References indicated by arrows are strong if the arrow is continuous, like the reference the string header has, and
 weak if the arrow is dashed, like the new slice header has.
 Then, after the \textit{GC} runs, there is only the resulting bytes slice left, which is also shown in blue.
@@ -227,8 +227,8 @@ memory, with possible consequences such as information leaks or code injection.
 \section{Buffer Overflow Vulnerabilities}\label{sec:unsafe-security-problems:buffer-overflow}
 
 The third main area of possible vulnerabilities in the context of the \unsafe{} \acrshort{API} are buffer overflows.
-In the following subsections, different ways of creating buffer overflows are discussed, and a concrete means of
-using a vulnerability with return oriented programming (\acrshort{ROP}) is given.
+In the following subsections, different ways of creating buffer overflows are discussed, and a concrete example of
+using a vulnerability with return-oriented programming (\acrshort{ROP}) is given.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -332,7 +332,7 @@ In this case, a simple \textit{return} statement after Line~8 would have prevent
 
 This section shows practical evidence that buffer overflows as described in the previous sections can actually cause an
 attacker to achieve code injection.
-This is done by presenting a proof-of-concept exploit using return oriented programming (\acrshort{ROP}).
+This is done by presenting a proof-of-concept exploit using return-oriented programming (\acrshort{ROP}).
 
 Listing~\ref{lst:buffer-overflow} shows a short example function that contains a buffer overflow.
 In Line~4, a byte slice with a length of 512 bytes is initializated.

@@ -3,7 +3,7 @@
 \chapter{Background}\label{ch:background}
 
 This chapter presents background information that is necessary for this thesis.
-First, the \unsafe{} \acrshort{API} as well as slices and strings in Go is discussed.
+First, the \unsafe{} \acrshort{API} as well as slices and strings in Go are discussed.
 Then, Go memory management is introduced, and exploit techniques and mitigations are presented.
 After this, Go dependency management is covered, and the chapter concludes with concepts about static code analysis.
 
@@ -28,7 +28,7 @@ any type.
 Furthermore, they can be converted to and from \textit{uintptr} values, which is an integer type with sufficient size
 to store pointers on the specific target architecture of the program.
 Since \textit{uintptr} values behave like normal integer variables, they can be used in arithmetic expressions.
-Therefore, unsafe pointers can also be used to achieve pointer arithmetic.
+Therefore, unsafe pointers can also be used to do pointer arithmetic.
 With \textit{unsafe.Pointer}, developers can achieve the same flexibility as with raw \textit{void*} pointers in C.
 
 Listing~\ref{lst:unsafe-examples} shows examples of both \textit{unsafe.Pointer} features.
@@ -40,10 +40,10 @@ This conversion yields the raw bits of the floating point value stored using the
 It would be impossible using the normal Go conversion rules because \textit{float32} and \textit{int} are incompatible
 types.
 The \textit{secondByte} function (Line~7) shows how pointer arithmetic is used to manually iterate over an array type.
-The function expects an array of size five bytes and returns the second byte.
+The function expects an array of size \checkNum{five} bytes and returns the \checkNum{second} byte.
 Instead of direct indexing, it achieves this by obtaining the address of the array as a \textit{uintptr} value, adding
-1 and then casting the resulting address to a \textit{byte} value, again taking care of dereferencing the resulting
-pointer type (Line~8).
+\checkNum{1} and then casting the resulting address to a \textit{byte} value, again taking care of dereferencing the
+resulting pointer type (Line~8).
 
 \input{assets/listings/chapter2/unsafe-examples.tex}
 
@@ -222,7 +222,7 @@ The sweep phase is executed in parallel to the other threads.
 \subsection{Escape Analysis (EA)}\label{subsec:background:memory:ea}
 
 Escape analysis (\acrshort{EA}) is a technique to decide whether a variable can be placed on a function's stack or needs
-to be allocated on the heap.
+to be allocated on the heap~\cite{choi1999}.
 It is used by the Go compiler when a variable is declared.
 Go prefers to allocate on the stack if possible, because there is no explicit deallocation step needed to free the value
 there.
@@ -234,7 +234,7 @@ If it does escape, then it needs to be allocated on the heap so that when the fu
 still exist can continue to access the memory even though the stack frame has vanished.
 Otherwise, it can be placed on the stack.
 
-The \acrshort{EA} analysis employed by the Go compiler works by checking for each variable that is declared in a
+The \acrshort{EA} algorithm employed by the Go compiler works by checking for each variable that is declared in a
 function whether a reference to it is stored in another value or passed to another function.
 If there is a reference stored in another object, this object has to be checked too, and if it escapes then so does the
 original variable.
@@ -270,8 +270,9 @@ address that the CPU jumps to after the current function returns.
 Figure~\ref{fig:stack-smashing-payload} shows a visualization of an example input data used to execute arbitrary code
 by overwriting the saved return address.
 This is called \textit{stack smashing}~\cite{smith1997}.
-First, a arbitrary data is written to fill up the buffer and any adjacent local variables up to the address of the
+First, arbitrary data is written to fill up the buffer and any adjacent local variables up to the address of the
 saved return address.
+In this case, this data is composed of several \textit{A} characters.
 Next, the desired new return address is written (\acrshort{RIP}).
 This will replace the original, correct address.
 By using the address of the following data that gets written to the stack, the program control flow can be redirected to
@@ -280,7 +281,7 @@ attacker-controlled code.
 \input{assets/figures/chapter2/stack-smashing-payload.tex}
 
 Since stack addresses can be slightly unpredictable in practice, for example because environment variables with
-different lengths might be located on the stack, a \textit{NOP-slide} can be used to make the exploit more robust.
+different lengths might be located on the stack, a \textit{NOP slide} can be used to make the exploit more robust.
 \textit{NOP}, or \textit{no-op}, is a machine instruction that does nothing at all, the processor continues with the
 following instruction.
 A \textit{NOP slide} then is a series of such instructions~\cite{vallentin2007}.
@@ -322,19 +323,19 @@ they can not know the exact address of the desired function.
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Return Oriented Programming (ROP)}\label{subsec:background:exploit-techniques:rop}
+\subsection{Return-Oriented Programming (ROP)}\label{subsec:background:exploit-techniques:rop}
 
-Return-oriented programming (\acrshort{ROP}) is a specific technique for reusing code that suggests jumping to very
-small so-called gadgets, which are sequences of two or few more machine instructions that do not modify the stack
-pointer register and end with a return instruction~\cite{roemer2012}.
+Return-oriented programming (\acrshort{ROP}) is a specific technique for reusing code.
+It suggests jumping to very small so-called gadgets, which are sequences of two or few more machine instructions that
+do not modify the stack pointer register and end with a return instruction~\cite{roemer2012}.
 With these properties, gadgets can be chained because after the execution of a fragment the return instruction fetches
-the next address to jump to from the stack, which the attacker can control when they exploit a buffer overflow
+the next address to jump to from the stack, which an attacker can control when they exploit a buffer overflow
 vulnerability.
 Depending on the available \acrshort{ROP} gadgets, the attacker can therefore concatenate them and thus write a program
 with a limited set of assembler instructions available.
 Often, there are enough gadgets present in the program code to form a set that together is Turing complete, thus
 arbitrary behaviour can be induced from it.
-The Go standard library is very large and thus provides many available gadgets.
+The Go standard library is very large and provides many available gadgets.
 This makes exploiting a buffer overflow, once it exists in a Go program, sometimes even easier than in a C program where
 an attacker might have to work around \acrshort{ASLR}, for example.
 
@@ -378,7 +379,7 @@ This host part is called \textit{registry}.
 Before the release of Go \checkNum{1.13}, packages that were fetched using \textit{go get} were stored in the
 \textit{GOPATH} directory\footnote{\url{https://golang.org/doc/gopath_code.html}}.
 Furthermore, there exists the \textit{GOROOT} directory, which is similar to \textit{GOPATH} but contains the Go
-standard library packages instead of manually downloaded packages.
+standard library packages instead of additional downloaded packages.
 Environment variables point to these folders, and the Go compiler uses them to get the sources of packages that are not
 part of the current project.
 

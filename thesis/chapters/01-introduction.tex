@@ -8,10 +8,10 @@ especially in the case of critical infrastructures like energy and food supply c
 It is therefore important to try reducing the attack surface as best as possible.
 In the last decade, there has been an ongoing adoption of memory-safe languages for many different applications.
 Such languages include for example Google's Go, Rust, Nim, and even Java.
-Memory safety is one of the most important areas of software security, because a large number of vulnerabilities is
+Memory safety is one of the most important areas of software security, because a large number of vulnerabilities are
 caused by memory access bugs~\cite{heffley2004}.
 In fact, Microsoft for example reports that memory safety accounts for around \checkNum{70\%} of all their
-bugs\footnote{\scriptsize\url{https://msrc-blog.microsoft.com/2019/07/16/a-proactive-approach-to-more-secure-code/}}.
+bugs\footnote{\scriptsize\url{https://msrc-blog.microsoft.com/2019/07/16/a-proactive-approach-to-more-secure-code}}.
 To reduce the risk of such vulnerabilities, memory-safe languages provide different mechanisms to protect potentially
 dangerous operations, such as accessing raw memory, dereferencing raw pointers, or arbitrary conversions between
 incompatible types.
@@ -35,7 +35,7 @@ It is dangerous to use the \unsafe{} \acrshort{API} because when used incorrectl
 lead to exploitable security vulnerabilities, as is shown in this thesis.
 There can be buffer overflows leading to possible code injections when incompatible types with different sizes or
 memory alignments are converted into each other, or the compiler may be unable to correctly determine the lifetime of
-a value and allocate it on a function stack instead of the program heap, which can lead to \textit{use-after-free}i
+a value and allocate it on a function stack instead of the program heap, which can lead to \textit{use-after-free}
 vulnerabilities and with them all kinds of malicious program behaviors.
 Thus, when \unsafe{} code is used it must be audited by the developers at least.
 Furthermore, even after an initial code review it is important that security researchers can effectively analyze the
@@ -106,7 +106,7 @@ The main contributions that are made in this thesis are the following:
 
     \item an in-depth study of \numberLabeledCodeSnippets{} code samples used in \projsForLabeledCodeSnippets{} selected
     projects, yielding a data set of two-dimensional manual classifications of usages and valuable insight into how and
-    for what purpose unsafe code is used in Go applications,
+    for what purpose \unsafe{} code is used in Go applications,
 
     \item \toolSafer{}, a novel open-source, \toolVet{}-style, linter tool to find \checkNum{two} dangerous and common
     \unsafe{} usage patterns that were previously uncaught with existing tools, including an evaluation of its
