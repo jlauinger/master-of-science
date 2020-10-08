@@ -2931,3 +2931,78 @@ Unsafe pointers are used for some form of type distinction and similar actions f
                 \bottomrule
             \end{tabular}
         \end{table}
+
+
+
+%Furthermore, the methodology and results of the study on \unsafe{} code in open-source Go projects is presented in
+%alongside the \toolGeiger{} tool, because first, the study data is gathered using \toolGeiger, and second, it
+%simultaneously serves as an evaluation of \toolGeiger{}.
+
+
+%It is important to note that while \textit{unsafe.Pointer} is a pointer type, \textit{uintptr} is not.
+%This means that addresses that are stored in variables of type \textit{uintptr} are not treated as references by the
+%garbage collector, and thus values referenced by it can get freed although there are still live references.
+%Possible consequences of this are described in Chapter~\ref{ch:unsafe-security-problems}.
+%Other dangers include that accessing raw bytes of data structures exposes low-level implementation details such as
+%the alignment of structure fields to word-bound addresses, which can change with future versions of the Go compiler or
+%runtime and thus break programs when they are not carefully updated later on.
+%In general, using the \unsafe{} package must be done with caution and should be avoided whenever possible.
+
+
+
+%A common variation to this insecure casting pattern is to omit storing the slice header that is created as a composite
+%literal in a variable and instead casting it into the resulting slice value within the same statement, as is shown in
+%Listing~\ref{lst:string-to-bytes-1statement}.
+%
+%\input{assets/listings/chapter3/string-to-bytes-1statement.tex}
+%
+%This does however not affect the bugs and vulnerabilities shown in this
+%Section~\ref{sec:unsafe-security-problems:slice-casts}.
+%In fact, the assembly that the code gets compiled to is exactly the same for both versions in
+%Listings~\ref{lst:string-to-bytes} and~\ref{lst:string-to-bytes-1statement}.
+%Even if the assembly would be different, performing the creation of a slice header as a composite literal and casting it
+%to an actual slice in the same statement would still not avoid creating a plain \textit{uintptr} reference to the
+%underlying data array as far as the \acrshort{GC} is concerned.
+%This is because the \acrshort{GC} concurrency is at the level of machine instructions, not statements in the Go source
+%code.
+
+
+
+%%% ---------------------------------------------------------------------------------------------------------------------
+%
+%\subsection{Information Leak}\label{subsec:unsafe-security-problems:buffer-overflow:information-leak}
+%
+%Go uses a strict type system that encodes the buffer length in the type information.
+%This prevents most buffer overflow vulnerabilities at compile time because the compiler can detect whether a given
+%buffer will be large enough to store the data that gets written to it, as described in
+%Section~\ref{sec:background:memory-safety-layout}.
+%However, this safety measure is circumvented when the \unsafe{} \acrshort{API} is used in Go.
+%Using direct casts through the \textit{unsafe.Pointer} type, it is possible to convert between buffers of different
+%sizes.
+%Listing~\ref{lst:information-leak} shows such a situation.
+%
+%\input{assets/listings/chapter3/information-leak.tex}
+%
+%In Line~2, a buffer of size four bytes called \textit{harmlessBuffer} is initialized with data.
+%Then, Line~2 declares a buffer containing a secret value, which should stay internal to the application.
+%Using the \unsafe{} \acrshort{API}, the \textit{harmlessBuffer} is then converted to a have a new length of ten bytes,
+%although there is no reallocation (Line~4).
+%The resulting buffer is finally printed (Line~5), which outputs not only the harmless four bytes, but also the secret.
+%The secret data could for example be a cryptographic private key or password information.
+%Therefore, this bug has created an information leak vulnerability.
+%
+%To motivate a situation where this bug can have serious consequences,
+%Figure~\ref{fig:information-leak-threat-model-protocol} shows the specification of a simple client / server
+%communication protocol.
+%Both request and response types contain a version and message type field as well as a buffer for message-specific,
+%serialized data of length 512 bytes.
+%
+%\input{assets/figures/chapter3/information-leak-threat-model-protocol.tex}
+%
+%If the client or server handling these messages uses the \unsafe{} \acrshort{API} to convert the serialized data to a
+%specific data structure, then the field lengths must match.
+%Imagine a company where two different teams are working on the client and server, respectively, and they printed the
+%protocol diagrams to hang them on the wall when the specification was decided.
+%A developer in one of the teams could easily miss the announcement of a protocol change that affects the buffer size,
+%and when they write incorrect code based on the outdated information on the printed diagram, the mistake could become
+%unnoticed in code review due to the same reason, a reviewer who looks at the protocol diagram in the team room.

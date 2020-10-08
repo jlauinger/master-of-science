@@ -47,15 +47,6 @@ pointer type (Line~8).
 
 \input{assets/listings/chapter2/unsafe-examples.tex}
 
-%It is important to note that while \textit{unsafe.Pointer} is a pointer type, \textit{uintptr} is not.
-%This means that addresses that are stored in variables of type \textit{uintptr} are not treated as references by the
-%garbage collector, and thus values referenced by it can get freed although there are still live references.
-%Possible consequences of this are described in Chapter~\ref{ch:unsafe-security-problems}.
-%Other dangers include that accessing raw bytes of data structures exposes low-level implementation details such as
-%the alignment of structure fields to word-bound addresses, which can change with future versions of the Go compiler or
-%runtime and thus break programs when they are not carefully updated later on.
-%In general, using the \unsafe{} package must be done with caution and should be avoided whenever possible.
-
 The other functions of the \unsafe{} packages are evaluated at compile time and can be used to gain knowledge about
 the size, alignment, or offset of a field in a structure type relative to the start of the structure.
 These can be necessary when dealing with the direct byte representations of structure types such as when implementing
