@@ -12,7 +12,7 @@ After this, Go dependency management is covered, and the chapter concludes with 
 
 \section{Go Unsafe API}\label{sec:background:unsafe-api}
 
-The Go \unsafe{} package~\footnote{\url{https://golang.org/pkg/unsafe}} is an application programming interface
+The Go \unsafe{} package\footnote{\url{https://golang.org/pkg/unsafe}} is an application programming interface
 (\acrshort{API}) that allows developers to use raw pointers with all their benefits and dangers.
 As such, it offers an escape hatch to circumvent safety measures provided by Go.
 Listing~\ref{lst:unsafe-api} shows the functions and types included in the \unsafe{} package.
@@ -59,7 +59,7 @@ header structures that are described in the next section.
 
 \section{Slices and Strings in Go}\label{sec:background:slices}
 
-Slices in Go (e.g. the \textit{[]byte} type) are views on arrays~\footnote{\url{https://blog.golang.org/slices}}.
+Slices in Go (e.g. the \textit{[]byte} type) are views on arrays\footnote{\url{https://blog.golang.org/slices}}.
 They are a data type consisting of an underlying memory area storing the array data, as well as information about length
 and capacity of the slice.
 The Go runtime takes care that there are no accesses outside the slice bounds.
@@ -73,7 +73,7 @@ When a subset of the slice is taken by specifying start and end indices, then a 
 underlying data array as the original one, and might have a capacity longer than its length if there are further
 elements in the original slice after the end of the newly-taken subslice.
 
-Strings in Go are read-only \textit{[]byte} slices~\footnote{\url{https://blog.golang.org/strings}}.
+Strings in Go are read-only \textit{[]byte} slices\footnote{\url{https://blog.golang.org/strings}}.
 Usually they are encoded in UTF-8, but this is not required.
 The length of a string is always the number of bytes needed to store its encoded form, which is often not the same as
 the number of characters in the string.
@@ -86,7 +86,7 @@ is no capacity information available for strings.
 It is possible to access the internal structure of slices and strings by casting them to a slice or string header
 representation using the \unsafe{} \acrshort{API}.
 Listing~\ref{lst:reflect-header-types} shows the \acrshort{API} of these header types, which are part of the Go
-\textit{reflect} package~\footnote{\url{https://golang.org/pkg/reflect}}.
+\textit{reflect} package\footnote{\url{https://golang.org/pkg/reflect}}.
 
 \input{assets/listings/chapter2/reflect-header-types.tex}
 
@@ -154,7 +154,7 @@ It presents the stack after calling the \textit{add} function in Listing~\ref{ls
 \input{assets/listings/chapter2/stack-example-function.tex}
 
 In Go, function parameters and return values are both passed entirely on the
-stack~\footnote{\url{https://go.googlesource.com/proposal/+/master/design/27539-internal-abi.md}}.
+stack\footnote{\url{https://go.googlesource.com/proposal/+/master/design/27539-internal-abi.md}}.
 Therefore, the parameters \textit{a} and \textit{b}, as well as the return value \textit{sum} (declared in Line~1) are
 pushed onto the stack by the caller function.
 They are shown in yellow in Figure~\ref{subfig:memory:stack-frame}.
@@ -376,7 +376,7 @@ This host part is called \textit{registry}.
 \subsection{GOPATH and GOROOT}\label{subsec:background:dependencies:gopath}
 
 Before the release of Go \checkNum{1.13}, packages that were fetched using \textit{go get} were stored in the
-\textit{GOPATH} directory~\footnote{\url{https://golang.org/doc/gopath_code.html}}.
+\textit{GOPATH} directory\footnote{\url{https://golang.org/doc/gopath_code.html}}.
 Furthermore, there exists the \textit{GOROOT} directory, which is similar to \textit{GOPATH} but contains the Go
 standard library packages instead of manually downloaded packages.
 Environment variables point to these folders, and the Go compiler uses them to get the sources of packages that are not
@@ -393,7 +393,7 @@ library, and it is not possible to use different versions of the same package ne
 \subsection{Go Module System}\label{subsec:background:dependencies:modules}
 
 Starting with the release of Go \checkNum{1.11}, the development of the module system has fixed this by introducing a
-new unit of code organization~\footnote{\url{https://blog.golang.org/using-go-modules}}.
+new unit of code organization\footnote{\url{https://blog.golang.org/using-go-modules}}.
 It is stable and the default since Go \checkNum{1.13} in \checkNum{September 2019}.
 Modules contain one or more packages, and have a name and import path similar to packages, which can in fact be the name
 of a root package in the module.

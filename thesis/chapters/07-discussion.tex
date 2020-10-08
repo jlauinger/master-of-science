@@ -109,7 +109,7 @@ Although the number of \unsafe{} usages in the second project is smaller, it is 
 
 Since the study data for this thesis has been collected, the most recent Go release \checkNum{1.15} from
 \checkNum{August 2020} has enabled additional static checking of \textit{unsafe.Pointer} usages with the
-\textit{-d=checkptr} compiler flag~\footnote{\url{https://golang.org/doc/go1.14\#compiler}}.
+\textit{-d=checkptr} compiler flag\footnote{\url{https://golang.org/doc/go1.14\#compiler}}.
 The development of the new check had been started with Go release \checkNum{1.14} already.
 It checks that the alignment of the target type matches the alignment of the pointer when converting unsafe pointers to
 an arbitrary type.
@@ -125,9 +125,9 @@ of \unsafe{}.
 Finally, some \unsafe{} usages in the analyzed open-source projects were necessary to achieve functionality that could
 have been implemented with generics too, if they were available in Go.
 Generics are in fact one of the most widely requested features for the Go programming language, with \checkNum{79\%} of
-participants in the \checkNum{2019} Go Developer Survey~\footnote{\url{https://blog.golang.org/survey2019-results}}
+participants in the \checkNum{2019} Go Developer Survey\footnote{\url{https://blog.golang.org/survey2019-results}}
 stating that they think it is a critical missing feature.
-Since generics have now been officially announced~\footnote{\url{https://blog.golang.org/go2-next-steps}} for the
+Since generics have now been officially announced\footnote{\url{https://blog.golang.org/go2-next-steps}} for the
 upcoming Go release \checkNum{2.0}, these \unsafe{} usages can then be replaced by the new generics support.
 Similarly, other language improvements such as a new foreign function interface could make other usages of \unsafe{}
 which are necessary at the moment obsolete, thus decreasing the room for errors made by the developers and therefore
@@ -176,7 +176,7 @@ violates the safety rules could be highlighted to effectively draw the attention
 As described in Section~\ref{sec:related-work:static-code-analysis}, this can lead to a higher fraction of warnings
 actually being resolved.
 Such an \acrshort{IDE} integration could be implemented using the language server
-protocol~\footnote{\url{https://langserver.org/}}, as this allows for easy compatibility with most \acrshort{IDE}s
+protocol\footnote{\url{https://langserver.org/}}, as this allows for easy compatibility with most \acrshort{IDE}s
 without the need to develop individual plugins for each of them.
 
 Finally, future work could integrate the static code analysis tool \toolSafer{} into \toolVet{}, the official linter
