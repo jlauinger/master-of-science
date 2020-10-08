@@ -8,8 +8,8 @@
 
 %% RQ answer  box formatting -------------------------------------------------------------------------------------------
 
-\newenvironment{answerToRQ}[1][]{
-    \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Answer to~#1]
+\newenvironment{answerToRQ}[1][\todo{specify RQ!}]{
+    \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, arc=0pt, title=Answer to~#1]
 }{\end{tcolorbox}}
 
 %% Insight box formatting ----------------------------------------------------------------------------------------------
@@ -18,5 +18,11 @@
 
 \newenvironment{insight}{%
     \refstepcounter{insightNumber}
-    \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, title=Insight~\theinsightNumber]
+    \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, arc=0pt, title=Insight~\theinsightNumber]
+}{\end{tcolorbox}}
+
+%% General hero box ----------------------------------------------------------------------------------------------------
+
+\newenvironment{hero}[1][\todo{provide title!}]{%
+    \begin{tcolorbox}[boxsep=3pt, enlarge top by=5pt, arc=0pt, title=#1]
 }{\end{tcolorbox}}
