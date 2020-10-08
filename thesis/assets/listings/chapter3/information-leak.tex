@@ -1,8 +1,0 @@
-\begin{lstlisting}[language=Golang, label=lst:information-leak, caption=Buffer information leak proof of concept]
-func main() {
-    harmlessData := [4]byte{'A', 'A', 'A', 'A'}
-    secret := [6]byte{'s', 'e', 'c', 'r', 'e', 't'}
-    var leakingInformation = (*[10]byte)(unsafe.Pointer(&harmlessData[0]))
-    fmt.Println(string((*leakingInformation)[:]))
-}
-\end{lstlisting}
