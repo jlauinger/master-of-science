@@ -74,10 +74,10 @@ mkdir -p /path/to/data/{linters,geiger,ast}
 mkdir -p /path/to/repositories
 ```
 
-Identify, fork and download the top 500 most-starred repositories:
+Identify, fork and download the top 500 (or another number) most-starred repositories:
 
 ```shell script
-./acquisition projects --download --fork --access-token=XXX --data-dir=/path/to/data --destination=/path/to/repositories
+./acquisition projects --size=500 --download --fork --access-token=XXX --data-dir=/path/to/data --destination=/path/to/repositories
 ```
 
 Then check module support and identify the root module of each project:
@@ -105,7 +105,7 @@ To do better parallelization, you can split the analysis into buckets. `go vet` 
 best as possible, `gosec` also parallelizes pretty well. The geiger and grep analysis profit the most.
 Even here, `ripgrep` does an excellent parallelization step, but its execution takes less time compared to the overall
 program runtime, so chunking can give a little extra optimization. Not specifying offset and length assumes their
-defaults 0 and 500.
+defaults 0 and number of projects (thus including all of them).
 
 ```shell script
 ./acquisition analyze geiger --offset 350 --length 50 --data-dir=/path/to/data

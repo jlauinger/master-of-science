@@ -9,6 +9,11 @@ import (
  */
 type AnalysisCallback func(*ProjectData, []*PackageData, map[string]*PackageData, map[string]int, map[string]int)
 
+/*
+ * magic number to indicate no length given by the user
+ */
+const NoLengthGiven = 99999
+
 /**
  * runs an analysis callback for all requested projects. This is a common function to all analysis operations
  */
@@ -27,6 +32,11 @@ func AnalyzeProjects(dataDir string, offset, length int, skipProjects []string, 
 	skipProjectMap := make(map[string]struct{}, len(skipProjects))
 	for _, skipProject := range skipProjects {
 		skipProjectMap[skipProject] = struct{}{}
+	}
+
+	// set the correct length if none is given
+	if length == NoLengthGiven {
+		length = len(projects)
 	}
 
 	// go through all projects in the slice determined by the start / end indices

@@ -16,7 +16,7 @@ import (
 /**
  * identifies the Top 500 most starred open-source Go projects, forks and downloads them
  */
-func GetProjects(dataDir, downloadDir string, download, createForks bool, accessToken string) {
+func GetProjects(datasetSize int, dataDir, downloadDir string, download, createForks bool, accessToken string) {
 	// build the projects CSV filename from the configuration
 	projectsFilename := fmt.Sprintf("%s/projects.csv", dataDir)
 
@@ -27,7 +27,7 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, access
 	}
 	defer base.CloseFiles()
 
-	fmt.Println("Getting information about top 500 Go projects...")
+	fmt.Printf("Getting information about top %d Go projects...\n", datasetSize)
 
 	// set up the Github SDK client with the access token as provided by the configuration. Querying projects can be
 	// done without authentication, but forking projects does require an access token
@@ -37,12 +37,19 @@ func GetProjects(dataDir, downloadDir string, download, createForks bool, access
 	tc := oauth2.NewClient(context.Background(), ts)
 	client := github.NewClient(tc)
 
-	// split up the 500 projects into 5 pages of 100 each because Github's rate limiting does not allow more
-	for page := 1; page <= 5; page++ {
+	// split up the projects into pages of 100 each because Github's rate limiting does not allow more
+	pages := datasetSize / 100
+	for page := 1; page <= pages + 1; page++ {
+		// calculate the size of this page, if needed at all
+		pageSize := base.Min(datasetSize - ((page-1)*100), 100)
+		if pageSize <= 0 {
+			continue
+		}
+
 		// search for repositories with language Go on Github. They are ordered by stars automatically
 		repos, _, err := client.Search.Repositories(context.Background(), "language:Go", &github.SearchOptions{
 			ListOptions: github.ListOptions{
-				PerPage: 100,
+				PerPage: pageSize,
 				Page: page,
 			},
 		})
