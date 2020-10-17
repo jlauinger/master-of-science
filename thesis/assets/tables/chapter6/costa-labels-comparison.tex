@@ -7,22 +7,15 @@
         \textbf{Labels in~\cite{costa2020}} & \textbf{My labels}     & \textbf{Concordance} \\
         \hline
         \multicolumn{3}{l}{\footnotesize\textit{*(*uintptr)(unsafe.Pointer(uintptr(unsafe.Pointer(\&b[0])) + uintptr(i))) \^{}= kw}} \\
-        Performance Optimization   & pointer-arithmetic / efficiency     & match  \\
-        \hline
-        \rowcolor{verylightgray}
+        Performance Optimization   & pointer-arithmetic / efficiency     & match  \\ \hline
         \multicolumn{3}{l}{\footnotesize\textit{return Pointer\{unsafe.Pointer(v.Pointer()), v.Type()\}}} \\
-        \rowcolor{verylightgray}
-        Reflect                    & cast-pointer / reflect              & match  \\
-        \hline
+        Reflect                    & cast-pointer / reflect              & match  \\ \hline
         \multicolumn{3}{l}{\footnotesize\textit{raw := (*unix.InotifyEvent)(unsafe.Pointer(\&buf[offset]))}} \\
-        System Call                & cast-struct / serialization         & mine more fine-grained \\
-        \hline
-        \rowcolor{verylightgray}
+        System Call                & cast-struct / serialization         & mine more fine-grained \\ \hline
         \multicolumn{3}{l}{\footnotesize\textit{entryHdr := (*entryHdr)(unsafe.Pointer(\&entryHdrBuf[0]))}} \\
-        \rowcolor{verylightgray}
-        Convert from byte          & cast-bytes / efficiency             & match  \\
-        \hline
+        Convert from byte          & cast-bytes / efficiency             & match  \\ \hline
         \multicolumn{3}{l}{\footnotesize\textit{if n := int(uintptr(unsafe.Pointer(\&b[0]))) \% wordSize; n != 0 \{}} \\
         Performance Optimization   & pointer-arithmetic / serialization  & mine more fine-grained \\
+        \bottomrule
     \end{tabularx}
 \end{table}

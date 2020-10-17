@@ -1,25 +1,24 @@
 \tablecaption[Open-source Go projects on \github{} used for the empirical study on \unsafe{}]
-{Open-source Go projects on \github{} used for the empirical study on \unsafe{}~\newline \tiny ~\newline \footnotesize
-    \underline{(blank)}: included for analysis, \underline{*}: included in labeled data set,
-    \underline{nm}: no module support, \underline{bf}: build failed
+    {Open-source Go projects on \github{} used for the empirical study on \unsafe{}~\newline \tiny ~\newline \footnotesize
+    \underline{(blank)}: included for analysis, \underline{nm}: no module support, \underline{bf}: build failed
     \tiny ~\newline}
 \label{tbl:projects}
 
 \tablefirsthead{%
-%\hline
+    \toprule
     {}  & \textbf{Name} &  \textbf{Stars} &  \textbf{Forks} & \textbf{Revision} & {} \\
-    \hline}
+    \midrule}
 \tablehead{%
     \multicolumn{5}{c}%
     {{\bfseries  Continued}} \\
-    \hline
+    \midrule
     {}  & \textbf{Name} &  \textbf{Stars} &  \textbf{Forks} & \textbf{Revision} & {} \\
-    \hline}
+    \midrule}
 
 \tabletail{%
-    \hline \multicolumn{5}{r}{{Continued}} \\}
+    \midrule \multicolumn{5}{r}{{Continued}} \\}
 \tablelasttail{%
-    \hline}
+    \bottomrule}
 
 % adjust font size so that the table does not spill into the right margin
 {\fontsize{5.1}{6}\selectfont
@@ -28,7 +27,7 @@
 
         1   &                          golang/go & 72,988 & 10,460 &  \texttt{6bf2eea62a} &  \textit{nm} \\
         \rowcolor{verylightgray}
-        2   &              kubernetes/kubernetes & 66,512 & 23,806 &  \texttt{fb9e1946b0} &            * \\
+        2   &              kubernetes/kubernetes & 66,512 & 23,806 &  \texttt{fb9e1946b0} &              \\
         3   &                          moby/moby & 57,189 & 16,540 &  \texttt{763f9e799b} &  \textit{nm} \\
         \rowcolor{verylightgray}
         4   &                 avelino/awesome-go & 54,733 &  7,267 &  \texttt{3e27d63fe2} &  \textit{nm} \\
@@ -79,7 +78,7 @@
         34  &                        jinzhu/gorm & 18,545 &  2,144 &  \texttt{7ea143b548} &              \\
         35  &                kubernetes/minikube & 18,317 &  2,982 &  \texttt{ea20609a3a} &              \\
         \rowcolor{verylightgray}
-        36  &    mattermost/mattermost-ser\ldots & 18,277 &  4,157 &  \texttt{e83cc7357c} &            * \\
+        36  &    mattermost/mattermost-ser\ldots & 18,277 &  4,157 &  \texttt{e83cc7357c} &              \\
         37  &              cockroachdb/cockroach & 18,260 &  2,177 &  \texttt{e148388d9e} &  \textit{nm} \\
         \rowcolor{verylightgray}
         38  &                       kataras/iris & 18,217 &  2,028 &  \texttt{b6ac39480b} &              \\
@@ -103,7 +102,7 @@
         50  &               joewalnes/websocketd & 14,653 &    829 &  \texttt{2190c8ab4c} &              \\
         51  &                     tsenart/vegeta & 14,648 &    938 &  \texttt{d9b795aec8} &              \\
         \rowcolor{verylightgray}
-        52  &                    rancher/rancher & 14,344 &  1,758 &  \texttt{56a464049e} &            * \\
+        52  &                    rancher/rancher & 14,344 &  1,758 &  \texttt{56a464049e} &              \\
         53  &                     go-delve/delve & 13,968 &  1,363 &  \texttt{4a9b3419d1} &              \\
         \rowcolor{verylightgray}
         54  &                        yudai/gotty & 13,964 &  1,032 &  \texttt{a080c85cbc} &  \textit{nm} \\
@@ -200,7 +199,7 @@
         115 &                    Dreamacro/clash &  8,880 &  1,260 &  \texttt{3638b077cd} &              \\
         \rowcolor{verylightgray}
         116 &                     go-redis/redis &  8,861 &  1,142 &  \texttt{a999d1ecd8} &              \\
-        117 &                      elastic/beats &  8,852 &  3,207 &  \texttt{df6f2169c5} &            * \\
+        117 &                      elastic/beats &  8,852 &  3,207 &  \texttt{df6f2169c5} &              \\
         \rowcolor{verylightgray}
         118 &                   snail007/goproxy &  8,842 &  1,792 &  \texttt{029cc0d002} &  \textit{nm} \\
         119 &                PuerkitoBio/goquery &  8,836 &    698 &  \texttt{89946c829f} &              \\
@@ -260,7 +259,7 @@
         155 &                bettercap/bettercap &  7,293 &    745 &  \texttt{6725a2aa53} &              \\
         \rowcolor{verylightgray}
         156 &    unknwon/go-fundamental-pr\ldots &  7,272 &  1,884 &  \texttt{5542bcd8fd} &  \textit{nm} \\
-        157 &                          rook/rook &  7,208 &  1,472 &  \texttt{ff90fa7098} &            * \\
+        157 &                          rook/rook &  7,208 &  1,472 &  \texttt{ff90fa7098} &              \\
         \rowcolor{verylightgray}
         158 &                sjwhitworth/golearn &  7,199 &  1,009 &  \texttt{3e43e74895} &  \textit{nm} \\
         159 &                    attic-labs/noms &  7,194 &    266 &  \texttt{39057233bf} &              \\
@@ -343,7 +342,7 @@
         210 &                      rqlite/rqlite &  5,884 &    322 &  \texttt{5f762f01ec} &              \\
         211 &            open-falcon/falcon-plus &  5,874 &  1,332 &  \texttt{850e7f79d4} &  \textit{nm} \\
         \rowcolor{verylightgray}
-        212 &                            xo/usql &  5,871 &    195 &  \texttt{bdff722f7b} &            * \\
+        212 &                            xo/usql &  5,871 &    195 &  \texttt{bdff722f7b} &              \\
         213 &               zricethezav/gitleaks &  5,871 &    470 &  \texttt{e0f6399d5c} &              \\
         \rowcolor{verylightgray}
         214 &                   weaveworks/weave &  5,840 &    577 &  \texttt{0d4099bba5} &  \textit{nm} \\
@@ -386,7 +385,7 @@
         239 &                        cdr/sshcode &  5,516 &    213 &  \texttt{50e859cd10} &              \\
         \rowcolor{verylightgray}
         240 &                      upspin/upspin &  5,514 &    271 &  \texttt{5ddde7b8e6} &              \\
-        241 &                      cilium/cilium &  5,501 &    626 &  \texttt{9b0ae85b5f} &            * \\
+        241 &                      cilium/cilium &  5,501 &    626 &  \texttt{9b0ae85b5f} &              \\
         \rowcolor{verylightgray}
         242 &                     slackhq/nebula &  5,487 &    308 &  \texttt{ff13aba8fc} &              \\
         243 &                TykTechnologies/tyk &  5,475 &    719 &  \texttt{ce0ee257b6} &              \\
@@ -475,7 +474,7 @@
         298 &              facebookarchive/grace &  4,561 &    362 &  \texttt{75cf193824} &  \textit{nm} \\
         299 &           google/battery-historian &  4,556 &    823 &  \texttt{d2356ba4fd} &  \textit{nm} \\
         \rowcolor{verylightgray}
-        300 &                  containers/libpod &  4,549 &    539 &  \texttt{e8818ced80} &            * \\
+        300 &                  containers/libpod &  4,549 &    539 &  \texttt{e8818ced80} &              \\
         301 &                  Shopify/toxiproxy &  4,547 &    252 &  \texttt{10f0561d74} &              \\
         \rowcolor{verylightgray}
         302 &                michenriksen/gitrob &  4,543 &    658 &  \texttt{7be4c5306a} &  \textit{nm} \\
@@ -502,7 +501,7 @@
         316 &             jpillora/cloud-torrent &  4,373 &  1,453 &  \texttt{1a741e3d8d} &  \textit{nm} \\
         317 &               russross/blackfriday &  4,370 &    533 &  \texttt{abb995c466} &              \\
         \rowcolor{verylightgray}
-        318 &                   weaveworks/scope &  4,354 &    554 &  \texttt{bf90d56f0c} &            * \\
+        318 &                   weaveworks/scope &  4,354 &    554 &  \texttt{bf90d56f0c} &              \\
         319 &                       mozilla/sops &  4,343 &    292 &  \texttt{4bc27f6eb7} &              \\
         \rowcolor{verylightgray}
         320 &             gliderlabs/registrator &  4,335 &    854 &  \texttt{4322fe0030} &  \textit{nm} \\
@@ -703,7 +702,7 @@
         450 &                  jwilder/dockerize &  3,378 &    243 &  \texttt{9ce2e80619} &  \textit{nm} \\
         451 &             mitchellh/mapstructure &  3,374 &    378 &  \texttt{20e21c67c4} &              \\
         \rowcolor{verylightgray}
-        452 &                  gorgonia/gorgonia &  3,373 &    301 &  \texttt{5fb5944d4a} &            * \\
+        452 &                  gorgonia/gorgonia &  3,373 &    301 &  \texttt{5fb5944d4a} &              \\
         453 &                    codegangsta/gin &  3,370 &    277 &  \texttt{cafe2ce989} &  \textit{nm} \\
         \rowcolor{verylightgray}
         454 &                manifoldco/promptui &  3,369 &    157 &  \texttt{e15db71081} &              \\

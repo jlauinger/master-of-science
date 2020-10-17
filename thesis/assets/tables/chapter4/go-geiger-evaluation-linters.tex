@@ -4,9 +4,9 @@
     \label{tbl:go-geiger-evaluation-linters}
     \begin{tabular}{l|rr|rr|rr}
         \textbf{Scenario} & \multicolumn{2}{c|}{\textbf{TP (both)}} & \multicolumn{2}{c|}{\textbf{FN (only \toolGeiger{})}} & \multicolumn{2}{c}{\textbf{FP (only linter)}} \\
-        {}                & \textbf{go vet} & \textbf{gosec}        & \textbf{go vet} & \textbf{gosec}                      & \textbf{go vet} & \textbf{gosec}              \\
+        {}                & go vet    & gosec              & go vet          & gosec                      & go vet      & gosec                  \\
         \hline
-        Any message       & 219             & 36,279                & 76,738          & 40,678                              &  31,224         & 114,306                     \\
-        Related message   & 213             & 26,267                & 76,744          & 18,019                              &       0         & 0                           \\
+        Any message       & 219       & 36,279             & 76,738          & 40,678                     &  31,224     & 114,306                \\
+        Related message   & 213       & 26,267             & 76,744          & 18,019                     &       0     & 0                      \\
     \end{tabular}
 \end{table}

@@ -6,22 +6,19 @@
     \underline{d} submodules \tiny ~\newline}
     \label{tbl:costa-counts-comparison}
     \begin{tabular}{l|r|r|r|l}
-        \textbf{Project}       & \textbf{Count in~\cite{costa2020}} & \textbf{Count in this work} & \textbf{Difference} & \textbf{Reason} \\
-        \hline
-        jetstack/cert-manager  &                                140 &                         374 &               + 234 &  a              \\
-        \rowcolor{verylightgray}
-        kubernetes/kubernetes  &                              2,058 &                       1,885 &              -- 173 &  b              \\
-        golang/mobile          &                                211 &                          93 &              -- 118 &  b              \\
-        \rowcolor{verylightgray}
-        TykTechnologies/tyk    &                                 79 &                         187 &               + 108 &  c              \\
-        elastic/beats          &                                164 &                          70 &               -- 94 &  c              \\
-        \rowcolor{verylightgray}
-        golang/tools           &                                113 &                          44 &               -- 69 &  b              \\
-        peterq/pan-light       &                                 64 &                           0 &               -- 64 &  d              \\
-        \rowcolor{verylightgray}
-        cilium/cilium          &                                290 &                         345 &               -- 55 &  c              \\
-        go-delve/delve         &                                 72 &                          20 &               -- 52 &  b              \\
-        \rowcolor{verylightgray}
-        ethereum/go-ethereum   &                                 42 &                          91 &                + 49 &  c              \\
+        \toprule
+        Project & Count in~\cite{costa2020} & Count in this work & Difference & Reason \\
+        \midrule
+        jetstack/cert-manager  &   140 &   374 &  + 234 & a \\
+        kubernetes/kubernetes  & 2,058 & 1,885 & -- 173 & b \\
+        golang/mobile          &   211 &    93 & -- 118 & b \\
+        TykTechnologies/tyk    &    79 &   187 &  + 108 & c \\
+        elastic/beats          &   164 &    70 &  -- 94 & c \\
+        golang/tools           &   113 &    44 &  -- 69 & b \\
+        peterq/pan-light       &    64 &     0 &  -- 64 & d \\
+        cilium/cilium          &   290 &   345 &  -- 55 & c \\
+        go-delve/delve         &    72 &    20 &  -- 52 & b \\
+        ethereum/go-ethereum   &    42 &    91 &   + 49 & c \\
+        \bottomrule
     \end{tabular}
 \end{table}
