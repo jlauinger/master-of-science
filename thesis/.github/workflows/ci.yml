@@ -17,6 +17,7 @@ jobs:
       uses: dante-ev/latex-action@master
       with:
         root_file: thesis.tex
+        args: -lualatex -latexoption=-file-line-error -latexoption=-interaction=nonstopmode
 
     - name: Get file name
       id: vars
