@@ -49,7 +49,7 @@ These have between 72,988 and 3,075 stars, with an average of 7,860. % and media
 
 We used the Go tool chain to identify the root module of each project. 
 This is the module defined by the top-level \textit{go.mod} file in the project.
-Then we enumerated the dependencies of the project, and build the dependency tree.
+Then we enumerated the dependencies of the project, and built the dependency tree.
 For each package, we used \toolUsage{} to generate CSV reports of the found \unsafe{} usages.
 Through these analyses we answer the research questions of how many projects use \unsafe{} either in their own code or dependencies (\ref{rq:prevalApp}), and how deep in the dependency tree are the most \unsafe{} code usages (\ref{rq:depsDepth}). 
 By selecting only results from the project root modules, we can easily find out how many applications contain a first-hand use of \unsafe{} code.
@@ -124,7 +124,7 @@ The \textit{memory-access} class is applied where \textit{unsafe.Pointer} values
 \textit{Delegate} are instances where \unsafe{} is only needed in a function to pass it along to another function requiring a parameter of type \textit{unsafe.Pointer}. 
 Thus, the need to use \unsafe{} is actually located elsewhere.
 \textit{Syscall} are calls using the Go \textit{syscall} package or \textit{golang.org/x/sys} module.
-As the name suggests, \textit{unused} is a class of occurrences that are not actually used in the analyzed code, e.g. dead code or unused parameters.
+As the name suggests, \textit{unused} is a class of occurrences that are not actually used in the analyzed code, e.g., dead code or unused parameters.
 
 Our identified purpose classes, providing hints on why \unsafe{} is used, are described in the following.
 \textit{Efficiency} includes cases where \unsafe{} is used only for the aim to improve time or space efficiency of the code.
@@ -136,7 +136,7 @@ The \textit{foreign function interface (FFI)} class contains interoperability wi
 \textit{Hide from escape analysis} includes the pattern described earlier (Listing~\ref{lst:unsafe-ex-escape-analysis}) to break the escape analysis chain.
 The \textit{memory layout control} class contains code used for low-level memory management.
 \textit{Types} snippets are used by the standard library to implement the Go type system.
-\textit{Reflect} includes instances of type reflection and re-implementations of some types of the \textit{reflect} package, e.g. using \textit{unsafe.Pointer} instead of \textit{uintptr} for slice headers.
+\textit{Reflect} includes instances of type reflection and re-implementations of some types of the \textit{reflect} package, e.g., using \textit{unsafe.Pointer} instead of \textit{uintptr} for slice headers.
 Again, \textit{unused} is a class of unused occurrences.
 
 %Among the \checkNum{1,400} labeled snippets, \checkNum{683} are located in automatically generated code.
@@ -168,10 +168,21 @@ In the Go standard library, \checkNum{every third} use of \unsafe{} is to avoid 
 \subsection{Vulnerable Usages}
 \label{sec:discussion}
 Looking at the study results, we see that \unsafe{} is used consistently and wide-spread in the most popular open-source Go projects.
-One might argue that the patterns found by \toolUsage{} are only minor annoyances, not severe or would require a manual case-to-case inspection. 
-The exploitability of several of these patterns was discussed in Section~\ref{sec:appr} with a link to proof-of-concept exploit code that we developed, clearly showing that it is indeed possible to use the memory corruptions to one's advantage.
+One might argue that the \new{usages}
+%patterns 
+found by \toolUsage{} are only minor annoyances, not severe or would require a manual case-to-case inspection. 
+\new{Still, t}he exploitability of several of these %patterns 
+\new{usages}
+was discussed in \new{Section~\ref{sec:appr:vulnerabilites} with a reference to \checkNum{six} proof-of-concept exploits} that we developed\new{.}
+%, clearly 
+\new{This c}learly \new{shows} that it is indeed possible to use the memory corruptions to one's advantage.
 However, not all \unsafe{} usages contain a vulnerability. 
-As already discussed, we implemented more specific checks for some of our patterns known to be problematic in \toolSA{}.
-The application of \toolSA{} to our data set revealed more than \numberBugsFixed{} bugs in different projects.
-Based on the results, we submitted so far \numberPRs{} pull requests to fix the found bugs. %, which focuses on a subset of vulnerable code patterns.
+As already discussed, we implemented more specific checks for \new{two} %some of our 
+patterns known to be problematic in \toolSA{} \new{(Section~\ref{sec:appr:toolSA})}.
+\new{With it, three of the proof-of-concept exploits are mitigated, leaving the others which are much harder to detect statically for future work.}
+The application of \toolSA{} to our data set revealed more than \numberBugsFixed{} \new{insecure usages of \unsafe{}}
+%bugs 
+in different projects.
+Based on the results, we submitted so far \numberPRs{} pull requests to fix the\new{se usages.} 
+%found bugs. %, which focuses on a subset of vulnerable code patterns.
 By now, \numberPRsMerged{} have already been reviewed, acknowledged, and accepted by the corresponding project maintainers.

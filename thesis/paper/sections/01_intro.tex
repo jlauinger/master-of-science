@@ -2,7 +2,7 @@
 \label{sec:intro}
 
 Programming languages with direct memory access through pointers, such as C/C++, suffer from the dangers of memory corruption, including buffer overflows \cite{alnaeli2017, larochelle2001} or \textit{use-after-free} of pointers.
-Microsoft e.g., reports that memory safety accounts for around 70\% of all their bugs\footnote{\url{https://msrc-blog.microsoft.com/2019/07/16/a-proactive-approach-to-more-secure-code/}}. 
+Microsoft, e.g., reports that memory safety accounts for around 70\% of all their bugs\footnote{\url{https://msrc-blog.microsoft.com/2019/07/16/a-proactive-approach-to-more-secure-code/}}. 
 To avoid these dangers, many programming languages, such as Java, Rust, Nim, or Google's Go, use automatic memory management and prevent using low-level memory details like pointers in favor of managed object references.
 Thus, these languages are memory safe, eliminating most memory corruption bugs. 
 However, there are valid use cases for such low-level features.
@@ -16,14 +16,14 @@ However, there are valid use cases for such low-level features.
 %if explicitly requested.
 %
 %To serve these needs
-Safe languages therefore provide, to varying degrees, escape hatches to perform potentially \unsafe{} operations.
+Safe languages therefore provide, to varying degrees, escape hatches to perform potentially unsafe operations.
 Escape hatches may be used for optimization purposes, to directly access hardware, to use the foreign function interface (FFI), to access external libraries, or to circumvent limitations of the programming language. 
 
-However, escape hatches may have severe consequences, e.g. they may introduce vulnerabilities.
-This is especially problematic when \unsafe{} code blocks are introduced through third-party libraries, and thus not directly obvious to the application developer. 
+However, escape hatches may have severe consequences, e.g., they may introduce vulnerabilities.
+This is especially problematic when \unsafe{} code blocks are introduced through third-party libraries, and thus \new{are} not directly obvious to the application developer. 
 Indeed, a recent study shows that unsafe code blocks in Rust are often introduced through third-party libraries~\cite{evans2020}. 
 %Not knowing about the dangers introduced through external dependencies can have severe consequences, e.g., potential vulnerabilities.
-Thus, security analysts, developers, and administrators need efficient tools to quickly evaluate potential risks in their code base but also the risks introduced by code from others.
+\new{Therefore}, security analysts, developers, and administrators need efficient tools to quickly evaluate potential risks in their code base but also the risks introduced by code from others.
 
 In this paper, we investigate Go and the usage of \unsafe{} code blocks within its most popular software projects. 
 We developed two specific tools for developers and security analysts.
@@ -31,19 +31,27 @@ The first one, called \toolUsage{} (Section~\ref{sec:appr:toolUsage}) analyzes a
 It is intended to give a general overview of \unsafe{} usages in a project. % and in which context.
 
 As \unsafe{} usages are benign when used correctly, safe usages of \unsafe{} exist.
-However, we identified two patterns which cause potentially dangerous \unsafe{} usages and can break the memory safety mechanisms, e.g., by allowing access to additional memory regions via type casts.
-To identify these patterns, we implemented our second tool \toolSA{} (Section~\ref{sec:appr:toolSA}).
-It helps during application development by providing meaningful hints for these usages of \unsafe{} that were previously uncaught with existing tools.
+\new{However, we identified several commonly used \unsafe{} patterns, e.g., to cast slices and structs, which can break memory safety mechanisms.
+They introduce potential vulnerabilities, e.g., by allowing access to additional memory regions. 
+We provide insights into the dangers and possible exploit vectors to these patterns, indicating the severe nature of these bugs leading to information leaks or code execution (Section~\ref{sec:appr:vulnerabilites}).
+%Therefore, we developed proof-of-concepts for the identified issues, leading to information leaks or code execution.
+
+While the Go tool chain provides a linter, called \textit{go vet}, covering invalid \unsafe{} pointer conversions, 
+the linter fails to flag the potentially insecure usages. 
+Thus, to support developers we implemented a second tool \toolSA{} (Section~\ref{sec:appr:toolSA}) covering two types of those.}
+%However, we identified two patterns which cause potentially dangerous \unsafe{} usages
+%and can break the memory safety mechanisms, e.g., by allowing access to additional memory regions via type casts.
+%To identify these patterns, we implemented our second tool \toolSA{} (Section~\ref{sec:appr:toolSA}).
+%It helps during application development by providing meaningful hints for these usages of \unsafe{} that were previously uncaught with existing tools.
 
 With the help of \toolUsage{}, we performed a quantitative evaluation of the top \initalProjs{} most-starred Go projects on GitHub to see how often \unsafe{} is used in the wild (Section~\ref{sec:eval:unsafewild}). 
 Including their dependencies, we analyzed more than \packagesAnalyzedRounded{} individual packages. % for usage of \unsafe{}.
 We found that \percentageProjectsWithUnsafe{} of projects contain \unsafe{} usages in their direct application code, and \percentageProjectsAndDependenciesUnsafe{} of
 projects contain \unsafe{} usages either in first-party or imported third-party libraries.
 
-We also created a novel data set with \checkNum{1,400} labeled occurrences of \unsafe{}, providing insights into the motivation for introducing unsafe in the source code in the first place (Section~\ref{sec:eval:labeledData}). 
-Additionally, we provide insights into the dangers and possible exploit vectors to some of the patterns we found in the wild, indicating the severe nature of these bugs (Section~\ref{sec:appr:vulnerabilites}). 
-Therefore, we developed proof-of-concepts for the identified issues, leading to information leaks or code execution.
-So far, in the course of this work we submitted \numberPRs{} pull requests to analyzed projects and libraries, fixing over \numberBugsFixed{} individual potentially dangerous \unsafe{} usages \new{ as presented in Section~\ref{sec:discussion}}.
+We also created a novel data set with \checkNum{1,400} labeled occurrences of \unsafe{}, providing insights into the motivation for introducing \unsafe{} in the source code in the first place (Section~\ref{sec:eval:labeledData}). 
+\new{Finally, we used \toolSA{} to find instances of our identified dangerous usage patterns within the data set.}
+So far, in the course of this work we submitted \numberPRs{} pull requests to analyzed projects and libraries, fixing over \numberBugsFixed{} individual potentially dangerous \unsafe{} usages \new{(Section~\ref{sec:discussion})}. % \new{ as presented in Section~\ref{sec:discussion}}.
 
 In this paper, we make the following contributions:
 %

@@ -1,72 +1,11 @@
-\section{Go's \unsafe{}~package}
-\label{sec:background}
+%\section{\new{Scanning for Insecure Usages of \unsafe{}}}
+\section{\new{Identifying Insecure Usages of \unsafe{}}}
 
-In this section, we give a brief introduction to \unsafe{} in Go and then present potential problematic code patterns including exploit information that we identified.
+\new{In this section, we present problematic code snippets including exploit information that we identified.
+Further, we introduce our linter \toolSA{} to identify two known potentially dangerous \unsafe{} patterns for slice and struct casts.}
 
-\subsection{Introducing \unsafe{}}
-\label{sec:back:intro}
+\subsection{\new{Potential Usage and Security Problems}}
 
-The Go programming language, like other memory-safe languages, provides an \unsafe{}~package\footnote{\url{https://golang.org/pkg/unsafe}}, which offers 
-(a) the functions \textit{Sizeof}, \textit{Alignof}, and \textit{Offsetof} that are evaluated at compile time and provide access into memory alignment details of Go data types that are otherwise inaccessible, %unnecessary to know, and thus, inaccessible.
-and (b) a pointer type, \textit{unsafe.Pointer}, that allows developers to circumvent restrictions of regular pointer types.
-
-One can cast any pointer to/from \textit{unsafe.Pointer}, thus enabling casts between completely arbitrary types, as illustrated in  
-%
-%In the remainders of this section, we discuss two example use cases of the \unsafe{} package in practice. 
-Listing~\ref{lst:unsafe-ex-in-place-cast}.
-%shows the usage of the \unsafe{} package to cast between arbitrary types.
-In this example, \textit{in.Items} is assigned to a new type (\textit{out.Items}) in Line~3 without reallocation for efficiency reasons. %\footnote{This code was taken from the Kubernetes \textit{k8s.io/apiserver} module with minor adjustments.} 
-Furthermore, casts between \textit{unsafe.Pointer} and \textit{uintptr} are also enabled, mainly for pointer arithmetic.
-A \textit{uintptr} is an integer type with a length sufficient to store memory addresses. 
-However, it is not a pointer type, hence, not treated as a reference.
-%The first \textit{unsafe.Pointer} rule allows casts between completely arbitrary types, and the latter one allows the use of pointer arithmetic.
-%The usage of the \unsafe{}~package removes the safety net provided by the Go type system and compiler, and brings developers down to the flexibility and danger of the pointers in C.
-%
-Listing~\ref{lst:unsafe-ex-escape-analysis} presents an example of casts involving \textit{uintptr}. 
-%The code is taken from the \textit{modern-go/reflect2} module.
-In Line~2, the \textit{unsafe.Pointer} is converted to \textit{uintptr}.
-Thus, the memory address is stored within a non-reference type.
-Hence, the back-conversion in Line~3 causes the \textit{unsafe.Pointer} to be hidden from the \textit{escape analysis (EA)} which Go's garbage collector uses 
-%manages the memory allocations and tries to identify memory which can be freed up.
-%For this task, it uses \textit{escape analysis (EA)} 
-to determine whether a pointer is local to a function and can be stored in the corresponding stack frame, 
-or whether it can \textit{escape} the function and needs to be stored on the heap \cite{wang2020}. 
-%Since \textit{uintptr} values are not pointer types,
-Storing the address of a pointer in a variable of \textit{uintptr} type and then converting it back causes the \textit{EA} to miss the chain of references to the underlying value in memory. 
-Therefore, Go will assume a value does not escape when it actually does, and may place it on the stack.
-Correctly used it can improve efficiency because deallocation is faster on the stack than on the heap~\cite{wang2020}.
-However, used incorrectly it can cause security problems as shown later in Section~\ref{sec:appr:vulnerabilites}.
-
-\begin{lstlisting}[language=Golang, label=lst:unsafe-ex-in-place-cast, caption=In-place cast using the \unsafe{} package
-from the Kubernetes \textit{k8s.io/apiserver} module with minor changes.
-,float, belowskip=-1.5em, aboveskip=0em]
-func autoConvert(in *PolicyList, out *audit.PolicyList) error {
-	// [...]
-	out.Items = *(*[]audit.Policy)(unsafe.Pointer(&in.Items))
-	return nil
-}
-\end{lstlisting}
-
-\begin{lstlisting}[language=Golang, label=lst:unsafe-ex-escape-analysis, caption=Hiding a value from escape analysis from the \textit{modern-go/reflect2} module.
-, float, belowskip=-1.5em]
-func NoEscape(p unsafe.Pointer) unsafe.Pointer {
-	x := uintptr(p)
-	return unsafe.Pointer(x ^ 0)
-}
-\end{lstlisting}
-
-
-% \subsection{Go Dependency Management}
-
-%Old way: packages, Go Path
-
-%New way: modules, registries, \textit{go.mod} file.
-
-%Package cache, versions, bad reproducibility, relatively high error rates for dependency resolution.
-
-%% ---------------------------------------------------
-
-\subsection{Usage and Security Problems}
 \label{sec:appr:vulnerabilites}
 
 In the following, we discuss potential threat models and exploit vectors against real-world \unsafe{} Go code.
@@ -134,7 +73,6 @@ When the resulting string header (shown in blue at memory position 3) is created
 A third problem found in Listing~\ref{lst:string-to-bytes} is that the \textit{escape analysis (EA)} algorithm can not infer a connection between the string parameter \textit{s} and the resulting byte slice.
 Although they use the same underlying data array, the EA misses this due to the fact that the intermediate representation as a \textit{uintptr} is not treated as a reference type.
 This can cause undefined behavior if the returned value from the casting function is used incorrectly.
-
 Listing~\ref{lst:escape-analysis} shows a program that uses the conversion function presented earlier~(Listing~\ref{lst:string-to-bytes}).
 In the \textit{main} function, \textit{GetBytes} is called~(Line~2), which creates a string and turns it into a byte slice using the conversion function.
 Within the \textit{GetBytes} function, we create the string using a \textit{bufio} reader similarly to if it were user-provided input.
@@ -144,7 +82,7 @@ Although one might assume that both print statements result in the same string t
 
 % // expected (but failed) stdout is "abcdefgh
 % // expected stdout is "abcdefgh"
-\begin{lstlisting}[language=Golang, label=lst:escape-analysis, caption=Escape analysis flaw example, float, belowskip=-1.5em, aboveskip=0em]
+\begin{lstlisting}[language=Golang, label=lst:escape-analysis, caption=Escape analysis flaw example, float, belowskip=-1.5em, aboveskip=1em]
 func main() {
 	bytesResult := GetBytes()
 	fmt.Printf("main: %s\n", bytesResult)
@@ -184,7 +122,6 @@ Thus, \textit{bytesResult} (Line~2) is now a dangling pointer into the former st
 %	return
 %}
 %\end{lstlisting}
-\input{gfx/figures/go-geiger-architecture}
 
 
 \subsubsection*{Code Execution}
@@ -197,6 +134,54 @@ We use gadgets to set register values and dispatch to system calls.
 Using the \textit{mprotect} syscall, we set both the writable and executable permission bits on a memory page that is mapped to the program, and store an exploit payload provided via standard input there using the \textit{read} syscall. 
 Finally, we jump to this payload and execute it using a final ROP-gadget to open a shell.
 An in-depth discussion of the exploit would go beyond the scope of this paper and exceed the space available to present our research.
-Therefore, we made it available online\footnote{\url{https://github.com/jlauinger/go-unsafepointer-poc}\label{fn:poc}} together with five other proof-of-concepts. 
-\new{Furthermore, an in-depth write-up about exploiting \unsafe{} issues in Go exists as a series of blog articles\footurl{https://dev.to/jlauinger/exploitation-exercise-with-unsafe-pointer-in-go-information-leak-part-1-1kga}.}
+Therefore, we made it available online\footnote{\url{https://github.com/jlauinger/go-unsafepointer-poc}\label{fn:poc}} \new{together with five other proof-of-concept exploits}. 
+\new{Furthermore, we published an in-depth write-up about exploiting \unsafe{} issues in Go as a series of blog articles\footurl{https://dev.to/jlauinger/exploitation-exercise-with-unsafe-pointer-in-go-information-leak-part-1-1kga}.}
+
+
+
+\subsection{\new{\toolSA{}: Finding Potentially Insecure Usages}}
+
+\label{sec:appr:toolSA}
+
+\new{We designed \toolSA{}\footnote{\url{https://github.com/jlauinger/go-safer}} to automatically give advice for some of the \unsafe{} usage patterns introduced in the previous section.
+It is meant for assistance during manual audits and also for integration in build chains during development.
+Avoiding the patterns that \toolSA{} detects prevents the garbage collector race and escape analysis flaw vulnerabilities that we discussed in Section~\ref{sec:appr:vulnerabilites}.
+They are not covered by existing linters such as \textit{go vet}.
+We found instances of these \unsafe{} code patterns through the usage of \toolSA{} in real-world code (cf. Section~\ref{sec:eval}).
+}
+
+%This section presents \toolSA{}, a novel static code analysis tool to find dangerous \unsafe{} usage patterns that were previously uncaught with existing tools. 
+%Through the usage of \toolUsage{} in real-world code and our manual analysis in Section~\ref{sec:eval}, we found \unsafe{} code patterns that were not covered by existing linters such as \textit{go vet}. 
+%To automatically give advice for some of these patterns we designed \toolSA{}\footnote{\url{https://github.com/jlauinger/go-safer}}.
+%It is meant for assistance during manual audits and also for integration in build chains during development.
+%All source code for \toolSA{} is made publicly available\footnote{\url{https://github.com/jlauinger/go-safer}}.
+%Avoiding the \unsafe{} usage patterns that \toolSA{} detects, prevents the garbage collector race and escape analysis flaw vulnerabilities that we discussed in Section~\ref{sec:appr:vulnerabilites}.
+
+%\subsubsection*{Approach}
+
+\input{gfx/figures/go-safer-architecture}
+
+Figure~\ref{fig:safer-architecture} shows an overview of the architecture of \toolSA{}.
+%It was built on top of the existing infrastructure provided by the \textit{go vet} tool.
+First, it uses \textit{go vet} to build a list of packages to be analyzed and parses their sources.
+Then, a number of static code analyzers, called \textit{passes}, run.
+Our analyses depend on existing passes to acquire the abstract syntax tree (AST) and control flow graph (CFG).
+Two separate analyses are run by \toolSA{}: the \textit{sliceheader} and the \textit{structcast} passes. % discovers incorrect string and slice casts as shown in Listing~\ref{lst:string-to-bytes}.
+%The \textit{structcast} pass finds unsafe casts between different struct types that include architecture-dependent field sizes and, therefore, might create a security risk when ported to other platforms.
+%Describing potential exploit vectors for this second type of problem is beyond the scope of this paper, thus, we added an example of this to the public repository\textsuperscript{\ref{fn:poc}} mentioned in the last section.
+
+%\subsubsection*{Implementation}
+
+The \textit{sliceheader} pass discovers incorrect string and slice casts as shown in Listing~\ref{lst:string-to-bytes}.
+It finds composite literals and assignments in the AST.
+Then, for each it checks whether the type of the %literal or assignment 
+receiver is \textit{reflect.StringHeader}, \textit{reflect.SliceHeader}, or some derived type with the same signature.
+For assignments, the analysis pass then finds the last node in the CFG where the receiver object's value is defined, and checks if it is derived correctly by casting a string/slice.
+If \toolSA{} can not infer with certainty that the assignment receiver object was created by a cast, a warning is issued.
+
+The \textit{structcast} pass discovers instances of in-place casts between different struct types that include architecture-dependent field sizes. 
+This can create a security risk when ported to other platforms because \unsafe{} casts can lead to misaligned fields, and thus, memory access outside a value's bounds on some platforms, allowing the same exploit vectors as a buffer overflow does.
+The pass finds struct cast instances that involve \textit{unsafe.Pointer} in the AST.
+Then, it compares the struct types and checks if they contain an unequal amount of fields with types \textit{int}, \textit{uint}, or \textit{uintptr}, which are the architecture-dependent types supported by Go.
+If the numbers do not match, \toolSA{} issues a warning.
 
