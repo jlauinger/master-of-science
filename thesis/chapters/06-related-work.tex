@@ -86,6 +86,8 @@ package.
 \checkNum{20} of the \checkNum{25} mutual code samples did not actually have a label in the data set
 by~\cite{costa2020}.
 The remaining \checkNum{five} matched reasonably well at least, as shown in Table~\ref{tbl:costa-labels-comparison}.
+The table contains both the source code snippet and the labels assigned by~\cite{costa2020} and this work, as well as
+their concordance in the third column.
 
 \input{assets/tables/chapter6/costa-labels-comparison.tex}
 
@@ -145,6 +147,7 @@ Furthermore, Almohri et al.~\cite{almohri2018} presented a system to ensure memo
 in Rust by limiting access to the program's memory during the times \unsafe{} functions run.
 This is done by splitting the memory address space into regions with different trust levels and thus creates a sandbox
 that the \unsafe{} code runs in.
+RustBelt~\cite{jung2017} is a formal proof of safety-related properties of a subset of the Rust language with \unsafe{}.
 Since it is possible to compile Rust to WebAssembly, a binary intermediate code representation that is shipped to web
 browsers~\cite{rourke2018}, usage of \unsafe{} blocks in Rust might lead to vulnerabilities that occur in the virtual
 machine environment when executing the WebAssembly code.

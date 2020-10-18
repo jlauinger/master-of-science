@@ -157,32 +157,47 @@ uncommon in the top \projsTotal{} most popular projects, but frequent in project
 
 \section{Future Work}\label{sec:discussion:future-work}
 
-Based on the contributions of this thesis, future research might look into the following areas.
-First, the novel data set of manually labeled \unsafe{} usages, containing code samples along labels on what is being
-done and for what purpose, could be used as a training and verification data set in machine learning applications.
-It could be used, for example, to evaluate possible future static analysis tools with a focus on \unsafe{} Go code,
-to train an automated classification tool that could possibly predict the danger of new \unsafe{} code patterns.
-Furthermore, it can be used as a seed for further studies on the design and adoption of \unsafe{} APIs not only in Go
-but also across other languages.
-\todo{more scientific, not engineering-based future work}
+Based on the contributions of this thesis, future work might look into the following areas.
+The novel data set of manually labeled \unsafe{} usages can be used for interesting further research.
+First, the code samples in the \textit{efficiency} class do not strictly require the use of \unsafe{}, but should increase the
+performance of the code.
+Therefore, future work could quantify by how much \unsafe{} actually increases the efficiency compared to using other,
+memory-safe language features of Go.
+If the improvement is small, \unsafe{} would pose an unnecessary risk that could be avoided.
+Especially, a comparison with performance improvements of new Go compiler releases would be interesting to see if
+simply waiting for a new version of the compiler can provide more efficient code than \unsafe{} does.
+Furthermore, future work could evaluate the possibility of automatically replacing such \unsafe{} usages with safe
+language constructs.
+Finally, the labeled data set could be used as a training and verification data set in machine learning applications.
+For example, an automated classification tool that could possible predict the purpose and danger of unseen \unsafe{}
+code patterns could be built.
+This would be valuable both for security analysts to conduct a large scale study of \unsafe{} usages in thousands of
+projects, and for software engineers to highlight particularly dangerous usages in the findings of \toolGeiger{} as well
+as ones that can be replaced with new language features.
 
-Next, the novel tools \toolGeiger{} and \toolSafer{} presented in this thesis could be integrated into developer
-environments (\acrshort{IDE}s).
-While the current command line interface works well for the initial development of the tools, and is especially suitable
-to be used as part of a continuous integration automation, an \acrshort{IDE} integration has the benefit of being able
-to unify the display of warnings with the editor that the developer uses to fix them.
-For example, \toolSafer{} warnings can be displayed next to the affected line directly in the editor, and the code that
-violates the safety rules could be highlighted to effectively draw the attention of the developer.
-As described in Section~\ref{sec:related-work:static-code-analysis}, this can lead to a higher fraction of warnings
-actually being resolved.
-Such an \acrshort{IDE} integration could be implemented using the language server
-protocol\footnote{\url{https://langserver.org/}}, as this allows for easy compatibility with most \acrshort{IDE}s
-without the need to develop individual plugins for each of them.
+%Next, the novel tools \toolGeiger{} and \toolSafer{} presented in this thesis could be integrated into developer
+%environments (\acrshort{IDE}s).
+%While the current command line interface works well for the initial development of the tools, and is especially suitable
+%to be used as part of a continuous integration automation, an \acrshort{IDE} integration has the benefit of being able
+%to unify the display of warnings with the editor that the developer uses to fix them.
+%For example, \toolSafer{} warnings can be displayed next to the affected line directly in the editor, and the code that
+%violates the safety rules could be highlighted to effectively draw the attention of the developer.
+%As described in Section~\ref{sec:related-work:static-code-analysis}, this can lead to a higher fraction of warnings
+%actually being resolved.
+%Such an \acrshort{IDE} integration could be implemented using the language server
+%protocol\footnote{\url{https://langserver.org/}}, as this allows for easy compatibility with most \acrshort{IDE}s
+%without the need to develop individual plugins for each of them.
 
-Finally, future work could integrate the static code analysis tool \toolSafer{} into \toolVet{}, the official linter
-for Go code that ships as part of the standard compiler toolchain.
-This would be fairly easy because \toolSafer{} is build using the \toolVet{} infrastructure.
-Therefore, the analysis passes provided by \toolSafer{} could directly be added to the set of analysis shipped with
-\toolVet{}.
-Achieving this would reduce the effort to use \toolSafer{} a lot and could therefore increase the adoption of the tool,
-even only passively as part of using \toolVet{} with a \acrshort{CI} workflow, leading to safer Go applications overall.
+Furthermore, future research could focus on verification techniques for \unsafe{} Go code, such as annotations for
+contracts or invariants that formalize assertions about control and data flow.
+For example, \unsafe{} code that creates implicitly read-only values could be formally declared immutable, such that
+a verifier can detect invalid accesses to the value.
+A static verification would probably be preferrable over a dynamic one, because the additional runtime overhead could
+potentially outweigh the efficiency improvements of using \unsafe{} in the first place.
+
+Finally, establishing a public documentation of good and bad usage examples of the Go \unsafe{} \acrshort{API} could
+help developers avoid common mistakes.
+For insecure usages, it could provide an explanation of the potential vulnerability, as well as a suggestion for a
+secure alternative.
+Similar to \toolSafer{}, a linter could be developed to identify harmless usages of \unsafe{}, which could then
+automatically be flagged safe and thus be excluded from manual review.
