@@ -35,7 +35,7 @@ In addition to composite literals of type \textit{reflect.SliceHeader} and \text
 analyzes accesses to fields of existing instances of these types.
 When they are detected, the tool checks whether the given header structure instance was derived by cast from a real
 slice or string.
-If that is not the case or can not be statically inferred, for example because the header value is given as a function
+If that is not the case or can not be statically inferred, for example, because the header value is given as a function
 parameter or return type, or there is only a declaration of the variable and type without an initialization, then the
 field access is treated as potentially unsafe and \toolSafer{} generates a warning.
 \toolSafer{} parses the packages to acquire the abstract syntax trees (\acrshort{AST}) for all files.
@@ -131,7 +131,7 @@ It has to be a cast through an \textit{unsafe.Pointer} value for this to be poss
 If that is the case, then the assignment is legitimate and \toolSafer{} does not print a warning.
 However, if the variable is not derived by a conversion from a slice or string, or no \acrshort{CFG} node defining the
 variable can be found, then a warning is issued.
-The last case is possible for example if the slice or string header is passed in as a function parameter, because then
+The last case is possible, for example, if the slice or string header is passed in as a function parameter, because then
 its value can not be statically inferred with the Go analysis framework.
 
 The \textit{structcast} pass also uses the \acrshort{AST} to find cast operations.

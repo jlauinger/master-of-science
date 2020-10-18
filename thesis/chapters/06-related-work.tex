@@ -115,7 +115,7 @@ Similar to the Go \unsafe{} \acrshort{API}, there are other programming language
 respective measures for memory safety.
 Rust offers a sophisticated concept of value ownership that prevents invalid memory accesses like
 \textit{use-after-free} bugs~\cite{matsakis2014}.
-To allow developers to circumvent this safety measure when necessary, for example to implement low-level functions, it
+To allow developers to circumvent this safety measure when necessary, for example, to implement low-level functions, it
 provides the \unsafe{} keyword to mark a function or code block that is allowed to do five additional, potentially
 unsafe operations.
 They include dereferencing raw pointers, calling \unsafe{} functions, and accessing mutable static

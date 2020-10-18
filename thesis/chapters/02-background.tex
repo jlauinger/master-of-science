@@ -135,7 +135,7 @@ addresses.
 The stack area is used to store data that is associated with individual functions, and will be needed only as long as
 the function runs~\cite{ferres2010}.
 In contrast, the heap contains values with a lifetime that is longer than the execution of a specific function, for
-example global variables.
+example, global variables.
 In Go, developers do not actively decide whether a variable is allocated on the stack or heap, this is done by the
 compiler.
 
@@ -257,7 +257,7 @@ This section briefly explains common exploit techniques and mitigations against 
 \subsection{Buffer Overflow}\label{subsec:background:exploit-techniques:buffer-overflow}
 
 A frequent security vulnerability related to memory safety is the buffer overflow~\cite{larochelle2001}.
-It happens when a buffer variable, for example a slice, is too short for the data that is written to it, causing the
+It happens when a buffer variable, for example, a slice, is too short for the data that is written to it, causing the
 data to overflow into and overwrite adjacent memory.
 Overflows can happen anywhere in the memory, however a common source of security problems are stack-based buffer
 overflows.
@@ -280,7 +280,7 @@ attacker-controlled code.
 
 \input{assets/figures/chapter2/stack-smashing-payload.tex}
 
-Since stack addresses can be slightly unpredictable in practice, for example because environment variables with
+Since stack addresses can be slightly unpredictable in practice, for example, because environment variables with
 different lengths might be located on the stack, a \textit{NOP slide} can be used to make the exploit more robust.
 \textit{NOP}, or \textit{no-op}, is a machine instruction that does nothing at all, the processor continues with the
 following instruction.
@@ -435,11 +435,12 @@ Using static code analysis, it is possible to automatically test if the source c
 Based on the level of abstraction that an analysis tool is looking at, it can be classified into lexical, syntactic,
 or semantic analysis.
 Lexical analysis deals with the source code as text, with the most common purpose being coding style enforcement.
-For syntactic analysis, the code is parsed to obtain an abstract syntax tree (\acrshort{AST}), which allows for example
-to do type checking and reporting code metrics such as the cyclomatic complexity or McCabe metric~\cite{watson1996}.
+For syntactic analysis, the code is parsed to obtain an abstract syntax tree (\acrshort{AST}), which allows, for
+example, to do type checking and reporting code metrics such as the cyclomatic complexity or McCabe
+metric~\cite{watson1996}.
 Finally, semantic analysis also takes care of the control and data flow, which describe what statements in the code can
 be executed in which order and how data is being transferred between variables.
-This allows for example to detect unused or dead code, or detect whether a variable is used before it is initialized.
+This allows, for example, to detect unused or dead code, or detect whether a variable is used before it is initialized.
 To do this, a control flow graph (\acrshort{CFG}) is used.
 
 
@@ -462,7 +463,7 @@ It can have children, which are recursively substituted for concrete values.
 In Figure~\ref{fig:ast}, the right hand side of the assignment is an addition, an instance of a binary expression, with
 basic integer literals 3 and 5 used for the addition.
 The \acrshort{AST} shows the composition of the source code into logical units of growing size, with the leafs being
-identifiers, literals, or any other nodes that do not contain further children, such as an empty return statement for
+identifiers, literals, or any other nodes that do not contain further children, such as an empty return statement, for
 example.
 
 To obtain the \acrshort{AST}, it is possible to use the parser bundled with the language's compiler.
@@ -522,7 +523,7 @@ specifiers used in the \textit{fmt.Printf} function with respect to the concrete
 code.
 
 Another static analysis tool with a focus on security is \toolGosec{}\footnote{\url{https://github.com/securego/gosec}}.
-Similar to \toolVet{}, it contains a number of different rules that the source code is checked against, for example if
+Similar to \toolVet{}, it contains a number of different rules that the source code is checked against, for example, if
 insecure hash functions are used, template strings contain unescaped data, or returned error values from functions are
 actually checked.
 Such static analysis tools that detect insecure code or common mistakes are called linters.

@@ -39,7 +39,7 @@ If the code is run on such an architecture, the conversion works fine and the fi
 \textit{violet} are as expected.
 In contrast, if the code is run on an architecture where \textit{int} and \textit{int64} have different sizes or
 alignments, then the values of \textit{violet} are undefined.
-This is the case for example when the code is run on a 32-bit platform like \textit{i386}.
+This is the case, for example, when the code is run on a 32-bit platform like \textit{i386}.
 When the structure definitions are not placed directly next to each other but in separate files, packages, or even
 modules, then spotting the difference between the incompatible structs is much harder.
 On top of that, the bug might never occur in testing but only on specific platforms that get used in production.
@@ -49,8 +49,8 @@ passed as output it can create an information leak vulnerability.
 
 On top of incompatible field sizes, there could also be a different endianess on some architecture.
 In this case, using a direct cast using the \unsafe{} \acrshort{API} is unaware of possible changes of the byte order,
-for example incoming network data and data stored in the memory could be represented as big and little endians and cause
-a mismatch.
+for example, incoming network data and data stored in the memory could be represented as big and little endians and
+cause a mismatch.
 When such data is stored as the length of a slice, the number could be misinterpreted and thus a slice with a wrong
 length could be created.
 This in term can cause a buffer overflow vulnerability that can lead to code injection.
@@ -363,7 +363,7 @@ the syscall.
 There are several alternative such gadgets in the Go standard library.
 
 Using the \textit{mprotect} call, the attacker can set a memory area of their choice to have both writable and
-executable flags, for example the heap area.
+executable flags, for example, the heap area.
 Then, using the \textit{read} call, they can store data in that memory section, which is usually an exploit payload
 spawning a shell to receive further arbitrary commands.
 The payload is provided as part of the input string created by the attacker.

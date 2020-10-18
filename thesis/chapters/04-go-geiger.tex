@@ -327,7 +327,7 @@ Dispatching to the underlying system call code requires the use of \textit{unsaf
 Therefore, in this case more features provided by a dependency cause more \unsafe{} code to be imported into a project.
 
 \begin{answerToRQ}[\ref{rq:changeTime}]
-    Changes in \unsafe{} usage in particular modules are motivated for example by new \acrshort{API} requirements and
+    Changes in \unsafe{} usage in particular modules are motivated, for example, by new \acrshort{API} requirements and
     can be significant, with e.g. about a \sysModuleUnsafeIncreaseRounded{} increase over \checkNum{2.5} years found in
     the \textit{sys} module.
 \end{answerToRQ}
@@ -468,7 +468,7 @@ casts between complex types and bytes.
 \textit{Generics} is applied where \unsafe{} is used to build functionality that would be implemented using generics if
 they were available in Go.
 The \textit{avoid garbage collection} class (Line~48) contains usages to ask the Go compiler to not free a value while
-it is used, for example when calling a function written in assembly.
+it is used, for example, when calling a function written in assembly.
 \textit{Atomic operations} is a class of usages of the atomic \acrshort{API}, which requires \unsafe{} for some of its
 functions.
 The \textit{foreign function interface} (\acrshort{FFI}) class includes all cases of interoperability with C code (CGo),
@@ -478,7 +478,7 @@ seen by the \acrshort{EA} algorithm.
 The \textit{memory layout control} class (Line~45) represents code used for low-level memory management.
 \textit{Types} samples are used by the standard library for low-level implementation of the Go type system.
 \textit{Reflect} includes instances of type reflection, as well as re-implementations of types contained in the regular
-Go \textit{reflect} package, for example to use \textit{unsafe.Pointer} instead of \textit{uintptr} for slice headers.
+Go \textit{reflect} package, for example, to use \textit{unsafe.Pointer} instead of \textit{uintptr} for slice headers.
 Lastly, \textit{unused} (Lines~51--53) is the class for unused occurrences again.
 
 Table~\ref{tbl:dataset-classes} presents the number of samples for each label.
