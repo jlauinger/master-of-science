@@ -40,7 +40,7 @@ This conversion yields the raw bits of the floating point value stored using the
 It would be impossible using the normal Go conversion rules because \textit{float32} and \textit{int} are incompatible
 types.
 The \textit{secondByte} function (Line~7) shows how pointer arithmetic is used to manually iterate over an array type.
-The function expects an array of size \checkNum{five} bytes and returns the \checkNum{second} byte.
+The function expects an array with a length of \checkNum{five} bytes and returns the \checkNum{second} byte.
 Instead of direct indexing, it achieves this by obtaining the address of the array as a \textit{uintptr} value, adding
 \checkNum{1} and then casting the resulting address to a \textit{byte} value, again taking care of dereferencing the
 resulting pointer type (Line~8).
@@ -66,12 +66,13 @@ The Go runtime takes care that there are no accesses outside the slice bounds.
 The length indicates how many elements are contained in the slice, and the capacity denotes the allocated space in
 memory.
 The capacity is always equal or greater than the length.
-If it is greater, then elements can be added by increasing the length without allocating new memory.
+If it is greater, elements can be added by increasing the length without allocating new memory.
 Only if the length is equal to the capacity and a new element is added, the Go runtime allocates a new, bigger
 underlying memory array and copies the existing data.
-When a subset of the slice is taken by specifying start and end indices, then a new slice is created that uses the same
-underlying data array as the original one, and might have a capacity longer than its length if there are further
-elements in the original slice after the end of the newly-taken subslice.
+When a subset of the slice is taken by specifying start and end indices, a new slice is created that uses the same
+underlying data array as the original one.
+It might have a capacity longer than its length if there are further elements in the original slice after the end of
+the newly-taken subslice.
 
 Strings in Go are read-only \textit{[]byte} slices\footnote{\url{https://blog.golang.org/strings}}.
 Usually they are encoded in UTF-8, but this is not required.
@@ -96,8 +97,8 @@ The \textit{Len} fields (Lines~5 and~11) denote the current length of the slice 
 type has an additional \textit{Cap} field (Line~6) for the slice capacity.
 The reference to the underlying data array is a \textit{uintptr} value in both types (\textit{Data} in Lines~4 and~10).
 This means that it is not inherently a pointer type, instead it stores the plain address of the array.
-However, the Go runtime recognizes slices and strings and treats their \textit{Data} field like a pointer as a special
-case.
+However, the Go runtime recognizes slices and strings and, as a special case, treats their \textit{Data} field like a
+pointer.
 
 Slices are different from array or buffer types like \textit{[10]byte}, which have a fixed length.
 There is no way to grow an array by appending more data than it can store.
@@ -133,7 +134,7 @@ The program code (shown in green) is loaded at a relatively low address.
 Then, the stack area (red and orange) follows, and finally the heap section (shown in blue) is located at higher
 addresses.
 The stack area is used to store data that is associated with individual functions, and will be needed only as long as
-the function runs~\cite{ferres2010}.
+the functions run~\cite{ferres2010}.
 In contrast, the heap contains values with a lifetime that is longer than the execution of a specific function, for
 example, global variables.
 In Go, developers do not actively decide whether a variable is allocated on the stack or heap, this is done by the
@@ -177,7 +178,7 @@ There can be several allocated chunks of data on the heap, and they are not nece
 Figure~\ref{subfig:memory:memory-layout} shows used heap areas in a darker shade of blue.
 Adding data to the heap requires calling special allocation functions that are provided by the runtime, which in the
 case of Go is done automatically by the compiler.
-Furthermore, memory on the heap must be freed when it is not longer used, otherwise the program will eventually run out
+Furthermore, memory on the heap must be freed when it is no longer used, otherwise the program will eventually run out
 of usable heap space.
 Therefore, storing data on the heap has more overhead than the stack, because deallocation on the stack is done with a
 single addition when destroying an entire stack frame.
@@ -249,7 +250,8 @@ Finally, if the function returns a reference to the variable then it obviously e
 
 \section{Exploit Techniques and Mitigations}\label{sec:background:exploit-techniques}
 
-This section briefly explains common exploit techniques and mitigations against them.
+This section briefly explains common exploit techniques (using a buffer overflow with return-oriented programming to
+redirect control flow), as well as common mitigations against them.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -262,12 +264,12 @@ data to overflow into and overwrite adjacent memory.
 Overflows can happen anywhere in the memory, however a common source of security problems are stack-based buffer
 overflows.
 When a buffer variable is placed on the stack and too much data gets written to it, the data will be written to higher
-memory addresses, which means after overwriting the other local variables and saved registers they can cause the saved
-return address to get changed.
-When an attacker can control the data that is placed there, they can change the program flow by carefully choosing the
+memory addresses.
+After overwriting the other local variables and saved registers, this can cause the saved return address to get changed.
+If an attacker can control the data that is placed there, they can change the program flow by carefully choosing the
 address that the CPU jumps to after the current function returns.
 
-Figure~\ref{fig:stack-smashing-payload} shows a visualization of an example input data used to execute arbitrary code
+Figure~\ref{fig:stack-smashing-payload} shows a visualization of an example of input data used to execute arbitrary code
 by overwriting the saved return address.
 This is called \textit{stack smashing}~\cite{smith1997}.
 First, arbitrary data is written to fill up the buffer and any adjacent local variables up to the address of the
@@ -288,10 +290,10 @@ A \textit{NOP slide} then is a series of such instructions~\cite{vallentin2007}.
 Using this, it is sufficient to overwrite the return instruction pointer with an address somewhere within the
 \textit{NOP} instructions to make the processor go through all remaining of them until it reaches the exploit code,
 similar to sliding down a slope.
-Thus, the address does not have to match the exact start of the payload code anymore, instead it can have a tolerance.
+Thus, the address does not have to match the exact start of the payload code anymore.
 In Figure~\ref{fig:stack-smashing-payload}, the pointer from the overwritten return instruction pointer (\acrshort{RIP})
 points into the middle of the \textit{NOP slide}.
-After it, the code that the attacker wants to execute is written onto the stack.
+Behind it, the code chosen by the attacker for execution is written onto the stack.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -326,7 +328,7 @@ they can not know the exact address of the desired function.
 \subsection{Return-Oriented Programming (ROP)}\label{subsec:background:exploit-techniques:rop}
 
 Return-oriented programming (\acrshort{ROP}) is a specific technique for reusing code.
-It suggests jumping to very small so-called gadgets, which are sequences of two or few more machine instructions that
+It suggests jumping to very small so-called gadgets, which are sequences of two or a few more machine instructions that
 do not modify the stack pointer register and end with a return instruction~\cite{roemer2012}.
 With these properties, gadgets can be chained because after the execution of a fragment the return instruction fetches
 the next address to jump to from the stack, which an attacker can control when they exploit a buffer overflow
@@ -346,7 +348,7 @@ an attacker might have to work around \acrshort{ASLR}, for example.
 
 To break code into logical units that can be maintained separately and allow reusing them, Go offers a dependency
 management system.
-The smallest possible unit is a Go package.
+The smallest possible unit is a Go package\footnote{\url{https://golang.org/doc/code.html}}.
 A package can contain one or more source code files which must all be in the same directory.
 It has a name which should match the name of the directory containing the source files.
 There can not be more than one package in the same folder.
@@ -361,7 +363,7 @@ It is only possible to access exported fields from another package, which is ind
 a capital letter.
 When importing the package, it is necessary to specify the complete path to the package, the name is not sufficient on
 its own.
-The import path is made up of the directory tree leading to the package directory, separated by forward slashes.
+The import path is the directory tree leading to the package directory, separated by forward slashes.
 For example, a valid import path would be \textit{my-application/storage/database}.
 
 To allow sharing code with other developers and implementing reusable libraries, it is possible to download external
@@ -379,7 +381,7 @@ This host part is called \textit{registry}.
 Before the release of Go \checkNum{1.13}, packages that were fetched using \textit{go get} were stored in the
 \textit{GOPATH} directory\footnote{\url{https://golang.org/doc/gopath_code.html}}.
 Furthermore, there exists the \textit{GOROOT} directory, which is similar to \textit{GOPATH} but contains the Go
-standard library packages instead of additional downloaded packages.
+standard library packages instead of additionally downloaded packages.
 Environment variables point to these folders, and the Go compiler uses them to get the sources of packages that are not
 part of the current project.
 
@@ -413,8 +415,8 @@ The \textit{github.com/example/example} module is the main application module an
 It contains three separate packages \textit{A}, \textit{B}, and \textit{C}, all of which are composed of individual Go
 source files.
 The module depends upon two other modules \textit{X} and \textit{Y}, both of which are imported with a specific version.
-These again contain one or more packages with source files, and further depend on more modules.
-The \textit{Y} module is effectively imported in two different versions, \textit{v1.0.1} and \textit{v5.3.0}, so both
+These in turn contain one or more packages with source files, and further depend on more modules.
+The \textit{Y} module is effectively imported in two different versions, \textit{v1.0.1} and \textit{v5.3.0}, thus both
 their sources will be compiled and included in the resulting binary.
 
 \input{assets/figures/chapter2/dependency-model.tex}
@@ -438,7 +440,7 @@ Lexical analysis deals with the source code as text, with the most common purpos
 For syntactic analysis, the code is parsed to obtain an abstract syntax tree (\acrshort{AST}), which allows, for
 example, to do type checking and reporting code metrics such as the cyclomatic complexity or McCabe
 metric~\cite{watson1996}.
-Finally, semantic analysis also takes care of the control and data flow, which describe what statements in the code can
+Finally, semantic analysis takes care of the control and data flow, which describe what statements in the code can
 be executed in which order and how data is being transferred between variables.
 This allows, for example, to detect unused or dead code, or detect whether a variable is used before it is initialized.
 To do this, a control flow graph (\acrshort{CFG}) is used.
@@ -457,11 +459,11 @@ This is called the abstract syntax tree (\acrshort{AST}) of the program.
 
 Figure~\ref{fig:ast} shows an example \acrshort{AST} for a code fragment of just one statement, which is
 \textit{x := 3 + 5}.
-A grammar construction of the programming language syntax begins with a start symbol, such as \textit{AssignStmt} in
-this case.
+A grammar construction of the programming language syntax begins with a start symbol, such as an assignment statement
+(\textit{AssignStmt}) in this case.
 It can have children, which are recursively substituted for concrete values.
-In Figure~\ref{fig:ast}, the right hand side of the assignment is an addition, an instance of a binary expression, with
-basic integer literals 3 and 5 used for the addition.
+In Figure~\ref{fig:ast}, the right hand side of the assignment is an addition, an instance of a binary expression
+(\textit{BinaryExpr}), with basic integer literals (\acrshort{BasicLit}) 3 and 5 used for the addition.
 The \acrshort{AST} shows the composition of the source code into logical units of growing size, with the leafs being
 identifiers, literals, or any other nodes that do not contain further children, such as an empty return statement, for
 example.
@@ -503,9 +505,9 @@ Otherwise, the code following behind the loop is executed.
 
 Such a \acrshort{CFG} is an excellent tool to detect dead code, which would be represented by an isolated or unreachable
 connectivity component in the graph.
-Furthermore, using node annotations that indicate whether variables are read or assigned, it is possible to detect
-control flow anomalies such as \textit{read-before-write}, which would show that a variable is used before it is
-initialized.
+Furthermore, it is possible to find control flow anomalies such as \textit{read-before-write} using node annotations,
+which indicate whether variables are read or assigned.
+This allows to detect that a variable is used before it is initialized.
 It is also useful to detect where a variable is assigned for the last time before a particular statement, thus what
 value it has at the time of execution of that statement.
 
