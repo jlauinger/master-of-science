@@ -35,11 +35,11 @@ This is however only a valid operation if \textit{int} and \textit{int64} share 
 \input{assets/listings/chapter3/architecture-dependent-types-cast.tex}
 
 This is true for 64-bit platforms like \textit{amd64}.
-If the code is run on such an architecture, the conversion works fine and the field values in the resulting variable
+If the code is executed on such an architecture, the conversion works fine and the field values in the resulting variable
 \textit{violet} are as expected.
 In contrast, if the code is run on an architecture where \textit{int} and \textit{int64} have different sizes or
 alignments, then the values of \textit{violet} are undefined.
-This is the case, for example, when the code is run on a 32-bit platform like \textit{i386}.
+This is the case, for example, on a 32-bit platform like \textit{i386}.
 When the structure definitions are not placed directly next to each other but in separate files, packages, or even
 modules, then spotting the difference between the incompatible structs is much harder.
 On top of that, the bug might never occur in testing but only on specific platforms that get used in production.
@@ -47,7 +47,7 @@ Possible consequences of a bug like this depend on how the resulting struct is u
 If data gets written to it, it changes invalid memory which can lead to a code injection vulnerability, and if it is
 passed as output it can create an information leak vulnerability.
 
-On top of incompatible field sizes, there could also be a different endianess on some architecture.
+In addition to incompatible field sizes, there could also be a different endianess on some architecture.
 In this case, using a direct cast using the \unsafe{} \acrshort{API} is unaware of possible changes of the byte order,
 for example, incoming network data and data stored in the memory could be represented as big and little endians and
 cause a mismatch.
@@ -132,8 +132,9 @@ This is a \textit{use-after-free} bug.
 
 Listing~\ref{lst:string-to-bytes} contains this bug.
 The \textit{Data} field of the \textit{reflect.SliceHeader} structure created in Line~3 is of type \textit{uintptr}.
-Since the header value is not derived by cast from a real slice it does not benefit from the special case built into the
-Go runtime that treats \textit{uintptr} references that are part of slices and strings as references.
+The header value is not derived by cast from a real slice.
+Therefore, it does not benefit from the special case built into the Go runtime, which treats \textit{uintptr} references
+that are part of slices and strings as references.
 Specifically, the problem is that the slice header has been constructed as a composite literal.
 Therefore, after Line~7 the \textit{bytesHeader} variable becomes a plain \textit{uintptr} value, and the
 original string \textit{s} is not used any longer.
@@ -313,8 +314,8 @@ are too few bytes for the alleged number of forget requests, then the method sho
 However, as the listing shows there is no actual code to stop further execution of the method, instead there is only a
 log message noting that there was a malformed request with too few bytes available (Lines~7--8).
 
-A proof-of-concept implementation of a potential attacker showed that the method actually accesses invalid memory data
-located after the request data.
+A proof-of-concept implementation\footnote{\url{https://github.com/jlauinger/go-unsafepointer-poc}} of a potential
+exploit showed that the method actually accesses invalid memory data located after the request data.
 Depending on the code that calls this function, an attacker can use this to read or write this memory, again possibly
 enabling arbitrary code injection or information leak exploits.
 In this case, a simple \textit{return} statement after Line~8 would have prevented this bug.
@@ -360,7 +361,7 @@ A system call, or syscall, is a function provided by the operating system which 
 The processor registers control which syscall gets executed and which parameters it receives.
 Therefore, an attacker needs \acrshort{ROP} gadgets to control the contents of the registers, as well as to trigger
 the syscall.
-There are several alternative such gadgets in the Go standard library.
+There are several alternative gadgets for this available in the Go standard library.
 
 Using the \textit{mprotect} call, the attacker can set a memory area of their choice to have both writable and
 executable flags, for example, the heap area.
@@ -369,8 +370,8 @@ spawning a shell to receive further arbitrary commands.
 The payload is provided as part of the input string created by the attacker.
 Finally, by using the address of the code area just like an address of another \acrshort{ROP} gadget the attacker can
 make the processor jump to the payload code.
-Because in contrast to the stack the code is located on an executable page, the CPU runs it and the code injection
-attack succeeds.
+Because in contrast to the stack the code is located on an executable page, the \acrshort{CPU} executes it and the code
+injection attack succeeds.
 This clearly demonstrates the severeness of buffer overflows introduced through misuses of the \unsafe{} \acrshort{API}
 in Go programs.
 

@@ -162,7 +162,7 @@ They are shown in yellow in Figure~\ref{subfig:memory:stack-frame}.
 The last value that gets pushed into the caller frame is the address of the next instruction to execute after the callee
 function returns.
 It is called return address or return instruction pointer (\acrshort{RIP}) and shown in green.
-Then, the new stack frame for the callee begins with the CPU register contents at the function call time.
+Then, the new stack frame for the callee begins with the \acrshort{CPU} register contents at the function call time.
 These are stored on the stack so that they can be restored to the original values before returning back to the caller.
 They are shown in green as well in Figure~\ref{subfig:memory:stack-frame}.
 After this, local variables of the callee function that do not surpass its lifetime are pushed to the stack.
@@ -171,7 +171,7 @@ purple in Figure~\ref{subfig:memory:stack-frame}.
 The \textit{sum} variable (Line~3) is not pushed to the callee stack frame, because since it is a return value it was
 already placed in the caller stack frame.
 When the function \textit{add} returns, the stack pointer \textit{rsp} will be incremented up to the \textit{sum} value
-to destroy the callee stack frame, and the CPU will jump to the return address that was stored on the stack.
+to destroy the callee stack frame, and the \acrshort{CPU} will jump to the return address that was stored on the stack.
 
 In constrast, data on the heap is organized in chunks~\cite{ferres2010}.
 There can be several allocated chunks of data on the heap, and they are not necessarily adjacent.
@@ -267,7 +267,7 @@ When a buffer variable is placed on the stack and too much data gets written to 
 memory addresses.
 After overwriting the other local variables and saved registers, this can cause the saved return address to get changed.
 If an attacker can control the data that is placed there, they can change the program flow by carefully choosing the
-address that the CPU jumps to after the current function returns.
+address that the \acrshort{CPU} jumps to after the current function returns.
 
 Figure~\ref{fig:stack-smashing-payload} shows a visualization of an example of input data used to execute arbitrary code
 by overwriting the saved return address.
@@ -463,7 +463,7 @@ A grammar construction of the programming language syntax begins with a start sy
 (\textit{AssignStmt}) in this case.
 It can have children, which are recursively substituted for concrete values.
 In Figure~\ref{fig:ast}, the right hand side of the assignment is an addition, an instance of a binary expression
-(\textit{BinaryExpr}), with basic integer literals (\acrshort{BasicLit}) 3 and 5 used for the addition.
+(\textit{BinaryExpr}), with basic integer literals (\textit{BasicLit}) 3 and 5 used for the addition.
 The \acrshort{AST} shows the composition of the source code into logical units of growing size, with the leafs being
 identifiers, literals, or any other nodes that do not contain further children, such as an empty return statement, for
 example.

@@ -16,6 +16,7 @@ Figure~\ref{fig:outline4} shows which parts of the contributions of this thesis 
 \section{Design}\label{sec:go-geiger:design}
 
 The novel tool \toolGeiger{} is designed to identify usages of the \unsafe{} \acrshort{API} in Go source code.
+It is available on \github{}\footnote{\url{https://github.com/jlauinger/go-geiger}}.
 In contrast to existing tools like \toolGosec{}, it includes the dependencies of Go packages in the analysis, which
 gives a much better picture of possible \unsafe{} usages.
 It is inspired by \toolCargoGeiger{}\footnote{\url{https://github.com/rust-secure-code/cargo-geiger}}, a similar tool
@@ -49,12 +50,12 @@ part of the resulting program.
 Finally, the analysis results are shown to the user.
 It is possible to output the \unsafe{} usage counts as well as the lines of code containing the usages.
 
-The source code and documentation of \toolGeiger{} is available on
-\github{}\footnote{\url{https://github.com/jlauinger/go-geiger}}.
-It can be installed using the standard Go \acrshort{CLI} tool.
-To execute it, the package names that should be checked are appended as parameters.
-For example, to examine a local package for \unsafe{} usages one would run \textit{go-geiger ./my/package}.
-There is no limitation on the number of packages that can be supplied as parameters.
+%The source code and documentation of \toolGeiger{} is available on
+%\github{}.
+%It can be installed using the standard Go \acrshort{CLI} tool.
+%To execute it, the package names that should be checked are appended as parameters.
+%For example, to examine a local package for \unsafe{} usages one would run \textit{go-geiger ./my/package}.
+%There is no limitation on the number of packages that can be supplied as parameters.
 Figure~\ref{fig:go-geiger-screenshot} shows a screenshot of \toolGeiger{}.
 It presents the analyis results for the \textit{go-geiger} source code itself.
 However, it is missing parts of the table with \unsafe{} counts, which have been excluded to decrease the space needed
@@ -73,12 +74,12 @@ Next, there are five columns with individual usage counts for the four possible 
 that could not be assigned to any of them.
 These columns add up to the \textit{local package} count.
 Finally, the import path for the package is given to identify it.
-Lines that are printed in green (the last \checkNum{two} lines in the table in Figure~\ref{fig:go-geiger-screenshot})
-represent packages with no local \unsafe{} usages.
-Red lines (e.g. the \checkNum{seventh} table row) are packages that directly contain \unsafe{} code, and white lines indicate
-that the package does not contain \unsafe{} usages itself but instead introduces them through its dependencies.
-After the table, there is a summary of the number of packages belonging into these three categories green, red, and
-white, and finally a legend for the colors.
+Lines that are printed in green (Lines~11 and~12 in Figure~\ref{fig:go-geiger-screenshot}) represent packages with no
+local \unsafe{} usages.
+Red lines (Line~9) are packages that directly contain \unsafe{} code, and white lines (e.g.~Line~3) indicate that the
+package does not contain \unsafe{} usages itself but instead introduces them through its dependencies.
+After the table, a summary of the number of packages belonging into these three categories is shown (Lines~14--16).
+The output concludes with a legend for the colors (Lines~18--20).
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -163,7 +164,7 @@ Furthermore, \projsNotCompiled{} projects could not be compiled and thus also ha
 The \textit{bf} label is used in the table to mark those projects.
 Since \toolGeiger{} analyzes the \acrshort{AST}, it can not work on packages that can not be parsed.
 This results in a set of \projsAnalyzed{} Go projects.
-These have between \checkNum{72,988} and \checkNum{3,075} stars, with an average of \checkNum{7,860}.
+These have between \checkNum{3,075} and \checkNum{72,988} stars, with an average of \checkNum{7,860}.
 
 As a next step, the dependency trees for all projects were built, resulting in \packagesAnalyzed{} unique packages.
 These packages were then analyzed using \toolGeiger{} as well as the existing static analysis tools \toolVet{} and
@@ -183,8 +184,8 @@ code), the root module of the project is used.
 Since the data set was constructed such that all projects support the Go module system as described in the previous
 section, there is a top-level \textit{go.mod} file present for each of them.
 The module specified in that file is stored with the project information as its root module.
-Then, packages that are part of this module are first-party project code, while packages present in the dependency tree
-but not in the root module are dependencies.
+Packages that are part of this module are (first-party) project code.
+Other packages that are present in the dependency tree but not in the root module are (third-party) dependencies.
 
 By looking at \unsafe{} findings that are part of first-party packages, it is possible to determine how many projects
 directly use \unsafe{} in their code.
@@ -213,7 +214,7 @@ usually located, the import depth of all packages used by a project is determine
 Import depth denotes the minimum depth of a package in the dependency tree of a particular project, which is the
 shortest path from the project root module to the package.
 Thus, all packages included in the root module have an import depth of \checkNum{zero}.
-Packages imported be those have a depth of \checkNum{one}, and so on.
+Packages imported by those have a depth of \checkNum{one}, and so on.
 The depth is calculated using breadth-first search on the dependency tree, which saves time when packages are imported
 many times because only the mimimum depth is important here.
 Figure~\ref{fig:unsafe-import-depth} presents a heatmap plot of the number of packages containing \unsafe{} usages by
