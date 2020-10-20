@@ -39,7 +39,7 @@ If that is not the case or can not be statically inferred, for example, because 
 parameter or return type, or there is only a declaration of the variable and type without an initialization, then the
 field access is treated as potentially unsafe and \toolSafer{} generates a warning.
 \toolSafer{} parses the packages to acquire the abstract syntax trees (\acrshort{AST}) for all files.
-This allows the tool to run analysis steps that are independent from concrete names in the source code.
+This allows the tool to run analysis steps that are independent of concrete names in the source code.
 If the slice or string header types are renamed to a different type name in the source code, then field accesses to and
 composite literals of the new type name are recognized just like the original types.
 

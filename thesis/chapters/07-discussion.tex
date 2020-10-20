@@ -138,9 +138,25 @@ increasing security and safety.
 
 \section{Threats to Validity}\label{sec:discussion:threats-to-validity}
 
+This section discusses potential threats to the validity of this work.
+Internal threats concern the quality of execution and whether any results could be explained by other factors that were
+not covered in this thesis.
+First,
+
+
+On the other hand, external threats to validity concern the ability to generalize the study results to new data.
+
+
+ - labeled data set and study: bias towards bigger projects (external)
+ - study: bias towards projects with module support (external)
+ - unsafe code patterns: potential bias excluding specific problem domains (external)
+ - study: unsafe might be located in dead code (internal)
+ - unsafe code patterns: manual analysis might have left out some (internal)
+
+
 This section discusses potential threats to validity to the empirical study of \unsafe{} usages in popular open-source
 Go projects.
-Internal threats concern the quality of execution for the study.
+
 They include a bias towards bigger projects because with a higher number of lines of code, they could be
 overrepresented in the data set of manually labeled \unsafe{} usages \todo{explain how this is mitigated}.
 Next, we only considered projects that use the Go module system and would compile on our machines.

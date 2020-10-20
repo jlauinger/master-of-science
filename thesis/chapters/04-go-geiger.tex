@@ -30,8 +30,8 @@ is inspected.
 Within the \acrshort{AST}, usages of the \unsafe{} \acrshort{API} are identified.
 Each usage is assigned a tuple of labels consisting of \textit{match type} and \textit{context type}.
 The match type represents the part of the \unsafe{} \acrshort{API} that is used.
-It can be one of the four \unsafe{} package members \textit{Pointer}, \textit{Sizeof}, \textit{Offsetof}, and
-\textit{Alignof}, the \textit{reflect} package fields \textit{SliceHeader} and \textit{StringHeader}, or the
+It can be one of the four \unsafe{} package members \textit{Pointer}, \textit{Alignof}, \textit{Offsetof}, and
+\textit{Sizeof}, the \textit{reflect} package fields \textit{SliceHeader} and \textit{StringHeader}, or the
 \textit{uintptr} keyword.
 The context type indicates the functional part of code that the usage is found in.
 It can be either an \textit{assignment}, a \textit{call} of a function, a function \textit{parameter} definition, or a

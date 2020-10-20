@@ -5,7 +5,7 @@
 This chapter presents background information that is necessary for this thesis.
 First, the \unsafe{} \acrshort{API} as well as slices and strings in Go are discussed.
 Then, Go memory management is introduced, and exploit techniques and mitigations are presented.
-After this, Go dependency management is covered, and the chapter concludes with concepts about static code analysis.
+After this, Go dependency management is covered, and the chapter concludes with concepts of static code analysis.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ Listing~\ref{lst:unsafe-api} shows the functions and types included in the \unsa
 
 \input{assets/listings/chapter2/unsafe-api.tex}
 
-There are \checkNum{three} functions \textit{Sizeof}, \textit{Alignof}, and \textit{Offsetof} (Lines~5--7),
+There are \checkNum{three} functions \textit{Alignof}, \textit{Offsetof}, and \textit{Sizeof} (Lines~5--7),
 as well as the type \textit{Pointer} (Line~3).
 The \textit{unsafe.Pointer} is the most significant package member with respect to the possibilities that it offers.
 It is a pointer type that is exempt from the restrictions that normally apply in order to improve memory safety.
@@ -177,8 +177,8 @@ There can be several allocated chunks of data on the heap, and they are not nece
 Figure~\ref{subfig:memory:memory-layout} shows used heap areas in a darker shade of blue.
 Adding data to the heap requires calling special allocation functions that are provided by the runtime, which in the
 case of Go is done automatically by the compiler.
-Furthermore, memory on the heap must be freed when it is not longer used, otherwise the program will run out of usable
-heap space eventually.
+Furthermore, memory on the heap must be freed when it is not longer used, otherwise the program will eventually run out
+of usable heap space.
 Therefore, storing data on the heap has more overhead than the stack, because deallocation on the stack is done with a
 single addition when destroying an entire stack frame.
 
@@ -467,7 +467,7 @@ identifiers, literals, or any other nodes that do not contain further children, 
 example.
 
 To obtain the \acrshort{AST}, it is possible to use the parser bundled with the language's compiler.
-An advantage of running static analysis steps on the \acrshort{AST} is that it is independent from any concrete lexical
+An advantage of running static analysis steps on the \acrshort{AST} is that it is independent of any concrete lexical
 representation such as white space.
 Identifier names can also be easily replaced by different names in the abstract representation, which makes the
 \acrshort{AST} suitable for name refactoring operations or recognizing specific types even if they are aliased in the
