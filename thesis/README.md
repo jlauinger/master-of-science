@@ -2,52 +2,65 @@
 
 ![CI](https://github.com/stg-tud/thesis-2020-Lauinger/workflows/CI/badge.svg)
 
-Modern programming languages like Rust and Go have mechanisms to protect potential
-unsafe usages, e.g., derefences of raw pointers or modifying static variables. Thus, it is
-recommended to avoid unsafe usages. However, if a developer wants to avoid unsafe
-usages and potential security vulnerabilities caused by these usages, they do not only need
-to check their code but also their dependencies.
+Master thesis by Johannes Lauinger
 
-To provide a developer the power to understand the unsafe usages within their code base,
-tools like cargo-geiger [0] exists. Unfortunately, such a tool does not exist by today for Go.
-Thus, an in-depth analysis of how many Go projects include direct and indirect unsafe
-usages and if these projects are vulnerable does not exist, e.g., to buffer overflows [2,3,4].
-Within this work, the aim is to develop a tool, probably based on go vet [1], that can identify
-unsafe usages in Go projects - similar to cargo-geiger. Based on this tool, the thesis should
-evaluate how common unsafe usages in Go are and try to analyze if vulnerabilities caused
-by unsafe usages exist.
+Date of submission: October 26, 2020
 
-[0] ​ https://github.com/anderejd/cargo-geiger  
-[1] ​ https://golang.org/cmd/vet/  
-[2] Larochelle, D., & Evans, D. (2001). Statically detecting likely buffer overflow
-    vulnerabilities. In ​ 10th USENIX Security Symposium.  
-[3] Alnaeli, S. M., Sarnowski, M., Aman, M. S., Abdelgawad, A., & Yelamarthi, K. (2017).
-    Source Code Vulnerabilities in IoT Software Systems. ​ Advances in Science, Technology and
-    Engineering Systems Journal ​ , ​ 2 ​ (3), 1502-1507.  
-[4] Wang, C., Zhang, M., Jiang, Y., Zhang, H., Xing, Z., & Gu, M. Escape from Escape
-    Analysis of Golang. ICSE 2020.  
+Examiner: Prof. Dr.-Ing. Mira Mezini  
+Supervisors: Anna-Katharina Wickert, M.Sc., and Dr. rer. nat. Lars Baumgärtner
+
+Software Technology Group  
+Department of Computer Science  
+Technische Universität Darmstadt
 
 
-## Important Links
+## Citation
 
-The TUDa Corporate Design and fonts: https://www.intern.tu-darmstadt.de/arbeitsmittel/corporate_design_vorlagen/index.de.jsp
+*tba*
 
-The github page of the new TUDa Latex classes: https://github.com/tudace/tuda_latex_templates
 
-The new TUDa Latex classes: https://www.ce.tu-darmstadt.de/ce/latex_tuda/index.de.jsp
+## Abstract
 
-(The old TUDa Latex classes: http://exp1.fkp.physik.tu-darmstadt.de/tuddesign/)
+One decade after its first published version, the Go programming language has become a popular
+and widely-used modern programming language. It aims to achieve thorough memory and
+thread safety by using measures such as a strict type system and automated memory management
+with garbage collection, which prevents invalid memory access. However, there is also the unsafe
+package which allows developers to deliberately circumvent this safety net. There are a number
+of legitimate use cases for doing this, for example, an in-place type conversion saving reallocation
+costs to improve efficiency, or interacting with C code through the foreign function interface.
 
-Information about theses can be found on the [webpage of the FB 20](https://www.informatik.tu-darmstadt.de/studium_fb20/im_studium/studienbuero/abschlussarbeiten_fb20/index.de.jsp).
+Misusing the unsafe API can however lead to security vulnerabilities such as buffer overflow
+and use-after-free bugs. This work contributes an analysis of unsafe usage patterns with respect
+to a security context. It reveals possible code injection and information leak vulnerabilities in
+proof-of-concept code as well as common code usages from real-world code.
 
-Information on how to submit your final thesis in an electronic form can be found on the [FAQ of the university](https://www.tu-darmstadt.de/studieren/tucan_studienorganisation/tucan_faq/details_96256.de.jsp).
+To assess the risk of unsafe code in their applications, this work presents go-geiger, a novel
+tool to help developers quantify unsafe usages not only in their project itself but including its
+dependencies. Using go-geiger, a study on unsafe usage in the top 500 most popular open-source
+Go projects on GitHub was conducted, including a manual study of 1,400 individual code samples
+on how unsafe is used and for what purpose. The study shows that 5.5% of packages imported
+by the projects using the Go module system use unsafe. Furthermore, 38.19% of the projects
+use unsafe directly, and 90.96% include unsafe usages through any of their dependencies. A
+replication and comparison of a concurrent study by Costa et al. [8] matches these results.
 
-Information about plagiarism and scientific ethic are available on the [webpage of the FB 20](https://www.informatik.tu-darmstadt.de/studium_fb20/im_studium/studienbuero/plagiarismus/index.de.jsp). 
+This work further presents go-safer, a novel static code analysis tool that helps developers to
+identify two dangerous and common misuses of the unsafe API, which were previously undetected
+with existing tools. Using go-safer, 64 bugs in real-world code were identified and patches have
+been submitted to and accepted by the maintainers. An evaluation of the tool shows 95.5%
+accuracy on the data set of labeled unsafe usages, and 99% accuracy on a set of manually
+inspected open-source Go packages.
 
-## Other Material to Write a Good Thesis
 
-*  “How to write a successful Bachelor’s/Master’s thesis” by Elmar Jürgens from TUM <https://thesisguide.org/>
-*  ["Writing academic papers"](https://sarahnadi.org/writing-papers/) by Sarah Nadi from [University of Alberta](https://sarahnadi.org/smr/), former post-doc in our group. 
+## Important Links and Material to Write a Good Thesis
+
+ - The TUDa Corporate Design and fonts: https://www.intern.tu-darmstadt.de/arbeitsmittel/corporate_design_vorlagen/index.de.jsp
+ - The github page of the new TUDa Latex classes: https://github.com/tudace/tuda_latex_templates
+ - The new TUDa Latex classes: https://www.ce.tu-darmstadt.de/ce/latex_tuda/index.de.jsp
+ - Information about theses can be found on the [webpage of the FB 20](https://www.informatik.tu-darmstadt.de/studium_fb20/im_studium/studienbuero/abschlussarbeiten_fb20/index.de.jsp).
+ - Information on how to submit your final thesis in an electronic form can be found on the [FAQ of the university](https://www.tu-darmstadt.de/studieren/tucan_studienorganisation/tucan_faq/details_96256.de.jsp).
+ - Information about plagiarism and scientific ethic are available on the [webpage of the FB 20](https://www.informatik.tu-darmstadt.de/studium_fb20/im_studium/studienbuero/plagiarismus/index.de.jsp). 
+ - “How to write a successful Bachelor’s/Master’s thesis” by Elmar Jürgens from TUM <https://thesisguide.org/>
+ - ["Writing academic papers"](https://sarahnadi.org/writing-papers/) by Sarah Nadi from [University of Alberta](https://sarahnadi.org/smr/), former post-doc in our group. 
 
 
 ## License
