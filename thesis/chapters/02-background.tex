@@ -28,7 +28,7 @@ any type.
 Furthermore, they can be converted to and from \textit{uintptr} values, which is an integer type with sufficient size
 to store pointers on the specific target architecture of the program.
 Since \textit{uintptr} values behave like normal integer variables, they can be used in arithmetic expressions.
-Therefore, unsafe pointers can also be used to do pointer arithmetic.
+Therefore, \unsafe{} pointers can also be used to do pointer arithmetic.
 With \textit{unsafe.Pointer}, developers can achieve the same flexibility as with raw \textit{void*} pointers in C.
 
 Listing~\ref{lst:unsafe-examples} shows examples of both \textit{unsafe.Pointer} features.
@@ -290,7 +290,7 @@ A \textit{NOP slide} then is a series of such instructions~\cite{vallentin2007}.
 Using this, it is sufficient to overwrite the return instruction pointer with an address somewhere within the
 \textit{NOP} instructions to make the processor go through all remaining of them until it reaches the exploit code,
 similar to sliding down a slope.
-Thus, the address does not have to match the exact start of the payload code anymore.
+Thus, the address does not have to match the exact start of the payload code.
 In Figure~\ref{fig:stack-smashing-payload}, the pointer from the overwritten return instruction pointer (\acrshort{RIP})
 points into the middle of the \textit{NOP slide}.
 Behind it, the code chosen by the attacker for execution is written onto the stack.
@@ -480,8 +480,8 @@ source code.
 
 \subsection{Control Flow Graph (CFG)}\label{subsec:background:static-code-analysis:cfg}
 
-In contrast, the control flow graph (\acrshort{CFG}) is not purely based on syntax anymore, but needs semantic analysis
-to be constructed.
+In contrast, the control flow graph (\acrshort{CFG}) is not purely based on syntax, but needs semantic analysis to be
+constructed.
 It is a directed graph showing possible execution paths through code segments.
 It can contain cycles and is not necessarily connected (neither strongly nor weakly).
 Nodes in the control flow graph denote logical pieces of the source code in the sense that they form a unit of

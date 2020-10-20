@@ -17,15 +17,16 @@ Figure~\ref{fig:outline4} shows which parts of the contributions of this thesis 
 
 The novel tool \toolGeiger{} is designed to identify usages of the \unsafe{} \acrshort{API} in Go source code.
 It is available on \github{}\footnote{\url{https://github.com/jlauinger/go-geiger}}.
-In contrast to existing tools like \toolGosec{}, it includes the dependencies of Go packages in the analysis, which
-gives a much better picture of possible \unsafe{} usages.
+The tool includes the dependencies of Go packages in the analysis, which gives a more complete picture of possible \unsafe{}
+usages then only looking at an individual package.
 It is inspired by \toolCargoGeiger{}\footnote{\url{https://github.com/rust-secure-code/cargo-geiger}}, a similar tool
 for detecting the use of unsafe code blocks in Rust programs.
 Figure~\ref{fig:go-geiger-architecture} shows the architecture of \toolGeiger{}.
 
 \input{assets/figures/chapter4/go-geiger-architecture.tex}
 
-First, the dependency tree of the packages that are given for analysis is built.
+First, \toolGeiger{} determines the scope of code that should be analyzed for \unsafe{} usage.
+To achieve this, the dependency tree of the packages given to \toolGeiger{} is built.
 Then, the sources of all the packages in this tree are parsed, and the resulting abstract syntax tree (\acrshort{AST})
 is inspected.
 Within the \acrshort{AST}, usages of the \unsafe{} \acrshort{API} are identified.
@@ -513,3 +514,10 @@ overlap slightly.
     \unsafe{} casts.
     In the Go standard library, \checkNum{every third} use of \unsafe{} is to avoid garbage collection.
 \end{answerToRQ}
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Summary}\label{sec:go-geiger:summary}
+
+\todo{write summary}
