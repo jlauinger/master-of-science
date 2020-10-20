@@ -29,7 +29,7 @@ There are two structure types declared, \textit{PinkStruct} (Lines~1--4) and \te
 which have two fields \textit{A} and \textit{B}.
 While field \textit{B} has the same type (\textit{uint8}) in both types, field \textit{A} is of type \textit{int}
 (Line~2) and \textit{int64} (Line~6), respectively.
-An instance of \textit{PinkStruct} is created in Line~11, which is then converted to \textit{VioletStruct} in Line~12.
+An instance of \textit{PinkStruct} is created in Line~11, which is converted to \textit{VioletStruct} in Line~12.
 This is however only a valid operation if \textit{int} and \textit{int64} share the same size and alignment.
 
 \input{assets/listings/chapter3/architecture-dependent-types-cast.tex}
@@ -38,10 +38,10 @@ This is true for 64-bit platforms like \textit{amd64}.
 If the code is executed on such an architecture, the conversion works fine and the field values in the resulting variable
 \textit{violet} are as expected.
 In contrast, if the code is run on an architecture where \textit{int} and \textit{int64} have different sizes or
-alignments, then the values of \textit{violet} are undefined.
+alignments, the values of \textit{violet} are undefined.
 This is the case, for example, on a 32-bit platform like \textit{i386}.
 When the structure definitions are not placed directly next to each other but in separate files, packages, or even
-modules, then spotting the difference between the incompatible structs is much harder.
+modules, spotting the difference between the incompatible structs is much harder.
 On top of that, the bug might never occur in testing but only on specific platforms that get used in production.
 Possible consequences of a bug like this depend on how the resulting struct is used in the remainder of the program.
 If data gets written to it, it changes invalid memory which can lead to a code injection vulnerability, and if it is
@@ -76,7 +76,7 @@ This allows to access the raw bytes contained in the string in an efficient mann
 First, the string is converted into the \textit{reflect.StringHeader} representation in Line~2.
 Then, a slice header is created as a composite literal and the reference to the underlying data array and length
 information are copied from the string header (Lines~3--7).
-The capacity is set to the same value as the length, as it would be in a slice that uses the full allocated capacity.
+The capacity is set to the same value as the length, as it would be in a slice that uses the full capacity.
 Finally, the slice header is converted into an actual \textit{[]byte} slice which is returned (Line~8).
 
 There are three not obvious but very dangerous problems that come with this type of slice creation, which are described
@@ -90,7 +90,7 @@ The first problem is that the resulting slice is implicitly read-only.
 Regularly, slices in Go are mutable and strings are not.
 As described in Section~\ref{sec:background:slices}, this is because the underlying string data array is usually located
 on a read-only memory page.
-If a developer writes code that changes parts of a string in-place, then the compiler will not accept that code and thus
+If a developer writes code that changes parts of a string in-place, the compiler will not accept that code and thus
 prevent the possible segmentation fault.
 
 The slice returned by the \textit{StringToBytes} function in Listing~\ref{lst:string-to-bytes} is mutable.
@@ -124,7 +124,7 @@ Importantly though, it does not treat normal \textit{uintptr} values and \textit
 constructed slice and string headers as references although they contain addresses.
 This means that converting a \textit{uintptr} value to an \textit{unsafe.Pointer} value is an invalid and dangerous
 operation.
-If the \textit{GC} runs while the pointer has not been constructed, then it does not mark the value at the address
+If the \textit{GC} runs while the pointer has not been constructed, it does not mark the value at the address
 stored in the \textit{uintptr} value as live and thus frees the memory.
 Creating an \textit{unsafe.Pointer} from this address therefore creates a potentially dangling pointer because it points
 to memory that has been freed.
@@ -160,7 +160,7 @@ while there was only a weak reference to it, the data has been collected.
 The resulting bytes slice is now a dangling pointer into the former string data in memory, and the
 \textit{use-after-free} bug is complete.
 
-If the bytes slice is modified, then arbitrary memory is changed.
+If the bytes slice is modified, arbitrary memory is changed.
 This can allow an attacker to tamper with application data, or possibly change stored return addresses on the stack,
 therefore achieving a code injection vulnerability.
 
@@ -185,19 +185,20 @@ This is however no restriction to the generality of this proof of concept.
 Creating the string from a reader is similar to accepting dynamic user input.
 Next, the string is converted to a byte slice using the insecure \textit{StringToBytes} function
 (Listing~\ref{lst:string-to-bytes}) in Line~11.
-Printing the resulting slice in Line~14 then yields the expected output equal to the original string, which is
+Printing the resulting slice in Line~14 yields the expected output equal to the original string, which is
 \textit{abcdefgh}.
 Finally, the slice is returned to the caller function, which in this case is the \textit{main} function in Line~2.
 The slice is printed again in the \textit{main} function in Line~5, and while the expected output would be identical,
 this time invalid, random data is printed.
 
 The reason for this is that when the Go \acrshort{EA} algorithm determines where to allocate the string \textit{s} in
-the \textit{GetBytes} function, it sees that \textit{s} is passed to the \textit{StringToBytes} function and therefore
-transitively analyzes that function.
-Within that function, \textit{s} is used in a cast to the \textit{strHeader} variable in Line~2 of
-Listing~\ref{lst:string-to-bytes}, then that is used to construct the \textit{bytesHeader} variable, but at this point
-there no further references to the underlying data array of \textit{s} because both \textit{s} and
-\textit{strHeader} are not used further in the function.
+the \textit{GetBytes} function, it detects that \textit{s} is passed to the \textit{StringToBytes} function and
+therefore transitively analyzes that function.
+Within the function, \textit{s} is used in a cast to the \textit{strHeader} variable in Line~2 of
+Listing~\ref{lst:string-to-bytes}.
+After that, \textit{strHeader} is used to construct the \textit{bytesHeader} variable, but at this point there are no
+further references to the underlying data array of \textit{s}.
+The reason for this is that both \textit{s} and \textit{strHeader} are not used further in the function.
 Similarly to the \acrshort{GC} mark algorithm, the \textit{Data uintptr} field would only be treated as a reference with
 respect to escape analysis if the slice header had been created by cast from an actual slice.
 Therefore, the \acrshort{EA} determines that \textit{s} does not escape in \textit{StringToBytes}, and since it is not
@@ -305,12 +306,12 @@ underlying data array and the number of messages (\textit{in.Count}) both as len
 Since the \textit{in.Count} field is supplied as part of the request sent to the library, it can be controlled by an
 attacker if they manage to conduct a man-in-the-middle attack and change the request for a malicious
 one.
-If the length is greater than the actual available number of data bytes, then the resulting \textit{forgets} slice
+If the length is greater than the actual available number of data bytes, the resulting \textit{forgets} slice
 (Line~16) will access additional data after the end of the actual batch forgets request.
 Depending of the concrete operation to forget inodes from a local cache, this could have severe consequences with
 respect to security.
 To prevent this from happening, the authors intended to check the length of the available data in Line~5, and if there
-are too few bytes for the alleged number of forget requests, then the method should not proceed.
+are too few bytes for the alleged number of forget requests, the method should not proceed.
 However, as the listing shows there is no actual code to stop further execution of the method, instead there is only a
 log message noting that there was a malformed request with too few bytes available (Lines~7--8).
 

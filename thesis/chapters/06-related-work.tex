@@ -125,8 +125,8 @@ variables~\cite{matsakis2014}.
 This achieves the same level of possibilities as offered by the \unsafe{} \acrshort{API} in Go.
 Recently, two studies have analyzed the usage of \unsafe{} code blocks in open-source Rust libraries and applications.
 Evans et al.~\cite{evans2020} presented an empirical study revealing that \checkNum{less than 30\%} of analyzed
-libraries directly contained \unsafe{} code, however \checkNum{more than half} did when their dependencies were included
-in the analysis.
+libraries directly contained \unsafe{} code.
+However \checkNum{more than half} did when their dependencies were included in the analysis.
 Over the course of their \checkNum{10 months} study, they found that these numbers did not change significantly.
 Most of the \unsafe{} Rust code is used to call other Rust functions, while interoperability with external C code was a
 smaller concern.
@@ -137,12 +137,12 @@ using \unsafe{} \acrshort{API}s.
 \jl{perhaps remove.}
 Qin et al.~\cite{qin2020} studied bug reports that were related to \unsafe{} code usage in Rust, which revealed that the
 most common bug classes are buffer overflows, null-pointer dereferencing, reading uninitialized memory, and
-\textit{use-after-free}.
+\textit{use-after-free} bugs.
 Often, the cause of the bug was an incorrect check for specific edge cases, which could be fixed by conditionally
 skipping the execution of \unsafe{} code.
 The authors note that it is very dangerous to have hidden \unsafe{} code in regular functions, which can be called from
-safe Rust code, because developers then often need to make sure the input data is in a proper state which is not
-immediately obvious.
+safe Rust code, because developers often need to make sure the input data is in a proper state which is not immediately
+obvious.
 Furthermore, Almohri et al.~\cite{almohri2018} presented a system to ensure memory safety while executing \unsafe{} code
 in Rust by limiting access to the program's memory during the times \unsafe{} functions run.
 This is done by splitting the memory address space into regions with different trust levels and thus creates a sandbox
@@ -190,7 +190,7 @@ projects~\cite{dilley2019}, which found that most projects use channels for sync
 models to organize concurrent threads are not well supported by static analysis tools.
 Lange et al.~\cite{lange2017} present work on detecting dead locks and infinite loops that are caused by incorrect
 usages of channels.
-To to this, they build a model of possible communication patterns in the Go application and apply bounded verification
+To do this, they build a model of possible communication patterns in the Go application and apply bounded verification
 to find incorrect ones.
 Giunti~\cite{giunti2020} contributed a framework that can generate concurrent Go code that is free from data races and
 deadlocks from a formal communication model expressed in a special calculus.
@@ -198,14 +198,14 @@ deadlocks from a formal communication model expressed in a special calculus.
 Wang et al.~\cite{wang2020} discussed how the escape analysis of the Go compiler misses the connection between the
 underlying data arrays of strings and slices when they are incorrectly converted into each other by creating a composite
 literal header value as described in Section~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}.
-The authors however use this property to optimize the heap memory consumption of Go programs.
-They present a transpiler that modifies the intermediate binary representation created by the Go compiler, which is then
+The authors, however, use this property to optimize the heap memory consumption of Go programs.
+They present a transpiler that modifies the intermediate binary representation created by the Go compiler, which is
 converted to architecture-dependent specific assembly afterwards.
 When a local variable is passed by reference to another function, it is usually seen as escaped because the Go compiler
 uses a conservative approach to detect escaped values.
 Therefore the variable will be allocated on the heap.
-The transpiler checks whether there is any possible concurrent access to that variable, and if there is none then it
-might be possible to allocate on the stack of the calling function instead.
+The transpiler checks whether there is any possible concurrent access to that variable, and if there is none, it might
+be possible to allocate on the stack of the calling function instead.
 To achieve this, the reference passed to the function is converted into a \textit{uintptr} value and back to a reference
 to break the connection between the values as seen by the escape analysis on purpose.
 Doing this can improve heap usage because some values are not unnecessarily allocated there.
@@ -224,7 +224,7 @@ Its authors Egele et al. found that \checkNum{88\%} of the \checkNum{11,748} And
 contained at least one misuse.
 The specification language \textit{CrySL}~\cite{kruger2018} can be used to formally describe rules that ensure
 cryptographic \acrshort{API}s are used correctly.
-Static analysis tools like \textit{CogniCryptSAST}~\cite{kruger2017} can then ensure those rules are followed by an
+Static analysis tools like \textit{CogniCryptSAST}~\cite{kruger2017} can ensure those rules are followed by an
 application and thus find cryptographic misuses that are potential security vulnerabilities.
 Wickert et al.~\cite{wickert2019} presented a labeled data set of \checkNum{201} cryptographic misuses in Java projects.
 It is organized in two dimensions: the specific cryptographic \acrshort{API} that is used, and the category of misuse.
@@ -236,7 +236,7 @@ For JavaScript, Gong et al.~\cite{gong2015} presented \textit{DLint}, which is b
 On top of common problems with JavaScript source code that are also found by previous static-only linters, it adds a
 dynamic analysis approach that is able to check \checkNum{28} additional potential problems with the code.
 In an empirical study on \checkNum{more than 200} popular websites, the authors found on average \checkNum{29} problems
-that were missed statically.
+that were missed with static analysis.
 Song et al.~\cite{song2019} provide a detailed overview of available static and dynamic analysis tools for the C and C++
 languages, including a taxonomy of the tools and security vulnerabilities detected by them.
 They find that although there has been decades of research into analysis tools for these languages, there is still room
@@ -252,11 +252,11 @@ Similar to \textit{CrySL}, it is based on a formal model of communication in Go 
 
 Smith et al.~\cite{smith2020} conducted a study on the usability of static analysis tools with a focus on security
 problems.
-They found that often problems that could have been found by the tools are not fixed by the developers because the user
+They found that often problems that could have been found by the tools are not fixed by the developers, because the user
 interfaces are too complex and the tool gets abandoned.
 The authors recommend four design guidelines to improve the usability of static analysis tools.
 They include suggestions on how to fix a specific bug rather than just pointing out its existence, integrating the tools
-within the existing workflows of developers, including showing results within the code editor near the relevant code,
+within the existing workflows of developers, and showing results within the code editor near the relevant code,
 and contextualizing warning messages to the concrete incorrect code, such as including specific variable names.
 
 
@@ -284,7 +284,7 @@ Pashchenko et al. also propose an algorithm of deciding whether a dependency is 
 abandoned.
 They find few vulnerabilities in libraries that are no longer maintained, however those have a big impact because there
 are no updates to fix them.
-Therefore, it is important to replace such dependencies with active alternatives.
+Therefore, it is important to replace such dependencies with actively supported alternatives.
 
 A study by Watanabe et al.~\cite{watanabe2017} analyzed the origins of vulnerabilities in mobile applications available
 for Android.
@@ -307,11 +307,11 @@ Mirhosseini et al.~\cite{mirhosseini2017} answer the question whether automated 
 out-of-date dependencies on platforms like \github{} can encourage developers to update dependencies.
 The authors find that badges provide a good incentive for developers to update because there is an urge to keep the
 badges green.
-Automated pull requests offer an easy and directly actionable way to update, but when there are many of them then
+Automated pull requests offer an easy and directly actionable way to update, but when there are many of them,
 notification fatigue can work against update discipline.
 In summary, badges account for a \checkNum{1.4} times higher probability to update, while automated pull requests
 increase the probability by a factor of \checkNum{1.6} according to~\cite{mirhosseini2017}.
 A developer survey done by the authors also showed that a single bad update of one library can cause developers to be
 strongly reluctant from updating in the future.
 Therefore, releasing library versions comes with a high responsibility to not break software in order to keep an
-environment of developers updating regularly to fix security vulnerabilities.
+environment, where developers update their projects regularly to fix security vulnerabilities.

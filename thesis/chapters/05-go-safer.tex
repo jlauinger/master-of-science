@@ -36,11 +36,11 @@ analyzes accesses to fields of existing instances of these types.
 When they are detected, the tool checks whether the given header structure instance was derived by cast from a real
 slice or string.
 If that is not the case or can not be statically inferred, for example, because the header value is given as a function
-parameter or return type, or there is only a declaration of the variable and type without an initialization, then the
+parameter or return type, or there is only a declaration of the variable and type without an initialization, the
 field access is treated as potentially unsafe and \toolSafer{} generates a warning.
 \toolSafer{} parses the packages to acquire the abstract syntax trees (\acrshort{AST}) for all files.
 This allows the tool to run analysis steps that are independent of concrete names in the source code.
-If the slice or string header types are renamed to a different type name in the source code, then field accesses to and
+If the slice or string header types are renamed to a different type name in the source code, field accesses and
 composite literals of the new type name are recognized just like the original types.
 
 The second misuse that \toolSafer{} detects is a direct conversion between struct types containing incompatible types
@@ -85,7 +85,7 @@ As mentioned in the last section, \toolSafer{} is built using the Go analysis in
 of \toolVet{}.
 This allows to compose analysis steps as modular and reusable parts, which are called \textit{passes}.
 Each analysis pass is run on the source code packages under analysis as a unit.
-It can depend on the results of other analysis passes, which are then run before it and hand the results over to it.
+It can depend on the results of other analysis passes, which are run before it and hand the results over to it.
 The passes and their relations must form a directed acyclic graph, and the analyis infrastructure code determines the
 optimal execution order and parallelism.
 There are two novel analysis passes in \toolSafer{}, the \textit{sliceheader} and the \textit{structcast} pass.
@@ -97,7 +97,7 @@ Parsing the source code of the packages under analysis is done using the same co
 is required as a dependency for \toolSafer{}.
 Then, the abstract syntax tree (\acrshort{AST}) and control flow graph (\acrshort{CFG}) of the sources are built using
 existing analysis passes which the novel \toolSafer{} passes depend upon.
-After all analysis passes have run, the results are also presented to the user by the same code used in \toolVet{}.
+After all analysis passes are finished, the results are also presented to the user by the same code used in \toolVet{}.
 This composition using many existing parts allows to keep the required new code to a minimum, reuses well-tested pieces
 of code, and allows integrating the new \toolSafer{} features into a familiar workflow.
 
@@ -112,12 +112,12 @@ Since Go supports multiple assignments in one statement, there can be multiple v
 In this case, \toolSafer{} checks all of them to see if any meets the conditions to trigger a warning.
 To check whether the type matches either \textit{reflect.StringHeader} or \textit{reflect.SliceHeader}, the given type
 is checked for assignability to the underlying structure of the header types.
-This structure, as illustrated in Figure~\ref{fig:go-safer-architecture}, is one \textit{uintptr} field and then one
-or two \textit{int} fields.
+This structure, as illustrated in Figure~\ref{fig:go-safer-architecture}, is one \textit{uintptr} field and one or two
+\textit{int} fields.
 Comparing to the structure instead of the name of the type makes it possible to detect type aliases to the header types
 which might exist.
-For example, when there is a \textit{type CustomHeader reflect.SliceHeader} definition, then \toolSafer{} will also
-detect composite literals of type \textit{CustomHeader}.
+For example, when there is a \textit{type CustomHeader reflect.SliceHeader} definition, \toolSafer{} will also detect
+composite literals of type \textit{CustomHeader}.
 A composite literal of a header type is already enough to issue a warning, but for assignments \toolSafer{} needs to
 check whether the receiver variable is a slice or string header that was created by conversion from a real slice or
 string.
@@ -128,24 +128,24 @@ investigation.
 Finally, \toolSafer{} checks whether the right hand side value of the statement defining that value is a conversion
 from an actual slice or string value.
 It has to be a cast through an \textit{unsafe.Pointer} value for this to be possible.
-If that is the case, then the assignment is legitimate and \toolSafer{} does not print a warning.
+If that is the case, the assignment is legitimate and \toolSafer{} does not print a warning.
 However, if the variable is not derived by a conversion from a slice or string, or no \acrshort{CFG} node defining the
-variable can be found, then a warning is issued.
-The last case is possible, for example, if the slice or string header is passed in as a function parameter, because then
-its value can not be statically inferred with the Go analysis framework.
+variable can be found, a warning is issued.
+This is possible, for example, if the slice or string header is passed in as a function parameter, because
+its value can not be statically inferred with the Go analysis framework in that case.
 
 The \textit{structcast} pass also uses the \acrshort{AST} to find cast operations.
 These are represented in the \acrshort{AST} in the same way as function calls are, so the tree is filtered for
 \textit{CallExpr} nodes.
-If there is a cast from some structure type to \textit{unsafe.Pointer} and then further to another structure type, then
-these source and target types are analyzed.
+If there is a cast from some structure type to \textit{unsafe.Pointer} and further to another structure type, these
+source and target types are analyzed.
 These types can again be fetched from a type lookup table provided by the parser.
 For both of them, \toolSafer{} counts the number of fields that have the types \textit{int}, \textit{uint}, and
 \textit{uintptr}.
 These \checkNum{three} basic types are the ones available in Go that have different sizes on varying architectures.
 For example, \textit{int} is \checkNum{eight} bytes on the \textit{amd64} architecture, but only \checkNum{four} bytes
 on \textit{i386}.
-If the counts mismatch, then the direct cast using the \unsafe{} \acrshort{API} will likely break on some architectures,
+If the counts mismatch, the direct cast using the \unsafe{} \acrshort{API} will likely break on some architectures,
 and \toolSafer{} generates a warning.
 
 A set of automated tests verifies that \toolSafer{} works as expected.
@@ -180,7 +180,7 @@ positives and negatives, its performance is evaluated in two different ways.
 One of them uses the novel data set of labeled \unsafe{} usages, which was presented in
 Section~\ref{sec:go-geiger:labeled-dataset}.
 The second one is done by manually analyzing \checkNum{six} selected open-source Go packages from different projects and
-then comparing the results to the output of \toolSafer{}.
+comparing the results to the output of \toolSafer{}.
 As shown in the following sections, \toolSafer{} is able to achieve both high precision and accuracy in the two
 evaluations.
 Finally, the performance is compared to the existing static analysis tools \toolVet{} and \toolGosec{}.
@@ -256,16 +256,15 @@ For every category, there is one small and one large package each.
 
 \input{assets/tables/chapter5/go-safer-evaluation-packages-stats.tex}
 
-Each of the \checkNum{six} packages was analyzed manually to find any insecure code that \toolSafer{} should detect.
-The results of this are saved as a \acrshort{CSV} file containing a positive or negative label for every line of code
+The \checkNum{six} packages were analyzed manually to find any insecure code that \toolSafer{} should detect.
+The results of this were saved as a \acrshort{CSV} file containing a positive or negative label for every line of code
 that includes a usage of the \unsafe{} \acrshort{API}.
 Lines that do not use the \acrshort{API} should not be analyzed by \toolSafer{} at all, therefore they are not included
 as negative in order to avoid a very large number of true negatives which would skew the accuracy and yield less
 valuable evaluation results.
 Should \toolSafer{} generate a warning for such a line, it will still be counted as false positive.
 After the manual analysis, \toolSafer{} was run on the packages and all warnings were saved again.
-Similar to Section~\ref{subsec:go-safer:evaluation:labeled-usages}, the warnings and labels were then matched and
-counted.
+Similar to Section~\ref{subsec:go-safer:evaluation:labeled-usages}, the warnings and labels were matched and counted.
 Table~\ref{tbl:go-safer-evaluation-packages} shows the results of the evaluation for each package individually as well
 as in total.
 The numbers for \toolSafer{} are in the first column for each value (Tool~\textit{a}), while the other two columns are

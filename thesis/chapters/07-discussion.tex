@@ -7,7 +7,7 @@ First, the dangers and practical exploitability of real-world Go applications du
 elaborated.
 Then, the patches that were sent to open-source code maintainers  are described in detail and suggestions towards a
 world with safer usage practices of \unsafe{} code are given.
-Finally, threats to validity and future work are presented.
+Finally, threats to validity, and future work are presented.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ effectively differentiate the libraries that need auditing from those that do no
 An effective next step would be to use this information even before deciding which library to use.
 If there are multiple external libraries that achieve the same goal, choosing which one to use should incorporate the
 data about how many \unsafe{} usages each library contains, if any \todo{check with work by Sarah Nadi}.
-Libraries with less \unsafe{} code should be preferred over those with much.
+Libraries with less \unsafe{} code should be preferred over those with many.
 It would be beneficial to contribute towards a situation where library maintainers use the number of \unsafe{} usages
 in their library as a feature or part of its advertisement.
 Similar to code quality report badges on the \github{} repository of the project, there could be a badge showing if the
@@ -117,7 +117,7 @@ an arbitrary type.
 Furthermore, the result of pointer arithmetic can not be a completely arbitrary heap value anymore, instead at least one
 argument of the arithmetic expression must already be a pointer into the resulting value if it is a heap value.
 Both checks prevent some misuses of \unsafe{} that can occur if the developer took a false assumption over the types
-involved in a conversion, and therefore they are a valuable step towards a safer Go with \unsafe{}.
+involved in a conversion, and therefore they are a valuable step towards a safer usage of \unsafe{} in Go.
 However, the new check can not find the misuses that are detected by \toolSafer{}, which underlines the need of
 continuous improvement of the developer tools and continued awareness of potentially still unknown dangers with the use
 of \unsafe{}.
@@ -203,8 +203,8 @@ Furthermore, establishing a public documentation of good and bad usage examples 
 help developers avoid common mistakes.
 For insecure usages, it could provide an explanation of the potential vulnerability, as well as a suggestion for a
 secure alternative.
-Similar to \toolSafer{}, a linter could be developed to identify harmless usages of \unsafe{}, which could then
-automatically be flagged safe and thus be excluded from manual review.
+Similar to \toolSafer{}, a linter could be developed to identify harmless usages of \unsafe{}, which could automatically
+be flagged safe and thus be excluded from manual review.
 
 Finally, the novel tools \toolGeiger{} and \toolSafer{} presented in this thesis could be integrated into developer
 environments (\acrshort{IDE}s).

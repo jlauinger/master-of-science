@@ -173,7 +173,7 @@ already placed in the caller stack frame.
 When the function \textit{add} returns, the stack pointer \textit{rsp} will be incremented up to the \textit{sum} value
 to destroy the callee stack frame, and the \acrshort{CPU} will jump to the return address that was stored on the stack.
 
-In constrast, data on the heap is organized in chunks~\cite{ferres2010}.
+In contrast, data on the heap is organized in chunks~\cite{ferres2010}.
 There can be several allocated chunks of data on the heap, and they are not necessarily adjacent.
 Figure~\ref{subfig:memory:memory-layout} shows used heap areas in a darker shade of blue.
 Adding data to the heap requires calling special allocation functions that are provided by the runtime, which in the
@@ -207,7 +207,7 @@ However, the values \textit{1337}, \textit{"Unused String"}, and \textit{1} are 
 in scope, and therefore are not marked.
 They are shown in white in the figure.
 
-After this marking phase has completed, the sweep phase frees all memory that is not marked as live.
+After this marking phase is completed, the sweep phase frees all memory that is not marked as live.
 Finally, the markings are reset and a new \acrshort{GC} run can be triggered.
 
 Using a \acrshort{GC} improves memory safety in Go because without explicit deallocations, the risk of dereferencing
@@ -231,19 +231,19 @@ Instead, the stack frame is removed entirely when the function returns.
 
 In \acrshort{EA}, a value is said to escape if references to it can live longer than the lifetime of the current
 function.
-If it does escape, then it needs to be allocated on the heap so that when the function has terminated, references that
+If it does escape, it needs to be allocated on the heap so that when the function has terminated, references that
 still exist can continue to access the memory even though the stack frame has vanished.
 Otherwise, it can be placed on the stack.
 
 The \acrshort{EA} algorithm employed by the Go compiler works by checking for each variable that is declared in a
 function whether a reference to it is stored in another value or passed to another function.
-If there is a reference stored in another object, this object has to be checked too, and if it escapes then so does the
+If there is a reference stored in another object, this object has to be checked too, and if it escapes so does the
 original variable.
 The same is true for functions.
-If the variable gets passed to another function then the \acrshort{EA} algorithm transitively looks into that function
+If the variable gets passed to another function, the \acrshort{EA} algorithm transitively looks into that function
 and determines if the value escapes there.
-If it does, then it must also be treated as an escaped value in the original function.
-Finally, if the function returns a reference to the variable then it obviously escapes as well.
+If it does, it must also be treated as an escaped value in the original function.
+Finally, if the function returns a reference to the variable, it obviously escapes as well.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -286,7 +286,7 @@ Since stack addresses can be slightly unpredictable in practice, for example, be
 different lengths might be located on the stack, a \textit{NOP slide} can be used to make the exploit more robust.
 \textit{NOP}, or \textit{no-op}, is a machine instruction that does nothing at all, the processor continues with the
 following instruction.
-A \textit{NOP slide} then is a series of such instructions~\cite{vallentin2007}.
+A \textit{NOP slide} is a series of such instructions~\cite{vallentin2007}.
 Using this, it is sufficient to overwrite the return instruction pointer with an address somewhere within the
 \textit{NOP} instructions to make the processor go through all remaining of them until it reaches the exploit code,
 similar to sliding down a slope.
@@ -305,7 +305,7 @@ stack~\cite{gao2013}.
 With \acrshort{DEP}, memory pages can either be executable or writable, but not both.
 Pages that contain the stack are marked as non-executable.
 This achieves improved security because an attacker can not simply write code to the stack using a buffer overflow as
-described in the previous section and then execute it.
+described in the previous section and execute it.
 Modern operating systems use \acrshort{DEP} by default~\cite{davi2011}.
 
 
@@ -369,8 +369,8 @@ For example, a valid import path would be \textit{my-application/storage/databas
 To allow sharing code with other developers and implementing reusable libraries, it is possible to download external
 packages using the \textit{go get} command, which can fetch packages using the web protocol \acrshort{HTTP}, Git, or
 other means.
-The import path then usually begins with a \acrshort{DNS} host name such as \textit{github.com}, which hosts the package
-code.
+In this case, the import path usually begins with a \acrshort{DNS} host name such as \textit{github.com}, which hosts
+the package code.
 This host part is called \textit{registry}.
 
 
@@ -397,7 +397,7 @@ library, and it is not possible to use different versions of the same package ne
 
 Starting with the release of Go \checkNum{1.11}, the development of the module system has fixed this by introducing a
 new unit of code organization\footnote{\url{https://blog.golang.org/using-go-modules}}.
-It is stable and the default since Go \checkNum{1.13} in \checkNum{September 2019}.
+It is stable and used as default since Go \checkNum{1.13} in \checkNum{September 2019}.
 Modules contain one or more packages, and have a name and import path similar to packages, which can in fact be the name
 of a root package in the module.
 Furthermore, modules are required to be available as a revision control repository like Git and are versioned.
@@ -432,7 +432,7 @@ get the code.
 
 Static code analysis describes techniques that examine source code for particular properties, such as code metrics or
 the presence of specific bugs, without running the program.
-In the last point, it is different from dynamic code analysis which executes the code and employs runtime checks.
+It is different from dynamic code analysis which executes the code and employs runtime checks.
 Using static code analysis, it is possible to automatically test if the source code matches certain expectations.
 Based on the level of abstraction that an analysis tool is looking at, it can be classified into lexical, syntactic,
 or semantic analysis.
@@ -498,9 +498,9 @@ It shows the simple loop \textit{for x < 5 \{ x += 1 \}}.
 There are two logical steps of execution in this code example.
 After any previous code is executed and control flows to the \textit{for} loop, first the loop condition \textit{x < 5}
 is checked.
-Then, there are two outgoing edges on the node because the condition can be either true or false.
-If it is true, then control flows to the assignment node representing the \textit{x += 1} statement.
-That node then has an edge back to the loop condition node to check whether the loop should be run again.
+There are two outgoing edges on the node because the condition can be either true or false.
+If it is true, control flows to the assignment node representing the \textit{x += 1} statement.
+That node has an edge back to the loop condition node to check whether the loop should be run again.
 Otherwise, the code following behind the loop is executed.
 
 Such a \acrshort{CFG} is an excellent tool to detect dead code, which would be represented by an isolated or unreachable
