@@ -66,11 +66,9 @@ Figure~\ref{fig:outline1} illustrates the organization and contributions of this
 
 \input{assets/figures/chapter1/outline1.tex}
 
-\todo{replace Figure~\ref{fig:outline1} with a better, more organized representation of the thesis.}
-
 First, a thorough manual analysis of possible vulnerabilities that can result from incorrect usages of the \unsafe{}
 \acrshort{API}, including their consequences, is performed.
-This is shown in the bottom left corner of Figure~\ref{fig:outline1}.
+This is shown in the top left corner in Figure~\ref{fig:outline1}.
 Then, \toolGeiger{} is designed.
 It is a novel tool that finds \unsafe{} usages in Go source code, including its dependencies.
 This tool is used for an empirical study on the usage of \unsafe{} in the wild.
@@ -79,14 +77,19 @@ They are analyzed using \toolGeiger{}, which yields raw data about \unsafe{} usa
 This data is evaluated both quantitatively in terms of a statistical analysis, and qualitatively by sampling,
 manually reviewing, and labeling code snippets sampled from the identified \unsafe{} usages.
 With these labels, insights are found about how and for what purpose the \unsafe{} \acrshort{API} is used.
-This study, as well as \toolGeiger{}, is shown in the top row of Figure~\ref{fig:outline1}.
-Finally, to contribute to safer usage of \unsafe{}, a novel linter called \toolSafer{} is developed.
-It is illustrated in the bottom center of Figure~\ref{fig:outline1}.
+This study, as well as \toolGeiger{}, is located in the bottom leftc corner in Figure~\ref{fig:outline1}.
+To contribute to safer usage of \unsafe{}, a novel linter called \toolSafer{} is developed.
+It is illustrated in the top center of Figure~\ref{fig:outline1}.
 Its design is based on the \unsafe{}-related vulnerabilities and \unsafe{} usage patterns in open-source projects,
-and it is evaluated using the labeled data set.
+and it is evaluated using identified usage data about \unsafe{}.
+Next, findings of \toolSafer{} have been reported to the respective project maintainers, and patches were sent to fix
+them.
+Figure~\ref{fig:outline1} indicates this in the top right corner.
+Finally, as shown in the bottom center, a conccurent study on \unsafe{} in Go~\cite{costa2020} was replicated and
+compared to the results of this work.
 
-Thus, this thesis presents an analysis of vulnerabilities that are caused by misuses of the \unsafe{} \acrshort{API},
-as well as two novel static analysis tools for Go developers.
+Thus, this thesis mainly presents an analysis of vulnerabilities that are caused by misuses of the \unsafe{}
+\acrshort{API}, as well as two novel static analysis tools for Go developers.
 It is worth noting that both tools have their own design, implementation, and evaluation sections in their respective
 chapters.
 
@@ -123,6 +126,16 @@ The main contributions that are made in this thesis are the following:
 \end{enumerate}
 
 Parts of these contributions have been published in~\cite{lauinger2020}.
+For Chapter~\ref{ch:unsafe-security-problems}, Sections~\ref{sec:unsafe-security-problems:slice-casts}
+and~\ref{subsec:unsafe-security-problems:buffer-overflow:code-flow-redirection} are published in the paper.
+With respect to \toolGeiger{}, Sections~\ref{subsec:go-geiger:evaluation:popularity},
+\ref{subsec:go-geiger:evaluation:over-time}, and~\ref{subsec:go-geiger:evaluation:linters-comparison} are presented for
+the first time in this thesis.
+The other sections in Chapter~\ref{ch:go-geiger} are discussed in the paper, although with less detail.
+In Chapter~\ref{ch:go-safer}, the evaluation of \toolSafer{} in Section~\ref{sec:go-safer:evaluation} is novel in this
+thesis.
+The content of the remaining chapters is new in this work, no significant and substantial parts of those have been
+published in the paper.
 Furthermore, I wrote a series of blog
 posts\footnote{\url{https://dev.to/jlauinger/exploitation-exercise-with-unsafe-pointer-in-go-information-leak-part-1-1kga}}
 covering parts of the \unsafe{}-related exploits presented in
