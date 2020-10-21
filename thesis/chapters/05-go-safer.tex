@@ -21,8 +21,9 @@ Figure~\ref{fig:outline5} shows which parts of the contributions of this thesis 
 The \toolSafer{} static analysis tool is designed as a linter to identify \checkNum{two} misuses of the \unsafe{}
 \acrshort{API} that were previously undetected with existing tools such as \toolVet{} and \toolGosec{}.
 The selection of the code patterns that are detected is based on the \unsafe{} usage examples identified using
-\toolGeiger{} in popular open-source Go projects as described in Chapter~\ref{ch:go-geiger}, as well as the manual
-analysis of possible vulnerabilities related to the use of the \unsafe{} \acrshort{API} presented in
+\toolGeiger{} in popular open-source Go projects as described in
+Section~\ref{ch:go-geiger:qualitative-evaluation:labeled-dataset}, as well as the manual analysis of possible
+vulnerabilities related to the use of the \unsafe{} \acrshort{API} presented in
 Chapter~\ref{ch:unsafe-security-problems}.
 The first is the incorrect conversion pattern between slices and strings by creating their header structures as
 composite literals as described in Section~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}.
