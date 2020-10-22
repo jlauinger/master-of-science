@@ -12,7 +12,6 @@ sys_linux.go,16,G103 CWE-242: Use of unsafe calls should be audited Confidence: 
 sys_linux.go,20,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 sys_linux.go,25,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 sys_unix.go,16,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
-sys_unix.go,16,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 sys_unix.go,21,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 sys_unix.go,26,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 sys_unix.go,31,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW

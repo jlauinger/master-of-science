@@ -11,8 +11,9 @@ generic.go,62, sh.Data = uintptr(i*layerStride+j*rowStride)*typ.Size() + ptr,NO
 generic.go,63, sh.Len = cols,NO
 generic.go,64, sh.Cap = cols,NO
 generic.go,66, sh := (*reflect.SliceHeader)(unsafe.Pointer(el.Addr().Pointer())),NO
-generic.go,67, sh.Len = cols,NO
-generic.go,68, sh.Cap = cols,NO
+generic.go,67, sh.Data = inner.Index(0).Addr().Pointer(),NO
+generic.go,68, sh.Len = cols,NO
+generic.go,69, sh.Cap = cols,NO
 iterator_native.go,62, hdr := &reflect.SliceHeader{,YES
 iterator_native.go,63, Data: uintptr(unsafe.Pointer(&data[start]));,NO
 iterator_native.go,67, retVal[i] = *(*[]bool)(unsafe.Pointer(hdr)),NO

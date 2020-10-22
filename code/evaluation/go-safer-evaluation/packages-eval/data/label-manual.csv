@@ -4,3 +4,6 @@ label.go,107, untyped: unsafe.Pointer(hdr.Data);,NO
 label.go,117, hdr := (*reflect.StringHeader)(unsafe.Pointer(&v)),NO
 label.go,118, hdr.Data = uintptr(t.untyped.(unsafe.Pointer)),NO
 label.go,120, return *(*string)(unsafe.Pointer(hdr)),NO
+label.go,132,manual,NO
+label.go,135,manual,NO
+label.go,136,manual,NO

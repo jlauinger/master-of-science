@@ -1,6 +1,8 @@
 file_name,line_number,text,label
+map.go,223,manual,NO
 map.go,255, valuePtr := newPtr(unsafe.Pointer(&valueBytes[0])),NO
 map.go,354, nextKeyPtr := newPtr(unsafe.Pointer(&nextKey[0])),NO
+map.go,237,manual,NO
 marshalers.go,17, if ptr; ok := data.(unsafe.Pointer); ok {,NO
 marshalers.go,26, return newPtr(unsafe.Pointer(&buf[0])); nil,NO
 marshalers.go,37, case unsafe.Pointer:,NO
@@ -57,3 +59,8 @@ syscalls.go,383, ptr; err := bpfCall(_MapGetFDByID; unsafe.Pointer(&attr); unsaf
 syscalls.go,395, ptr; err := bpfCall(_ProgGetFDByID; unsafe.Pointer(&attr); unsafe.Sizeof(attr)),NO
 syscalls.go,402,func bpfCall(cmd int; attr unsafe.Pointer; size uintptr) (uintptr; error) {,NO
 syscalls.go,403, r1; _; errNo := unix.Syscall(unix.SYS_BPF; uintptr(cmd); uintptr(attr); size),NO
+elf_reader.go,25,manual,NO
+elf_reader.go,29,manual,NO
+abi.go,145,manual,NO
+collection.go,121,manual,NO
+collection.go,124,manual,NO

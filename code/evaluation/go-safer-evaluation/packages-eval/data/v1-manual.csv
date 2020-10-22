@@ -1,5 +1,6 @@
 file_name,line_number,text,label
 conversion.go,155, out.Annotations[v1.NonConvertibleAnnotationPrefix+"/"+fieldErr.Field] = reflect.ValueOf(fieldErr.BadValue).String(),NO
+conversion.go,117,manual,NO
 zz_generated.conversion.go,2184, out.NodeAffinity = (*core.NodeAffinity)(unsafe.Pointer(in.NodeAffinity)),NO
 zz_generated.conversion.go,2185, out.PodAffinity = (*core.PodAffinity)(unsafe.Pointer(in.PodAffinity)),NO
 zz_generated.conversion.go,2186, out.PodAntiAffinity = (*core.PodAntiAffinity)(unsafe.Pointer(in.PodAntiAffinity)),NO
