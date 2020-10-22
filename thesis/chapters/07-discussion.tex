@@ -120,10 +120,27 @@ Furthermore, the result of pointer arithmetic can not be a completely arbitrary 
 argument of the arithmetic expression must already be a pointer into the resulting value if it is a heap value.
 Both checks prevent some misuses of \unsafe{} that can occur if the developer took a false assumption over the types
 involved in a conversion, and therefore they are a valuable step towards a safer usage of \unsafe{} in Go.
-However, the new check can not find the misuses that are detected by \toolSafer{}, which underlines the need of
-continuous improvement of the developer tools and continued awareness of potentially still unknown dangers with the use
-of \unsafe{}.
-\todo{which of the problems described in Chapter 3 are solved with this new feature?}
+Architecture-dependent types as covered in Section~\ref{sec:unsafe-security-problems:architecture-dependent-types} are
+less dangerous with this new check, because it detects a mismatch in memory alignment or endianess when the application
+is compiled for an unsuitable architecture.
+However, the remaining exploits discussed in Chapter~\ref{ch:unsafe-security-problems} remain possible with the new
+check.
+Also, it can not find the misuses that are detected by \toolSafer{}, which underlines the need of continuous improvement
+of the developer tools and continued awareness of potentially still unknown dangers with the use of \unsafe{}.
+
+There is an open proposal for introducing a new type \textit{unsafe.Slice} into the Go \unsafe{}
+package\footnote{\url{https://github.com/golang/go/issues/19367}}.
+It is supposed to replace the \textit{reflect.SliceHeader} type and differs in the type of the \textit{Data} field.
+While that field is a \textit{uintptr} in the \textit{reflect} package, the proposed type uses \textit{unsafe.Pointer}.
+Thus, the new representation for a slice stores the reference to the underlying array in a type that is treated as a
+pointer by the garbage collector and escape analysis.
+This solves the slice vulnerabilities described in Sections~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}
+and~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}, which are rather common in real Go applications.
+Therefore, it would provide a significantly safer way of writing such code.
+By the time this thesis is submitted, the proposal is actively considered and patches to the Go compiler have already
+been accepted.
+The feature is currently planned to be included in the \checkNum{1.17} release of Go, which would be expected to be
+finished around \checkNum{August, 2021}.
 
 Finally, some \unsafe{} usages in the analyzed open-source projects were necessary to achieve functionality that could
 have been implemented with generics too, if they were available in Go.

@@ -259,8 +259,10 @@ redirect control flow), as well as common mitigations against them.
 \subsection{Buffer Overflow}\label{subsec:background:exploit-techniques:buffer-overflow}
 
 A frequent security vulnerability related to memory safety is the buffer overflow~\cite{larochelle2001}.
-It happens when a buffer variable, for example, a slice, is too short for the data that is written to it, causing the
-data to overflow into and overwrite adjacent memory.
+It happens when a buffer variable, for example, a slice, is too short for the data that is written to or read from it,
+causing adjacent memory to be accessed and possibly overwritten.
+If information is retrieved by the attacker from variables that are located next to the buffer, a successful
+\textit{information leak} exploit is achieved.
 Overflows can happen anywhere in the memory, however a common source of security problems are stack-based buffer
 overflows.
 When a buffer variable is placed on the stack and too much data gets written to it, the data will be written to higher
@@ -294,6 +296,7 @@ Thus, the address does not have to match the exact start of the payload code.
 In Figure~\ref{fig:stack-smashing-payload}, the pointer from the overwritten return instruction pointer (\acrshort{RIP})
 points into the middle of the \textit{NOP slide}.
 Behind it, the code chosen by the attacker for execution is written onto the stack.
+This is called a \textit{code injection} exploit.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
