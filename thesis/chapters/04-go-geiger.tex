@@ -56,12 +56,6 @@ The code is already part of the resulting program.
 Finally, the analysis results are shown to the user.
 It is possible to output the \unsafe{} usage counts as well as the lines of code containing the usages.
 
-%The source code and documentation of \toolGeiger{} is available on
-%\github{}.
-%It can be installed using the standard Go \acrshort{CLI} tool.
-%To execute it, the package names that should be checked are appended as parameters.
-%For example, to examine a local package for \unsafe{} usages one would run \textit{go-geiger ./my/package}.
-%There is no limitation on the number of packages that can be supplied as parameters.
 Figure~\ref{fig:go-geiger-screenshot} shows a screenshot of \toolGeiger{}.
 It presents the analyis results for the \textit{go-geiger} source code itself.
 However, to decrease the space needed to display the figure, parts of the table with \unsafe{} counts have been
@@ -415,7 +409,7 @@ It is worth noting that the numbers in Table~\ref{tbl:go-geiger-evaluation-linte
 \unsafe{} findings, but one line of code can contain several \unsafe{} usages.
 Therefore the numbers do not add up to the same count of total findings discussed in
 Section~\ref{subsec:go-geiger:evaluation:unsafe-usage}.
-\todo{stricture comparisons better}
+\todo{structure comparisons better, revisit feedback from AnKa.}
 
 \begin{answerToRQ}[\ref{rq:linterComparison}]
     The existing tools \toolVet{} and \toolGosec{} do not provide any benefit over \toolGeiger{} for the specific task
@@ -442,7 +436,7 @@ It is available online in the same data repository\footnote{\url{https://github.
 the study results presented in the previous section.
 These samples are divided into \numberLabeledCodeSnippetsStd{} standard library samples (\textit{std}) and
 \numberLabeledCodeSnippetsApp{} non-standard-library application samples (\textit{app}).
-\todo{why these numbers}
+\todo{why these numbers?}
 The goal of this data set is to understand what operations are done in practice using the \unsafe{} \acrshort{API},
 and for what purpose.
 Thus, each sample is labeled in two dimensions by the operation type and its higher-level objective.
