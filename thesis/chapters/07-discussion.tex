@@ -95,8 +95,10 @@ The novel tool \toolGeiger{} is a large step in the journey of improving this si
 effectively differentiate the libraries that need auditing from those that do not.
 An effective next step would be to use this information even before deciding which library to use.
 If there are multiple external libraries that achieve the same goal, choosing which one to use should incorporate the
-data about how many \unsafe{} usages each library contains, if any \todo{check with work by Sarah Nadi}.
+data about how many \unsafe{} usages each library contains, if any.
 Libraries with less \unsafe{} code should be preferred over those with many.
+Previous work has proposed various code metrics to help choosing a specific library~\cite{delamora2018}.
+They include security and fault-proneness, both of which could be influenced by the use of \unsafe{}.
 It would be beneficial to contribute towards a situation where library maintainers use the number of \unsafe{} usages
 in their library as a feature or part of its advertisement.
 Similar to code quality report badges on the \github{} repository of the project, there could be a badge showing if the

@@ -87,6 +87,8 @@ them.
 Figure~\ref{fig:outline1} indicates this in the top right corner.
 Finally, as shown in the bottom center, a conccurent study on \unsafe{} in Go~\cite{costa2020} was replicated and
 compared to the results of this work.
+Boxes that contain further structure inside in gray are shown in more detail in a figure at the beginning of their
+respective chapters.
 
 Thus, this thesis mainly presents an analysis of vulnerabilities that are caused by misuses of the \unsafe{}
 \acrshort{API}, as well as two novel static analysis tools for Go developers.
@@ -128,18 +130,17 @@ The main contributions that are made in this thesis are the following:
 Parts of these contributions have been published in~\cite{lauinger2020}.
 For Chapter~\ref{ch:unsafe-security-problems}, Sections~\ref{sec:unsafe-security-problems:slice-casts}
 and~\ref{subsec:unsafe-security-problems:buffer-overflow:code-flow-redirection} are published in the paper.
-With respect to \toolGeiger{}, Sections~\ref{subsec:go-geiger:evaluation:popularity},
-\ref{subsec:go-geiger:evaluation:over-time}, and~\ref{subsec:go-geiger:evaluation:linters-comparison} are presented for
+With respect to \toolGeiger{}, Sections~\ref{subsec:go-geiger:evaluation:popularity},~\ref{subsec:go-geiger:evaluation:over-time},
+and~\ref{subsec:go-geiger:evaluation:linters-comparison} are presented for
 the first time in this thesis.
 The other sections in Chapter~\ref{ch:go-geiger} are discussed in the paper, although with less detail.
 In Chapter~\ref{ch:go-safer}, the evaluation of \toolSafer{} in Section~\ref{sec:go-safer:evaluation} is novel in this
 thesis.
 The content of the remaining chapters is new in this work, no significant and substantial parts of those have been
 published in the paper.
-Furthermore, I wrote a series of blog
+Furthermore, a series of blog
 posts\footnote{\url{https://dev.to/jlauinger/exploitation-exercise-with-unsafe-pointer-in-go-information-leak-part-1-1kga}}
-covering parts of the \unsafe{}-related exploits presented in
-Chapter~\ref{ch:unsafe-security-problems}.
+covers parts of the \unsafe{}-related exploits presented in Chapter~\ref{ch:unsafe-security-problems}.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------

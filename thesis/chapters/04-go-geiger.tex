@@ -4,9 +4,11 @@
 
 This chapter presents \toolGeiger{}, a tool to find usages of the \unsafe{} \acrshort{API} in Go packages and their
 dependencies.
-Furthermore, an empirical study on \unsafe{} usage in open-source projects using \toolGeiger{} is shown, and a novel
-data set of labeled samples of \unsafe{} code is described.
 Figure~\ref{fig:outline4} shows an outline of the contents of this chapter.
+Using open-source projects from \github{} and \toolGeiger{}, an empirical study on \unsafe{} usage presented which is
+used additionally to quantitatively evaluate \toolGeiger{}.
+Furthermore, a novel data set of labeled samples of \unsafe{} code is described and used as a qualitative analysis on
+\unsafe{} usage in Go.
 
 \input{assets/figures/chapter4/outline4.tex}
 
@@ -252,8 +254,8 @@ Thus, the plot presents data about \unsafePackages{} packages.
 
 \input{assets/plots/chapter4/unsafe-import-depth.tex}
 
-Figure~\ref{fig:unsafe-import-depth} shows that most packages containing \unsafe{} usages are imported fairly early, however not directly at the
-first level.
+Figure~\ref{fig:unsafe-import-depth} shows that most packages containing \unsafe{} usages are imported fairly early,
+however not directly at the first level.
 The average depth is \averageUnsafeImportDepth{} with a standard deviation of \stdUnsafeImportDepth{}.
 The general import depth of all packages, whether they contain \unsafe{} or not, is only slightly lower at
 \averageGeneralImportDepth{}.

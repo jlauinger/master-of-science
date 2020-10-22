@@ -4,12 +4,11 @@
 
 Another major contribution of this thesis is the development of \toolSafer{}, a \toolVet{}-style, open-source linter
 tool with a focus on the \unsafe{} \acrshort{API} in Go.
-It can identify some of the insecure code patterns described in Chapter~\ref{ch:unsafe-security-problems} and thus help
-developers to write safer code.
-This chapter describes the design and implementation of \toolSafer{}, and presents an evaluation of its effectiveness
-both using the labeled data set of \unsafe{} usages presented in the previous chapter and a manual analysis of
-open-source Go packages.
+It can identify some of the insecure code patterns described in Chapter~\ref{ch:unsafe-security-problems}.
 Figure~\ref{fig:outline5} shows the organization of the contents of this chapter.
+It describes the design and implementation of \toolSafer{} based on \unsafe{}-related vulnerabilities and usage data.
+Further, an evaluation of its effectiveness using the labeled data set of \unsafe{} usages introduced in the
+previous chapter, a manual analysis of open-source Go packages, and a comparison with existing tools is presented.
 
 \input{assets/figures/chapter5/outline5.tex}
 
@@ -94,7 +93,8 @@ Figure~\ref{fig:go-safer-architecture} shows an overview of this architecture.
 
 \input{assets/figures/chapter5/go-safer-architecture.tex}
 
-Parsing the source code of the packages under analysis is done using the same code as \toolVet{} uses, in fact that code
+Parts that are shown in gray in Figure~\ref{fig:go-safer-architecture} are reusing existing code.
+Parsing the source code of the packages under analysis is done in the same way that \toolVet{} does, in fact that code
 is required as a dependency for \toolSafer{}.
 Then, the abstract syntax tree (\acrshort{AST}) and control flow graph (\acrshort{CFG}) of the sources are built using
 existing analysis passes which the novel \toolSafer{} passes depend upon.
