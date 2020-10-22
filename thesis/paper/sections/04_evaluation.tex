@@ -74,7 +74,7 @@ It is evident that most packages with \unsafe{} are imported early in the depend
 This number is very similar to the overall average depth of imported packages (\averageGeneralImportDepth{}). %, regardless of whether they contain usages of \unsafe{}.
 While the packages containing \unsafe{} can be manually found and evaluated, this process requires significant resources to handle the increasing number of packages introduced through each dependency. 
 For developers only the first level of dependencies, the ones they added themselves, are really obvious.
-On this level, \levelOneImportedUnsafePackagesCount{} out of \ImportedUnsafePackagesCount{} imported packages (\levelOneImportedUnsafePackagesShare{}) contain \unsafe{}.
+On this level, \levelOneImportedUnsafePackagesCount{} out of \levelOneImportedPackagesCount{} imported packages (\levelOneImportedUnsafePackagesShare{}) contain \unsafe{}.
 
 \begin{tcolorbox}[boxsep=1pt, enlarge top by=5pt, title=Answer to \ref{rq:depsDepth}]
 Most imported packages containing \unsafe{} usages are found around a depth of \checkNum{3} in the dependency tree.
