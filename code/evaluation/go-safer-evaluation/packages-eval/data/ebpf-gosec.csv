@@ -1,11 +1,11 @@
 file_name,line_number,message
 elf_reader.go,25,G304 CWE-22: Potential file inclusion via variable Confidence: HIGH; Severity: MEDIUM
-abi.go,145,G307 CWE-: Deferring unsafe method "*os.File" on type "Close" Confidence: HIGH; Severity: MEDIUM
 elf_reader.go,29,G307 CWE-: Deferring unsafe method "*os.File" on type "Close" Confidence: HIGH; Severity: MEDIUM
-map.go,237,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
+abi.go,145,G307 CWE-: Deferring unsafe method "*os.File" on type "Close" Confidence: HIGH; Severity: MEDIUM
 collection.go,124,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
-map.go,223,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
 collection.go,121,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
+map.go,237,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
+map.go,223,G104 CWE-703: Errors unhandled. Confidence: HIGH; Severity: LOW
 map.go,255,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 map.go,354,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 marshalers.go,26,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
@@ -17,7 +17,6 @@ prog.go,124,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH
 prog.go,186,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 prog.go,187,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 prog.go,312,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
-prog.go,315,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 prog.go,315,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 prog.go,353,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
 prog.go,354,G103 CWE-242: Use of unsafe calls should be audited Confidence: HIGH; Severity: LOW
