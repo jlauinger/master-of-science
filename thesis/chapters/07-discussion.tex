@@ -140,85 +140,37 @@ increasing security and safety.
 \section{Threats to Validity}\label{sec:discussion:threats-to-validity}
 
 This section discusses potential threats to the validity of this work.
-Internal threats concern the quality of execution and whether any results could be explained by other factors that were
+Internal threats concern the quality of execution, or whether any results could be explained by other factors that were
 not covered in this thesis.
-First,
+The empirical study and quantitative evaluation presented in Section~\ref{sec:go-geiger:quantitative-evaluation}
+focused on code for the \textit{amd64} architecture.
+This is due to a limitation of \toolGeiger{}, which currently only finds \unsafe{} usages in code targeted for the
+architecture that \toolGeiger{} is executed on.
+There could possibly be a different prevalence of \unsafe{}, or a contradictory distribution of \unsafe{} token types,
+on other architectures.
+This threat is mitigated first by the fact that \textit{amd64} is by far the most commonly used architecture in the
+data set presented in this thesis, therefore code for other architectures should not have a large influence on the
+statistics.
+Secondly, an analysis using \textit{grep} showed similar results to the study using \toolGeiger{}.
+While \textit{grep} can not exclude unreachable code, it includes code for all architectures.
 
-
-On the other hand, external threats to validity concern the ability to generalize the study results to new data.
-
-
- - labeled data set and study: bias towards bigger projects (external)
- - study: bias towards projects with module support (external)
- - unsafe code patterns: potential bias excluding specific problem domains (external)
- - study: unsafe might be located in dead code (internal)
- - unsafe code patterns: manual analysis might have left out some (internal)
-
-
-This section discusses potential threats to validity to the empirical study of \unsafe{} usages in popular open-source
-Go projects.
-
-They include a bias towards bigger projects because with a higher number of lines of code, they could be
-overrepresented in the data set of manually labeled \unsafe{} usages \todo{explain how this is mitigated}.
-Next, we only considered projects that use the Go module system and would compile on our machines.
+Furthermore, the manual analysis of \unsafe{} code patterns could have missed some vulnerabilities.
+In fact, it is almost guaranteed that there are more ways to exploit \unsafe{} usages.
+However, the objective of this thesis is not a necessarily exhaustive search for all possible exploit vectors.
+Instead, the contributions of this work include an analysis that did reveal multiple vulnerabilities, thus providing a
+step towards safer Go applications.
 
 On the other hand, external threats to validity concern the ability to generalize the study results to new data.
-They include a bias towards certain projects as well, as the distribution of \unsafe{} usages might be correlated to the
-project size, activity or number of contributors, or others.
-Furthermore, when analyzing \unsafe{} code examples for security, we might have excluded usage patterns that are
-uncommon in the top \projsTotal{} most popular projects, but frequent in projects of a specific problem domain.
-\todo{what are the differences and consequences in such projects?}
-
-
-%% ---------------------------------------------------------------------------------------------------------------------
-
-\section{Future Work}\label{sec:discussion:future-work}
-
-Based on the contributions of this thesis, future work might look into the following areas.
-The novel data set of manually labeled \unsafe{} usages can be used for interesting further research.
-First, the code samples in the \textit{efficiency} class do not strictly require the use of \unsafe{}, but should increase the
-performance of the code.
-Future work could quantify by how much \unsafe{} actually increases the efficiency compared to using other, memory-safe
-language features of Go.
-If the improvement is small, \unsafe{} would pose an unnecessary risk that could be avoided.
-Especially, a comparison with performance improvements of new Go compiler releases would be interesting to see if
-simply waiting for a new version of the compiler can provide more efficient program binaries than \unsafe{} does.
-Furthermore, future work could evaluate the possibility of automatically replacing such \unsafe{} usages with safe
-language constructs.
-Finally, the labeled data set could be used as a training and verification data set in machine learning applications.
-For example, an automated classification tool that predicts the purpose and danger of unseen \unsafe{} code patterns
-could be built.
-This would be valuable both for security analysts to conduct a large-scale study of \unsafe{} usages in thousands of
-projects, and for software engineers to highlight particularly dangerous usages in the findings of \toolGeiger{}, as
-well as ones that can be replaced with new language features.
-
-Next, future research could focus on verification techniques for \unsafe{} Go code, such as annotations for
-contracts or invariants that formalize assertions about control and data flow.
-For example, \unsafe{} code that creates implicitly read-only values could be formally declared immutable, such that
-a verifier can detect invalid accesses to the value.
-A static verification would probably be preferable over a dynamic one, because the additional runtime overhead could
-potentially outweigh the efficiency improvements of using \unsafe{} in the first place.
-
-Furthermore, establishing a public documentation of good and bad usage examples of the Go \unsafe{} \acrshort{API} could
-help developers avoid common mistakes.
-For insecure usages, it could provide an explanation of the potential vulnerability, as well as a suggestion for a
-secure alternative.
-Similar to \toolSafer{}, a linter could be developed to identify harmless usages of \unsafe{}, which could automatically
-be flagged safe and thus be excluded from manual review.
-
-Finally, the novel tools \toolGeiger{} and \toolSafer{} presented in this thesis could be integrated into developer
-environments (\acrshort{IDE}s).
-This would have the benefit of displaying warnings within the editor that is used to fix them.
-As described in Section~\ref{sec:related-work:static-code-analysis}, this can lead to a higher fraction of warnings
-actually being resolved.
-
-%While the current command line interface works well for the initial development of the tools, and is especially suitable
-%to be used as part of a continuous integration automation, an \acrshort{IDE} integration has the benefit of being able
-%to unify the display of warnings with the editor that the developer uses to fix them.
-%For example, \toolSafer{} warnings can be displayed next to the affected line directly in the editor, and the code that
-%violates the safety rules could be highlighted to effectively draw the attention of the developer.
-%As described in Section~\ref{sec:related-work:static-code-analysis}, this can lead to a higher fraction of warnings
-%actually being resolved.
-%Such an \acrshort{IDE} integration could be implemented using the language server
-%protocol\footnote{\url{https://langserver.org/}}, as this allows for easy compatibility with most \acrshort{IDE}s
-%without the need to develop individual plugins for each of them.
+First, the raw data for the empirical study in Section~\ref{sec:go-geiger:quantitative-evaluation}, as well as the
+labeled data set described in Section~\ref{sec:go-geiger:qualitative-evaluation} was gathered from the most popular
+projects on \github{}, measured by their number of stars.
+Furthermore, projects without support for the Go module system and projects that would not compile on our machines were
+excluded.
+It is possible that the usage of \unsafe{} is different in less popular projects.
+This is especially true for projects with fewer stars, where there might not be as many developers reviewing \unsafe{}
+usages due to a smaller public interest.
+Projects which have not yet adopted the module system or contain build errors could have a generally lower code quality,
+which means there could be a bias in the study data towards higher-quality projects.
+However, choosing projects by popularity mitigates possible bias towards specific domains of projects, such as
+virtualization or databases, because the number of stars is an easy and rather neutral metric.
+Therefore, the project set enables a good overview on the usage of \unsafe{} in a broad selection of projects.
