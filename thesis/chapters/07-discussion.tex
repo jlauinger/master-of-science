@@ -5,14 +5,15 @@
 This chapter discusses the results and findings of this thesis.
 First, the dangers and practical exploitability of real-world Go applications due to usage of the \unsafe{} API are
 elaborated.
-Then, the patches that were sent to open-source code maintainers  are described in detail and suggestions towards a
+Then, the patches that were sent to open-source code maintainers are described in detail and suggestions towards a
 world with safer usage practices of \unsafe{} code are given.
-Finally, threats to validity, and future work are presented.
+Finally, improvements in upcoming versions of the Go progamming language are presented, and threats to validity are
+discussed.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\section{Practical Exploitability of Unsafe Code}\label{sec:discussion:exploitability}
+\section{Practical Exploitability of \textit{Unsafe} Code}\label{sec:discussion:exploitability}
 
 This thesis took a deep look into the \unsafe{} API of the Go programming language.
 It was shown that it is effectively used by almost all of the \projsAnalyzed{} top-starred open-source projects
@@ -110,6 +111,11 @@ First, security problems can also be introduced in code that does not use \unsaf
 Second, there could be many well audited \unsafe{} usages in one project, and a single one that causes a vulnerability
 in another one.
 Although the number of \unsafe{} usages in the second project is smaller, it is much less secure.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Improvements in Upcoming Go Releases}\label{sec:discussion:changes-in-go}
 
 Since the study data for this thesis has been collected, the most recent Go release \checkNum{1.15} from
 \checkNum{August 2020} has enabled additional static checking of \textit{unsafe.Pointer} usages with the

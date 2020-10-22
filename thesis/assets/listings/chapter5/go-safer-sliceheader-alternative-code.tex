@@ -1,0 +1,12 @@
+\begin{lstlisting}[language=Golang, label=lst:go-safer-sliceheader-alternative-code, caption=SliceHeader alias type detected by \toolSafer{}]
+type MyHeader reflect.SliceHeader
+
+func unsafeFunction(address uintptr) []byte {
+    header := &MyHeader{
+        Data: address,
+        Len:  42,
+        Cap:  42,
+    }
+    return *(*[]byte)(unsafe.Pointer(header))
+}
+\end{lstlisting}

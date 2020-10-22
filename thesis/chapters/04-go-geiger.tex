@@ -1,6 +1,6 @@
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\chapter{\textit{go-geiger}: Identification of Unsafe Usage}\label{ch:go-geiger}
+\chapter{\textit{go-geiger}: Identification of \textit{Unsafe} Usage}\label{ch:go-geiger}
 
 This chapter presents \toolGeiger{}, a tool to find usages of the \unsafe{} \acrshort{API} in Go packages and their
 dependencies.
@@ -126,10 +126,6 @@ requested for analysis by the user, and recursively calculates the respective co
 Again, the cache is used to avoid summing up multiple times.
 This approach is a depth-first traversal of the dependency tree.
 
-Automated acceptance testing verifies that \toolGeiger{} works as intended.
-The test is done by running \toolGeiger{} on a test fixture package with a known number of \unsafe{} usages.
-Then, the output is checked for the expected usage counts.
-
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
@@ -144,7 +140,7 @@ This section presents a study which was designed to answer the following researc
     \item How deep are \unsafe{} code packages buried in the dependency tree? \label{rq:depsDepth}
     \item Which \unsafe{} keywords are used most? \label{rq:distTypes}
     \item Is there a correlation between \unsafe{} usage and common project metrics such as age or popularity? \label{rq:popularity}
-    \item How does the use of \unsafe{} change over time? \label{rq:changeTime}
+    \item How does the use of \unsafe{} change over the lifetime of the code? \label{rq:changeTime}
     \item Does \toolGeiger{} provide additional insights into \unsafe{} usage compared to existing linter tools? \label{rq:linterComparison}
     \item Which \unsafe{} operations are used in practice, and for what purpose? \label{rq:purpose}
 \end{enumerate}
@@ -218,7 +214,8 @@ This answers research question~\ref{rq:prevalApp} about the prevalence of \unsaf
 The numbers in the previous paragraph do not include the Go standard library.
 All analyzed projects import this library and it contains \unsafe{} usages, which means that with it \checkNum{100\%} of
 the projects would transitively use \unsafe{}.
-Because the standard library is developed by the Go core team, we assume that it is well audited and safe to use.
+Because the standard library is developed by the Go core team, we assume that it is well audited and reasonably safe to
+use.
 Since there is no way to exclude it from a project anyways, the analysis presented in this study is more meaningful
 when the standard library is not causing a project to be counted as using \unsafe{}.
 
@@ -235,7 +232,7 @@ shortest path from the project root module to the package.
 Thus, all packages included in the root module have an import depth of \checkNum{zero}.
 Packages which are imported by those have a depth of \checkNum{one}, and so on.
 The depth is calculated using breadth-first search on the dependency tree, which saves time when packages are imported
-many times because the analysis is focused on the mimimum depth.
+multiple times because the analysis is focused on the mimimum depth.
 Figure~\ref{fig:unsafe-import-depth} presents a heatmap plot of the number of packages containing \unsafe{} usages by
 their import depth.
 The y-axis denotes the depth, the color intensity shows the number of \unsafe{} packages at a given depth, and the
@@ -286,7 +283,8 @@ With a mere \checkNum{8} usages found, \textit{unsafe.Alignof} is the most rare.
 \todo{add takeaway message?}
 
 \begin{answerToRQ}[\ref{rq:distTypes}]
-    In the wild, uintptr and unsafe.Pointer are orders of magnitude more common than other unsafe usages.
+    In the wild, \textit{uintptr} and \textit{unsafe.Pointer} are orders of magnitude more common than other \unsafe{}
+    usages.
 \end{answerToRQ}
 
 
@@ -306,11 +304,11 @@ the age.
 
 \input{assets/plots/chapter4/correlation-popularity.tex}
 
-The plot overall shows a uniform distribution between \unsafe{} usages and the different project metrics, except for
+Overall, the plot shows a uniform distribution between \unsafe{} usages and the different project metrics, except for
 a gap between a \checkNum{few hundred} and \checkNum{1,000} usages of \unsafe{}.
 There are both many projects with fewer and with more usages, but none with about \checkNum{750}.
-This could be an indicator that once projects have included more than only a couple of \unsafe{} usages, they tend to
-have more of them more easily.
+This could be an indicator that once projects have included at least a couple of \unsafe{} usages, they tend to have
+a lot of them rather easily.
 There is no obvious correlation between neither \unsafe{} usage and project age, nor number of stars or forks.
 
 \begin{answerToRQ}[\ref{rq:popularity}]
@@ -330,7 +328,7 @@ these modules allow such an analysis of changes in \unsafe{} usage.
 To answer research question~\ref{rq:changeTime}, this subsection discusses the differences between different version of
 an examplary module, \textit{golang.org/x/sys}.
 
-The module is present in the data set with a total of \sysModuleVersions{} versions.
+This module is present in the data set with a total of \sysModuleVersions{} versions.
 A subset of the versions with a fair distribution of release dates in \checkNum{2019} and \checkNum{2020}, as well as a
 rather old version from \checkNum{2017} is shown in Table~\ref{tbl:unsafe-usage-over-time}.
 The table shows the version identifiers alongside their release dates and number of \unsafe{} usages in the particular
@@ -377,13 +375,16 @@ using any logic to determine potential misuses.
 To conduct the comparison, \toolVet{} and \toolGosec{} are run on the same \packagesAnalyzed{} packages that were
 analyzed with \toolGeiger{}.
 The results are part of the data set as well.
-Then, the findings of the tools are matched using package, file name, and line number information.
+Then, the findings of the tools are matched using package name, file name, and line number information.
 Table~\ref{tbl:go-geiger-evaluation-linters} shows the results of this analysis.
 The result columns are divided to show the different results for \toolVet{} and \toolGosec{}.
 True positives (TP) are lines of code that were both flagged by \toolGeiger{} and the respective linter tool.
 False negatives (FN) denote lines that were only flagged by \toolGeiger{}, but not by the linter.
 Finally, false positives (FP) indicate that the linter flagged a line that was not identified by \toolGeiger{}.
-There is no column for true negatives because the number of these is irrelevant for this analysis.
+There is no column for true negatives (TN).
+TN would be the number of lines where neither \toolGeiger{} nor the other linters have found anything.
+Since in this evaluation there is no calculation of precision or recall, the number of TN would not have a benefit for
+comparing \toolGeiger{} to \toolVet{} and \toolGosec{}.
 The table contains two rows that show the number of lines of code, both when counting any message that \toolVet{} or
 \toolGosec{} produced, and when only messages related to their \unsafe{} analyses are taken into account.
 The latter has more impact because comparing only those messages to the output of \toolGeiger{}, which is solely
@@ -428,7 +429,7 @@ This section presents an in-depth, qualitative study of the purpose of \unsafe{}
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Labeled Data Set of Unsafe Usages}\label{subsec:go-geiger:qualitative-evaluation:labeled-dataset}
+\subsection{Labeled Data Set of \textit{Unsafe} Usages}\label{subsec:go-geiger:qualitative-evaluation:labeled-dataset}
 
 To study the purpose of \unsafe{} in applications, a manually labeled data set of \numberLabeledCodeSnippets{} code
 samples is presented as a contribution of this thesis.
@@ -448,18 +449,17 @@ They are a subset of the projects used for the empirical study and marked by an 
 
 The projects were selected based on their high number of \unsafe{} usages, and it was taken care of a reasonably large
 diversity in their domains of application.
-They contain applications based around containers and operations, chat, infrastructure as a service, data storage,
-visualization, and machine learning.
-When selecting samples to look at, the standard library samples were deliberately separated from application usages.
+They contain applications based around virtualization, infrastructure as a service, data storage, and machine learning.
+The standard library samples were deliberately separated from application usages in the evaluation.
 This decision is based on the results presented in Section~\ref{subsec:go-geiger:evaluation:unsafe-usage}, which show
 that all projects must use the standard library, as well as the hypothesis that the standard library uses different
 \unsafe{} patterns.
 
-Standard library is defined by the packages that live in the Go \textit{std} and the \textit{golang.org/x/sys} module.
+Standard library is defined as the packages that live in the Go \textit{std} and the \textit{golang.org/x/sys} module.
 The \textit{sys} module is included because it contains a lot of system call infrastructure and is the replacement for
 the deprecated \textit{syscall} package\footnote{\url{https://golang.org/pkg/syscall}}, which is part of the standard
 library.
-Thus, it is also maintained by the core Go developer team.
+Thus, it is also maintained by the core Go development team.
 Application code samples are taken from packages that are not part of the standard library.
 The \numberLabeledCodeSnippets{} code examples were sampled randomly from all packages present in the dependency trees
 of the projects shown in Table~\ref{tbl:dataset-projects}.
@@ -519,8 +519,10 @@ Lastly, \textit{unused} is a class for unused occurrences again.
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Purpose of Unsafe in Practice (\ref{rq:purpose})}\label{subsec:go-geiger:qualitative-evaluation:purpose}
+\subsection{Purpose of \textit{Unsafe} in Practice (\ref{rq:purpose})}\label{subsec:go-geiger:qualitative-evaluation:purpose}
 
+In this section, the novel labeled data set of \unsafe{} usages is used to answer~\ref{rq:purpose} about the purpose of
+\unsafe{} in Go applications.
 Table~\ref{tbl:dataset-classes} presents the number of samples for each label.
 The columns denote the dimension of purpose, while the rows show the operation type dimension.
 Columns are divided into separate counts for the \textit{app} and \textit{std} groups of samples.

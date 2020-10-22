@@ -1,6 +1,6 @@
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\chapter{\textit{go-safer}: Detecting Unsafe Misuses}\label{ch:go-safer}
+\chapter{\textit{go-safer}: Detecting \textit{Unsafe} Misuses}\label{ch:go-safer}
 
 Another major contribution of this thesis is the development of \toolSafer{}, a \toolVet{}-style, open-source linter
 tool with a focus on the \unsafe{} \acrshort{API} in Go.
@@ -19,6 +19,9 @@ previous chapter, a manual analysis of open-source Go packages, and a comparison
 
 The \toolSafer{} static analysis tool is designed as a linter to identify \checkNum{two} misuse patterns of the
 \unsafe{} \acrshort{API} that were previously undetected with existing tools such as \toolVet{} and \toolGosec{}.
+These patterns are automatically detectable using static analysis.
+For the other vulnerabilities discussed in Chapter~\ref{ch:unsafe-security-problems}, this is not possible or too hard
+for the scope of this thesis.
 The selection of the code patterns that are detected is based on the \unsafe{} usage examples identified using
 \toolGeiger{} in popular open-source Go projects as described in
 Section~\ref{subsec:go-geiger:qualitative-evaluation:labeled-dataset}, as well as the manual analysis of possible
@@ -83,8 +86,8 @@ Parts that are shown in gray in Figure~\ref{fig:go-safer-architecture} are reusi
 Parsing the source code of the packages under analysis is done in the same way that \toolVet{} does, in fact that code
 is required as a dependency for \toolSafer{}.
 Then, the abstract syntax tree (\acrshort{AST}) and control flow graph (\acrshort{CFG}) of the sources are built using
-existing analysis passes which the novel \toolSafer{} passes depend upon.
-After all analysis passes are finished, the results are also presented to the user by the same code used in \toolVet{}.
+existing analyses, which the novel \toolSafer{} passes depend upon.
+After all analyses are finished, the results are also presented to the user by the same code used in \toolVet{}.
 This composition using many existing parts allows to keep the required new code to a minimum, reuses well-tested pieces
 of code, and allows integrating the new \toolSafer{} features into a familiar workflow.
 
@@ -96,15 +99,19 @@ detects such literals that are part of a bigger structure type that contains a s
 Then, the type of either the composite literal or the assignment receiver is checked.
 For assignments, this is done by looking up the left hand side identifier in a type table provided by the parser.
 Since Go supports multiple assignments in one statement, there can be multiple variables on the left hand side.
-In this case, \toolSafer{} checks all of them to see if any meets the conditions to trigger a warning.
+In this case, \toolSafer{} checks all of them to see if any meet the conditions to trigger a warning.
 To check whether the type matches either \textit{reflect.StringHeader} or \textit{reflect.SliceHeader}, the given type
 is checked for assignability to the underlying structure of the header types.
 This structure, as illustrated in Figure~\ref{fig:go-safer-architecture}, is one \textit{uintptr} field and one or two
 \textit{int} fields.
 Comparing to the structure instead of the name of the type makes it possible to detect type aliases to the header types
 which might exist.
-For example, when there is a \textit{type CustomHeader reflect.SliceHeader} definition, \toolSafer{} will also detect
-composite literals of type \textit{CustomHeader}.
+An example of this is shown in Listing~\ref{lst:go-safer-sliceheader-alternative-code}.
+It contains a type definition for \textit{CustomHeader} (Line~1), which is then used to create a composite literal
+(Lines~4--8).
+
+\input{assets/listings/chapter5/go-safer-sliceheader-alternative-code.tex}
+
 A composite literal of a header type is already enough to issue a warning, but for assignments \toolSafer{} needs to
 check whether the receiver variable is a slice or string header that was created by conversion from a real slice or
 string.
@@ -129,7 +136,8 @@ source and target types are analyzed.
 These types can again be fetched from a type lookup table provided by the parser.
 For both of them, \toolSafer{} counts the number of fields that have the types \textit{int}, \textit{uint}, and
 \textit{uintptr}.
-These \checkNum{three} basic types are the ones available in Go that have different sizes on varying architectures.
+These \checkNum{three} basic types are the ones available in Go that have different sizes and byte orders on varying
+architectures.
 For example, \textit{int} is \checkNum{eight} bytes on the \textit{amd64} architecture, but only \checkNum{four} bytes
 on \textit{i386}.
 If the counts mismatch, the direct cast using the \unsafe{} \acrshort{API} will likely break on some architectures,
@@ -181,7 +189,7 @@ By the time this thesis was submitted, the authors of the affected projects have
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Labeled Usages}\label{subsec:go-safer:evaluation:labeled-usages}
+\subsection{Labeled Usages from the Data Set}\label{subsec:go-safer:evaluation:labeled-usages}
 
 To evaluate the performance of \toolSafer{} using the novel data set of labeled \unsafe{} usages, first all instances
 with the label \textit{cast-header} are taken from the set.
@@ -197,8 +205,8 @@ This makes it easy to match the warnings with the labeled samples by their file 
 Samples that are classified as positive are counted as true positives (TP) if \toolSafer{} generated a warning for it,
 and false positives (FP) otherwise.
 Similarly, negative samples count as false negatives (FN) if there is a warning, and true negatives (TN) otherwise.
-Table~\ref{tbl:go-safer-evaluation-dataset} shows the results of this evaluation in its first line.
-The other lines contain results from other linters and are discussed in
+Table~\ref{tbl:go-safer-evaluation-dataset} shows the results of this evaluation in its first row.
+The other rows contain results from other linters and are discussed in
 Section~\ref{subsec:go-safer:evaluation:linters-comparison}.
 Furthermore, the table contains the resulting precision, recall, accuracy, and F1-score as calculated from the classes
 counts.
@@ -211,7 +219,7 @@ correct and show evidence of an actual bug in the code.
 Therefore, developers can include it into their workflows without the need of dismissing many invalid warnings.
 A high recall shows that there are few false negatives, therefore a high fraction of the existing bugs is detected by
 \toolSafer{}.
-Developers thus have a reliable tool at hand to be trusted in detecting bugs of the particular class of \unsafe{}
+Thus, developers have a reliable tool at hand to be trusted in detecting bugs of the particular class of \unsafe{}
 misuses that it is specialized in.
 Accuracy and F1-score are high as well, which follows from both high precision and recall and emphasizes the quality
 \toolSafer{} provides.
@@ -222,13 +230,14 @@ Accuracy and F1-score are high as well, which follows from both high precision a
     Its accuracy is therefore \checkNum{95.5\%}.
 \end{hero}
 
-A manual analysis shows that the false positive is due to a slice header that is created from a real slice, however
-the slice is referenced through a slightly obfuscated, reflected pointer which \toolSafer{} can not connect to the
-slice.
+A manual analysis shows that the \checkNum{one} false positive is due to a slice header that is created from a real
+slice, however the slice is referenced through a slightly obfuscated, reflected pointer which \toolSafer{} can not
+connect to the slice.
 The false negative is caused by compilation errors in the package which prevent \toolSafer{} from analyzing the package
 altogether.
 Since it depends on the \acrshort{AST}, its static analysis passes can not run and the execution stops with a generic
 error message before the parsing step has finished.
+The same is true for \toolGosec{}.
 To work around this scenario, \toolSafer{} would need a secondary analysis strategy that works on the source code
 instead of the \acrshort{AST}, which is not feasible with the tools presented in this thesis.
 
@@ -247,8 +256,8 @@ Table~\ref{tbl:go-safer-evaluation-packages-stats} shows the \checkNum{six} pack
 their number of Go files, lines of code, and \unsafe{} usages.
 They are manually seleced from the packages in the dependency trees of the projects analyzed with \toolGeiger{} as
 described in Section~\ref{subsec:go-geiger:evaluation:data-set}.
-To create a variation both of the amount of \unsafe{} and package size, they are chosen to include two packages each
-with few, medium, and many \unsafe{} usages.
+To create a variation both of the number of \unsafe{} usages and package size, they are chosen to include two packages
+each with few, medium, and many \unsafe{} usages.
 For every category, there is one small and one large package each.
 
 \input{assets/tables/chapter5/go-safer-evaluation-packages-stats.tex}
@@ -265,7 +274,7 @@ Similar to Section~\ref{subsec:go-safer:evaluation:labeled-usages}, the warnings
 Table~\ref{tbl:go-safer-evaluation-packages} shows the results of the evaluation for each package individually as well
 as in total.
 The numbers for \toolSafer{} are in the first column for each value (Tool~\textit{a}), while the other two columns are
-discussed in the following section for a comparison to existing linters again.i
+discussed in the following section for a comparison to existing linters again.
 
 \input{assets/tables/chapter5/go-safer-evaluation-packages.tex}
 
@@ -274,8 +283,8 @@ about \checkNum{one} in \checkNum{six} warnings is a false positive.
 The recall however is at \checkNum{100\%}, resulting in a still excellent accuracy of \checkNum{99\%} and F1-score of
 \checkNum{90.7\%}.
 
-The false positives generated by \toolSafer{} for the \textit{native} package are caused by the same reasoning as the
-false positive described in the previous section.
+The false positives generated by \toolSafer{} for the \textit{native} package are caused by the same reason as the false
+positive described in the previous section.
 A slice header is created from a real slice, but the slice is referenced through an obfuscated pointer.
 However, this time all of the occurrences of that pattern in the package are found.
 For the \textit{ebpf} package, the false positive is an exact match of the detection rules implemented by \toolSafer{},
