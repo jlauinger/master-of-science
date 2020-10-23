@@ -347,4 +347,17 @@ safer.
 
 \section{Summary}\label{sec:go-safer:summary}
 
-\todo{write summary}
+Existing tools like \toolVet{} and \toolGosec{} miss several insecure usage patterns of \unsafe{}.
+In this chapter, \toolSafer{} was presented.
+It is a novel linter for Go code that can detect insecure constructions of \textit{reflect.SliceHeader} and
+\textit{StringHeader}, and conversions between architecture-dependent types which can become invalid on different
+platforms.
+With these checks, the vulnerabilities described in
+Sections~\ref{sec:unsafe-security-problems:architecture-dependent-types},~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}
+and~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis} are prevented.
+Since \toolSafer{} is based on the analysis framework used by \toolVet{}, it could easily be integrated into it in the
+future.
+
+An evaluation of \toolSafer{} showed that it can achieve more than \checkNum{95\%} accuracy.
+Its high precision means that there are few false positives which would need to be manually reviewed and dismissed.
+Thus, it is a valuable tool for Go developers and security analysts.
