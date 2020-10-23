@@ -61,9 +61,9 @@ Figure~\ref{fig:go-geiger-screenshot} shows a screenshot of \toolGeiger{}.
 It presents the analyis results for the \textit{go-geiger} source code itself.
 However, to decrease the space needed to display the figure, parts of the table with \unsafe{} counts have been
 excluded.
-The output is composed of three parts.
+The output is composed of three sections.
 The first is a table showing the \unsafe{} usage counts for each package in the dependency tree for the packages
-given for analysis.
+given for analysis (Lines~1--12).
 The first column indicates the total number of usages in the package including all its dependencies.
 The second column shows the number for the package alone, without the dependencies.
 The heading for this column is \textit{local package}.
@@ -86,7 +86,7 @@ The identification of the dependency trees for the packages to analyze, as well 
 done using the standard Go compiler toolchain.
 It is accessable using the \textit{packages}
 \acrshort{API}\footnote{\url{https://pkg.go.dev/golang.org/x/tools/go/packages}}.
-Similarly, the inspection of the \acrshort{AST} is done using the \acrshort{API} available though the \textit{ast}
+Similarly, the inspection of the \acrshort{AST} is done using the \acrshort{API} available through the \textit{ast}
 package in Go\footnote{\url{https://golang.org/pkg/go/ast/}}.
 
 To find \unsafe{} usages corresponding to the different match types shown in Figure~\ref{fig:go-geiger-architecture},
@@ -238,7 +238,6 @@ On the left hand side, next to the heat map, the horizontal bar chart visualizes
 import depth summed up over all projects.
 Packages that do not contain any \unsafe{} usages are not included in the sum as they are irrelevant for
 answering~\ref{rq:depsDepth}.
-Thus, the plot presents data about \unsafePackages{} packages.
 
 \input{assets/plots/chapter4/unsafe-import-depth.tex}
 
@@ -320,7 +319,7 @@ The data set collected in this study contains one version of each analyzed proje
 It is not directly possible to measure the change of \unsafe{} usage in projects over time with the data available.
 However, there are a number of modules that are included in several versions by different projects, which means that
 these modules allow such an analysis of changes in \unsafe{} usage.
-To answer research question~\ref{rq:changeTime}, this subsection discusses the differences between different version of
+To answer research question~\ref{rq:changeTime}, this subsection discusses the differences between different versions of
 four selected modules.
 These modules are \textit{golang.org/x/sys}, \textit{github.com/golang/protobuf}, \textit{github.com/docker/docker}, and
 \textit{k8s.io/apimachinery}.
@@ -453,25 +452,23 @@ To study the purpose of \unsafe{} in applications, a manually labeled data set o
 samples is presented as a contribution of this thesis.
 It is available online in the same data repository\footnote{\url{https://github.com/stg-tud/unsafe_go_study_results}} as
 the study results presented in the previous section.
-The samples are divided into \numberLabeledCodeSnippetsStd{} standard library samples (\textit{std}) and
-\numberLabeledCodeSnippetsApp{} non-standard-library application samples (\textit{app}).
 The size of this data set was chosen to both allow manual labeling in a reasonable time frame, and provide a good
 insight into what operations are done in practice using the \unsafe{} \acrshort{API}, and for what purpose.
 Each sample is labeled in two dimensions by the operation type and its higher-level objective.
 The \numberLabeledCodeSnippets{} code samples are drawn from the projects listed in Table~\ref{tbl:dataset-projects}.
 They are a subset of the projects used for the empirical study and marked by an asterisk (*) in the appendix
 (Table~\ref{tbl:projects}).
-
-\input{assets/tables/chapter4/dataset-projects.tex}
-
 These projects were selected based on their high number of \unsafe{} usages, and it was taken care of a reasonably large
 diversity in their domains of application.
 They contain applications based around virtualization, infrastructure as a service, data storage, and machine learning.
-The standard library samples were deliberately separated from application usages in the evaluation.
+
+\input{assets/tables/chapter4/dataset-projects.tex}
+
+The samples are divided into \numberLabeledCodeSnippetsStd{} standard library samples (\textit{std}) and
+\numberLabeledCodeSnippetsApp{} non-standard-library application samples (\textit{app}).
 This decision is based on the results presented in Section~\ref{subsec:go-geiger:evaluation:unsafe-usage}, which show
 that all projects must use the standard library, as well as the hypothesis that the standard library uses different
 \unsafe{} patterns.
-
 Standard library is defined as the packages that live in the Go \textit{std} and the \textit{golang.org/x/sys} module.
 The \textit{sys} module is included because it contains a lot of system call infrastructure and is the replacement for
 the deprecated \textit{syscall} package\footnote{\url{https://golang.org/pkg/syscall}}, which is part of the standard

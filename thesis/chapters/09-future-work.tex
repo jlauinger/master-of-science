@@ -5,10 +5,10 @@
 Based on the contributions of this thesis, future work might look into the following areas.
 The novel data set of manually labeled \unsafe{} usages can be used for interesting further research.
 First, the code samples in the \textit{efficiency} class do not strictly require the use of \unsafe{}, but should
-increase the performance of the code.
+improve the performance of the code.
 Future work could quantify by how much \unsafe{} actually increases the efficiency compared to using other, memory-safe
 language features of Go.
-If the improvement is small, \unsafe{} would pose an unnecessary risk that could be avoided.
+If the benefit is small, \unsafe{} would pose an unnecessary risk that could be avoided.
 Especially, a comparison with performance improvements of new Go compiler releases would be interesting to see if
 simply waiting for a new version of the compiler can provide more efficient program binaries than \unsafe{} does.
 Furthermore, future work could evaluate the possibility of automatically replacing such \unsafe{} usages with safe

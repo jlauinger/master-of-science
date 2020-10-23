@@ -20,8 +20,8 @@ previous chapter, a manual analysis of open-source Go packages, and a comparison
 The \toolSafer{} static analysis tool is designed as a linter to identify \checkNum{two} misuse patterns of the
 \unsafe{} \acrshort{API} that were previously undetected with existing tools such as \toolVet{} and \toolGosec{}.
 These patterns are automatically detectable using static analysis.
-For the other vulnerabilities discussed in Chapter~\ref{ch:unsafe-security-problems}, this is not possible or too hard
-for the scope of this thesis.
+For most vulnerabilities discussed in Chapter~\ref{ch:unsafe-security-problems}, this is not possible or too hard for
+the scope of this thesis.
 The selection of the code patterns that are detected is based on the \unsafe{} usage examples identified using
 \toolGeiger{} in popular open-source Go projects as described in
 Section~\ref{subsec:go-geiger:qualitative-evaluation:labeled-dataset}, as well as the manual analysis of possible
@@ -29,7 +29,7 @@ vulnerabilities related to the use of the \unsafe{} \acrshort{API} presented in
 Chapter~\ref{ch:unsafe-security-problems}.
 The first is the incorrect conversion pattern between slices and strings by creating their header structures as
 composite literals as described in Section~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}.
-Listing~\ref{lst:go-safer-sliceheader-pass} shows a code example that uses this unsafe pattern.
+Listing~\ref{lst:go-safer-sliceheader-pass} shows a code example that uses this pattern.
 The insecure creation of a \textit{reflect.SliceHeader} instance is done in Lines~3--7.
 
 \input{assets/listings/chapter5/go-safer-sliceheader-pass.tex}
@@ -49,12 +49,12 @@ Here, Line~8 contains an incorrect cast between the incompatible structures \tex
 
 \input{assets/listings/chapter5/go-safer-structcast-pass.tex}
 
-To identifiy this misuse, \toolSafer{} finds direct conversions between structures using the \textit{unsafe.Pointer}
-type.
-Then, the source and target types are compared.
-If they contain a different amount of fields of the types \textit{int}, \textit{uint}, or \textit{uintptr}, a warning
-is issued.
-These are the types with architecture-dependent sizes available in Go.
+%To identifiy this misuse, \toolSafer{} finds direct conversions between structures using the \textit{unsafe.Pointer}
+%type.
+%Then, the source and target types are compared.
+%If they contain a different amount of fields of the types \textit{int}, \textit{uint}, or \textit{uintptr}, a warning
+%is issued.
+%These are the types with architecture-dependent sizes available in Go.
 
 The source code and documentation of \toolSafer{} is available on
 \github{}\footnote{\url{https://github.com/jlauinger/go-safer}}.
@@ -84,10 +84,10 @@ Figure~\ref{fig:go-safer-architecture} shows an overview of this architecture.
 
 Parts that are shown in gray in Figure~\ref{fig:go-safer-architecture} are reusing existing code.
 Parsing the source code of the packages under analysis is done in the same way that \toolVet{} does, in fact that code
-is required as a dependency for \toolSafer{}.
+is imported as a dependency for \toolSafer{}.
 Then, the abstract syntax tree (\acrshort{AST}) and control flow graph (\acrshort{CFG}) of the sources are built using
 existing analyses, which the novel \toolSafer{} passes depend upon.
-After all analyses are finished, the results are also presented to the user by the same code used in \toolVet{}.
+After all analyses are finished, the results are presented to the user by the same code used in \toolVet{}.
 This composition using many existing parts allows to keep the required new code to a minimum, reuses well-tested pieces
 of code, and allows integrating the new \toolSafer{} features into a familiar workflow.
 
@@ -115,7 +115,7 @@ It contains a type definition for \textit{CustomHeader} (Line~1), which is then 
 A composite literal of a header type is already enough to issue a warning, but for assignments \toolSafer{} needs to
 check whether the receiver variable is a slice or string header that was created by conversion from a real slice or
 string.
-To do this, the \acrshort{AST} assignment node is located within the \acrshort{CFG}.
+To do this, the \acrshort{AST} assignment node is identified within the \acrshort{CFG}.
 Then, going backwards in the \acrshort{CFG}, the last node that assigns the value of the receiver variable is found.
 This node is the effective value of the slice or string header structure at the time of the assignment under
 investigation.
@@ -125,8 +125,8 @@ It has to be a cast through an \textit{unsafe.Pointer} value for this to be poss
 If that is the case, the assignment is legitimate and \toolSafer{} does not print a warning.
 However, if the variable is not derived by a conversion from a slice or string, or no \acrshort{CFG} node defining the
 variable can be found, a warning is issued.
-This is possible, for example, if the slice or string header is passed in as a function parameter, because
-its value can not be statically inferred with the Go analysis framework in that case.
+This is possible, for example, if the slice or string header is passed as a function parameter, because its value can
+not be statically inferred with the Go analysis framework in that case.
 
 The \textit{structcast} pass also uses the \acrshort{AST} to find cast operations.
 These are represented in the \acrshort{AST} in the same way as function calls are, so the tree is filtered for
@@ -170,10 +170,10 @@ First, developers could lose trust in the tool and refuse using it with their re
 Second, false positives make it hard to integrate \toolSafer{} with automated \acrshort{CI} processes, because the build
 would fail without there being a real problem.
 
-To demonstrate that \toolSafer{} is capable of findings actual bugs while having an acceptable rate of both false
+To demonstrate that \toolSafer{} is capable of finding actual bugs while having an acceptable rate of both false
 positives and negatives, its performance is evaluated in two different ways.
 One of them uses the novel data set of labeled \unsafe{} usages, which was presented in
-Section~\ref{sec:go-geiger:labeled-dataset}.
+Section~\ref{subsec:go-geiger:qualitative-evaluation:labeled-dataset}.
 The second one is done by manually analyzing \checkNum{six} selected open-source Go packages from different projects and
 comparing the results to the output of \toolSafer{}.
 As shown in the following sections, \toolSafer{} is able to achieve both high precision and accuracy in the two
