@@ -224,10 +224,10 @@ misuses that it is specialized in.
 Accuracy and F1-score are high as well, which follows from both high precision and recall and emphasizes the quality
 \toolSafer{} provides.
 
-\begin{hero}[Performance on labeled usages]
+\begin{hero}[Evaluation on labeled usages]
     Evaluated using manually labeled \unsafe{} usages, \toolSafer{} achieves both \checkNum{96.7\%} precision and
     recall.
-    Its accuracy is therefore \checkNum{95.5\%}.
+    Therefore, its accuracy is \checkNum{95.5\%}.
 \end{hero}
 
 A manual analysis shows that the \checkNum{one} false positive is due to a slice header that is created from a real
@@ -271,13 +271,13 @@ valuable evaluation results.
 Should \toolSafer{} generate a warning for such a line, it will still be counted as false positive.
 After the manual analysis, \toolSafer{} was run on the packages.
 Similar to Section~\ref{subsec:go-safer:evaluation:labeled-usages}, the warnings and labels were matched and counted.
+
+\input{assets/tables/chapter5/go-safer-evaluation-packages.tex}
+
 Table~\ref{tbl:go-safer-evaluation-packages} shows the results of the evaluation for each package individually as well
 as in total.
 The numbers for \toolSafer{} are in the first column for each value (Tool~\textit{a}), while the other two columns are
 discussed in the following section for a comparison to existing linters again.
-
-\input{assets/tables/chapter5/go-safer-evaluation-packages.tex}
-
 In this second evaluation, \toolSafer{} demonstrates a slightly lower precision of \checkNum{83.1\%}, which means that
 about \checkNum{one} in \checkNum{six} warnings is a false positive.
 The recall however is at \checkNum{100\%}, resulting in a still excellent accuracy of \checkNum{99\%} and F1-score of
@@ -291,9 +291,9 @@ For the \textit{ebpf} package, the false positive is an exact match of the detec
 however in that particular case the usage is not vulnerable to the possible \textit{use-after-free} bug described before
 because a call to the \textit{runtime.KeepAlive} function prevents the underlying data array referenced in the created
 slice header from being freed when the garbage collector runs.
-\toolSafer{} does not detect this, which is a limitation of its rule set.
+Currently, \toolSafer{} does not detect this, which is a limitation of its rule set.
 
-\begin{hero}[Performance on case study packages]
+\begin{hero}[Evaluation on case study packages]
     Evaluated using \checkNum{six} selected packages, \toolSafer{} is able to score an accuracy of \checkNum{99\%}, with
     a precision of \checkNum{83.1\%} and recall of \checkNum{100\%}.
 \end{hero}
