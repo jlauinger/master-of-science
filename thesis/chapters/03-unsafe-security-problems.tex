@@ -79,8 +79,8 @@ information are copied from the string header (Lines~3--7).
 The capacity is set to the same value as the length, as it would be in a slice that uses the full capacity.
 Finally, the slice header is converted into an actual \textit{[]byte} slice which is returned (Line~8).
 
-There are three not obvious but very dangerous problems that come with this type of slice creation, which are described
-in the following subsections.
+There are three non-obvious but potentially dangerous problems that come with this type of slice creation, which are
+described in the following subsections.
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
@@ -149,15 +149,16 @@ If the Go program has several threads that all contribute to the heap usage, thi
 \input{assets/figures/chapter3/gcrace-vuln.tex}
 
 Figure~\ref{fig:gcrace-vuln} illustrates the vulnerability.
-The green boxes show the original string value and its header, which is represented at position 1 in the memory schema.
-The reference to the underlying data of the string and resulting slice is shown in red at memory position 2.
-Then, the slice header is created, which is colored blue and located at position 3 in the memory.
+The green boxes show the original string value and its header (Line~2 in Listing~\ref{lst:string-to-bytes}), which is
+represented at position 1 in the memory schema.
+The reference to the underlying data of the string and resulting slice (Line~4) is shown in red at memory position 2.
+Then, the slice header is created (Lines~3--7), which is colored blue and located at position 3 in the memory.
 References indicated by arrows are strong if the arrow is continuous, like the reference the string header has, and
 weak if the arrow is dashed, like the new slice header has.
 Then, after the \textit{GC} runs, there is only the resulting bytes slice left, which is also shown in blue.
 It now has a strong reference to the underlying data array (at position 2), but since the \acrshort{GC} has already run
 while there was only a weak reference to it, the data has been collected.
-The resulting bytes slice is now a dangling pointer into the former string data in memory, and the
+The resulting bytes slice (Line~8) is now a dangling pointer into the former string data in memory, and the
 \textit{use-after-free} bug is complete.
 
 If the bytes slice is modified, arbitrary memory is changed.
@@ -334,7 +335,8 @@ In this case, a simple \textit{return} statement after Line~8 would have prevent
 
 This section shows practical evidence that buffer overflows as described in the previous sections can actually cause an
 attacker to achieve code injection.
-This is done by presenting a proof-of-concept exploit using return-oriented programming (\acrshort{ROP}).
+This is done by outlining a proof-of-concept exploit using return-oriented programming (\acrshort{ROP}), the source code
+of which is available on \github{}\footnote{\url{https://github.com/jlauinger/go-unsafepointer-poc}}.
 
 Listing~\ref{lst:buffer-overflow} shows a short example function that contains a buffer overflow.
 In Line~4, a byte slice with a length of 512 bytes is initializated.

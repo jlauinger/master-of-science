@@ -180,8 +180,8 @@ Adding data to the heap requires calling special allocation functions that are p
 case of Go is done automatically by the compiler.
 Furthermore, memory on the heap must be freed when it is no longer used, otherwise the program will eventually run out
 of usable heap space.
-Therefore, storing data on the heap has more overhead than the stack, because deallocation on the stack is done with a
-single addition when destroying an entire stack frame.
+Therefore, storing data on the heap has more overhead than storing it on the stack, because deallocation on the stack is
+done with a single addition when destroying an entire stack frame.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -316,8 +316,8 @@ Modern operating systems use \acrshort{DEP} by default~\cite{davi2011}.
 
 \subsection{Address Space Layout Randomization (ASLR)}\label{subsec:background:exploit-techniques:aslr}
 
-To work around \acrshort{DEP}, attackers can reuse existing functions in the binary, because these are located on
-executable (but not writable) memory pages.
+To work around \acrshort{DEP}, attackers can reuse existing code in the binary, because it is located on executable (but
+not writable) memory pages.
 However, this can be mitigated using Address Space Layout Randomization (\acrshort{ASLR}).
 This technique loads dynamically-linked libraries into random memory positions to avoid having predictable function
 addresses~\cite{marco2014}.
@@ -341,8 +341,8 @@ with a limited set of assembler instructions available.
 Often, there are enough gadgets present in the program code to form a set that together is Turing complete, thus
 arbitrary behaviour can be induced from it.
 The Go standard library is very large and provides many available gadgets.
-This makes exploiting a buffer overflow, once it exists in a Go program, sometimes even easier than in a C program where
-an attacker might have to work around \acrshort{ASLR}, for example.
+This could make exploiting a buffer overflow, once it exists in a Go program, even easier than in a C program where an
+attacker might have to work around \acrshort{ASLR}, for example.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -461,7 +461,7 @@ This is called the abstract syntax tree (\acrshort{AST}) of the program~\cite{co
 \input{assets/figures/chapter2/ast.tex}
 
 Figure~\ref{fig:ast} shows an example \acrshort{AST} for a code fragment of just one statement, which is
-\textit{x := 3 + 5}.
+\textit{x~:=~3~+~5}.
 A grammar construction of the programming language syntax begins with a start symbol, such as an assignment statement
 (\textit{AssignStmt}) in this case.
 It can have children, which are recursively substituted for concrete values.

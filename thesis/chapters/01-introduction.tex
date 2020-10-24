@@ -40,10 +40,6 @@ Also, the compiler may be unable to correctly determine the lifetime of a value 
 instead of the program heap, which can lead to \textit{use-after-free} vulnerabilities, and with them all kinds of
 malicious program behaviors.
 Thus, when \unsafe{} code is used it must be audited by the developers at least.
-Furthermore, even after an initial code review it is important that security researchers can effectively analyze the
-code base for potential misuses of \unsafe{} code.
-Finally, system administrators who deploy the software to their systems should be aware of or analyze the possible
-consequences as well.
 
 Checking \unsafe{} code in a project can however be hard because it can be introduced not only through first-party
 code, but also through dependencies.
@@ -55,6 +51,10 @@ Therefore, security analysts, software developers, and system administrators nee
 \unsafe{} code usages in their project, including its dependencies, and assessing their risk.
 There are suitable tools for other languages such as \toolCargoGeiger{} for Rust code, but previously there was no such
 tool for Go.
+
+The goal of this thesis is to examine the dangers that can come from the use of the \unsafe{} \acrshort{API} in Go code,
+build a tool similar to \toolCargoGeiger{} for Go developers, and to find out how and to which extent \unsafe{} is used
+in actual projects.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
