@@ -1,4 +1,4 @@
-\begin{lstlisting}[language=Golang, label=lst:string-to-bytes, caption=Conversion from \textit{string} to \textit{[]bytes} using \unsafe{}]
+\begin{lstlisting}[language=Golang, label=lst:string-to-bytes, caption=Conversion from \textit{string} to \textit{[]byte} using \unsafe{}]
 func StringToBytes(s string) []byte {
     strHeader := (*reflect.StringHeader)(unsafe.Pointer(&s))
     bytesHeader := reflect.SliceHeader{
