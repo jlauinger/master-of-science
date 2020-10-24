@@ -4,7 +4,7 @@
 
 In today's modern society, software has become an integral part of many industries and areas of life.
 The security of that software is very important, because successful attacks on it can have serious implications,
-especially in the case of critical infrastructures like energy and food supply chains or medical services.
+especially in the case of critical infrastructures like energy and food supply chains, or medical services.
 It is therefore important to try reducing the attack surface in the best possible way.
 In the last decade, there has been an ongoing adoption of memory-safe languages for many different applications.
 Such languages include, for example, Google's Go, Rust, Nim, and even Java.
@@ -19,7 +19,7 @@ However, these languages often also provide ways for developers to explicitly ci
 degrees.
 
 This thesis is focused on the Go programming language.
-Go uses a strict typing system with limiting rules on pointer access and cast operations, and automatic memory
+Go uses a strict type system with limiting rules on pointer access and cast operations, and automatic memory
 management, to achieve a high level of memory and thread safety~\cite{sibiryov2017}.
 However, it also offers the \unsafe{} package.
 This package is an \acrshort{API} built into the language that allows arbitrary access to raw pointers, similar to the
@@ -82,13 +82,12 @@ To contribute to safer usage of \unsafe{}, a novel linter called \toolSafer{} is
 It is illustrated in the top center of Figure~\ref{fig:outline1}.
 Its design is based on the \unsafe{}-related vulnerabilities and \unsafe{} usage patterns in open-source projects,
 and it is evaluated using identified usage data about \unsafe{}.
-Next, findings of \toolSafer{} have been reported to the respective project maintainers, and patches were sent to fix
-them.
+Next, findings of \toolSafer{} are reported to the respective project maintainers, and patches are sent to fix them.
 Figure~\ref{fig:outline1} indicates this in the top right corner.
-Finally, as shown in the bottom center, a conccurent study on \unsafe{} in Go~\cite{costa2020} was replicated and
+Finally, as shown in the bottom center, a concurrent study on \unsafe{} in Go~\cite{costa2020} is replicated and
 compared to the results of this work.
 Boxes that contain further structure inside in gray are shown in more detail in a figure at the beginning of their
-respective chapters.
+chapters.
 
 Thus, this thesis mainly presents an analysis of vulnerabilities that are caused by misuses of the \unsafe{}
 \acrshort{API}, as well as two novel static analysis tools for Go developers.
@@ -106,7 +105,7 @@ The main contributions that are made in this thesis are the following:
     \item A thorough analysis of problems and consequences of usage patterns of the \unsafe{} \acrshort{API} in Go code
     with respect to a security context, revealing \checkNum{three} main areas of danger,
 
-    \item \toolGeiger, a novel open-source static analysis tool to identify and count \unsafe{} usages in Go packages
+    \item \toolGeiger, a novel open-source static analysis tool to identify and count \unsafe{} usages in Go packages,
     including their dependencies,
 
     \item a quantitative study of \unsafe{} code usage in \projsAnalyzed{} of the top \projsTotal{} most popular
@@ -147,8 +146,9 @@ covers parts of the \unsafe{}-related exploits presented in Chapter~\ref{ch:unsa
 
 \section{Outline}\label{sec:introduction:outline}
 
-The remainder of this thesis is structured as described in the following: Chapter~\ref{ch:background} gives background
-information on the Go \unsafe{} \acrshort{API} and other concepts needed for this thesis.
+The remainder of this thesis is structured as described in the following.
+Chapter~\ref{ch:background} gives background information on the Go \unsafe{} \acrshort{API} and other concepts needed
+for this thesis.
 Chapter~\ref{ch:unsafe-security-problems} analyzes and discusses possible vulnerabilities caused by \unsafe{} code
 usages.
 Then, Chapter~\ref{ch:go-geiger} presents the design, implementation, and evaluation of \toolGeiger, the novel static
@@ -157,7 +157,7 @@ The chapter also describes the empirical study on \unsafe{} code in the wild, an
 \unsafe{} code samples.
 After that, Chapter~\ref{ch:go-safer} shows the design, implementation, and evaluation of \toolSafer, the novel,
 \unsafe{}-focused linter tool.
-Next, Chapter~\ref{ch:related-work} discusses related and concurrent work.
-Chapter~\ref{ch:discussion} discusses the meaning and impact of the findings and results of this work.
-Threats to validity and possible future work are also presented there.
-Finally, Chapter~\ref{ch:conclusion} concludes the work.
+Next, Chapter~\ref{ch:related-work} reviews related and concurrent work.
+Chapter~\ref{ch:discussion} discusses the meaning and impact of the findings and results of this thesis.
+Finally, Chapter~\ref{ch:conclusion} concludes the work, and Chapter~\ref{ch:future-work} outlines possible future
+research.
