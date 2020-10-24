@@ -84,9 +84,9 @@ described in the following subsections.
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
-\subsection{Implicit Read-Only}\label{subsec:unsafe-security-problems:slice-casts:read-only}
+\subsection{Implicit Immutability}\label{subsec:unsafe-security-problems:slice-casts:read-only}
 
-The first problem is that the resulting slice is implicitly read-only.
+The first problem is that the resulting slice is implicitly immutable, or read-only.
 Regularly, slices in Go are mutable and strings are not.
 As described in Section~\ref{sec:background:slices}, this is because the underlying string data array is usually located
 on a read-only memory page.

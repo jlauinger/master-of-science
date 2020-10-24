@@ -1,6 +1,6 @@
 % k8s.io/apiserver/pkg/authentication/token/cache/cached\_token\_authenticator.go:235
 
-\begin{lstlisting}[language=Golang, label=lst:unsafe-string-to-bytes-direct, caption=Incorrect direct cast between string and slice (code from k8s.io/apiserver)]
+\begin{lstlisting}[language=Golang, label=lst:unsafe-string-to-bytes-direct, caption=Incorrect direct cast between \textit{string} and \textit{slice} (code from \textit{k8s.io/apiserver})]
 // toBytes performs unholy acts to avoid allocations (sic)
 func toBytes(s string) []byte {
     return *(*[]byte)(unsafe.Pointer(&s))

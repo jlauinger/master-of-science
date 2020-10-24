@@ -1,6 +1,6 @@
 % github.com/hanwen/go-fuse fuse/opcode.go:299
 
-\begin{lstlisting}[language=Golang, label=lst:go-fuse-bug, caption=Incorrect slice length bug in the hanwen/go-fuse library]
+\begin{lstlisting}[language=Golang, label=lst:go-fuse-bug, caption=Incorrect slice length bug in the \textit{hanwen/go-fuse} library]
 func doBatchForget(server *Server, req *request) {
     in := (*_BatchForgetIn)(req.inData)
     wantBytes := uintptr(in.Count) * unsafe.Sizeof(_ForgetOne{})
