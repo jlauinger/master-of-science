@@ -3,8 +3,8 @@
 \chapter{Background}\label{ch:background}
 
 This chapter presents background information that is necessary for this thesis.
-First, the \unsafe{} \acrshort{API} as well as slices and strings in Go are discussed.
-Then, Go memory management is introduced, and exploit techniques and mitigations are presented.
+First, the \unsafe{} \acrshort{API} as well as slices and strings in Go are introduced.
+Then, Go memory management is discussed, and exploit techniques and mitigations are presented.
 After this, Go dependency management is covered, and the chapter concludes with concepts of static code analysis.
 
 
@@ -23,7 +23,7 @@ There are \checkNum{three} functions \textit{Alignof}, \textit{Offsetof}, and \t
 as well as the type \textit{Pointer} (Line~3).
 The \textit{unsafe.Pointer} is the most significant package member with respect to the possibilities that it offers.
 It is a pointer type that is exempt from the restrictions that normally apply in order to improve memory safety.
-In particular, unsafe pointers can be converted to and from any other pointer type, allowing arbitrary casts between
+In particular, \unsafe{} pointers can be converted to and from any other pointer type, allowing arbitrary casts between
 any type.
 Furthermore, they can be converted to and from \textit{uintptr} values, which is an integer type with sufficient size
 to store pointers on the specific target architecture of the program.
@@ -33,10 +33,10 @@ With \textit{unsafe.Pointer}, developers can achieve the same flexibility as wit
 
 Listing~\ref{lst:unsafe-examples} shows examples of both \textit{unsafe.Pointer} features.
 The \textit{floatToBits} function (Line~3) illustrates how the variable \textit{x} of type \textit{float32} is first
-cast to an unsafe pointer and then to a value of type \textit{int} (Line~4).
-Since the unsafe conversion rules only allow arbitrary casts between any pointer type, \textit{x} is first converted
+cast to an \unsafe{} pointer and then to a value of type \textit{int} (Line~4).
+Since the \unsafe{} conversion rules only allow arbitrary casts between any pointer type, \textit{x} is first converted
 into a pointer value and the resulting \textit{int} pointer is dereferenced before returning the final value.
-This conversion yields the raw bits of the floating point value stored using the IEEE 751 format.
+This conversion yields the raw bits of the floating point value stored using the IEEE 754 format~\cite{ieee754}.
 It would be impossible using the normal Go conversion rules because \textit{float32} and \textit{int} are incompatible
 types.
 The \textit{secondByte} function (Line~7) shows how pointer arithmetic is used to manually iterate over an array type.
@@ -48,10 +48,10 @@ resulting pointer type (Line~8).
 \input{assets/listings/chapter2/unsafe-examples.tex}
 
 The other functions of the \unsafe{} packages are evaluated at compile time and can be used to gain knowledge about
-the size, alignment, or offset of a field in a structure type relative to the start of the structure.
+the alignment, offset, or size of a field in a structure type relative to the beginning of the structure.
 These can be necessary when dealing with the direct byte representations of structure types such as when implementing
 network protocols or device drivers.
-In this thesis the term \unsafe{} usage refers to all members of the \unsafe{} package as well as the slice and string
+In this thesis the term \unsafe{} usage refers to all members of the \unsafe{} package, as well as the slice and string
 header structures that are described in the next section.
 
 
@@ -59,7 +59,7 @@ header structures that are described in the next section.
 
 \section{Slices and Strings in Go}\label{sec:background:slices}
 
-Slices in Go (e.g. the \textit{[]byte} type) are views on arrays\footnote{\url{https://blog.golang.org/slices}}.
+Slices in Go (e.g., the \textit{[]byte} type) are views on arrays\footnote{\url{https://blog.golang.org/slices}}.
 They are a data type consisting of an underlying memory area storing the array data, as well as information about length
 and capacity of the slice.
 The Go runtime takes care that there are no accesses outside the slice bounds.
@@ -67,15 +67,15 @@ The length indicates how many elements are contained in the slice, and the capac
 memory.
 The capacity is always equal or greater than the length.
 If it is greater, elements can be added by increasing the length without allocating new memory.
-Only if the length is equal to the capacity and a new element is added, the Go runtime allocates a new, bigger
-underlying memory array and copies the existing data.
+If the length is equal to the capacity, and a new element is added, the Go runtime allocates a new, bigger underlying
+memory array and copies the existing data.
 When a subset of the slice is taken by specifying start and end indices, a new slice is created that uses the same
 underlying data array as the original one.
 It might have a capacity longer than its length if there are further elements in the original slice after the end of
 the newly-taken subslice.
 
 Strings in Go are read-only \textit{[]byte} slices\footnote{\url{https://blog.golang.org/strings}}.
-Usually they are encoded in UTF-8, but this is not required.
+Usually, they are encoded in UTF-8, but this is not required.
 The length of a string is always the number of bytes needed to store its encoded form, which is often not the same as
 the number of characters in the string.
 Strings are immutable because string literals are placed in a constant data section of the binary when the code is
@@ -91,8 +91,8 @@ Listing~\ref{lst:reflect-header-types} shows the \acrshort{API} of these header 
 
 \input{assets/listings/chapter2/reflect-header-types.tex}
 
-As the name suggests, slices correspond to the \textit{SliceHeader} type (Line~3), while strings are associated with the
-\textit{StringHeader} type (Line~9).
+As the name suggests, slices correspond to the \textit{SliceHeader} type (Lines~3--7), while strings are associated with
+the \textit{StringHeader} type (Lines~9--12).
 The \textit{Len} fields (Lines~5 and~11) denote the current length of the slice or string, and the \textit{SliceHeader}
 type has an additional \textit{Cap} field (Line~6) for the slice capacity.
 The reference to the underlying data array is a \textit{uintptr} value in both types (\textit{Data} in Lines~4 and~10).
@@ -113,8 +113,8 @@ their length.
 \section{Memory Management in Go}\label{sec:background:memory}
 
 The Go programming language uses automatic memory management, which means that developers do not need to manually
-allocate and free memory for data structures, instead a value is simply declared and the compiler adds the code to
-properly allocate the appropriate space in memory.
+allocate and free memory for data structures.
+Instead, a value is simply declared and the compiler adds the code to properly allocate the appropriate space in memory.
 This section first describes how the stack and heap are used in Go, and then introduces garbage collection and escape
 analysis.
 
@@ -137,8 +137,8 @@ The stack area is used to store data that is associated with individual function
 the functions run~\cite{ferres2010}.
 In contrast, the heap contains values with a lifetime that is longer than the execution of a specific function, for
 example, global variables.
-In Go, developers do not actively decide whether a variable is allocated on the stack or heap, this is done by the
-compiler.
+In Go, developers do not actively decide whether a variable is allocated on the stack or heap, instead this is done by
+the compiler.
 
 The stack pointer \textit{rsp} (this name is specific to the \textit{amd64} architecture, but the concept applies to
 other architectures as well) is a register that contains the address of the last value that was allocated on the stack.
@@ -168,7 +168,7 @@ They are shown in green as well in Figure~\ref{subfig:memory:stack-frame}.
 After this, local variables of the callee function that do not surpass its lifetime are pushed to the stack.
 In this case, there is the variable \textit{x} (Line~2 in Listing~\ref{lst:stack-example-function}), which is shown in
 purple in Figure~\ref{subfig:memory:stack-frame}.
-The \textit{sum} variable (Line~3) is not pushed to the callee stack frame, because since it is a return value it was
+The \textit{sum} variable (Line~3) is not pushed to the callee stack frame, because, since it is a return value, it was
 already placed in the caller stack frame.
 When the function \textit{add} returns, the stack pointer \textit{rsp} will be incremented up to the \textit{sum} value
 to destroy the callee stack frame, and the \acrshort{CPU} will jump to the return address that was stored on the stack.
@@ -188,20 +188,21 @@ done with a single addition when destroying an entire stack frame.
 
 \subsection{Garbage Collection (GC)}\label{subsec:background:memory:gc}
 
-The Go runtime uses a move-and-sweep garbage collector (\acrshort{GC}) to free unused heap memory~\cite{sibiryov2017}.
-It is triggered by one of two conditions, either when the heap usage has increased to a specific size (usually when the
-usage has doubled since the last \acrshort{GC} run), or after a fixed time has passed without any \acrshort{GC} runs.
+The Go runtime uses a concurrent move-and-sweep garbage collector (\acrshort{GC}) to free unused heap
+memory~\cite{sibiryov2017}.
+It is triggered by one of two conditions, either when the heap usage has increased to a specific size (usually when it
+has doubled since the last \acrshort{GC} run), or after a fixed time has passed without any \acrshort{GC} runs.
 Figure~\ref{fig:gc-visualization} shows a visualization of the marking phase in a \acrshort{GC} run.
 Rounded boxes represent variables, rectangular boxes are allocated values on the heap, and arrows indicate references
 from pointer types to their targets.
 
 \input{assets/figures/chapter2/gc-visualization.tex}
 
-The \acrshort{GC} takes all variables that are present in the scope of the program and marks them as live.
-These variables can be either on the stack, which is not managed by the \acrshort{GC}, or on the heap.
+The \acrshort{GC} takes all variables that are present in the scope of the program and marks their values as live.
+These variables can be allocated either on the stack, which is not managed by the \acrshort{GC}, or on the heap.
 In this case, there are the \textit{name}, \textit{age}, and \textit{activities} variables with the values
 \textit{"John Doe"}, \textit{42}, and \textit{Activities}, which are shown in blue in Figure~\ref{fig:gc-visualization}.
-Then, it recursively follows all pointer types within live variables and marks their target values as live, too.
+Then, it recursively follows all pointer types within live values and marks their target values as live, too.
 This concerns the values \textit{"Climbing"}, \textit{"Choir"}, and \textit{"Paramedic"}.
 However, the values \textit{1337}, \textit{"Unused String"}, and \textit{1} are not reachable from any pointer variables
 in scope, and therefore are not marked.
@@ -210,7 +211,7 @@ They are shown in white in the figure.
 After this marking phase is completed, the sweep phase frees all memory that is not marked as live.
 Finally, the markings are reset and a new \acrshort{GC} run can be triggered.
 
-Using a \acrshort{GC} improves memory safety in Go because without explicit deallocations, the risk of dereferencing
+Using a \acrshort{GC} improves memory safety in Go, because without explicit deallocations, the risk of dereferencing
 pointers that have already been freed (\textit{use-after-free}) is reduced.
 The Go GC runs concurrently with all other threads of a program.
 During the mark phase, it briefly stops the execution of the other threads to ensure a consistent view on all live
@@ -222,8 +223,8 @@ The sweep phase is executed in parallel to the other threads.
 
 \subsection{Escape Analysis (EA)}\label{subsec:background:memory:ea}
 
-Escape analysis (\acrshort{EA}) is a technique to decide whether a variable can be placed on a function's stack or needs
-to be allocated on the heap~\cite{choi1999}.
+Escape analysis (\acrshort{EA}) is a technique to decide whether a variable can be placed on a function's stack frame,
+or needs to be allocated on the heap~\cite{choi1999}.
 It is used by the Go compiler when a variable is declared.
 Go prefers to allocate on the stack if possible, because there is no explicit deallocation step needed to free the value
 there.
@@ -231,8 +232,8 @@ Instead, the stack frame is removed entirely when the function returns.
 
 In \acrshort{EA}, a value is said to escape if references to it can live longer than the lifetime of the current
 function.
-If it does escape, it needs to be allocated on the heap so that when the function has terminated, references that
-still exist can continue to access the memory even though the stack frame has vanished.
+If it does escape, it needs to be allocated on the heap so that when the function has returned, references that still
+exist can continue to access the value in memory even though the stack frame has vanished.
 Otherwise, it can be placed on the stack.
 
 The \acrshort{EA} algorithm employed by the Go compiler works by checking for each variable that is declared in a
@@ -336,12 +337,12 @@ do not modify the stack pointer register and end with a return instruction~\cite
 With these properties, gadgets can be chained because after the execution of a fragment the return instruction fetches
 the next address to jump to from the stack, which an attacker can control when they exploit a buffer overflow
 vulnerability.
-Depending on the available \acrshort{ROP} gadgets, the attacker can therefore concatenate them and thus write a program
-with a limited set of assembler instructions available.
-Often, there are enough gadgets present in the program code to form a set that together is Turing complete, thus
+Depending on the available \acrshort{ROP} gadgets, the attacker can concatenate them and write a program with a limited
+set of assembler instructions available.
+Often, there are enough gadgets present in the program code to form a set that together is Turing-complete, thus
 arbitrary behaviour can be induced from it.
 The Go standard library is very large and provides many available gadgets.
-This could make exploiting a buffer overflow, once it exists in a Go program, even easier than in a C program where an
+This could make exploiting a buffer overflow, once it exists in a Go program, even easier than in a C program, where an
 attacker might have to work around \acrshort{ASLR}, for example.
 
 
@@ -355,15 +356,11 @@ The smallest possible unit is a Go package\footnote{\url{https://golang.org/doc/
 A package can contain one or more source code files which must all be in the same directory.
 It has a name which should match the name of the directory containing the source files.
 There can not be more than one package in the same folder.
-Identifiers such as function and variable names must be unique in the scope of the same package and can be accessed
+Identifiers, such as function and variable names, must be unique in the scope of the same package and can be accessed
 directly.
 Therefore, developers can split their code into individual code files without restrictions to organize a single package.
 When accessing code in a different package, the package name must be used as prefix in front of the identifier name.
 Furthermore, the package must be imported using an \textit{import} statement at the beginning of the file.
-Package imports are valid only within a file, not a whole package, and thus must be repeated in all files that access
-an external package.
-It is only possible to access exported fields from another package, which is indicated by starting the identifier with
-a capital letter.
 When importing the package, it is necessary to specify the complete path to the package, the name is not sufficient on
 its own.
 The import path is the directory tree leading to the package directory, separated by forward slashes.
@@ -383,14 +380,14 @@ This host part is called \textit{registry}.
 
 Before the release of Go \checkNum{1.13}, packages that were fetched using \textit{go get} were stored in the
 \textit{GOPATH} directory\footnote{\url{https://golang.org/doc/gopath_code.html}}.
-Furthermore, there exists the \textit{GOROOT} directory, which is similar to \textit{GOPATH} but contains the Go
-standard library packages instead of additionally downloaded packages.
+Furthermore, there exists the \textit{GOROOT} directory, which is similar to \textit{GOPATH}, but contains the Go
+standard library instead of additionally downloaded packages.
 Environment variables point to these folders, and the Go compiler uses them to get the sources of packages that are not
 part of the current project.
 
 This architecture provided a simple way of downloading and using external packages.
 However, a serious drawback is that it does not allow to specify a version of the imported package.
-Therefore, it is very hard to publish stable libraries because developers can not depend on an old version of the
+Therefore, it is very hard to publish stable libraries, because developers can not depend on an old version of the
 library, and it is not possible to use different versions of the same package next to each other.
 
 
@@ -398,13 +395,13 @@ library, and it is not possible to use different versions of the same package ne
 
 \subsection{Go Module System}\label{subsec:background:dependencies:modules}
 
-Starting with the release of Go \checkNum{1.11}, the development of the module system has fixed this by introducing a
-new unit of code organization\footnote{\url{https://blog.golang.org/using-go-modules}}.
-It is stable and used as default since Go \checkNum{1.13} in \checkNum{September 2019}.
+Starting with the release of Go \checkNum{1.11}, the development of the module system has fixed this by introducing
+modules as a new unit of code organization\footnote{\url{https://blog.golang.org/using-go-modules}}.
+The system is stable and used as the default since Go \checkNum{1.13} in \checkNum{September 2019}.
 Modules contain one or more packages, and have a name and import path similar to packages, which can in fact be the name
 of a root package in the module.
-Furthermore, modules are required to be available as a revision control repository like Git and are versioned.
-Downloaded modules are placed in a subdirectory of \textit{GOPATH}, the \textit{module path}.
+Furthermore, modules are required to be available as a revision control repository, like Git, and are versioned.
+Downloaded modules are placed in the \textit{module path}, a subdirectory of \textit{GOPATH}.
 
 A project can define dependencies to specific versions of other modules, which resolve to the packages imported in the
 code.
@@ -424,9 +421,8 @@ their sources will be compiled and included in the resulting binary.
 
 \input{assets/figures/chapter2/dependency-model.tex}
 
-Projects lock their dependencies including versions in a file called \textit{Go.mod}.
-When the code is built, the Go compiler toolchain will automatically figure out which modules need to be downloaded and
-get the code.
+Projects define their dependencies including specific versions in a file called \textit{Go.mod}.
+When the code is built, the Go compiler toolchain will automatically figure out which modules need to be downloaded.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -435,7 +431,7 @@ get the code.
 
 Static code analysis describes techniques that examine source code for particular properties, such as code metrics or
 the presence of specific bugs, without running the program.
-It is different from dynamic code analysis which executes the code and employs runtime checks.
+It is different from dynamic code analysis, which executes the code and employs runtime checks.
 Using static code analysis, it is possible to automatically test if the source code matches certain expectations.
 Based on the level of abstraction that an analysis tool is looking at, it can be classified into lexical, syntactic,
 or semantic analysis.
@@ -473,7 +469,7 @@ example.
 
 To obtain the \acrshort{AST}, it is possible to use the parser bundled with the language's compiler.
 An advantage of running static analysis steps on the \acrshort{AST} is that it is independent of any concrete lexical
-representation such as white space.
+representation, such as white space.
 Identifier names can also be easily replaced by different names in the abstract representation, which makes the
 \acrshort{AST} suitable for name refactoring operations or recognizing specific types even if they are aliased in the
 source code.
@@ -490,8 +486,8 @@ It can contain cycles and is not necessarily connected (neither strongly nor wea
 Nodes in the control flow graph denote logical pieces of the source code in the sense that they form a unit of
 execution.
 They can be seen as an atomic step of computation.
-While \acrshort{CFG} nodes are also nodes in the \acrshort{AST}, there are \acrshort{AST} nodes that are not a
-\acrshort{CFG} node.
+While \acrshort{CFG} nodes are connected to individual nodes in the \acrshort{AST}, there are \acrshort{AST} nodes that
+are not directly related to a single \acrshort{CFG} node.
 Edges in the \acrshort{CFG} represent all possible paths of execution.
 An example of a \acrshort{CFG} can be seen in Figure~\ref{fig:cfg}.
 It shows the simple loop \textit{for x < 5 \{ x += 1 \}}.
@@ -529,7 +525,6 @@ code.
 
 Another static analysis tool with a focus on security is \toolGosec{}\footnote{\url{https://github.com/securego/gosec}}.
 Similar to \toolVet{}, it contains a number of different rules that the source code is checked against, for example, if
-insecure hash functions are used, template strings contain unescaped data, or returned error values from functions are
-actually checked.
+insecure hash functions are used, template strings contain unescaped data, or whether returned error values from
+functions are actually checked.
 Such static analysis tools that detect insecure code or common mistakes are called linters.
-
