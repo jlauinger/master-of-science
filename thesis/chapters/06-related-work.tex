@@ -127,7 +127,7 @@ Recently, two studies have analyzed the usage of \unsafe{} code blocks in open-s
 Evans et al.~\cite{evans2020} presented an empirical study revealing that \checkNum{less than 30\%} of analyzed
 libraries directly contained \unsafe{} code.
 However \checkNum{more than half} did when their dependencies were included in the analysis.
-Over the course of their \checkNum{10 months}' study, they found that these numbers did not change significantly.
+Over the course of their \checkNum{ten months}' study, they found that these numbers did not change significantly.
 Most of the \unsafe{} Rust code is used to call other Rust functions, while interoperability with external C code was a
 smaller concern.
 The authors conducted an N=\checkNum{20} survey about the reasons to use \unsafe{} on Reddit, which showed that the most
@@ -235,8 +235,8 @@ sets.
 For JavaScript, Gong et al.~\cite{gong2015} presented \textit{DLint}, which is both a static and dynamic linter.
 On top of common problems with JavaScript source code that are also found by previous static-only linters, it adds a
 dynamic analysis approach that is able to check \checkNum{28} additional potential problems with the code.
-In an empirical study on \checkNum{more than 200} popular websites, the authors found on average \checkNum{29} problems
-that were missed with static analysis.
+In an empirical study on \checkNum{more than 200} popular websites, the authors found on average \checkNum{49} problems
+per site that were missed with static analysis.
 Song et al.~\cite{song2019} provided a detailed overview of available static and dynamic analysis tools for the C and C++
 languages, including a taxonomy of the tools and security vulnerabilities detected by them.
 They find that although there has been decades of research into analysis tools for these languages, there is still room

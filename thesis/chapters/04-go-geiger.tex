@@ -182,7 +182,7 @@ The resulting findings were stored in machine-readable \acrshort{CSV} files.
 The data set contains \uniqueUnsafeFindings{} unique \unsafe{} usages.
 All data files as well as the data acquisition scripts used to download the projects and run the analysis tools are
 available in a data repository on \github{}\footnote{\url{https://github.com/stg-tud/unsafe_go_study_results}}.
-Additionally, the data repository\footnote{\url{https://zenodo.org/record/4107497} \todo{update and check}} and the raw projects source
+Additionally, the data repository\footnote{\url{https://zenodo.org/record/4130780}} and the raw projects source
 code\footnote{\url{https://zenodo.org/record/4001728}} are published on \zenodo{}.
 
 
@@ -515,7 +515,8 @@ The \textit{serialization} class includes (un)marshaling and (de)serialization o
 complex types and bytes.
 \textit{Generics} is applied where \unsafe{} is used to build functionality that would be implemented using generics if
 they were available in current versions of Go.
-Up until release \checkNum{1.15}, there is no support for generics in Go without additional libraries.
+As of the current release plan, there is no support for generics in Go without additional libraries up until release
+\checkNum{2.0}.
 The \textit{avoid garbage collection} class contains usages to tell the Go compiler to lock a value while it is used,
 for example, when calling a function written in assembly.
 \textit{Atomic operations} is a class of usages of the atomic \acrshort{API}, which requires \unsafe{} for some of its
@@ -558,7 +559,8 @@ Next, the \textit{type} (\checkNum{18\%}), \textit{\acrshort{FFI}} (\checkNum{15
 A common distribution is the \textit{hide from escape analysis} class, which is rare both in the \textit{app}
 (\checkNum{0.1\%}) and \textit{std} (\checkNum{2\%}) groups.
 The same is true for the \textit{reflection} class (\checkNum{1\%} in both sets).
-There are also only few samples (\checkNum{2\%}) that are used to implement generics functionality.
+There are also only few samples (\checkNum{2\%}) in the \textit{app} group that are used to implement generics
+functionality.
 Some of the findings in the \textit{serialization} class could however be achieved with generics as well, so the classes
 overlap slightly.
 
