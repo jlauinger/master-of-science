@@ -179,7 +179,7 @@ These packages were analyzed using \toolGeiger{}, as well as the existing static
 \toolGosec{} to allow a comparison between the findings of these tools.
 The resulting findings were stored in machine-readable \acrshort{CSV} files.
 The data set contains \uniqueUnsafeFindings{} unique \unsafe{} usages.
-All data files as well as the data acquisition tool used to download the projects and run the analysis tools are
+All data files as well as the data acquisition scripts used to download the projects and run the analysis tools are
 available in a data repository on \github{}\footnote{\url{https://github.com/stg-tud/unsafe_go_study_results}}.
 Additionally, the data repository\footnote{\url{https://zenodo.org/record/4107497}} and the raw projects source
 code\footnote{\url{https://zenodo.org/record/4001728} \todo{update and check}} are published on \zenodo{}.
@@ -577,8 +577,8 @@ usages.
 
 \section{Summary}\label{sec:go-geiger:summary}
 
-With the \toolGeiger{} static analysis tool, this thesis contributes a tool to find and count \unsafe{} usages in Go
-packages, including their dependencies.
+With \toolGeiger{}, this thesis contributes a tool to find and count \unsafe{} usages in Go packages, including their
+dependencies.
 Its design allows to distinguish usages by the context they appear in, which enables filtering and, thus, a focused
 review of specific types such as function paramater declarations.
 A study on \unsafe{} usage in \projsAnalyzed{} popular Go projects on \github{} revealed that while only about
