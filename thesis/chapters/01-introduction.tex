@@ -41,15 +41,15 @@ instead of the program heap, which can lead to \textit{use-after-free} vulnerabi
 malicious program behaviors.
 Thus, when \unsafe{} code is used it must be audited by the developers at least.
 
-Checking \unsafe{} code in a project can however be hard because it can be introduced not only through first-party
-code, but also through dependencies.
+Checking \unsafe{} code in a project can be hard because it can be introduced not only through first-party code, but
+also through dependencies.
 For Rust programs, which contain an \unsafe{} feature similar to Go's, Evans et al.~\cite{evans2020} recently showed
 that \unsafe{} blocks are often introduced through third-party libraries.
 It might not be directly obvious which dependencies contain \unsafe{} code and should be audited, and checking all of
 them is tedious and would create a tremendous cost in terms of development time.
 Therefore, security analysts, software developers, and system administrators need tools that support them in identifying
 \unsafe{} code usages in their project, including its dependencies, and assessing their risk.
-There are suitable tools for other languages such as \toolCargoGeiger{} for Rust code, but previously there was no such
+There are suitable tools for other languages, like \toolCargoGeiger{} for Rust code, but previously there was no such
 tool for Go.
 
 The goal of this thesis is to examine the dangers that can come from the use of the \unsafe{} \acrshort{API} in Go code,
@@ -79,7 +79,7 @@ manually reviewing, and labeling code snippets sampled from the identified \unsa
 With these labels, insights are found about how and for what purpose the \unsafe{} \acrshort{API} is used.
 This study, as well as \toolGeiger{}, is shown in the bottom left corner in Figure~\ref{fig:outline1}.
 To contribute to safer usage of \unsafe{}, a novel linter called \toolSafer{} is developed.
-It is illustrated in the top center of Figure~\ref{fig:outline1}.
+It is illustrated in the top center.
 Its design is based on the \unsafe{}-related vulnerabilities and \unsafe{} usage patterns in open-source projects,
 and it is evaluated using identified usage data about \unsafe{}.
 Next, findings of \toolSafer{} are reported to the respective project maintainers, and patches are sent to fix them.

@@ -32,14 +32,15 @@ Therefore, \unsafe{} pointers can also be used to do pointer arithmetic.
 With \textit{unsafe.Pointer}, developers can achieve the same flexibility as with raw \textit{void*} pointers in C.
 
 Listing~\ref{lst:unsafe-examples} shows examples of both \textit{unsafe.Pointer} features.
-The \textit{floatToBits} function (Line~3) illustrates how the variable \textit{x} of type \textit{float32} is first
+The \textit{floatToBits} function (Lines~3--5) illustrates how the variable \textit{x} of type \textit{float32} is first
 cast to an \unsafe{} pointer and then to a value of type \textit{int} (Line~4).
 Since the \unsafe{} conversion rules only allow arbitrary casts between any pointer type, \textit{x} is first converted
 into a pointer value and the resulting \textit{int} pointer is dereferenced before returning the final value.
 This conversion yields the raw bits of the floating point value stored using the IEEE 754 format~\cite{ieee754}.
 It would be impossible using the normal Go conversion rules because \textit{float32} and \textit{int} are incompatible
 types.
-The \textit{secondByte} function (Line~7) shows how pointer arithmetic is used to manually iterate over an array type.
+The \textit{secondByte} function (Lines~7--9) shows how pointer arithmetic is used to manually iterate over an array
+type.
 The function expects an array with a length of \checkNum{five} bytes and returns the \checkNum{second} byte.
 Instead of direct indexing, it achieves this by obtaining the address of the array as a \textit{uintptr} value, adding
 \checkNum{1} and then casting the resulting address to a \textit{byte} value, again taking care of dereferencing the
@@ -51,7 +52,7 @@ The other functions of the \unsafe{} packages are evaluated at compile time and 
 the alignment, offset, or size of a field in a structure type relative to the beginning of the structure.
 These can be necessary when dealing with the direct byte representations of structure types such as when implementing
 network protocols or device drivers.
-In this thesis the term \unsafe{} usage refers to all members of the \unsafe{} package, as well as the slice and string
+In this thesis, the term \unsafe{} usage refers to all members of the \unsafe{} package, as well as the slice and string
 header structures that are described in the next section.
 
 
@@ -78,8 +79,9 @@ Strings in Go are read-only \textit{[]byte} slices\footnote{\url{https://blog.go
 Usually, they are encoded in UTF-8, but this is not required.
 The length of a string is always the number of bytes needed to store its encoded form, which is often not the same as
 the number of characters in the string.
-Strings are immutable because string literals are placed in a constant data section of the binary when the code is
-compiled, meaning they are usually located within a read-only memory page at runtime and mutating them would cause
+Strings are immutable, because string literals are placed in a constant data section of the binary when the code is
+compiled.
+This means that they are usually located within a read-only memory page at runtime and mutating them would cause
 the program to receive a segmentation fault signal and crash.
 Since strings can not be changed, there is no need to have a capacity that is different from the length, therefore there
 is no capacity information available for strings.
@@ -124,9 +126,8 @@ analysis.
 \subsection{Stack and Heap}\label{subsec:background:memory:stack-heap}
 
 The available memory addresses that an application can access are divided into logical sections.
-Go programs always at least use a program code, stack, and heap, although there can be more.
-Figure~\ref{subfig:memory:memory-layout} shows an illustration of the distribution of these sections in the address
-space.
+Go programs always at least use a program code, stack, and heap section, although there can be more.
+Figure~\ref{subfig:memory:memory-layout} shows an illustration of the distribution of these in the address space.
 
 \input{assets/figures/chapter2/memory-layout-stack-frame.tex}
 
@@ -163,7 +164,7 @@ The last value that gets pushed into the caller frame is the address of the next
 function returns.
 It is called return address or return instruction pointer (\acrshort{RIP}) and shown in green.
 Then, the new stack frame for the callee begins with the \acrshort{CPU} register contents at the function call time.
-These are stored on the stack so that they can be restored to the original values before returning back to the caller.
+These are stored on the stack, so that they can be restored to the original values before returning back to the caller.
 They are shown in green as well in Figure~\ref{subfig:memory:stack-frame}.
 After this, local variables of the callee function that do not surpass its lifetime are pushed to the stack.
 In this case, there is the variable \textit{x} (Line~2 in Listing~\ref{lst:stack-example-function}), which is shown in
@@ -275,8 +276,7 @@ address that the \acrshort{CPU} jumps to after the current function returns.
 Figure~\ref{fig:stack-smashing-payload} shows a visualization of an example of input data used to execute arbitrary code
 by overwriting the saved return address.
 This is called \textit{stack smashing}~\cite{smith1997}.
-First, arbitrary data is written to fill up the buffer and any adjacent local variables up to the address of the
-saved return address.
+First, arbitrary data is written to fill up the buffer and any adjacent local variables up to the saved return address.
 In this case, this data is composed of several \textit{A} characters.
 Next, the desired new return address is written (\acrshort{RIP}).
 This will replace the original, correct address.
@@ -437,7 +437,7 @@ Based on the level of abstraction that an analysis tool is looking at, it can be
 or semantic analysis.
 Lexical analysis deals with the source code as text, with the most common purpose being coding style enforcement.
 For syntactic analysis, the code is parsed to obtain an abstract syntax tree (\acrshort{AST}), which allows, for
-example, to do type checking and reporting code metrics such as the cyclomatic complexity or McCabe
+example, to do type checking, and reporting code metrics such as the cyclomatic complexity or McCabe
 metric~\cite{watson1996}.
 Finally, semantic analysis takes care of the control and data flow, which describe what statements in the code can
 be executed in which order and how data is being transferred between variables.
@@ -517,7 +517,7 @@ value it has at the time of execution of that statement.
 
 There are a number of existing static code analysis tools for the Go programming language.
 The most official is \toolVet{}\footnote{\url{https://golang.org/cmd/vet}}, which is included as part of the main Go
-command line tool (Go \acrshort{CLI}) and thus is installed by default with the Go compiler.
+command line tool (Go \acrshort{CLI}) and, thus, is installed by default with the Go compiler.
 It is built using a modular system of individual analysis steps.
 Examples of these steps include checking if returned values from functions are unused, type checking of the format
 specifiers used in the \textit{fmt.Printf} function with respect to the concrete parameters, or detecting unreachable
