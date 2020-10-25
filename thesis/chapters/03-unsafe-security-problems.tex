@@ -48,7 +48,7 @@ program.
 If data gets written to it, it changes invalid memory which can lead to a code injection vulnerability, and if it is
 passed as output it can create an information leak vulnerability.
 
-In addition to incompatible field sizes, there could also be a different endianess on some architecture.
+In addition to incompatible field sizes, there could also be a different byte order on some architecture.
 In this case, using a direct cast using the \unsafe{} \acrshort{API} is unaware of possible changes of the byte order,
 for example, incoming network data and variables stored in the memory could be represented as big and little endians and
 cause a mismatch.
@@ -57,7 +57,7 @@ length could be created.
 This in term can cause a buffer overflow vulnerability that can lead to code injection.
 
 \begin{insight}
-    Different type sizes and endianess on various architectures, used with direct conversions through
+    Different type sizes and byte order on various architectures, used with direct conversions through
     \textit{unsafe.Pointer}, can cause invalid memory access such as buffer overflows.
 \end{insight}
 
@@ -284,16 +284,16 @@ This can happen quickly if the length information is calculated dynamically, esp
 used to deduce the resulting value.
 An example of such a bug is shown in Listing~\ref{lst:go-fuse-bug}.
 It is taken from the \textit{hanwen/go-fuse} library\footnote{\url{https://github.com/hanwen/go-fuse}}, a Go
-implementation of the server specification used for the userspace filesystem (\acrshort{FUSE}) available for
+implementation of the server specification used for the userspace file system (\acrshort{FUSE}) available for
 Linux\footnote{\url{https://www.kernel.org/doc/html/latest/filesystems/fuse.html}}.
 A patch for this bug has already been submitted to the authors.
 
 \input{assets/listings/chapter3/go-fuse-bug.tex}
 
-\acrshort{FUSE} uses a client / server architecture where filesystem implementations present a server that handles
+\acrshort{FUSE} uses a client / server architecture where file system implementations present a server that handles
 requests from a specific kernel module.
 The listing shows a part of the \textit{doBatchForget} function, which is used to clear files, identified by their inode
-number, from a cache that the filesystem might have.
+number, from a cache that the file system might have.
 In the design of \textit{go-fuse}, incoming data from the \textit{/dev/fuse} node is passed to handler functions as byte
 slices (\textit{req.inData} and \textit{req.arg} in Lines~2 and~5) containing the raw, serialized request.
 The handler function then casts the data into a suitable structure to access individual fields.
@@ -338,7 +338,7 @@ This is done by outlining a proof-of-concept exploit using return-oriented progr
 of which is available on \github{}\footnote{\url{https://github.com/jlauinger/go-unsafepointer-poc}}.
 
 Listing~\ref{lst:buffer-overflow} shows a short example function that contains a buffer overflow.
-In Line~4, a byte slice with a length of 512 bytes is initializated.
+In Line~4, a byte slice with a length of 512 bytes is initialized.
 Then, its slice header is obtained in Line~5 and used to change the underlying data array of the slice (Line~6).
 After the switch, the slice is backed up by a much shorter byte buffer of eight bytes (initialized in Line~2).
 
@@ -391,7 +391,7 @@ This chapter presented multiple different ways of misusing the \unsafe{} \acrsho
 Almost all of them can be used, in one way or another, to effectively inject and execute arbitrary code, or read and
 modify protected data within the process memory.
 
-Many of the dangers are correlated with slices and strings, and especially their internal structure that is accessable
+Many of the dangers are correlated with slices and strings, and especially their internal structure that is accessible
 through their header structures.
 This is not surprising since slices are a close equivalent to buffers in other languages, which means they are often
 concerned with user-supplied data, and inherently carry the danger of missing proper bounds checking.

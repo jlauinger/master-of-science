@@ -58,7 +58,7 @@ Finally, the analysis results are shown to the user.
 \input{assets/images/chapter4/go-geiger-screenshot.tex}
 
 Figure~\ref{fig:go-geiger-screenshot} shows a screenshot of \toolGeiger{}.
-It presents the analyis results for the \textit{go-geiger} source code itself.
+It presents the analysis results for the \textit{go-geiger} source code itself.
 However, to decrease the space needed to display the figure, parts of the table with \unsafe{} counts have been
 excluded.
 The output is composed of three sections.
@@ -84,7 +84,7 @@ The output concludes with a legend for the colors (Lines~18--20).
 
 The identification of the dependency trees for the packages to analyze, as well as the parsing of the source code, is
 done using the standard Go compiler toolchain.
-It is accessable using the \textit{packages}
+It is accessible using the \textit{packages}
 \acrshort{API}\footnote{\url{https://pkg.go.dev/golang.org/x/tools/go/packages}}.
 Similarly, the inspection of the \acrshort{AST} is done using the \acrshort{API} available through the \textit{ast}
 package in Go\footnote{\url{https://golang.org/pkg/go/ast/}}.
@@ -99,7 +99,7 @@ In both cases, the concrete identifier names in the \acrshort{AST} nodes are che
 arbitrary other field accesses.
 The context type is determined by going up in the \acrshort{AST} starting at the expression node corresponding to a
 given \unsafe{} usage.
-For example, an \unsafe{} usage is considered part of the \textit{assignment} context type if it is a descendent of
+For example, an \unsafe{} usage is considered part of the \textit{assignment} context type if it is a descendant of
 either an assignment statement (\textit{AssignStmt} node), composite literal (\textit{CompositeLit}), or return
 statement (\textit{ReturnStmt}).
 The \textit{call}, \textit{parameter}, and \textit{variable} classes correspond to call expression (\textit{CallExpr}),
@@ -229,8 +229,8 @@ shortest path from the project root module to the package.
 Thus, all packages included in the root module have an import depth of \checkNum{zero}.
 Packages which are imported by those have a depth of \checkNum{one}, and so on.
 The depth is calculated using breadth-first search on the dependency tree, which saves time when packages are imported
-multiple times because the analysis is focused on the mimimum.
-Figure~\ref{fig:unsafe-import-depth} presents a heatmap plot of the number of packages containing \unsafe{} usages by
+multiple times because the analysis is focused on the minimum.
+Figure~\ref{fig:unsafe-import-depth} presents a heat map plot of the number of packages containing \unsafe{} usages by
 their import depth.
 The y-axis denotes the depth, the color intensity shows the number of packages using \unsafe{} at a given depth, and the
 x-axis represents the \projsAnalyzed{} analyzed projects.
@@ -510,7 +510,7 @@ Figure~\ref{fig:purpose-labels} shows the possible class labels in the purpose d
 The \textit{efficiency} class represents cases where \unsafe{} is used only to improve time or
 space efficiency of the code.
 Usages in this class could be rewritten to not use \unsafe{}.
-The \textit{serialization} class includes (un)marshalling and (de)serialization operations like in-place casts between
+The \textit{serialization} class includes (un)marshaling and (de)serialization operations like in-place casts between
 complex types and bytes.
 \textit{Generics} is applied where \unsafe{} is used to build functionality that would be implemented using generics if
 they were available in current versions of Go.
@@ -548,7 +548,7 @@ While these usages make up about \checkNum{58\%} of the application code samples
 Within the \textit{efficiency} class, casting operations cover most of the usages with \checkNum{97\%} (\textit{app})
 and \checkNum{80\%} (\textit{std}) of the samples.
 Next, the second most important motivation for \unsafe{} code in the application class is performing serialization or
-deserialization operations, including marshalling of structured data to interchangeable formats.
+deserialization operations, including marshaling of structured data to interchangeable formats.
 This accounts for \checkNum{28\%} of the \textit{app} usages.
 The standard library shows a different most common usage, which is avoiding garbage collection with \checkNum{35\%}.
 This purpose is only found in \checkNum{2\%} of the \textit{app} samples.
@@ -580,12 +580,12 @@ usages.
 With \toolGeiger{}, this thesis contributes a tool to find and count \unsafe{} usages in Go packages, including their
 dependencies.
 Its design allows to distinguish usages by the context they appear in, which enables filtering and, thus, a focused
-review of specific types such as function paramater declarations.
+review of specific types such as function parameter declarations.
 A study on \unsafe{} usage in \projsAnalyzed{} popular Go projects on \github{} revealed that while only about
 \checkNum{a third} directly contain \unsafe{}, almost all of them import \unsafe{} code through their dependencies.
 
 To study what operations are carried out using \unsafe{}, and for what purpose, a novel data set of
 \numberLabeledCodeSnippets{} labeled code samples was presented.
-It showed that the most common use cases are increasing efficiency by avoiding memory reallocations when converting
-values between different types, serialization and marshalling, and control over the Go memory management system when
+It showed that the most common use cases are increasing efficiency by avoiding memory reallocation when converting
+values between different types, serialization and marshaling, and control over the Go memory management system when
 interacting with the foreign function interface (\acrshort{FFI}).
