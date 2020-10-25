@@ -182,8 +182,8 @@ The resulting findings were stored in machine-readable \acrshort{CSV} files.
 The data set contains \uniqueUnsafeFindings{} unique \unsafe{} usages.
 All data files as well as the data acquisition scripts used to download the projects and run the analysis tools are
 available in a data repository on \github{}\footnote{\url{https://github.com/stg-tud/unsafe_go_study_results}}.
-Additionally, the data repository\footnote{\url{https://zenodo.org/record/4107497}} and the raw projects source
-code\footnote{\url{https://zenodo.org/record/4001728} \todo{update and check}} are published on \zenodo{}.
+Additionally, the data repository\footnote{\url{https://zenodo.org/record/4107497} \todo{update and check}} and the raw projects source
+code\footnote{\url{https://zenodo.org/record/4001728}} are published on \zenodo{}.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -235,10 +235,8 @@ Figure~\ref{fig:unsafe-import-depth} presents a heat map plot of the number of p
 their import depth.
 The y-axis denotes the depth, the color intensity shows the number of packages using \unsafe{} at a given depth, and the
 x-axis represents the \projsAnalyzed{} analyzed projects.
-On the left hand side, next to the heat map, the horizontal bar chart visualizes the total number of packages at each
-import depth summed up over all projects.
-Packages that do not contain any \unsafe{} usages are not included in the sum as they are irrelevant for
-answering~\ref{rq:depsDepth}.
+On the left hand side, next to the heat map, the horizontal bar chart visualizes the total number of packages using
+\unsafe{} at each import depth summed up over all projects.
 
 \input{assets/plots/chapter4/unsafe-import-depth.tex}
 
@@ -260,7 +258,7 @@ In the data set, \levelOneImportedUnsafePackagesCount{} (\levelOneImportedUnsafe
 This further shows that the majority of \unsafe{} code is introduced further down in the dependency tree.
 
 \begin{answerToRQ}[\ref{rq:depsDepth}]
-    Most imported packages with at least one \unsafe{} usage are located around a depth of
+    Most imported packages with at least one \unsafe{} usage are located around an average depth of
     \averageUnsafeImportDepthRounded{} in the dependency tree.
 \end{answerToRQ}
 
@@ -568,7 +566,7 @@ In conclusion, it is evident that the most important reasons to use \unsafe{} in
 efficiency through in-place conversions, and serialization with direct casts.
 Interestingly, both of them are achievable without \unsafe{} as well, so the code could be rewritten to remove these
 usages.
-However, this could have perfomance drawbacks, because in-place conversions would not be possible then.
+However, this could have performance drawbacks, because in-place conversions would not be possible then.
 
 \begin{answerToRQ}[\ref{rq:purpose}]
     \checkNum{More than half} of the \unsafe{} usages in projects and 3rd party libraries are to improve efficiency via
