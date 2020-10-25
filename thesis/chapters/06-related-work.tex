@@ -14,27 +14,27 @@ Then, related studies and papers are discussed in groups identified by their gen
 
 Costa et al. submitted a similar study to this work on usages of the \unsafe{} \acrshort{API} in open-source Go code to
 the IEEE Transactions on Software Engineering journal.
-At the time this thesis is written, their paper is not yet accepted, thus it is cited from ArXiV~\cite{costa2020}.
+At the time this thesis is written, their paper is not yet accepted, thus, it is cited from ArXiV~\cite{costa2020}.
 While I personally could not find substantial errors in the paper, it has not yet been peer-reviewed.
 Since it is a very relevant concurrent work to this thesis, I nevertheless reproduced their empirical study and compared
 it to the results of this thesis.
 
-The authors present a study of \checkNum{2,438} popular Go projects which were downloaded on
-\checkNum{October 2nd, 2019}.
+The authors present a study of \checkNum{2,438} popular Go projects, which were downloaded on
+\checkNum{October~2, 2019}.
 Their project selection was done by taking the top \checkNum{3,000} most-starred open-source projects on \github{},
 filtering out archived, inactive, and young projects with less than \checkNum{10} commits.
 Furthermore, they removed educational projects such as books or learning material, as well as projects that could not be
-downloaded for any reason.
+downloaded for some reason.
 Then, they counted the number of \unsafe{} usages in each project using a parser to generate the abstract syntax tree
 (\acrshort{AST}).
 They find that \checkNum{24\%} of the studied projects use \unsafe{} code.
 In contrast, the study presented in Chapter~\ref{ch:go-geiger} in this thesis finds that \percentageUnsafeProjects{}
 use \unsafe{}.
-This difference is due to the different choice of projects, which was verified by comparing the set of analyzed projects
-available through the published replication package\footnote{\url{https://zenodo.org/record/3871931}}.
-While Costa et al. analyzed more than \checkNum{2,400} projects, I only analyzed \projsAnalyzed{}, indicating that
-\unsafe{} usage is more prevalent in more popular projects.
-Furthermore, a fundamental difference between this thesis and~\cite{costa2020} is that the study by Costa et al. did not
+This difference is partly due to the different choice of projects, which was verified by comparing the set of analyzed
+projects available through the published replication package\footnote{\url{https://zenodo.org/record/3871931}}.
+While Costa et al. analyzed more than \checkNum{2,400} projects, this thesis only analyzed \projsAnalyzed{}, indicating
+that \unsafe{} usage is more prevalent in more popular projects.
+Furthermore, a fundamental difference between this work and~\cite{costa2020} is that the study by Costa et al. did not
 look at dependencies, instead they only analyzed the projects directly.
 My analysis on the projects including their dependencies in contrast showed that
 \percentageUnsafeTransitiveWithDependencies{} of the projects use \unsafe{} either directly or through some included
@@ -43,16 +43,16 @@ To compare the study to~\cite{costa2020}, it is therefore necessary to focus on 
 top-level projects, which is done by taking into account only usages that are detected within the main project module
 indicated by the \textit{go.mod} file in the root directory.
 However, this can be inaccurate if there are multiple modules contained within the same project repository, because in
-that case the study by Costa et al. would include code for that project that is seen as a dependency in my study.
-There are \checkNum{25} projects for which~\cite{costa2020} reports \unsafe{} usages  but my study does not.
-However they are all included in the \percentageUnsafeTransitiveWithDependencies{} of projects for which my study
+that case the study by Costa et al. would include code for a project, which is seen as a dependency in my study.
+There are \checkNum{25} projects for which~\cite{costa2020} report \unsafe{} usages  but my study does not.
+However, they are all included in the \percentageUnsafeTransitiveWithDependencies{} of projects for which my study
 indicates that they use \unsafe{} code through their dependencies.
 For this reason, it can be concluded that the difference in the fraction of projects using \unsafe{} is due to a
 different definition of project and dependency code.
 
-There are \checkNum{86} projects for which the study in this thesis and~\cite{costa2020} reported different absolute
-numbers of \unsafe{} usage sites, while the numbers matched exactly for all remaining projects.
-To find the reason for the difference, I replicated the study to the best of my possibilities given that Costa et al.
+There are \checkNum{86} projects for which the study in this thesis and~\cite{costa2020} report different absolute
+numbers of \unsafe{} usages, while the numbers match exactly for all remaining projects.
+To find the reason for the difference, their study was replicated in the best possible way, given that Costa et al.
 did neither include the exact revisions of the projects under analysis nor their parsing tool to count the \unsafe{}
 usages in their replication package.
 Table~\ref{tbl:costa-counts-comparison} shows the top \checkNum{10} projects with highest difference, including their
@@ -61,15 +61,15 @@ respective absolute counts found in the studies and the reason for the differenc
 \input{assets/tables/chapter6/costa-counts-comparison.tex}
 
 For the \textit{jetstack/cert-manager} project, the difference is due to the changes in the code between
-\checkNum{October 2019} and \checkNum{May 2020}, which was when the project data set for this thesis was collected.
+\checkNum{October 2019} and \checkNum{May 2020}, which is when the project data set for this thesis was collected.
 This is indicated as \textit{Reason~a} in the table.
 For \textit{peterq/pan-light}, there are multiple Go modules included in the project repository, so for this project
 the difference is due to varying definitions of dependency code as described previously.
 \textit{Reason~d} corresponds to this situation.
 Finally, there are four projects that did not yet support the Go module system in \checkNum{October 2019} and included
 vendored copies of their dependencies in the repository (\textit{Reason~c}), and four projects which contained separate
-specific code for different architectures, which are not counted by \toolGeiger{} and thus are not included in this
-work's study (\textit{Reason~b}).
+specific code files for different architectures, which are not counted by \toolGeiger{} and thus are not included in
+this work's study (\textit{Reason~b}).
 Because of this, the counts associated with \textit{Reason~b} are higher in~\cite{costa2020}.
 The only significant methodical difference therefore is the different counting of code that is available separately for
 different architectures, which is a limitation of the \toolGeiger{} tool.
@@ -79,32 +79,32 @@ selected from the total projects data set, Costa et al. showed that while the sh
 code did not change significantly, the absolute number of individual \unsafe{} usages increased over time.
 The study by Costa et al. also includes a set of manually labeled purposes of \unsafe{} usages, however the authors
 labeled one entire file from each project with a single label, while the labeled data set presented in this thesis is
-built with a granularity of a label for a single line of code.
+built with a granularity of a pair of labels for a single line of code.
 Comparing the labels was possible on only \checkNum{25} code samples that are included in both sets.
-Furthermore, the data set presented in~\cite{costa2020} is incomplete, at least the version published as replication
-package.
-\checkNum{20} of the \checkNum{25} mutual code samples did not actually have a label in the data set
-by~\cite{costa2020}.
-The remaining \checkNum{five} matched reasonably well at least, as shown in Table~\ref{tbl:costa-labels-comparison}.
+Furthermore, the data set presented in~\cite{costa2020} is incomplete, or at least the version published as replication
+package is.
+In the data set by~\cite{costa2020}, \checkNum{20} of the \checkNum{25} mutual code samples did not actually have a
+label.
+The remaining \checkNum{five} matched reasonably well at least, as is shown in Table~\ref{tbl:costa-labels-comparison}.
 The table contains both the source code snippet and the labels assigned by~\cite{costa2020} and this work, as well as
 their concordance in the third column.
 
 \input{assets/tables/chapter6/costa-labels-comparison.tex}
 
 \checkNum{Three} of the labels were exact matches of the label provided by~\cite{costa2020} and one of the two labels
-assigned to the sample in my data set presented in this thesis.
+assigned to the sample in the data set presented in this thesis.
 The second label is lost because~\cite{costa2020} only did a one-dimensional labeling.
 For the remaining \checkNum{two} samples, the labels did not match, however my labels are more fine-grained with respect
 to the specific line of code.
 The labels assigned by~\cite{costa2020} are appropriate for their scope, which is the complete file containing the line
 of code shown in the table.
-Overall, the usage purposes identified by~\cite{costa2020} matched the ones identified in this thesis with most of them
+Overall, the usage purposes identified by~\cite{costa2020} match the ones identified in this thesis with most of them
 being used for the foreign function interface (\acrshort{FFI}) and efficient type casting, and few of them to achieve
 reflection and direct pointer manipulations.
 
 Additional contributions of~\cite{costa2020} include a manual correlation of \unsafe{} usages to project domains, which
 showed that networking projects are the biggest group, followed by development tools, container virtualization,
-databases, and projects that offer bindings to other projects.
+databases, and projects that offer bindings to other libraries or applications.
 Bindings and networking projects include the most projects with heavy use of \unsafe{} (more than \checkNum{100} calls
 in a project).
 
@@ -127,25 +127,25 @@ Recently, two studies have analyzed the usage of \unsafe{} code blocks in open-s
 Evans et al.~\cite{evans2020} presented an empirical study revealing that \checkNum{less than 30\%} of analyzed
 libraries directly contained \unsafe{} code.
 However \checkNum{more than half} did when their dependencies were included in the analysis.
-Over the course of their \checkNum{10 months} study, they found that these numbers did not change significantly.
+Over the course of their \checkNum{10 months}' study, they found that these numbers did not change significantly.
 Most of the \unsafe{} Rust code is used to call other Rust functions, while interoperability with external C code was a
 smaller concern.
 The authors conducted an N=\checkNum{20} survey about the reasons to use \unsafe{} on Reddit, which showed that the most
 popular reasons were performance optimizations, advanced data structures, or a more elegant interface made possible by
 using \unsafe{} \acrshort{API}s.
-\checkNum{10\%} of developers indicated that they have used \unsafe{} just to make the code compile in the past.
+About \checkNum{10\%} of developers indicated that they have used \unsafe{} just to make the code compile in the past.
 Qin et al.~\cite{qin2020} studied bug reports that were related to \unsafe{} code usage in Rust, which revealed that the
 most common bug classes are buffer overflows, null-pointer dereferencing, reading uninitialized memory, and
 \textit{use-after-free} bugs.
 Often, the cause of the bug was an incorrect check for specific edge cases, which could be fixed by conditionally
 skipping the execution of \unsafe{} code.
 The authors note that it is very dangerous to have hidden \unsafe{} code in regular functions, which can be called from
-safe Rust code, because developers often need to make sure the input data is in a proper state which is not immediately
-obvious.
+safe Rust code, because developers often need to make sure that the input data is in a proper state, which is not
+immediately obvious.
 Furthermore, Almohri et al.~\cite{almohri2018} presented a system to ensure memory safety while executing \unsafe{} code
 in Rust by limiting access to the program's memory during the times \unsafe{} functions run.
-This is done by splitting the memory address space into regions with different trust levels and thus creates a sandbox
-that the \unsafe{} code runs in.
+This is done by splitting the memory address space into regions with different trust levels and, thus, creates a sandbox
+which the \unsafe{} code runs in.
 RustBelt~\cite{jung2017} is a formal proof of safety-related properties of a subset of the Rust language with \unsafe{}.
 Since it is possible to compile Rust to WebAssembly, a binary intermediate code representation that is shipped to web
 browsers~\cite{rourke2018}, usage of \unsafe{} blocks in Rust might lead to vulnerabilities that occur in the virtual
@@ -159,9 +159,9 @@ used this \textit{Unsafe} library.
 Huang et al.~\cite{huang2019} analyzed the causes and consequences of misuses of \textit{Unsafe}, and showed different
 patterns in which affected programs can crash due to such programming errors.
 
-Finally, for the non memory-safe languages C and C++ there is previous work on achieving partial memory safety at
+Finally, for the non-memory-safe languages C and C++, there is previous work on achieving partial memory safety at
 least~\cite{burow2018, nagarakatte2009}.
-Song et al.~\cite{song2019} present tools that help with the process of identifying vulnerabilities in applications.
+Song et al.~\cite{song2019} presented tools that help with the process of identifying vulnerabilities in applications.
 Furthermore, there have been comprehensive studies in the past about vulnerabilities related to memory
 safety~\cite{szekeres2013,alnaeli2017,larochelle2001}.
 
@@ -175,36 +175,37 @@ There has been a lot of previous research on security vulnerabilities in Go prog
 One of the features Go is most known for is its excellent support for concurrent program execution~\cite{donovan2015}.
 To synchronize concurrent threads, it offers both message passing through channels and exclusive memory access by using
 mutually exclusive locking of variables through mutexes.
-Tu et al.~\cite{tu2019} present a study of about \checkNum{170} concurrency-related bugs in \checkNum{six} open-source
+Tu et al.~\cite{tu2019} presented a study of about \checkNum{170} concurrency-related bugs in \checkNum{six} open-source
 Go applications.
 To do this, they identified commits that are related to fixing such bugs by searching the project history for related
 keywords.
 They found that there is an even distribution between bugs related to message passing and shared memory, and that the
 usage of both techniques did not change significantly over time.
 They conclude that adding new features to make a language safer is not necessarily sufficient, because new bug classes
-can be introduced especially if developers are not familiar with the new concepts.
+can be introduced, especially if developers are not familiar with the new concepts.
 
 Other related work on concurrency in Go includes a detailed analysis of message passing in open-source
 projects~\cite{dilley2019}, which found that most projects use channels for synchronous message passing, and that common
-models to organize concurrent threads are not well supported by static analysis tools.
-Lange et al.~\cite{lange2017} present work on detecting dead locks and infinite loops that are caused by incorrect
+models to organize concurrent threads are poorly supported by static analysis tools.
+Lange et al.~\cite{lange2017} presented work on detecting dead locks and infinite loops that are caused by incorrect
 usages of channels.
-To do this, they build a model of possible communication patterns in the Go application and apply bounded verification
+To do this, they built a model of possible communication patterns in Go applications, and applied bounded verification
 to find incorrect ones.
 Giunti~\cite{giunti2020} contributed a framework that can generate concurrent Go code that is free from data races and
-deadlocks from a formal communication model expressed in a special calculus.
+deadlocks.
+This is achieved using a formal communication model expressed in a special calculus.
 
 Wang et al.~\cite{wang2020} discussed how the escape analysis of the Go compiler misses the connection between the
-underlying data arrays of strings and slices when they are incorrectly converted into each other by creating a composite
+underlying data arrays of slices and strings when they are incorrectly converted into each other by creating a composite
 literal header value as described in Section~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}.
-The authors, however, use this property to optimize the heap memory consumption of Go programs.
-They present a transpiler that modifies the intermediate binary representation created by the Go compiler, which is
+The authors, however, used this property to optimize the heap memory consumption of Go programs.
+They presented a transpiler that modifies the intermediate binary representation created by the Go compiler, which is
 converted to architecture-dependent specific assembly afterwards.
-When a local variable is passed by reference to another function, it is usually seen as escaped because the Go compiler
+When a local variable is passed by reference to another function, it is often seen as escaped, because the Go compiler
 uses a conservative approach to detect escaped values.
 Therefore the variable will be allocated on the heap.
 The transpiler checks whether there is any possible concurrent access to that variable, and if there is none, it might
-be possible to allocate on the stack of the calling function instead.
+be possible to allocate it on the stack of the calling function instead.
 To achieve this, the reference passed to the function is converted into a \textit{uintptr} value and back to a reference
 to break the connection between the values as seen by the escape analysis on purpose.
 Doing this can improve heap usage because some values are not unnecessarily allocated there.
@@ -223,8 +224,8 @@ Its authors Egele et al. found that \checkNum{88\%} of the \checkNum{11,748} And
 contained at least one misuse.
 The specification language \textit{CrySL}~\cite{kruger2018} can be used to formally describe rules that ensure
 cryptographic \acrshort{API}s are used correctly.
-Static analysis tools like \textit{CogniCryptSAST}~\cite{kruger2017} can ensure those rules are followed by an
-application and thus find cryptographic misuses that are potential security vulnerabilities.
+Static analysis tools like \textit{CogniCryptSAST}~\cite{kruger2017} can check whether those rules are followed by an
+application and, thus, find cryptographic misuses that are potential security vulnerabilities.
 Wickert et al.~\cite{wickert2019} presented a labeled data set of \checkNum{201} cryptographic misuses in Java projects.
 It is organized in two dimensions: the specific cryptographic \acrshort{API} that is used, and the category of misuse.
 The authors integrated their novel data set into \textit{MuBench}~\cite{amann2016}, which is both a collection of
@@ -236,18 +237,18 @@ On top of common problems with JavaScript source code that are also found by pre
 dynamic analysis approach that is able to check \checkNum{28} additional potential problems with the code.
 In an empirical study on \checkNum{more than 200} popular websites, the authors found on average \checkNum{29} problems
 that were missed with static analysis.
-Song et al.~\cite{song2019} provide a detailed overview of available static and dynamic analysis tools for the C and C++
+Song et al.~\cite{song2019} provided a detailed overview of available static and dynamic analysis tools for the C and C++
 languages, including a taxonomy of the tools and security vulnerabilities detected by them.
 They find that although there has been decades of research into analysis tools for these languages, there is still room
-for improvement in particular with respect to incorrect usages of pointer types and security vulnerabilities that are
+for improvement, in particular with respect to incorrect usages of pointer types and security vulnerabilities that are
 caused by them.
-These include among others the detection of dangling pointers, bound checking for buffer accesses by pointers, and
+These include, among others, the detection of dangling pointers, bounds checking of buffer accesses using pointers, and
 finding invalid conversions between incompatible types.
-For the Go programming language, Bodden et al.~\cite{bodden2016} present an analysis of information flow and possible
+For the Go programming language, Bodden et al.~\cite{bodden2016} presented an analysis of information flow and possible
 data leaks through taint analysis.
-Gabet et al.~\cite{gabet2020} contribute work on the static detection of race conditions and safe access of shared
+Gabet et al.~\cite{gabet2020} contributed work on the static detection of race conditions and safe access of shared
 memory through mutexes.
-Similar to \textit{CrySL}, it is based on a formal model of communication in Go and rules to detect incorrect instances.
+Similar to \textit{CrySL}, it is based on a formal model of communication in Go, and rules to detect incorrect instances.
 
 Smith et al.~\cite{smith2020} conducted a study on the usability of static analysis tools with a focus on security
 problems.
@@ -255,8 +256,8 @@ They found that often problems that could have been found by the tools are not f
 interfaces are too complex and the tool gets abandoned.
 The authors recommend four design guidelines to improve the usability of static analysis tools.
 They include suggestions on how to fix a specific bug rather than just pointing out its existence, integrating the tools
-within the existing workflows of developers, and showing results within the code editor near the relevant code,
-and contextualizing warning messages to the concrete incorrect code, such as including specific variable names.
+within the existing workflows of developers, showing results within the code editor near the relevant code, and
+contextualizing warning messages to the concrete incorrect code, such as including specific variable names.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -267,19 +268,19 @@ Concerning the dependencies or imports of projects, previous work has analyzed d
 Pashchenko et al.~\cite{pashchenko2018} discussed how to focus on the most important dependencies when looking for
 security vulnerabilities.
 The study is done for Java, specifically for the Maven dependency management system.
-A central point is to distinguish the different scopes for testing and production, because vulnerabilities that exist in
+A central point is to distinguish the different scopes for testing and production, as vulnerabilities that exist in
 dependencies that are only relevant for testing have less impact.
 This is because they are not shipped to customers as part of the final product, and therefore do not run on actual
 production systems.
-The authors do not claim that security vulnerabilities in such libraries are unimportant, but when companies have a
+The authors did not claim that security vulnerabilities in such libraries are unimportant, but when companies have a
 limited budget of development resources to spend on auditing dependencies, it is a good choice to focus on the libraries
 with the most customer-facing impact.
 The study finds that in the analyzed Java projects, about \checkNum{20\%} of dependencies are required for development
 and testing purposes only.
 The Go module system, which compared to Maven is very new and only recently reached a stable version, does not have a
-distinction between development and production dependencies, therefore it is not possible to account for this in the
-study presented in this thesis.
-Pashchenko et al. also propose an algorithm of deciding whether a dependency is still actively maintained or has been
+distinction between development and production dependencies.
+herefore, it is not possible to account for this difference in the study presented in this thesis.
+Pashchenko et al. also propose an algorithm of deciding whether a dependency is still actively maintained, or has been
 abandoned.
 They find few vulnerabilities in libraries that are no longer maintained, however those have a big impact because there
 are no updates to fix them.
@@ -288,29 +289,29 @@ Therefore, it is important to replace such dependencies with actively supported 
 A study by Watanabe et al.~\cite{watanabe2017} analyzed the origins of vulnerabilities in mobile applications available
 for Android.
 They found that \checkNum{70\%} of them were introduced through vulnerable dependencies.
-\checkNum{50\%} of the bugs came from third-party dependencies, where developers can not easily fix them but instead
-have to rely on the maintainers or replace the library with an alternative one.
-Xia et al.~\cite{xia2014} also present work on the prevalence of outdated libraries in open-source project
+Furthermore, \checkNum{50\%} of the bugs came from third-party dependencies, where developers can not easily fix them,
+and instead have to rely on the maintainers or replace the library with an alternative one.
+Xia et al.~\cite{xia2014} also presented work on the prevalence of outdated libraries in open-source project
 dependencies across different languages.
 
 When insecure dependencies have been identified, it is important to update or replace the affected libraries as soon as
 possible.
-Kula et al.~\cite{kula2017} conducted a study on \github{} projects as well as a developer survey to find out how the
+Kula et al.~\cite{kula2017} conducted a study on \github{} projects, as well as a developer survey, to find out how the
 update process is done in practice.
-They find that developers often think maintaining up-to-date versions for their set of dependencies is extra work that
+They found that developers often think maintaining up-to-date versions for their set of dependencies is extra work that
 can be deprioritized.
 Thus, dependencies are not updated in a timely manner.
 Specifically, the authors found that developers are often unaware of security vulnerabilities in dependencies.
 As soon as they find out about them, dependencies are however usually updated quickly.
-Mirhosseini et al.~\cite{mirhosseini2017} answer the question whether automated pull requests and badges that indicate
+Mirhosseini et al.~\cite{mirhosseini2017} answered the question whether automated pull requests and badges that indicate
 out-of-date dependencies on platforms like \github{} can encourage developers to update dependencies.
-The authors find that badges provide a good incentive for developers to update because there is an urge to keep the
-badges green.
+The authors found that badges provide a good incentive for developers to update, because there is a psychological urge
+to keep the badges green.
 Automated pull requests offer an easy and directly actionable way to update, but when there are many of them,
 notification fatigue can work against update discipline.
 In summary, badges account for a \checkNum{1.4} times higher probability to update, while automated pull requests
 increase the probability by a factor of \checkNum{1.6} according to~\cite{mirhosseini2017}.
 A developer survey done by the authors also showed that a single bad update of one library can cause developers to be
 strongly reluctant from updating in the future.
-Therefore, releasing library versions comes with a high responsibility to not break software in order to keep an
-environment, where developers update their projects regularly to fix security vulnerabilities.
+Therefore, releasing library versions comes with a high responsibility to not break software, in order to keep an
+environment where developers update their projects regularly to fix security vulnerabilities.
