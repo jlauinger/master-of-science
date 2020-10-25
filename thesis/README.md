@@ -25,23 +25,23 @@ One decade after its first published version, the Go programming language has be
 and widely-used modern programming language. It aims to achieve thorough memory and
 thread safety by using measures such as a strict type system and automated memory management
 with garbage collection, which prevents invalid memory access. However, there is also the unsafe
-package which allows developers to deliberately circumvent this safety net. There are a number
+package, which allows developers to deliberately circumvent this safety net. There are a number
 of legitimate use cases for doing this, for example, an in-place type conversion saving reallocation
 costs to improve efficiency, or interacting with C code through the foreign function interface.
 
 Misusing the unsafe API can however lead to security vulnerabilities such as buffer overflow
 and use-after-free bugs. This work contributes an analysis of unsafe usage patterns with respect
 to a security context. It reveals possible code injection and information leak vulnerabilities in
-proof-of-concept code as well as common code usages from real-world code.
+proof-of-concept exploits as well as common usages from real-world code.
 
 To assess the risk of unsafe code in their applications, this work presents go-geiger, a novel
-tool to help developers quantify unsafe usages not only in their project itself but including its
+tool to help developers quantify unsafe usages not only in their project itself, but including its
 dependencies. Using go-geiger, a study on unsafe usage in the top 500 most popular open-source
 Go projects on GitHub was conducted, including a manual study of 1,400 individual code samples
 on how unsafe is used and for what purpose. The study shows that 5.5% of packages imported
 by the projects using the Go module system use unsafe. Furthermore, 38.19% of the projects
 use unsafe directly, and 90.96% include unsafe usages through any of their dependencies. A
-replication and comparison of a concurrent study by Costa et al. [8] matches these results.
+replication and comparison of a concurrent study by Costa et al. [10] matches these results.
 
 This work further presents go-safer, a novel static code analysis tool that helps developers to
 identify two dangerous and common misuses of the unsafe API, which were previously undetected
