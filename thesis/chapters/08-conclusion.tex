@@ -4,58 +4,60 @@
 
 In this thesis, a detailed study of the \unsafe{} \acrshort{API} provided by Google's Go programming language with
 respect to a security context was conducted.
-A thorough analysis of the dangers that come with its usage was presented including proof-of-concept exploits that show
+A thorough analysis of the dangers that come with its usage was presented, including proof-of-concept exploits that show
 how possible vulnerabilities can be exploited in practice.
 This analysis particularly looked at \checkNum{three} main areas of dangers.
-Buffer overflow vulnerabilities, which can be introduced by constructing slice values from unsuitable buffers, can lead
-to severe consequences such as code injection or information leak vulnerabilities.
-Incorrect casting of slices through the internal slice representation used by the Go runtime can cause the garbage
+Types with platform-dependent types such as \textit{int} can cause problems when they are converted to other types
+directly, because the underlying memory might not align when the project is compiled for a different architecture, or
+the memory layout of the types after compilation is changed in future versions of Go.
+Incorrect conversions of slices through the internal slice representation used by the Go runtime can cause the garbage
 collector to miss a live value, or the Go compiler's escape analysis algorithm to misplace a value on the stack rather
 than the heap, both of which can cause non-deterministic or deterministic use-after-free vulnerabilities, respectively.
-Types with platform-dependent types such as \textit{int} can cause problems when they are converted to other types
-directly because the underlying memory might not align when the project is compiled for a different architecture or
-the memory layout of the types after compilation changed in future versions of Go.
+Buffer overflow vulnerabilities, which can be introduced by constructing slice values from unsuitable buffers, can lead
+to severe consequences such as information leak or code injection vulnerabilities.
 
 Thus, it is needed to audit usages of the \unsafe{} API in projects.
 Such usages can be introduced through dependencies, in fact most are.
 Therefore, dependencies must be checked, too.
-\toolGeiger{}, a novel static code analysis tool to help developers with this task, was presented.
-It can identify and count \unsafe{} usages in Go packages including their dependencies, thus allowing developers to
-focus their audit efforts to the right packages.
+The novel static code analysis tool \toolGeiger{}, which can help developers with this task, was presented.
+It can identify and count \unsafe{} usages in Go packages, including their dependencies.
+This allows developers to focus their \unsafe{} audit efforts to the most sensible packages.
 Such a tool was previously available for other languages, but not for Go.
-Using \toolGeiger{}, we presented an empirical study on the current state of \unsafe{} usage in \projsAnalyzed{} of the
-top \projsTotal{} most-starred open-source Go projects on \github{}.
-This study revealed that \percentageUnsafeProjects{} of the projects contained \unsafe{} usages, however
-\percentageUnsafeTransitiveWithDependencies{} included \unsafe{} code through third-party dependencies.
+Using \toolGeiger{}, an empirical study on the current state of \unsafe{} usage in \projsAnalyzed{} of the top
+\projsTotal{} most-starred open-source Go projects on \github{} was presented.
+This study revealed that \percentageUnsafeProjects{} of the projects contain \unsafe{} usages, however
+\percentageUnsafeTransitiveWithDependencies{} include \unsafe{} code through third-party dependencies.
 Of the \packagesAnalyzed{} packages that were analyzed in total, \percentageUnsafePackages{} contained \unsafe{} code.
 The average depth in the dependency tree of \averageUnsafeImportDepth{} showed that most packages with \unsafe{} usages
-are rather close to the root module.
+are reasonably close to the root module.
 However, it is still hard to manually audit the complete code base including external libraries, highlighting the
 importance of support by developer tools for this task.
 
-A novel data set of \numberLabeledCodeSnippets{} manually labelled \unsafe{} code samples was created.
-They are classified in two dimensions on what is being done and for what purpose.
-This data set showed that the the most common reasons for using \unsafe{} are optimizations and efficiency,
+A novel data set of \numberLabeledCodeSnippets{} manually labeled \unsafe{} code samples was created.
+They are classified in two dimensions, on what is being done and for what purpose.
+This data set shows that the the most common reasons for using \unsafe{} are optimizations and efficiency,
 interoperability with external libraries, or to circumvent language limitations.
 
 Furthermore, \toolSafer{} was presented, a novel \toolVet{}-style linter that is focused around \unsafe{} code.
 It can identify \checkNum{two} dangerous and common usage patterns: incorrect conversions of slice and string header
 values to actual slices or strings, which can introduce use-after-free vulnerabilities, and in-place conversions of
-types that have platform-dependent sizes.
+types that have platform-dependent sizes or memory layouts.
 The performance of \toolSafer{} was evaluated both on the new labeled data set of \unsafe{} usages and on a set of
 open-source Go packages, selected by their number of \unsafe{} usages and lines of code, which were reviewed manually.
-\toolSafer{} achieved excellent results with an accuracy of \goSaferEvaluationDatasetGosaferAccuracy{} on the labeled
-data set and \goSaferEvaluationPackagesGosaferAccuracy{} on the set of packages.
+In this evaluation, \toolSafer{} achieved excellent results, with an accuracy of
+\goSaferEvaluationDatasetGosaferAccuracy{} on the labeled data set and \goSaferEvaluationPackagesGosaferAccuracy{} on
+the set of packages.
 Its high precision allows it to be used productively.
-\toolSafer{} thus is a valuable tool that can be added to existing tools like \toolVet{} and \toolGosec{}, which are
-not good in detecting \unsafe{} misuses with a large number of false negatives and false positives, respectively.
+Thus, \toolSafer{} is a valuable tool that can be added next to existing tools like \toolVet{} and \toolGosec{}, which
+are not good at detecting \unsafe{} misuses with a large number of false negatives and false positives, respectively.
 Using \toolSafer{}, more than \numberBugsFixedRounded{} bugs in open-source Go libraries were found.
 To fix them, \numberPRs{} pull requests have been submitted to the authors, and \checkNum{one} already existed.
-So far, \numberPRsMerged{} pull requests have been merged.
+So far, \numberPRsMerged{} pull requests have been merged, fixing \numberBugsMerged{} (\fractionBugsMerged{}) of the
+bugs.
 
 In summary, \unsafe{} code is commonly used in the most popular Go projects for a number of reasons such as efficiency
 or the foreign function interface.
-Using the novel static analysis tools, developers can embrace this fact and mitigate the risks that come with it by
-effectively localizing and checking \unsafe{} usages in their own and third-party code.
+Using the novel static analysis tools contributed in this thesis, developers can embrace this fact and mitigate the
+risks that come with it by effectively localizing and checking \unsafe{} usages in their own and third-party code.
 Additionally, the novel evidence of how to actually exploit possible vulnerabilities related to \unsafe{} code helps
-developers to understand the dangers and thus avoid them.
+developers to understand the dangers and, ultimately, avoid them.
