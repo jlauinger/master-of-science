@@ -22,8 +22,8 @@ well as ones that can be replaced with new language features.
 
 Next, future research could focus on verification techniques for \unsafe{} Go code, such as annotations for
 contracts or invariants that formalize assertions about control and data flow.
-For example, \unsafe{} code that creates implicitly read-only values could be formally declared immutable, such that
-a verifier can detect invalid accesses to the value.
+For example, \unsafe{} code that creates implicitly read-only values could be formally declared immutable, so that a
+verifier can detect invalid accesses to the value.
 A static verification such as the Viper framework~\cite{muller2016} would probably be preferable over a dynamic one,
 because the additional runtime overhead could potentially outweigh the efficiency improvements of using \unsafe{} in the
 first place.
@@ -34,8 +34,3 @@ For insecure usages, it could provide an explanation of the potential vulnerabil
 secure alternative.
 Similar to \toolSafer{}, a linter could be developed to identify harmless usages of \unsafe{}, which could automatically
 be flagged safe and thus be excluded from manual review.
-
-%Finally, the novel tools \toolGeiger{} and \toolSafer{} presented in this thesis could be integrated into developer
-%environments (\acrshort{IDE}s).
-%This would have the benefit of displaying warnings within the editor that is used to fix them, which can lead to more
-%warnings actually being resolved.
