@@ -43,7 +43,8 @@ To compare the study to~\cite{costa2020}, it is therefore necessary to focus on 
 top-level projects, which is done by taking into account only usages that are detected within the main project module
 indicated by the \textit{go.mod} file in the root directory.
 However, this can be inaccurate if there are multiple modules contained within the same project repository, because in
-that case the study by Costa et al. would include code for a project, which is seen as a dependency in my study.
+that case the study by Costa et al. would attribute code directly to a project, but it is seen as a dependency in my
+study.
 There are \checkNum{25} projects for which~\cite{costa2020} report \unsafe{} usages  but my study does not.
 However, they are all included in the \percentageUnsafeTransitiveWithDependencies{} of projects for which my study
 indicates that they use \unsafe{} code through their dependencies.
@@ -134,6 +135,7 @@ The authors conducted an N=\checkNum{20} survey about the reasons to use \unsafe
 popular reasons were performance optimizations, advanced data structures, or a more elegant interface made possible by
 using \unsafe{} \acrshort{API}s.
 About \checkNum{10\%} of developers indicated that they have used \unsafe{} just to make the code compile in the past.
+
 Qin et al.~\cite{qin2020} studied bug reports that were related to \unsafe{} code usage in Rust, which revealed that the
 most common bug classes are buffer overflows, null-pointer dereferencing, reading uninitialized memory, and
 \textit{use-after-free} bugs.
@@ -237,6 +239,7 @@ On top of common problems with JavaScript source code that are also found by pre
 dynamic analysis approach that is able to check \checkNum{28} additional potential problems with the code.
 In an empirical study on \checkNum{more than 200} popular websites, the authors found on average \checkNum{49} problems
 per site that were missed with static analysis.
+
 Song et al.~\cite{song2019} provided a detailed overview of available static and dynamic analysis tools for the C and C++
 languages, including a taxonomy of the tools and security vulnerabilities detected by them.
 They find that although there has been decades of research into analysis tools for these languages, there is still room

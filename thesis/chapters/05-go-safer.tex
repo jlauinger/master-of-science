@@ -37,6 +37,8 @@ The insecure creation of a \textit{reflect.SliceHeader} instance is done in Line
 In addition to composite literals of type \textit{reflect.SliceHeader} and \textit{reflect.StringHeader}, \toolSafer{}
 analyzes accesses to fields of existing instances of these types, unless they are derived by cast from a real slice or
 string.
+If they are, then their \textit{Data} field is treated as a reference by the Go runtime, as described in
+Section~\ref{sec:background:slices}.
 If the slice or string header types are renamed to a different type name in the source code, field accesses and
 composite literals of the new type name are recognized just like the original types.
 
@@ -84,8 +86,9 @@ After all analyses are finished, the results are presented to the user.
 This composition using many existing parts allows to keep the required new code to a minimum, reuses well-tested pieces
 of code, and allows integrating the new \toolSafer{} features into a familiar workflow.
 
-The \textit{sliceheader} analysis pass first receives the \acrshort{AST} and filters it for composite literals
-(\textit{CompositeLit} nodes) and assignment statements (\textit{AssignStmt} nodes).
+The \textit{sliceheader} analysis pass finds the code pattern shown in Listing~\ref{lst:go-safer-sliceheader-pass}.
+First, it receives the \acrshort{AST} and filters it for composite literals (\textit{CompositeLit} nodes) and
+assignment statements (\textit{AssignStmt} nodes).
 Recursively going down the \acrshort{AST} even after a composite literal has been found ensures that \toolSafer{} also
 detects literals that are part of a bigger structure type that contains a slice header as one of its fields.
 Then, the type of either the composite literal or the assignment receiver is checked.
@@ -119,7 +122,9 @@ variable can be found, a warning is issued.
 This is possible, for example, if the slice or string header is passed as a function parameter, because its value can
 not be statically inferred with the Go analysis framework in that case.
 
-The \textit{structcast} pass also uses the \acrshort{AST} to find cast operations.
+The \textit{structcast} pass is responsible for detecting the code pattern shown in
+Listing~\ref{lst:go-safer-structcast-pass}.
+It also uses the \acrshort{AST} to find cast operations.
 These are represented in the \acrshort{AST} in the same way as function calls are, so the tree is filtered for
 \textit{CallExpr} nodes.
 If there is a cast from some structure type to \textit{unsafe.Pointer} and further to another structure type, these

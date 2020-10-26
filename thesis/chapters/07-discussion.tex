@@ -16,7 +16,7 @@ discussed.
 \section{Practical Exploitability of \textit{Unsafe} Code}\label{sec:discussion:exploitability}
 
 This thesis took a deep look into the \unsafe{} API of the Go programming language.
-It was shown that it is effectively used by almost all (\percentageUnsafeTransitiveWithDependencies{}) of the
+It was shown that it is effectively used by a large fraction (\percentageUnsafeTransitiveWithDependencies{}) of the
 \projsAnalyzed{} analyzed top-starred open-source projects, either directly or by including \unsafe{} usages through
 third-party dependencies.
 While there are many legitimate use cases for \unsafe{} code, such as efficient conversions between otherwise
@@ -36,7 +36,7 @@ The bugs that were found during the course of this work, and to which patches we
 section, may seem few and minor at first glance, but it only takes one \textit{use-after-free} bug at a critical
 position to open up the possibility of a major remote code execution attack.
 
-The general direction that programming languages like Go or Rust take is the right one.
+In my opinion, the general direction that programming languages like Go or Rust take is the right one.
 By enforcing a strict safety net in most cases and still allowing escape hatches to circumvent these measures when it is
 absolutely necessary, they combine the best of two worlds.
 In large parts of the code base, buffer overflows, race conditions etc. are mostly prevented at the small cost of a
@@ -111,7 +111,7 @@ a library or project.
 First, security problems can also be introduced in code that does not use \unsafe{} at all.
 Second, there could be many well audited \unsafe{} usages in one project, and a single one that causes a vulnerability
 in another one.
-Although the number of \unsafe{} usages in the second project is smaller, it is much less secure.
+Although the number of \unsafe{} usages in the second project is smaller, it might be much less secure.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
