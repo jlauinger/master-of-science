@@ -55,7 +55,7 @@ In the process of analyzing \unsafe{} usages in real-world Go code, and using th
 Most of them (\checkNum{63}) are instances of incorrect constructions of slice header values, which are used with
 in-place conversions between slices of different types.
 These can cause \textit{use-after-free} vulnerabilities due to the garbage collector freeing a value that is still
-in use or an error in the escape analysis causing a value to be placed on the stack incorrectly, as described in
+in use, or an error in the escape analysis causing a value to be placed on the stack incorrectly, as described in
 Sections~\ref{subsec:unsafe-security-problems:slice-casts:gc-race}
 and~\ref{subsec:unsafe-security-problems:slice-casts:escape-analysis}.
 Furthermore, there is the bug causing incorrect length information in a slice in the \goFuse{} library described in
@@ -109,7 +109,7 @@ library uses any \unsafe{} code, and if it does how much.
 However, it is important to remember that the number of \unsafe{} usages is not itself an indicator for the safety of
 a library or project.
 First, security problems can also be introduced in code that does not use \unsafe{} at all.
-Second, there could be many well audited \unsafe{} usages in one project, and a single one that causes a vulnerability
+Second, there could be many well-audited \unsafe{} usages in one project, and a single one that causes a vulnerability
 in another one.
 Although the number of \unsafe{} usages in the second project is smaller, it might be much less secure.
 

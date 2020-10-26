@@ -230,7 +230,7 @@ shortest path from the project root module to the package.
 Thus, all packages included in the root module have an import depth of \checkNum{zero}.
 Packages which are imported by those have a depth of \checkNum{one}, and so on.
 The depth is calculated using breadth-first search on the dependency tree, which saves time when packages are imported
-multiple times because the analysis is focused on the minimum.
+multiple times, because the analysis is focused on the minimum.
 Figure~\ref{fig:unsafe-import-depth} presents a heat map plot of the number of packages containing \unsafe{} usages by
 their import depth.
 The y-axis denotes the depth, the color intensity shows the number of packages using \unsafe{} at a given depth, and the
@@ -272,7 +272,7 @@ projects.
 
 The data shows that \textit{uintptr} is the most common \unsafe{} token, with \checkNum{99,741} findings.
 Next, \textit{unsafe.Pointer} has a similarly high prevalence of \checkNum{94,431} samples.
-These two lead the usage counts by far, with the next being \textit{unsafe.Sizeof} at only \checkNum{3,667} usages and
+These two lead the usage counts by far, with the next being \textit{unsafe.Sizeof} at only \checkNum{3,667} usages, and
 all other token types found less than \checkNum{1,000} times.
 With a mere \checkNum{8} usages found, \textit{unsafe.Alignof} is the most rare.
 
@@ -287,7 +287,7 @@ With a mere \checkNum{8} usages found, \textit{unsafe.Alignof} is the most rare.
 \subsection{Influence of Age and Popularity (\ref{rq:popularity})}\label{subsec:go-geiger:evaluation:popularity}
 
 This subsection answers research question~\ref{rq:popularity} about whether there is a correlation between \unsafe{}
-usage and the common projects metrics age and popularity.
+usage and the common project metrics age and popularity.
 Popularity is measured by the number of stars and number of forks that a project has on \github{}.
 Figure~\ref{fig:correlation-popularity} presents a scatter plot showing the number of \unsafe{} usages on the x-axis and
 the project metrics stars, forks, and age on the y-axis.
@@ -406,7 +406,7 @@ Lines that were only flagged by \toolGeiger{}, but not by the linter, are shown 
 The last column indicates \acrshort{LOC} that the linter flagged, but were not identified by \toolGeiger{}.
 The table contains two rows that show the number of lines of code, both when counting any message that \toolVet{} or
 \toolGosec{} produced, and when only messages related to their \unsafe{} analyses are taken into account.
-The latter has more impact because comparing only those messages to the output of \toolGeiger{}, which is solely
+The latter has more impact, because comparing only those messages to the output of \toolGeiger{}, which is solely
 designed around \unsafe{} usages, achieves a fairer evaluation.
 
 \input{assets/tables/chapter4/go-geiger-evaluation-linters.tex}
@@ -422,7 +422,7 @@ For \toolGosec{}, there are a lot more \acrshort{LOC} in the \textit{both} colum
 findings are missed.
 About \checkNum{half} of the \toolGeiger{} results are also found by \toolGosec{}.
 This is much better than \toolVet{}, but it is still not accurate.
-One reason for this is that \toolGeiger{} identifies not only \textit{unsafe} packages uses, but also \textit{uintptr}
+One reason for this is that \toolGeiger{} identifies not only \textit{unsafe} package usages, but also \textit{uintptr},
 which is common as described in Section~\ref{subsec:go-geiger:evaluation:unsafe-usage}.
 It is worth noting that the numbers in Table~\ref{tbl:go-geiger-evaluation-linters} refer to lines of code rather than
 \unsafe{} findings, but one line of code can contain several \unsafe{} usages.
@@ -510,15 +510,15 @@ code or unused parameters.
 Figure~\ref{fig:purpose-labels} shows the possible class labels in the purpose dimension.
 The \textit{efficiency} class represents cases where \unsafe{} is used only to improve time or
 space efficiency of the code.
-Usages in this class could be rewritten to not use \unsafe{}.
-The \textit{serialization} class includes (un)marshaling and (de)serialization operations like in-place casts between
+Usages in this class could be rewritten to avoid \unsafe{}.
+The \textit{serialization} class includes (un)marshaling and (de)serialization operations, like in-place casts between
 complex types and bytes.
 \textit{Generics} is applied where \unsafe{} is used to build functionality that would be implemented using generics if
 they were available in current versions of Go.
 As of the current release plan, there is no support for generics in Go without additional libraries up until release
 \checkNum{2.0}.
-The \textit{avoid garbage collection} class contains usages to tell the Go compiler to lock a value while it is used,
-for example, when calling a function written in assembly.
+The \textit{avoid garbage collection} class contains usages to tell the Go compiler to keep a value in memory while it
+is used, for example, when calling a function written in assembly.
 \textit{Atomic operations} is a class of usages of the atomic \acrshort{API}, which requires \unsafe{} for some of its
 functions.
 The \textit{foreign function interface} (\acrshort{FFI}) class includes all cases of interoperability with C code (CGo),

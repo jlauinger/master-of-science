@@ -14,7 +14,7 @@ Then, related studies and papers are discussed in groups identified by their gen
 
 Costa et al. submitted a similar study to this work on usages of the \unsafe{} \acrshort{API} in open-source Go code to
 the IEEE Transactions on Software Engineering journal.
-At the time this thesis is written, their paper is not yet accepted, thus, it is cited from ArXiV~\cite{costa2020}.
+At the time this thesis is written, their paper is not yet accepted, thus, it is cited from arXiv~\cite{costa2020}.
 While I personally could not find substantial errors in the paper, it has not yet been peer-reviewed.
 Since it is a very relevant concurrent work to this thesis, I nevertheless reproduced their empirical study and compared
 it to the results of this thesis.
@@ -27,7 +27,7 @@ Furthermore, they removed educational projects such as books or learning materia
 downloaded for some reason.
 Then, they counted the number of \unsafe{} usages in each project using a parser to generate the abstract syntax tree
 (\acrshort{AST}).
-They find that \checkNum{24\%} of the studied projects use \unsafe{} code.
+They found that \checkNum{24\%} of the studied projects use \unsafe{} code.
 In contrast, the study presented in Chapter~\ref{ch:go-geiger} in this thesis finds that \percentageUnsafeProjects{}
 use \unsafe{}.
 This difference is partly due to the different choice of projects, which was verified by comparing the set of analyzed
@@ -94,7 +94,7 @@ their concordance in the third column.
 
 \checkNum{Three} of the labels were exact matches of the label provided by~\cite{costa2020} and one of the two labels
 assigned to the sample in the data set presented in this thesis.
-The second label is lost because~\cite{costa2020} only did a one-dimensional labeling.
+The second label is lost, because~\cite{costa2020} only did a one-dimensional labeling.
 For the remaining \checkNum{two} samples, the labels did not match, however my labels are more fine-grained with respect
 to the specific line of code.
 The labels assigned by~\cite{costa2020} are appropriate for their scope, which is the complete file containing the line
@@ -144,6 +144,7 @@ skipping the execution of \unsafe{} code.
 The authors note that it is very dangerous to have hidden \unsafe{} code in regular functions, which can be called from
 safe Rust code, because developers often need to make sure that the input data is in a proper state, which is not
 immediately obvious.
+
 Furthermore, Almohri et al.~\cite{almohri2018} presented a system to ensure memory safety while executing \unsafe{} code
 in Rust by limiting access to the program's memory during the times \unsafe{} functions run.
 This is done by splitting the memory address space into regions with different trust levels and, thus, creates a sandbox
@@ -175,8 +176,8 @@ safety~\cite{szekeres2013,alnaeli2017,larochelle2001}.
 There has been a lot of previous research on security vulnerabilities in Go programs that are not related to the
 \unsafe{} \acrshort{API}~\cite{zhou2017, hill2002, hannan1998, choi1999}.
 One of the features Go is most known for is its excellent support for concurrent program execution~\cite{donovan2015}.
-To synchronize concurrent threads, it offers both message passing through channels and exclusive memory access by using
-mutually exclusive locking of variables through mutexes.
+To synchronize concurrent threads, it offers both message passing through channels and coordinating memory access by
+using mutually exclusive locking of variables through mutexes.
 Tu et al.~\cite{tu2019} presented a study of about \checkNum{170} concurrency-related bugs in \checkNum{six} open-source
 Go applications.
 To do this, they identified commits that are related to fixing such bugs by searching the project history for related
@@ -210,15 +211,15 @@ The transpiler checks whether there is any possible concurrent access to that va
 be possible to allocate it on the stack of the calling function instead.
 To achieve this, the reference passed to the function is converted into a \textit{uintptr} value and back to a reference
 to break the connection between the values as seen by the escape analysis on purpose.
-Doing this can improve heap usage because some values are not unnecessarily allocated there.
+Doing this can improve heap usage, because some values are not unnecessarily allocated there.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Static and Dynamic Code Analysis}\label{sec:related-work:static-code-analysis}
 
-Previous work has presented static code analysis tools that are designed with a focus on security vulnerabilities in
-mind, similar to the \toolSafer{} linter introduced in this work.
+Previous work presented static code analysis tools that are designed with a focus on security vulnerabilities in mind,
+similar to the \toolSafer{} linter introduced in this work.
 For Android projects built in Java, there is \toolCryptolint{}~\cite{egele2013}.
 It is a static analysis tool that detects misuses of cryptographic \acrshort{API}s in Android apps, such as the use of
 the electronic code book (\acrshort{ECB}) cipher mode.
@@ -270,7 +271,7 @@ contextualizing warning messages to the concrete incorrect code, such as includi
 Concerning the dependencies or imports of projects, previous work has analyzed different aspects.
 Pashchenko et al.~\cite{pashchenko2018} discussed how to focus on the most important dependencies when looking for
 security vulnerabilities.
-The study is done for Java, specifically for the Maven dependency management system.
+The study was done for Java, specifically for the Maven dependency management system.
 A central point is to distinguish the different scopes for testing and production, as vulnerabilities that exist in
 dependencies that are only relevant for testing have less impact.
 This is because they are not shipped to customers as part of the final product, and therefore do not run on actual
@@ -278,15 +279,15 @@ production systems.
 The authors did not claim that security vulnerabilities in such libraries are unimportant, but when companies have a
 limited budget of development resources to spend on auditing dependencies, it is a good choice to focus on the libraries
 with the most customer-facing impact.
-The study finds that in the analyzed Java projects, about \checkNum{20\%} of dependencies are required for development
+The study found that in the analyzed Java projects, about \checkNum{20\%} of dependencies are required for development
 and testing purposes only.
 The Go module system, which compared to Maven is very new and only recently reached a stable version, does not have a
 distinction between development and production dependencies.
 Therefore, it is not possible to account for this difference in the study presented in this thesis.
-Pashchenko et al. also propose an algorithm of deciding whether a dependency is still actively maintained, or has been
+Pashchenko et al. also proposed an algorithm for deciding whether a dependency is still actively maintained, or has been
 abandoned.
-They find few vulnerabilities in libraries that are no longer maintained, however those have a big impact because there
-are no updates to fix them.
+They found few vulnerabilities in libraries that are no longer maintained, however those have a big impact, because
+there are no updates to fix them.
 Therefore, it is important to replace such dependencies with actively supported alternatives.
 
 A study by Watanabe et al.~\cite{watanabe2017} analyzed the origins of vulnerabilities in mobile applications available

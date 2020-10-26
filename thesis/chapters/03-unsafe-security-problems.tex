@@ -78,7 +78,7 @@ First, the string is converted into the \textit{reflect.StringHeader} representa
 Then, a slice header is created as a composite literal and the reference to the underlying data array and length
 information are copied from the string header (Lines~3--7).
 The capacity is set to the same value as the length, as it would be in a slice that uses the full capacity.
-Finally, the slice header is converted into an actual \textit{[]byte} slice which is returned (Line~8).
+Finally, the slice header is converted into an actual \textit{[]byte} slice, which is returned (Line~8).
 
 There are three non-obvious but potentially dangerous problems that come with this type of slice creation, which are
 described in the following subsections.
@@ -95,8 +95,8 @@ If a developer writes code that changes parts of a string in-place, the compiler
 prevent the possible segmentation fault.
 
 The slice returned by the \textit{StringToBytes} function in Listing~\ref{lst:string-to-bytes} is mutable.
-Code that changes the resulting slice will be accepted by the compiler because it is not able to infer its connection to
-a former string.
+Code that changes the resulting slice will be accepted by the compiler, because it is not able to infer its connection
+to a former string.
 However, since the slice uses the same underlying data array as the original string used to do, the data is still
 potentially located within read-only memory, and modifying it will crash the program.
 It is only implicitly read-only, but the runtime is not aware of it.
@@ -128,7 +128,7 @@ operation.
 If the \textit{GC} runs while the pointer has not been constructed, it does not mark the value at the address
 stored in the \textit{uintptr} value as live and thus frees the memory.
 Creating an \textit{unsafe.Pointer} from this address therefore creates a potentially dangling pointer, because it
-points to memory that has been freed.
+points to memory that might have been freed.
 This is a \textit{use-after-free} bug.
 
 Listing~\ref{lst:string-to-bytes} contains this bug.
@@ -209,11 +209,11 @@ function.
 The \textit{EA} algorithm fails to detect that there is a reference to the string \textit{s} in the \textit{out}
 variable, which obviously escapes as it is returned.
 
-Printing the \textit{out} slice in Line~15 works because the stack of the \textit{GetBytes} function still exists at
+Printing the \textit{out} slice in Line~14 works, because the stack of the \textit{GetBytes} function still exists at
 this point.
 However, when the function returns, the stack frame is removed, and \textit{bytesResult} in Line~2 becomes a dangling
 pointer into the former stack of \textit{GetBytes}.
-This is a \textit{use-after-free} bug because that memory can and probably will be reused at that point.
+This is a \textit{use-after-free} bug, because that memory can and probably will be reused at that point.
 The print statement in Line~5 outputs invalid data for this reason.
 If the \textit{main} function would modify the contents of the \textit{bytesResult} slice, it would change arbitrary
 memory, with possible consequences such as information leaks or code injection.

@@ -37,7 +37,7 @@ cast to an \unsafe{} pointer and then to a value of type \textit{int} (Line~4).
 Since the \unsafe{} conversion rules only allow arbitrary casts between any pointer type, \textit{x} is first converted
 into a pointer value and the resulting \textit{int} pointer is dereferenced before returning the final value.
 This conversion yields the raw bits of the floating point value stored using the IEEE 754 format~\cite{ieee754}.
-It would be impossible using the normal Go conversion rules because \textit{float32} and \textit{int} are incompatible
+It would be impossible using the normal Go conversion rules, because \textit{float32} and \textit{int} are incompatible
 types.
 The \textit{secondByte} function (Lines~7--9) shows how pointer arithmetic is used to manually iterate over an array
 type.
@@ -81,7 +81,7 @@ The length of a string is always the number of bytes needed to store its encoded
 the number of characters in the string.
 Strings are immutable, because string literals are placed in a constant data section of the binary when the code is
 compiled.
-This means that they are usually located within a read-only memory page at runtime and mutating them would cause
+This means that they are usually located within a read-only memory page at runtime, and mutating them would cause
 the program to receive a segmentation fault signal and crash.
 Since strings can not be changed, there is no need to have a capacity that is different from the length, therefore there
 is no capacity information available for strings.
@@ -308,7 +308,7 @@ Data execution prevention (\acrshort{DEP}) is a mitigation technique to prevent 
 stack~\cite{gao2013}.
 With \acrshort{DEP}, memory pages can either be executable or writable, but not both.
 Pages that contain the stack are marked as non-executable.
-This achieves improved security because an attacker can not simply write code to the stack using a buffer overflow as
+This achieves improved security, because an attacker can not simply write code to the stack using a buffer overflow as
 described in the previous section and execute it.
 Modern operating systems use \acrshort{DEP} by default~\cite{davi2011}.
 
@@ -322,7 +322,7 @@ not writable) memory pages.
 However, this can be mitigated using Address Space Layout Randomization (\acrshort{ASLR}).
 This technique loads dynamically-linked libraries into random memory positions to avoid having predictable function
 addresses~\cite{marco2014}.
-Thus, attackers can not use code that is part of standard libraries as a target of control flow redirection because
+Thus, attackers can not use code that is part of standard libraries as a target of control flow redirection, because
 they can not know the exact address of the desired function.
 \acrshort{ASLR} does however not apply to statically-linked code, which the Go compiler mostly creates.
 
@@ -334,12 +334,12 @@ they can not know the exact address of the desired function.
 Return-oriented programming (\acrshort{ROP}) is a specific technique for reusing code.
 It suggests jumping to very small so-called gadgets, which are sequences of two or a few more machine instructions that
 do not modify the stack pointer register and end with a return instruction~\cite{roemer2012}.
-With these properties, gadgets can be chained because after the execution of a fragment the return instruction fetches
+With these properties, gadgets can be chained, because after the execution of a fragment the return instruction fetches
 the next address to jump to from the stack, which an attacker can control when they exploit a buffer overflow
 vulnerability.
 Depending on the available \acrshort{ROP} gadgets, the attacker can concatenate them and write a program with a limited
 set of assembler instructions available.
-Often, there are enough gadgets present in the program code to form a set that together is Turing-complete, thus
+Often, there are enough gadgets present in the program code to form a set that together is Turing-complete, thus,
 arbitrary behavior can be induced from it.
 The Go standard library is very large and provides many available gadgets.
 This could make exploiting a buffer overflow, once it exists in a Go program, even easier than in a C program, where an
@@ -371,7 +371,7 @@ packages using the \textit{go get} command, which can fetch packages using the w
 other means.
 In this case, the import path usually begins with a \acrshort{DNS} host name such as \textit{github.com}, which hosts
 the package code.
-This host part is called \textit{registry}.
+This part is called \textit{registry}.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
@@ -479,8 +479,7 @@ source code.
 
 \subsection{Control Flow Graph (CFG)}\label{subsec:background:static-code-analysis:cfg}
 
-In contrast, the control flow graph (\acrshort{CFG}) is not purely based on syntax, but needs semantic analysis to be
-constructed.
+The control flow graph (\acrshort{CFG}) is not purely based on syntax, but needs semantic analysis to be constructed.
 It is a directed graph showing possible execution paths through code segments.
 It can contain cycles and is not necessarily connected (neither strongly nor weakly).
 Nodes in the control flow graph denote logical pieces of the source code in the sense that they form a unit of
@@ -497,7 +496,7 @@ It shows the simple loop \textit{for x < 5 \{ x += 1 \}}.
 There are two logical steps of execution in this code example.
 After any previous code is executed and control flows to the \textit{for} loop, first the loop condition \textit{x < 5}
 is checked.
-There are two outgoing edges on the node because the condition can be either true or false.
+There are two outgoing edges on the node, because the condition can be either true or false.
 If it is true, control flows to the assignment node representing the \textit{x += 1} statement.
 That node has an edge back to the loop condition node to check whether the loop should be run again.
 Otherwise, the code following behind the loop is executed.
@@ -507,7 +506,7 @@ connectivity component in the graph.
 Furthermore, it is possible to find control flow anomalies such as \textit{read-before-write} using node annotations,
 which indicate whether variables are read or assigned.
 This allows to detect that a variable is used before it is initialized.
-It is also useful to detect where a variable is assigned for the last time before a particular statement, thus what
+It is also useful to detect where a variable is assigned for the last time before a particular statement, thus, what
 value it has at the time of execution of that statement.
 
 

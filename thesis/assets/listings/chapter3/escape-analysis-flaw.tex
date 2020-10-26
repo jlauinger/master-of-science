@@ -1,7 +1,7 @@
 \begin{lstlisting}[float=tp, language=Golang, label=lst:escape-analysis-flaw, caption=Escape analysis flaw proof of concept]
 func main() {
     bytesResult := GetBytes()
-    // expected stdout is "abcdefgh
+    // expected stdout is "abcdefgh"
     // actual output is random invalid data
     fmt.Printf("main: %s\n", bytesResult)
 }

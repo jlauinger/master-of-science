@@ -39,8 +39,8 @@ analyzes accesses to fields of existing instances of these types, unless they ar
 string.
 If they are, then their \textit{Data} field is treated as a reference by the Go runtime, as described in
 Section~\ref{sec:background:slices}.
-If the slice or string header types are renamed to a different type name in the source code, field accesses and
-composite literals of the new type name are recognized just like the original types.
+Furthermore, if the slice or string header types are renamed to a different type name in the source code, field accesses
+and composite literals of the new type name are recognized just like the original types.
 
 The second misuse that \toolSafer{} detects is a direct conversion between struct types containing incompatible types
 with architecture-dependent sizes or alignments as described in
@@ -260,8 +260,8 @@ Similar to Section~\ref{subsec:go-safer:evaluation:labeled-usages}, the warnings
 
 Table~\ref{tbl:go-safer-evaluation-packages} shows the results of the evaluation for each package individually as well
 as in total.
-The numbers for \toolSafer{} are in the first column for each value (tool~\textit{a}), while the other two columns are
-discussed in the following section for a comparison to existing linters again.
+The numbers for \toolSafer{} are in the first column for each value, while the other two columns are discussed in the
+following section for a comparison to existing linters again.
 In this second evaluation, \toolSafer{} demonstrates a slightly lower precision of \checkNum{83.1\%}, which means that
 about \checkNum{one} in \checkNum{six} warnings is a false positive.
 The recall however is at \checkNum{100\%}, still resulting in an excellent accuracy of \checkNum{99\%} and F1-score of
@@ -272,9 +272,9 @@ positive described in the previous section.
 A slice header is created from a real slice, but the slice is referenced through an obfuscated pointer.
 However, this time all of the occurrences of that pattern in the package are found.
 For the \textit{ebpf} package, the false positive is an exact match of the detection rules implemented by \toolSafer{},
-however in that particular case the usage is not vulnerable to the possible \textit{use-after-free} bug described before
-because a call to the \textit{runtime.KeepAlive} function prevents the underlying data array referenced in the created
-slice header from being freed when the garbage collector runs.
+however in that particular case the usage is not vulnerable to the possible \textit{use-after-free} bug described
+before, because a call to the \textit{runtime.KeepAlive} function prevents the underlying data array referenced in the
+created slice header from being freed when the garbage collector runs.
 Currently, \toolSafer{} does not detect this, which is a limitation of its rule set.
 
 \begin{hero}[Evaluation results on case study packages]
@@ -302,11 +302,11 @@ next to those of \toolSafer{}, in the remaining two rows and columns~\textit{b} 
 Both evaluations, on the labeled data set and \checkNum{six} manually analyzed packages, reveal that \toolVet{} did not
 generate any \unsafe{}-related warnings, while \toolGosec{} simply flagged all usages of \unsafe{} as potentially
 dangerous.
-The \toolGosec{} results contain some false negatives because there are lines of code in the evaluation data set that do
-not contain a direct call of a function belonging to the \unsafe{} package.
+The \toolGosec{} results contain some false negatives, because there are lines of code in the evaluation data set that
+do not contain a direct call of a function belonging to the \unsafe{} package.
 These are assignments to slice and string headers that are previously created, which are detected by \toolSafer{} but
 not \toolGosec{}.
-Similarly, there are no true positives for \toolGosec{} in Table~\ref{tbl:go-safer-evaluation-packages} because there
+Similarly, there are no true positives for \toolGosec{} in Table~\ref{tbl:go-safer-evaluation-packages}, because there
 are no positive samples in that evaluation set that contain a direct usage of \textit{unsafe.Pointer} in the offending
 line of code.
 
@@ -319,7 +319,7 @@ It also has a rather high precision and recall but this is simply the result of 
 the set.
 In the second evaluation on the \checkNum{six} packages, none of them achieves a defined and greater-than-zero precision
 or recall for either \toolVet{} or \toolGosec{}, because both tools do not report any true positives.
-However, \toolVet{} still gets a high accuracy of \checkNum{95.2\%} because this evaluation set contains a lot more
+However, \toolVet{} still gets a high accuracy of \checkNum{95.2\%}, because this evaluation set contains a lot more
 negative samples than positive ones.
 
 In summary, this comparison shows that neither \toolVet{} nor \toolGosec{} are suitable for the purpose that
@@ -343,5 +343,5 @@ Since \toolSafer{} is based on the analysis framework used by \toolVet{}, it cou
 future.
 
 An evaluation of \toolSafer{} showed that it can achieve more than \checkNum{95\%} accuracy.
-Its high precision means that there are few false positives which would need to be manually reviewed and dismissed.
+Its high precision means that there are few false positives, which would need to be manually reviewed and dismissed.
 Thus, it is a valuable tool for Go developers and security analysts.
