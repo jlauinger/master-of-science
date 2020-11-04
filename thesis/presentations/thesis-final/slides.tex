@@ -1,0 +1,142 @@
+\documentclass[
+	english,
+	color={accentcolor=9c},
+	logo=true,
+	colorframetitle=false
+]{../../styles/tuda-ci/tudabeamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{multicol}
+\usepackage[most]{tcolorbox}
+\usepackage{wasysym}
+
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+\title{Identification and Analysis of \textit{unsafe.Pointer}\\ Usage Patterns in Open-Source Go Code}
+\subtitle{Master Thesis Final Presentation\\ Johannes Lauinger}
+\author{Johannes Lauinger}
+\department{Computer Science Department}
+\institute{Software Technology Group}
+\date{11.11.2020}
+\logo*{\includegraphics{gfx/stg-logo}}
+
+\begin{document}
+
+	\maketitle
+
+	\begin{frame}
+		\frametitle{Outline}
+		\begin{itemize}
+			\setlength\itemsep{1em}
+			\item Motivation
+			\item Background
+			\item Security Analysis
+			\item Identification of \textit{unsafe}: \textit{go-geiger}
+			\item Detecting Misuses: \textit{go-safer}
+			\item Related Work
+			\item Discussion
+			\item Conclusion \& Future Work
+		\end{itemize}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Motivation}
+		\begin{itemize}
+			\setlength\itemsep{1em}
+			\item ...
+		\end{itemize}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Background}
+		\begin{centering}
+			Go unsafe API
+		\end{centering}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Security Analysis of \textit{unsafe}}
+		\begin{itemize}
+			\setlength\itemsep{1em}
+			\item ...
+		\end{itemize}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Counting \textit{unsafe}: \textit{go-geiger} tool}
+		\begin{itemize}
+			\setlength\itemsep{1em}
+			\item ...
+		\end{itemize}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Detecting \textit{unsafe} misuses: \textit{go-safer} tool}
+		\begin{itemize}
+			\setlength\itemsep{1em}
+			\item ...
+		\end{itemize}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Related Work}
+		\begin{itemize}
+			\setlength\itemsep{1em}
+			\item Costa et al. concurrent study~\cite{costa2020}
+		\end{itemize}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Discussion}
+		\begin{itemize}
+			\setlength\itemsep{1em}
+			\item ...
+		\end{itemize}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Conclusion}
+		\begin{itemize}
+			\setlength\itemsep{1em}
+			\item ...
+		\end{itemize}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Future Work}
+		\begin{itemize}
+			\setlength\itemsep{1em}
+			\item Quantifying efficiency improvements
+			\item Static verification
+		\end{itemize}
+	\end{frame}
+
+
+	\begin{frame}
+		\frametitle{Thank you for your attention!}
+		\begin{center}
+			\huge Questions and discussion\\
+			\vspace{0,6cm}
+			\includegraphics[height=4cm]{gfx/faq}
+		\end{center}
+	\end{frame}
+
+
+	\begin{frame}[allowframebreaks]
+		\frametitle{References}
+		\bibliographystyle{plain}
+		\bibliography{../../config/references,../../config/references-no-zotero}
+	\end{frame}
+
+\end{document}

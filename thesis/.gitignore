@@ -24,9 +24,13 @@
 *.glg
 *.gls
 *.glsdefs
+*.len
+*.nav
+*.snm
 *.mw
 /*.pdf
 paper/*.pdf
+slides/*/*.pdf
 output/
 
 
