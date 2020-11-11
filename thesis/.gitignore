@@ -30,7 +30,6 @@
 *.mw
 /*.pdf
 paper/*.pdf
-presentations/*/*.pdf
 output/
 
 
