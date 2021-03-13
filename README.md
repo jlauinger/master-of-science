@@ -1,5 +1,6 @@
 # Identification and Analysis of unsafe.Pointer Usage Patterns in Open-Source Go Code
 
+It's dangerous to Go alone. Take \*this!  
 Master Thesis by Johannes Lauinger
 
 Submitted: October 26th, 2020
@@ -14,11 +15,9 @@ Technische Universität Darmstadt
 
 ## Citation
 
-Cite this work as follows:
+**Master Thesis:**
 
- - Lauinger, Johannes Tobias. "Identification and Analysis of unsafe.Pointer Usage Patterns in Open-Source Go Code." M.Sc. Thesis. Technische Universität Darmstadt, 2020.
-
-BibTex:
+Lauinger, Johannes Tobias. "Identification and Analysis of unsafe.Pointer Usage Patterns in Open-Source Go Code." M.Sc. Thesis. Technische Universität Darmstadt, 2020.
 
 ```latex
 @mastersthesis{lauinger2020,
@@ -27,6 +26,22 @@ BibTex:
     title   = {Identification and Analysis of unsafe.Pointer Usage Patterns in Open-Source Go Code},
     school  = {Technische Universität Darmstadt},
     year    = {2020}
+}
+```
+
+**Paper:**
+
+Johannes Lauinger, Lars Baumgärtner, Anna-Katharina Wickert, and Mira Mezini. "Uncovering the Hidden Dangers: Finding Unsafe Go Code in the Wild." In *19th IEEE International Conference on Trust, Security and Privacy in Computing and Communications, TrustCom 2020, Gouangzhou, China, December 29, 2020 - January 1, 2021*. IEEE, 2021.
+
+```latex
+@inproceedings{lauinger2020,
+    author={Lauinger, Johannes and Baumgärtner, Lars and Wickert, Anna-Katharina and Mezini, Mira},
+    title={{Uncovering the Hidden Dangers}: {Finding Unsafe Go Code in the Wild}},
+    booktitle={19th {IEEE} International Conference on Trust, Security and Privacy
+               in Computing and Communications, TrustCom 2020, Guangzhou,
+               China, December 29, 2020 -- January 1, 2021},
+    publisher={{IEEE}},
+    year={2021}
 }
 ```
 
@@ -64,6 +79,40 @@ inspected open-source Go packages.
 
 
 ## Zusammenfassung
+
+Ein Jahrzehnt nach der ersten veröffentlichten Version ist die Programmiersprache Go heute eine
+beliebte und weit verbreitete, moderne Sprache. Sie strebt Speicher- und Threadsicherheit durch
+Maßnahmen wie ein striktes Typsystem und automatische Speicherverwaltung, die ungültige
+Speicherzugriffe verhindert, an. Es gibt allerdings ebenfalls das unsafe Package, eine API, die
+es Entwickler\*innen erlaubt, diese Maßnahmen zu umgehen. In manchen Fällen kann dies
+gerechtfertigt sein, beispielsweise bei der Konvertierung von Daten in einen anderen Typ, ohne
+diese im Speicher zu kopieren, um so die Effizienz des Programms zu steigern, oder um externen
+C Code über das Foreign Function Interface zu nutzen.
+
+Eine falsche Benutzung der unsafe API kann jedoch zu Sicherheitsproblemen wie Buffer Overflows
+und Use-After-Frees führen. Diese Arbeit analysiert Verwendungsmuster von unsafe Code im
+Hinblick auf Sicherheitsrisiken. Dabei werden mögliche Code Injection und Information Leak
+Verwundbarkeiten sowohl in Proof-of-Concepts als auch in realem Anwendungscode zu Tage
+gebracht.
+
+Um die Risiken durch unsafe Code in Anwendungen abzuschätzen, stellt diese Arbeit go-geiger
+vor. Es handelt sich dabei um ein neues Werkzeug, das Entwickler\*innen dabei hilft, unsafe
+Nutzungen in Projekten und deren Abhängigkeiten zu finden. Mit go-geiger wird eine Studie zur
+Nutzung von unsafe in den 500 beliebtesten Open-Source Go Projekten auf GitHub durchgeführt,
+inklusive einer manuellen Analyse von 1,400 individuellen Codestücken in Bezug darauf wie
+und zu welchem Zweck unsafe benutzt wird. Die Studie zeigt, dass 5.5% der Packages, die von
+Projekten importiert werden, welche das Go Modules System unterstützen, unsafe verwenden.
+Darüber hinaus nutzen 38.19% der Projekte unsafe direkt, und 90.96% enthalten unsafe Code
+durch ihre Abhängigkeiten. Eine Replikation sowie ein Vergleich mit einer zeitgleichen Studie
+von Costa et al. [10] bestätigt diese Ergebnisse.
+
+Weiterhin präsentiert diese Arbeit go-safer, ein neues statisches Analysewerkzeug, das Entwickler\*innen
+hilft, zwei gefährliche und häufig vorkommende inkorrekte Verwendungen der unsafe API, die mit
+bisher existierenden Tools nicht gefunden werden, zu identifizieren. Mittels go-safer
+konnten 64 Fehler in realem Code gefunden und entsprechende Patches eingereicht werden, die
+von den Maintainern bestätigt wurden. Eine Evaluation des Tool ergibt eine Accuracy von 95.5%
+auf dem Datensatz von unsafe Codezeilen, und 99% Genauigkeit auf händisch analysierten
+Open-Source Go Packages.
 
 
 ## License
